@@ -1,0 +1,573 @@
+\documentclass[12pt, a4paper]{article}
+
+% --- IMPOSTAZIONI DI BASE E LINGUA ---
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[italian]{babel}
+\usepackage[none]{hyphenat}
+\usepackage[margin=2cm]{geometry}
+
+% --- MATEMATICA E FORMATTAZIONE ---
+\usepackage{amsmath}
+\usepackage{amssymb} % Aggiunto per i simboli come i numeri reali \mathbb{R}
+
+% --- IMMAGINI, GRAFICA E COLORI ---
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{xcolor} % Caricato PRIMA di tikz
+
+% --- DISEGNO GRAFICI E POLIEDRI (TIKZ / PGFPLOTS) ---
+\usepackage{tikz}
+\usetikzlibrary{arrows}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.15} % Usiamo la 1.15 per massima stabilità
+\usepgfplotslibrary{fillbetween}
+
+% --- COLORI PERSONALIZZATI (Stile GeoGebra) ---
+\definecolor{myblue}{rgb}{0,0,1}
+\definecolor{myred}{rgb}{1,0,0}
+\definecolor{mygreen}{rgb}{0,0.5,0}
+
+% --- LINK IPERTESTUALI ---
+\usepackage{hyperref} % hyperref va sempre caricato per ultimo!
+
+\begin{document}
+	\title{\textbf{Ricerca Operativa}}
+	\author{\textbf{Andrea Salvatore}}
+	\date{Anno accademico: 2026/2027}
+	\maketitle
+	
+	I miei contatti:
+	\begin{itemize}
+		\item \textbf{GitHub}: \href{https://github.com/andrea-salvatore}{andrea-salvatore}
+		\item \textbf{Website}: \href{https://andreasalvatore.dev/}{andreasalvatore.dev}
+		\item \textbf{Cellulare}: +39 3703116443
+		\item \textbf{E-mail}:
+		\begin{itemize}
+			\item Personale: asalvatore.junior@gmail.com
+			\item Lavorativa: ajs.sdk.mt@gmail.com
+			\item Istituzionale: a.salvatore9@studenti.unipi.it
+		\end{itemize}
+	\end{itemize}
+	\vspace{1cm}
+	
+	L'intento di questo file è contenere le lezioni del prof. Massimo Pappalardo in ordine strettamente cronologico seguendo, dunque, le lezioni dell'anno accademico citato sopra.
+	
+	\noindent\rule{\textwidth}{0.4pt}
+
+	\section*{Contenuto del corso}
+	\begin{itemize}
+		\item Programmazione Lineare (PL)
+		\begin{itemize}
+			\item Requisito: Algebra Lineare
+		\end{itemize}
+		\item Programmazione Lineare Intera (PLI)
+		\begin{itemize}
+			\item Requisito: Algebra Lineare
+		\end{itemize}
+		\item Programmazione Lineare su Reti (PL su Reti)
+		\begin{itemize}
+			\item Requisito: Algebra Lineare
+		\end{itemize}
+		\item Programmazione Non Lineare (PNL)
+		\begin{itemize}
+			\item Requisito: Analisi Matematica 2
+		\end{itemize}
+	\end{itemize}
+	
+	Libro di testo consigliato: \textbf{\textit{Ricerca Operativa}}\\
+	Autori: \underline{Massimo Pappalardo} e \underline{Mauro Passacantando}
+	\begin{figure}[H]
+		\centering
+		\includegraphics[scale = 1]{/home/ajs/Immagini/ro_libro.jpg}
+		\caption{Libro di Ricerca Operativa del prof. Massimo Pappalardo}
+		\label{fig:mio_grafico}
+	\end{figure}
+	
+	\noindent\rule{\textwidth}{0.4pt}\\
+	
+	\textit{\textbf{Questa lezione, come le sue precedenti e successive, può contenere errori e/o imprecisioni. Per il bene di tutti, è buona norma far notare all'autore l'errore o l'imprecisione così da risolvere nel minor tempo possibile. I canali di comunicazione, per eventuali avvisi generali o di errori trovati negli appunti, sono in cima al file. Grazie per la collaborazione e Buono studio!}}
+		
+	\section*{Lezione 1 | 21 settembre 2026} % Usato section* invece di andare a capo a mano
+	\subsection*{Introduzione alla PL | Problema di produzione} % Usato subsection* invece di \title
+	
+	\textbf{Definizione di \underline{Problema di Programmazione Lineare}}:\\
+	\textit{Si definisce tale un problema di minimo e massimo di una funzione lineare soggetta a vincoli lineari di $\leq$, $\geq$ o $=$. Un problema è Lineare se i suoi vincoli e la Funzione Obiettivo sono di primo grado}.\\
+	\underline{Attenzione!!!} Scopriremo nella \textit{Lezione 2} che il $<$ e il $>$ non sono accettati perché la soluzione ottima del problema di PL è sempre sul bordo del Poliedro.\\
+	
+	Ipotizziamo un problema di questo tipo\\\\
+	\begin{tabular}{|c|c|c|c|}
+		\hline
+		\textbf{Kg/Unità} & \textbf{Travi Reticolari} & \textbf{Pilastri Composti} & \textbf{Disponibilità} \\
+		\hline
+		\textbf{Acciaio} & 20 & 10 & 950\\
+		\hline
+		\textbf{Lavorazione} & 2 & 3 & 120\\
+		\hline
+		\textbf{Collaudo e verniciatura} & 1 & 2 & 70\\
+		\hline
+	\end{tabular}\\\\\\
+	Questa tabella indica le colonne come il bene da produrre (con le disponibilità finali) e le righe come le risorse da usare.\\\\
+	Questo si chiama, appunto, "Problema di produzione" perché riguarda la realizzazione di un modello matematico applicato a lavori di produzione che hanno determinati vincoli. I medesimi vincoli si rappresentano attraverso un sistema che per la PL si chiama \textit{Formato Primale Standard} e si rappresenta così:
+	\[
+	\begin{aligned}
+		& \begin{cases}
+			\min/\max c^Tx\\
+			Ax \leq b\\
+			x \geq 0
+		\end{cases}
+	\end{aligned}
+	\]
+	\begin{itemize}
+		\item $\boldsymbol{\min/\max c^Tx}$ $\rightarrow$ è la Funzione Obiettivo (FO) che ci indica cosa vogliamo minimizzare o massimizzare. È compreso in $R^n$ perché contiene solo il numero $n$ delle variabili del problema.
+		\item $\boldsymbol{Ax \leq b}$ $\downarrow$
+		\begin{itemize}
+			\item \textbf{A} $\rightarrow$ è la Matrice che contiene i coefficienti del problema ed è compresa in $R^{m*n}$ con \textit{m} che indica il numero di vincoli del nostro problema e \textit{n} che indica il numero di variabili.
+			\item \textbf{b} $\rightarrow$ è il vettore colonna che contiene i valori di $\leq$ associati rispettivamente al proprio vincolo. È compreso in $R^m$ perché contiene solo i valori a destra del $\leq$.
+		\end{itemize}
+		\item $\boldsymbol{x \geq 0}$ $\rightarrow$ Vincolo che ci indica il valore minimo di x dato che, in una situazione reale, non potremmo avere -10 travi reticolari, ad esempio. Serve per avere risultati realistici dato che il modello matematico considera \underline{SOLO} la matematica e non la realtà delle cose.
+		\begin{itemize}
+			\item $\boldsymbol{x_1}$ $\rightarrow$ Travi reticolari.
+			\item $\boldsymbol{x_2}$ $\rightarrow$ Pilastri composti.
+		\end{itemize}
+	\end{itemize}
+	Pappalardo ribadisce quanto sia importante la rappresentazione dei valori da dare al MATLAB per poter svolgere i calcoli (e farli svolgere al sistema) nella maniera corretta. Ad esempio, se avessimo 7 vincoli e 3 variabili, il numero totale di valori da dare al sistema sarà 31 perché:\\
+	$\boldsymbol{(7 * 3) + 3 + 7 = 31}$\\
+	Questi sono tutti i valori che fornirò al MATLAB per trovare l'ottimo, in particolare quei numeri si riferiscono a:
+	\begin{itemize}
+		\item $(7*3) \rightarrow$ che sarebbe la Matrice $A$.
+		\item $+ 3 \rightarrow$ sommo il numero di variabili della 
+		FO.
+		\item $+ 7 \rightarrow$ sommo il numero dei risultati di ogni vincolo. Se abbiamo 7 vincoli di $\leq$, allora avrò 7 valori a destra del $\leq$, che quindi rappresentano il valore del vettore colonna $b$
+	\end{itemize}
+	
+	L'esempio che possiamo fare riguarda l'esercizio della tabella precedente $\downarrow$
+	
+	\[ 
+	\begin{aligned}
+		\text{Problema in 2 Variabili $\rightarrow$ ($R^2$)}
+		& \begin{cases}
+			\max 300x_1 + 200x_2\\
+			20x_1 + 10x_2 \leq 950\\
+			2x_1 + 3x_2 \leq 120\\
+			x_1 + 2x_2 \leq 70\\
+			x_{1/2} \geq 0
+		\end{cases}
+	\end{aligned}
+	\]
+	
+	Questa tipologia di problemi di ricerca operativa si definiscono come:
+	
+	\begin{itemize}
+		\item \textbf{Ottimizzazione}: Nel caso del problema citato sopra, parliamo dell'ottimizzazione dei \textit{Guadagni} e la minimizzazione dei \textit{Costi}.
+		\item \textbf{Risorse limitate}: Vincoli del problema. \textit{$Lineare = Proporzionale$}.
+		\item \textbf{Variabili decisionali}: Trasformare il problema concreto in un modello matematico come mostrato prima.
+		\begin{itemize}
+			\item A seconda del problema si può intuire la correttezza del risultato ottenuto dal modello realizzato. Se il problema trattasse la produzione di indumenti come cappotti, pantaloni, e quant'altro, sappiamo che una soluzione ottima come $47,5$ non potrebbe mai essere corretta dato che non puoi produrre mezzo pantalone o mezzo cappotto, dunque, è corretto accettare valori come $47$ dato che è il valore intero più grande vicino alla soluzione ottima, ma se invece si sta parlando di liquidi, o in generale grammi o chilogrammi, allora il valore con la virgola esprime una quantità generica (e non un'unità come un pantalone appunto) e quindi $47,5$ sarebbe accettato.
+		\end{itemize}
+	\end{itemize}
+	
+	\underline{Piccola nota}: l'ultima riga dei vincoli del modello scritto qui su, quindi, "$x_{1/2} \geq 0$", in realtà rappresenta un modo veloce di scrivere:
+	
+	 \[
+	 \begin{aligned}
+	 	\begin{cases}
+	 		x_1 + 0x_2 \geq 0\\
+	 		0x_1 + x_2 \geq 0
+	 	\end{cases}
+	 \end{aligned}
+	 \]
+	Che è invece il modo corretto, considerando che poi le x diventeranno negative per cambiare il segno da $\geq$ a $\leq$, in questo modo diventa:
+	\[
+	\begin{aligned}
+		\begin{cases}
+			-x_1 + 0x_2 \leq 0\\
+			0x_1 -x_2 \leq 0
+		\end{cases}
+	\end{aligned}
+	\]
+	Reputo importante saperlo perché questi valori fanno parte della matrice A spiegata in precedenza.
+	\vspace{0.5cm}
+	
+	Attraverso il modello matematico che realizziamo, otteniamo dei risultati che, a seconda del valore stesso di questi risultati, possono essere:
+	
+	\begin{itemize}
+		\item 	\textbf{Soluzione Ammissibile}: soluzione che rispetta tutti i vincoli del modello.
+		\item \textbf{Soluzione Ottima}: La soluzione migliore possibile massima/minima che rispetta i vincoli.
+	\end{itemize}
+	
+	\vspace{1cm}
+	
+	\textbf{Esercizio 1}\\
+	\[
+	\begin{aligned}
+		\textbf{Problema in $\boldsymbol{R^3}$}
+		\begin{cases}
+			\max x_1 - 2x_2 + 3x_3\\
+			6x_1 - 7x_2 \leq 9\\
+			x_1 + 4x_2 + 5x_3 \geq 8
+		\end{cases}
+	\end{aligned}
+	\]
+	Domanda: è nella forma Primale Standard? No perché il secondo vincolo è di $\geq$ e va trasformato in $leq$ invertendo la funzione. Dunque, per portarlo in formato Primale Standard, devo:
+	\[
+	\begin{aligned}
+		\begin{cases}
+			\max x_1 - 2x_2 + 3x_3\\
+			6x_1 - 7x_2 \leq 9\\
+			\boldsymbol{-x_1 - 4x_2 - 5x_3 \leq -8}
+		\end{cases}
+	\end{aligned}
+	\]
+	
+	\vspace{1cm}
+	
+	La funzione di MATLAB che usiamo per i problemi di PL (e poi anche di PLI e PL su Reti quando arriverà il loro monento) è \textbf{\underline{limprog}} che accetta valori in questo modo:\\\\ \textit{\textbf{linprog(c, A, b, Aeq, beq, lb, ub)}}\\\\
+	dove \textit{Aeq} e \textit{beq} valgono 0 per i problemi di PL, dato che si usano in PLI, e poi, come detto in precedenza, abbiamo \textit{lb} che rappresenta il minimo valore che le x possono assumere e \textit{ub} che rappresenta il massimo valore che le x possono assumere. Le altre variabili non citate qui sono state spiegate in precedenza.
+	
+	\vspace{1cm}
+	
+	\textbf{IMPORTANTE!!!} \textit{linprog} cerca solo i massimi. Matematicamente sappiamo però che il massimo di una funzione è come fare il minimo della sua opposta:
+	
+	\textit{$\boldsymbol{f(x) = - f(x) \rightarrow}$}
+	\underline{Ed è fondamentale da sapere!}\\
+	Questo ci permette, dunque, di dire che moltiplicando le funzioni per -1 otteniamo:
+	\begin{itemize}
+		\item $\min \Leftrightarrow \max$
+		\item $\leq \Leftrightarrow \geq$
+	\end{itemize}
+	Fine \textit{Lezione 1}
+	
+	\noindent\rule{\textwidth}{0.4pt}\\
+	
+	\textit{\textbf{Questa lezione, come le sue precedenti e successive, può contenere errori e/o imprecisioni. Per il bene di tutti, è buona norma far notare all'autore l'errore o l'imprecisione così da risolvere nel minor tempo possibile. I canali di comunicazione, per eventuali avvisi generali o di errori trovati negli appunti, sono in cima al file. Grazie per la collaborazione e Buono studio!}}
+	
+	\section*{Lezione 2 | 22 settembre 2026}
+	\subsection*{Continuazione del problema di produzione e introduzione del problema di assegnamento}
+	
+	Riprendendo da dove abbiamo lasciato: Se in un problema di PL ci trovassimo un vincolo con $=$, come si gestisce? Domanda che nasce sempre dal fatto che \textit{linprog} risolve solo problemi col $\leq$.\\
+	Matematicamente, una funzione con $=$ si può rappresentare come la stessa funzione scritta due volte dove però la prima volta la poni con $\leq$ e la seconda con il $\geq$ che diventa nuovamente di $\leq$ sempre per le proprietà che abbiamo già spiegato.
+	Un banale esempio potrebbe essere la funzione $\boldsymbol{5x_1 + 4x_2 = 6}$:
+	
+	\[
+	\begin{aligned}
+		\begin{cases}
+			5x_1 + 4x_2 \leq 6\\
+			5x_1 + 4x_2 \geq 6
+		\end{cases}
+	\end{aligned}
+	\]
+	e quindi...
+	\[
+	\begin{aligned}
+		\begin{cases}
+			5x_1 + 4x_2 \leq 6\\
+			-5x_1 - 4x_2 \leq 6
+		\end{cases}
+	\end{aligned}
+	\]
+	Risolvendo così il problema dei vincoli di uguale ($=$) nei problemi di PL.\\
+	
+	In seguito vedremo il caso in cui si passa da $\leq$ a $=$ introducendo la variabile di \textit{Slack} (o Scarto).\\
+	\textit{$\boldsymbol{f(x) \leq k \rightarrow f(x) + s = k}$}\\
+	Ma si vedrà in seguito.
+	
+	\vspace{1cm}
+		
+	La risoluzione geometrica di un problema di PL richiede la conoscenza di questi 3 punti facenti parte del corso di \underline{Matematica 0}:
+	\begin{itemize}
+		\item Un $=$ nel piano rappresenta una Retta.
+		\item Un $\leq$ nel piano rappresenta un semipiano inferiore.
+		\item Un $\geq$ nel piano rappresenta un semipiano superiore.
+	\end{itemize}
+	Ricordiamo che all'esame si può usare tutto affinché \textbf{non} si usi la connessione internet, dunque, è possibile usare anche \textbf{\textit{GeoGebra}} che nel caso di questo corso è estremamente utile per la visualizzazione grafica del nostro modello matematico.\\
+	
+	Geometricamente, il grafico del problema affrontato precedentemente è questo:
+	
+	\begin{figure}[h]
+		\centering
+		\begin{tikzpicture}[line cap=round,line join=round]
+			\begin{axis}[
+				width=12cm,
+				height=12cm,
+				axis lines=middle,
+				ymajorgrids=true,
+				xmajorgrids=true,
+				% ZOOM IMPOSTATO QUI
+				xmin=-50,
+				xmax=200,
+				ymin=-50,
+				ymax=200,
+				xtick={0, 50, 100, 150},
+				ytick={0, 50, 100, 150},
+				xlabel = {$x_1$},
+				ylabel = {$x_2$},
+				]
+				
+				% Riquadro di clip allineato allo zoom
+				\clip(-50,-50) rectangle (200,200);
+				
+				% VINCOLO 1 (Blu)
+				\draw[line width=2pt, color=myblue, fill=myblue, fill opacity=0.15] 
+				(-155.24,402.33)--(-396.58,402.33)--(-396.58,-427.61)--(262.88,-427.61)--(-155.24,402.33);
+				
+				% VINCOLO 2 (Rosso)
+				\draw[line width=2pt, color=myred, fill=myred, fill opacity=0.15] 
+				(-399.74,306.49)--(-396.58,-427.61)--(706.14,-427.61)--(-399.74,306.49);
+				
+				% VINCOLO 3 (Verde)
+				\draw[line width=2pt, color=mygreen, fill=mygreen, fill opacity=0.15] 
+				(-399.74,234.87)--(-396.58,-427.61)--(931.53,-427.61)--(-399.74,234.87);
+				
+				% VINCOLO DI NON NEGATIVITÀ x1 >= 0 (Grigio chiaro)
+				\draw[line width=2pt, color=gray, fill=gray, fill opacity=0.1] 
+				(0.09,402.33)--(0.09,-427.61)--(979.50,-427.61)--(979.50,402.33);
+				
+				% VINCOLO DI NON NEGATIVITÀ x2 >= 0 (Grigio scuro)
+				\draw[line width=2pt, color=darkgray, fill=darkgray, fill opacity=0.1] 
+				(-402.89,402.33)--(-402.89,-0.02)--(979.50,-0.02)--(979.50,402.33);
+				
+			\end{axis}
+		\end{tikzpicture}
+		\caption{Poliedro dei vincoli. La Regione Ammissibile è la zona dove tutti i colori si sovrappongono.}
+	\end{figure}
+	
+	La Regione Ammissibile è anche detta \textbf{\textit{Poliedro}} la cui definizione è:
+	\begin{itemize}
+		\item Definizione che piace ai Matematici: \textit{Si definisce tale l'intersezione di un numero finito di semispazi chiusi.}
+		\item Definizione che piace a Ingegneri e Informatici: \textit{Si definisce tale le soluzioni di $Ax \leq b$}.
+	\end{itemize}
+	Meglio usare quella che piace ai matematici dato che Pappalardo è un Matematico.\\
+	
+	In particolar modo, il modello matematico del problema di riferimento era questo:
+	\[ 
+	\begin{aligned}
+		& \begin{cases}
+			\max 300x_1 + 200x_2\\
+			20x_1 + 10x_2 \leq 950\\
+			2x_1 + 3x_2 \leq 120\\
+			x_1 + 2x_2 \leq 70\\
+			x_{1/2} \geq 0
+		\end{cases}
+	\end{aligned}
+	\]
+	
+	Le intersezioni che vedete nel grafico (immaginate ci siano dei puntini) si chiamano \textbf{\textit{Vertici}}. Per calcolare l'intersezione tra un vincolo e un altro bisogna mettere a sistema i due o più vincoli in questione e risolverli con l'uguale ($=$). Prendiamo un esempio:
+	\[
+	\begin{aligned}
+		\textbf{Intersezione tra i vincoli 1 e 2}
+		\begin{cases}
+			20x_1 + 10x_2 = 950\\
+			2x_1 + 3x_2 = 120
+		\end{cases}
+	\end{aligned}
+	\]
+	Risolvendo questo sistema, si otterranno dei risultati che indicheranno il valore del vertice in cui si intersecano. Ovviamente, i risultati che si ottengono riguardano i valori assunti da $x_1$ e $x_2$ in questo specifico caso di un problema in $R^2$.
+	Inoltre, per controllare che anche un altro vincolo passi esattamente da quel punto, è sufficiente inserire nel medesimo vincolo i risultati ottenuti nel precedente sistema di equazioni risolvendo anche il terzo vincolo con l'uguale.\\
+	
+	Quanto è importante il Determinante della matrice di questo sottosistema creato? \textbf{\underline{MOLTISSIMO}}, infatti, se $det(matrice) \neq 0$, allora la soluzione esiste ed è unica e quindi il vertice esiste.\\
+	PS: la definizione di Vertice la vedremo più in là, per ora possiamo solo dire che un vertice esiste SOLO SE si intersecano nello stesso punto (sistema di prima) N vincoli dove N è il numero di variabili del problema, quindi, in $R^3$ dovranno intersecarsi 3 vincoli in un solo punto per poterlo definire Vertice, e così via per $R^N$.
+	
+	Nota bene: scrivere $det(matrice)$ fa parte della sintassi di MATLAB che, ovviamente, durante l'esame si può usare soprattutto per questi dettagli. Semplicemente, crei la matrice A secondo le regole stabilite dal linguaggio, poi si scrive la stringa che vi ho fornito e vi restituisce il risultato.\\\\
+	
+	Come anticipato nella \textit{\underline{Lezione 1}}, nei problemi di PL si esclude l'utilizzo del $<$ e del $>$ dalla realizzazione dei modelli matematici per la seguente definizione:\\\\
+	\textit{La soluzione ottima del problema non è dentro al Poliedro, dunque, se esiste, si trova sempre sul bordo}.\\\\
+	Dunque, è intuibile che l'esclusione di questi due segni dipende dal fatto che Geometricamente escluderebbero il bordo del poliedro, rendendo impossibile trovare la vera soluzione ottima del problema.
+	
+	\vspace{1cm}
+	
+	\textbf{Esercizio di prova}
+	\[
+	\begin{aligned}
+		\begin{cases}
+			\max x_1 + x_2\\
+			2x_1 + x_2 \leq 7\\
+			x_1 + 3x_2 \leq 8\\
+			-x_1 \leq 0\\
+			-x_2 \leq 0
+		\end{cases}
+	\end{aligned}
+	\]
+	Il cui Poliedro è...
+	
+	\begin{figure}[H]
+		\centering
+		\begin{tikzpicture}[line cap=round,line join=round]
+			\begin{axis}[
+				width=12cm, % Gestisce la grandezza fisica sul foglio
+				height=12cm,
+				axis lines=middle,
+				ymajorgrids=true,
+				xmajorgrids=true,
+				% ZOOM (modifica questi valori per inquadrare diversamente)
+				xmin=-5,
+				xmax=15,
+				ymin=-5,
+				ymax=15,
+				% Tacche degli assi
+				xtick={-5, 0, 5, 10, 15},
+				ytick={-5, 0, 5, 10, 15},
+				xlabel = {$x_1$},
+				ylabel = {$x_2$},
+				]
+				
+				% Riquadro di clip per lo zoom
+				\clip(-5,-5) rectangle (15,15);
+				
+				% VINCOLO 1 (Rosso) 
+				% Equivalente a: pspolygon(-2.2,11.4)(-21.72,11.3)(-21.72,-15.72)(11.41,-15.82)(-2.2,11.4)
+				\draw[line width=2pt, color=myred, fill=myred, fill opacity=0.15] 
+				(-2.2,11.4)--(-21.72,11.3)--(-21.72,-15.72)--(11.41,-15.82)--(-2.2,11.4);
+				
+				% VINCOLO 2 (Verde)
+				% Equivalente a: pspolygon(-21.72,9.90)(-21.72,-15.72)(21.72,-15.72)(21.72,-4.57)(-21.72,9.90)
+				\draw[line width=2pt, color=mygreen, fill=mygreen, fill opacity=0.15] 
+				(-21.72,9.90)--(-21.72,-15.72)--(21.72,-15.72)--(21.72,-4.57)--(-21.72,9.90);
+				
+				% VINCOLO DI NON NEGATIVITÀ x1 >= 0 (Grigio)
+				\draw[line width=2pt, color=gray, fill=gray, fill opacity=0.1] 
+				(0,11.5)--(0,-15.92)--(21.92,-15.92)--(21.92,11.5);
+				
+				% VINCOLO DI NON NEGATIVITÀ x2 >= 0 (Grigio scuro)
+				\draw[line width=2pt, color=darkgray, fill=darkgray, fill opacity=0.1] 
+				(-21.92,11.5)--(-21.92,0)--(21.92,0)--(21.92,11.5);
+				
+			\end{axis}
+		\end{tikzpicture}
+		\caption{con Regione Ammissibile compresa tra l'asse delle y, l'asse delle x e l'intersezione dei due vincoli. vedi i colori per aiutarti.\\PS: la linea rossa crea quell'angolo in alto per un semplice errore di formattazione grafica.}
+	\end{figure}
+	
+	Per ogni poliedro, esistono le \textit{\textbf{Linee di Isoguadagno}} (o Isocosto). Si ottengono ponendo la FO = K, dunque, in questo caso:\\
+	$x_1 + x_2 = k$\\
+	Sono delle linee perpendicolari alla direzione del vettore della FO stessa e sono \underline{utilissime} nella ricerca della soluzione ottima. In che modo? Semplice, cerco la linea di Isoguadagno più grande che si trova all'interno del poliedro che, inevitabilmente, sarà sul bordo di quest'ultimo, e quindi seguendo la definizione fornita prima, ossia quella che dice che la soluzione ottima, se esiste, è sul bordo, dimostra che le linee di Isoguadagno servono a trovare proprio l'ottimo del nostro problema.\\
+	Una dimostrazione con il grafico:
+	\begin{figure}[H]
+		\centering
+		\begin{tikzpicture}[line cap=round, line join=round]
+			\begin{axis}[
+				width=12cm,
+				height=12cm,
+				axis lines=middle,
+				ymajorgrids=true,
+				xmajorgrids=true,
+				% --- IMPOSTAZIONI ZOOM ---
+				xmin=-5,
+				xmax=15,
+				ymin=-5,
+				ymax=15,
+				% --- GESTIONE DEI NUMERI SUGLI ASSI ---
+				xtick={-5, 0, 5, 10, 15},
+				ytick={-5, 0, 5, 10, 15},
+				xlabel = {$x_1$},
+				ylabel = {$x_2$},
+				]
+				
+				% Riquadro di clip per nascondere ciò che esce dallo zoom
+				\clip(-5,-5) rectangle (15,15);
+				
+				% --- AREE AMMISSIBILI E VINCOLI ---
+				\draw[line width=2pt, color=myred, fill=myred, fill opacity=0.15]
+				(-2.2,11.3)--(-21.72,11.3)--(-21.72,-15.72)--(11.41,-15.72)--(-2.2,11.3);
+				
+				\draw[line width=2pt, color=mygreen, fill=mygreen, fill opacity=0.15]
+				(-21.72,9.91)--(-21.72,-15.72)--(21.72,-15.72)--(21.72,-4.57)--(-21.72,9.91);
+				
+				% Vincoli di non negatività (Grigio)
+				\draw[line width=2pt, color=gray, fill=gray, fill opacity=0.1]
+				(0,11.3)--(0,-15.72)--(21.92,-15.72)--(21.92,11.3);
+				
+				\draw[line width=2pt, color=darkgray, fill=darkgray, fill opacity=0.1]
+				(-21.92,11.3)--(-21.92,0)--(21.92,0)--(21.92,11.3);
+				
+				% --- RETTE (es. Funzioni Obiettivo) ---
+				% Sintassi matematica corretta (rimossi i doppi meno "--")
+				\draw [line width=2pt, color=orange, domain=-5:15] plot(\x,{1 - \x});
+				\draw [line width=2pt, color=orange, domain=-5:15] plot(\x,{0.5 - \x});
+				\draw [line width=2pt, color=orange, domain=-5:15] plot(\x,{-\x});
+				\draw [line width=2pt, color=orange, domain=-5:15] plot(\x,{-0.5 - \x});
+				\draw [line width=2pt, color=orange, domain=-5:15] plot(\x,{1.5 - \x});
+				\draw [line width=2pt, color=orange, domain=-5:15] plot(\x,{2 - \x});
+				
+				% --- ETICHETTE ---
+				% Ho spostato le etichette a coordinate visibili (-3) per non farle tagliare fuori dal clip
+				\node[font=\scriptsize] at (-3, 6.5) {$eq1$};
+				\node[font=\scriptsize] at (-3, 5.5) {$eq2$};
+				\node[font=\scriptsize] at (-3, 4.5) {$eq3$};
+				\node[font=\scriptsize] at (-3, 3.5) {$eq4$};
+				\node[font=\scriptsize] at (-3, 2.5) {$eq5$};
+				\node[font=\scriptsize] at (-3, 1.5) {$eq6$};
+				
+			\end{axis}
+		\end{tikzpicture}
+		\caption{Le linee di Isoguadagno sono quelle arancioni, perpendicolari alla direzione del vettore della FO e che salgono e/o scendono a seconda del valore K. Dal grafico si può intravedere il fatto che ci sarà un valore K che toccherà i bordi del poliedro. In uno dei punti dei bordi del Poliedro, quindi, c'è l'ottimo del problema. Per questo è molto utile usarle a questo scopo.}
+	\end{figure}
+	
+	Quando parliamo di Poliedri ormai sappiamo che è uno spazio chiuso, sostanzialmente, ma non è sempre così: esistono eccome Poliedri aperti la cui Soluzione Ottima va a $+\infty$. Dunque, ora possiamo anche dire che:\\
+	\textit{Se un Poliedro \textbf{non} è chiuso, allora è \underline{illimitato}}.\\
+	Un possibile problema che un matematico, un ingegnere e anche banalmente uno studente può trovarsi davanti è la mancanza di Vincoli: si, spesso un Poliedro risulta illimitato perché manca qualche vincolo. Può capitare dato che spesso alcuni sono complicati da trovare nella traccia dell'esercizio e/o in un problema reale. È importante trovarli tutti per proseguire.\\
+	
+	Allo stesso tempo, esistono anche modelli matematici di PL che, usando GeoGebra o MATLAB, non restituiscono alcun Poliedro. Di sicuro non scompare e di sicuro non hanno sbagliato i due software citati prima dato che sono strumenti molto potenti, piuttosto qui ci troviamo davanti al caso opposto al precedente: se non esiste un Poliedro, sicuramente ci sono troppi vincoli e non esiste una regione ammissibile che rispetta tutti i vincoli del nostro modello. Come per il caso precedente, può capitare di inserire vincoli di troppo o semplicemente il problema non è risolvibile così com'è. Succede anche in situazioni reali.
+	
+	\vspace{1cm}
+	
+	Nuovo Problema di PL: \textbf{Problema di Assegnamento}
+	
+	Ipotizziamo di avere 4 studi di Ingegneria e 4 progetti da realizzare:\\\\
+	\begin{tabular}{|c|c|c|c|c|}
+		\hline
+		Progetti $\downarrow$/Studi di ing $\rightarrow$ & \textbf{1} & \textbf{2} & \textbf{3} & \textbf{4}\\
+		\hline
+		\textbf{1} & 8 & 7 & 9 & 5\\
+		\hline
+		\textbf{2} & 12 & 13 & 15 & 16\\
+		\hline
+		\textbf{3} & 9 & 14 & 6 & 10\\
+		\hline
+		\textbf{4} & 7 & 8 & 11 & 9\\
+		\hline
+	\end{tabular}\\\\
+	Dove i valori interni alla tabella si riferiscono a quanto costerebbe far realizzare un progetto ad un particolare studio. Ad esempio, il progetto 2 costerebbe 16 se lo svolgesse lo studio 4, e così via.
+	
+	Pappalardo ci fa subito presente una cosa prima della fine della lezione, ossia che il numero possibile di assegnamenti è pari a $\boldsymbol{n!}$ (n fattoriale), mentre invece se inseriamo i vincoli che implicano il fatto che un progetto può esser fatto solo da uno studio e ogni studio può realizzare solo un progetto, gli assegnamenti diventano $\boldsymbol{n^n}$.\\
+	
+	Fine \textit{Lezione 2}
+	
+	\noindent\rule{\textwidth}{0.4pt}\\
+	
+	\textit{\textbf{Questa lezione, come le sue precedenti e successive, può contenere errori e/o imprecisioni. Per il bene di tutti, è buona norma far notare all'autore l'errore o l'imprecisione così da risolvere nel minor tempo possibile. I canali di comunicazione, per eventuali avvisi generali o di errori trovati negli appunti, sono in cima al file. Grazie per la collaborazione e Buono studio!}}
+	
+	\section*{Lezione 3 | 23 settembre 2026}
+	\subsection*{Approfondimento del problema di assegnamento e studio della Combinazione Convessa e della Combinazione Conica}
+	
+	Per i prossimi esempi si userà una tabella con valori differenti da quelli della tabella della precedente lezione.
+	
+	\begin{tabular}{|c|c|c|c|c|}
+		\hline
+		Progetti $\downarrow$/Studi di ing $\rightarrow$ & \textbf{1} & \textbf{2} & \textbf{3} & \textbf{4}\\
+		\hline
+		\textbf{1} & 8 & 6 & 9 & 4\\
+		\hline
+		\textbf{2} & 7 & 5 & 6 & 10\\
+		\hline
+		\textbf{3} & 3 & 8 & 2 & 7\\
+		\hline
+		\textbf{4} & 4 & 9 & 6 & 5\\
+		\hline
+	\end{tabular}\\\\
+	
+	Forse la parte più importante del medesimo problema è stabilire il numero di variabili perché, essendo numerose come vedremo a breve, mancarne una può creare uno sballamento di tutto il modello e del risultato finale.
+	
+	Innanzitutto, esistono due tipologie di assegnamento:
+	\begin{itemize}
+		\item \textbf{Cooperativo} (PL): in questo caso, un progetto n potrebbe essere fatto da più di uno studio fino a quando la somma degli studi che collaborano non arriva a 1, come anche uno studio può dedicarsi a più progetti contemporaneamente, cioè: 
+		\begin{itemize}
+			\item ad esempio, lo studio 1 si occupa dello 0,5 del progetto, lo studio 2 si occupa dello 0,2 e lo studio 3 si occupa dello 0,3. Quindi, $0,5+0,2+0,3=1$, quindi lo studio 4 non collabora nella realizzazione.
+			\item Seguendo lo stesso ragionamento, uno studio n può dedicarsi a più di un progetto contemporaneamente (ipotizzando valori e situazioni simili al punto precedente) fino a quando la somma non arriva sempre a 1.
+		\end{itemize}
+		Come anticipato, qui il numero di assegnamenti possibili è pari a $n!$.
+		\item \textbf{Non Cooperativo} (PLI): a differenza del Cooperativo, qui uno studio può dedicarsi ad un solo progetto e ogni progetto deve essere realizzato da un solo studio. Come anticipato, qui il numero di assegnamenti possibili è pari a $n^n$.
+	\end{itemize}
+	
+	
+	
+\end{document}
