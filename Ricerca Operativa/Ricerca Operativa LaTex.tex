@@ -5,7 +5,13 @@
 \usepackage[T1]{fontenc}
 \usepackage[italian]{babel}
 \usepackage[none]{hyphenat}
-\usepackage[margin=2cm]{geometry}
+\usepackage[a4paper, top=2.4cm, bottom=2.4cm, left=2cm, right=2cm, headheight=14pt, headsep=10pt]{geometry}
+
+% --- TIPOGRAFIA RAFFINATA ---
+\usepackage{microtype}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt plus 1.5pt minus 1pt}
+\setlength{\emergencystretch}{2em}
 
 % --- MATEMATICA E FORMATTAZIONE ---
 \usepackage{amsmath}
@@ -28,8 +34,79 @@
 \definecolor{myred}{rgb}{1,0,0}
 \definecolor{mygreen}{rgb}{0,0.5,0}
 
+% --- COLORE DI STILE (titoli, righe e box) ---
+\definecolor{titlecolor}{RGB}{16,52,96}
+
+% --- TITOLI DI SEZIONE ELEGANTI ---
+\usepackage{titlesec}
+\titleformat{\section}
+  {\color{titlecolor}\Large\bfseries\raggedright}
+  {\thesection}{0.7em}{}
+  [\vspace{0.4ex}{\color{titlecolor!50}\titlerule[1pt]}]
+\titleformat{\subsection}
+  {\color{titlecolor}\large\bfseries\raggedright}
+  {\thesubsection}{0.6em}{}
+  []
+\titlespacing*{\section}{0pt}{2.2em}{1em}
+\titlespacing*{\subsection}{0pt}{1.8em}{0.6em}
+
+% --- LISTE CON SPAZIATURE PIÙ ARIOSE ---
+\usepackage{enumitem}
+\setlist{itemsep=2pt, topsep=3pt, parsep=2pt, partopsep=0pt}
+
+% --- TABELLE PIÙ RESPIRABILI ---
+\renewcommand{\arraystretch}{1.25}
+
+% --- DIDASCALIE RAFFINATE ---
+\usepackage{caption}
+\captionsetup{font=small, labelfont={bf,color=titlecolor}, labelsep=period, textfont=it, skip=4pt}
+
+% --- TESTATINA E PIÈ DI PAGINA ---
+\usepackage{zref-totpages}
+\usepackage{fancyhdr}
+\fancypagestyle{plain}{%
+  \fancyhf{}%
+  \fancyhead[L]{\small\itshape\color{gray}Ricerca Operativa}%
+  \fancyhead[R]{\small\color{gray}Andrea Salvatore}%
+  \fancyfoot[C]{\small\color{gray}Pagina \thepage\ di \ztotpages}%
+  \renewcommand{\headrulewidth}{0.4pt}%
+}
+\pagestyle{plain}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0pt}
+
+% --- TITOLO DEL DOCUMENTO RAFFINATO ---
+\makeatletter
+\renewcommand{\@maketitle}{%
+  \begin{center}%
+    {\LARGE\bfseries\color{titlecolor}\@title\par}%
+    \vskip 0.6em%
+    {\large\color{titlecolor}\@author\par}%
+    \vskip 0.5em%
+    {\normalsize\itshape\color{gray}\@date\par}%
+  \end{center}%
+  \vskip 0.4em%
+  {\color{titlecolor!50}\hrule height 1pt}%
+  \vskip 1.2em%
+}
+\makeatother
+
+% --- RIGA SEPARATRICE ELEGANTE ---
+\newcommand{\separatore}{\noindent{\color{titlecolor!50}\rule{\textwidth}{0.6pt}}}
+
+% --- BOX PER L'AVVISO DI OGNI LEZIONE ---
+\newcommand{\avviso}[1]{%
+  \par\medskip
+  \noindent
+  \begin{tikzpicture}
+    \node[rounded corners=2.5pt, fill=titlecolor!5, draw=titlecolor!35, line width=0.6pt,
+          inner xsep=9pt, inner ysep=7pt, text width=\dimexpr\linewidth-18.6pt\relax, align=left] {#1};
+  \end{tikzpicture}
+  \par\medskip
+}
+
 % --- LINK IPERTESTUALI ---
-\usepackage{hyperref} % hyperref va sempre caricato per ultimo!
+\usepackage[colorlinks=true, linkcolor=titlecolor, urlcolor=titlecolor, pdfauthor={Andrea Salvatore}, pdftitle={Ricerca Operativa}]{hyperref} % hyperref va sempre caricato per ultimo!
 
 \begin{document}
 	\title{\textbf{Ricerca Operativa}}
@@ -51,9 +128,9 @@
 	\end{itemize}
 	\vspace{1cm}
 	
-	L'intento di questo file è contenere le lezioni del prof. Massimo Pappalardo in ordine strettamente cronologico seguendo, dunque, le lezioni dell'anno accademico citato sopra.
+	L'intento di questo file è contenere le lezioni del prof. Massimo Pappalardo in ordine strettamente cronologico seguendo, dunque, le lezioni dell'anno accademico citato sopra. L'idea nasce dal fatto che spesso capita che gli assenti abbiano bisogno di recuperare delle lezioni. Attraverso i file in questo repository ora hanno tutto in tempo reale lezione dopo lezione. Inoltre, per senso di collaborazione, agli studenti è fornito non solo il PDF, bensì anche il sorgente .tex, utile per correggere errori e/o aggiungere dettagli utili direttamente tramite le Pull Request di GitHub. Oppure, nell'ipotesi che io sia in difficoltà con la trascrizione corretta degli appunti, ci si può aiutare inserendo tutto qui e mettendo a disposizione di \textbf{tutti} il materiale in ordine cronologico e in tempi ristretti. Grazie a tutti per la collaborazione.
 	
-	\noindent\rule{\textwidth}{0.4pt}
+	\separatore
 
 	\section*{Contenuto del corso}
 	\begin{itemize}
@@ -84,9 +161,9 @@
 		\label{fig:mio_grafico}
 	\end{figure}
 	
-	\noindent\rule{\textwidth}{0.4pt}\\
+	\separatore\\
 	
-	\textit{\textbf{Questa lezione, come le sue precedenti e successive, può contenere errori e/o imprecisioni. Per il bene di tutti, è buona norma far notare all'autore l'errore o l'imprecisione così da risolvere nel minor tempo possibile. I canali di comunicazione, per eventuali avvisi generali o di errori trovati negli appunti, sono in cima al file. Grazie per la collaborazione e Buono studio!}}
+	\avviso{\textit{\textbf{Questa lezione, come le sue precedenti e successive, può contenere errori e/o imprecisioni. Per il bene di tutti, è buona norma far notare all'autore l'errore o l'imprecisione così da risolvere nel minor tempo possibile. I canali di comunicazione, per eventuali avvisi generali o di errori trovati negli appunti, sono in cima al file. Grazie per la collaborazione e Buono studio!}}}
 		
 	\section*{Lezione 1 | 21 settembre 2026} % Usato section* invece di andare a capo a mano
 	\subsection*{Introduzione alla PL | Problema di produzione} % Usato subsection* invece di \title
@@ -96,17 +173,19 @@
 	\underline{Attenzione!!!} Scopriremo nella \textit{Lezione 2} che il $<$ e il $>$ non sono accettati perché la soluzione ottima del problema di PL è sempre sul bordo del Poliedro.\\
 	
 	Ipotizziamo un problema di questo tipo\\\\
-	\begin{tabular}{|c|c|c|c|}
-		\hline
-		\textbf{Kg/Unità} & \textbf{Travi Reticolari} & \textbf{Pilastri Composti} & \textbf{Disponibilità} \\
-		\hline
-		\textbf{Acciaio} & 20 & 10 & 950\\
-		\hline
-		\textbf{Lavorazione} & 2 & 3 & 120\\
-		\hline
-		\textbf{Collaudo e verniciatura} & 1 & 2 & 70\\
-		\hline
-	\end{tabular}\\\\\\
+	\begin{center}
+		\begin{tabular}{|c|c|c|c|}
+			\hline
+			\textbf{Kg/Unità} & \textbf{Travi Reticolari} & \textbf{Pilastri Composti} & \textbf{Disponibilità} \\
+			\hline
+			\textbf{Acciaio} & 20 & 10 & 950\\
+			\hline
+			\textbf{Lavorazione} & 2 & 3 & 120\\
+			\hline
+			\textbf{Collaudo e verniciatura} & 1 & 2 & 70\\
+			\hline
+		\end{tabular}
+	\end{center}
 	Questa tabella indica le colonne come il bene da produrre (con le disponibilità finali) e le righe come le risorse da usare.\\\\
 	Questo si chiama, appunto, "Problema di produzione" perché riguarda la realizzazione di un modello matematico applicato a lavori di produzione che hanno determinati vincoli. I medesimi vincoli si rappresentano attraverso un sistema che per la PL si chiama \textit{Formato Primale Standard} e si rappresenta così:
 	\[
@@ -238,9 +317,9 @@
 	\end{itemize}
 	Fine \textit{Lezione 1}
 	
-	\noindent\rule{\textwidth}{0.4pt}\\
+	\separatore\\
 	
-	\textit{\textbf{Questa lezione, come le sue precedenti e successive, può contenere errori e/o imprecisioni. Per il bene di tutti, è buona norma far notare all'autore l'errore o l'imprecisione così da risolvere nel minor tempo possibile. I canali di comunicazione, per eventuali avvisi generali o di errori trovati negli appunti, sono in cima al file. Grazie per la collaborazione e Buono studio!}}
+	\avviso{\textit{\textbf{Questa lezione, come le sue precedenti e successive, può contenere errori e/o imprecisioni. Per il bene di tutti, è buona norma far notare all'autore l'errore o l'imprecisione così da risolvere nel minor tempo possibile. I canali di comunicazione, per eventuali avvisi generali o di errori trovati negli appunti, sono in cima al file. Grazie per la collaborazione e Buono studio!}}}
 	
 	\section*{Lezione 2 | 22 settembre 2026}
 	\subsection*{Continuazione del problema di produzione e introduzione del problema di assegnamento}
@@ -513,47 +592,51 @@
 	Nuovo Problema di PL: \textbf{Problema di Assegnamento}
 	
 	Ipotizziamo di avere 4 studi di Ingegneria e 4 progetti da realizzare:\\\\
-	\begin{tabular}{|c|c|c|c|c|}
-		\hline
-		Progetti $\downarrow$/Studi di ing $\rightarrow$ & \textbf{1} & \textbf{2} & \textbf{3} & \textbf{4}\\
-		\hline
-		\textbf{1} & 8 & 7 & 9 & 5\\
-		\hline
-		\textbf{2} & 12 & 13 & 15 & 16\\
-		\hline
-		\textbf{3} & 9 & 14 & 6 & 10\\
-		\hline
-		\textbf{4} & 7 & 8 & 11 & 9\\
-		\hline
-	\end{tabular}\\\\
+	\begin{center}
+		\begin{tabular}{|c|c|c|c|c|}
+			\hline
+			Progetti $\downarrow$/Studi di ing $\rightarrow$ & \textbf{1} & \textbf{2} & \textbf{3} & \textbf{4}\\
+			\hline
+			\textbf{1} & 8 & 7 & 9 & 5\\
+			\hline
+			\textbf{2} & 12 & 13 & 15 & 16\\
+			\hline
+			\textbf{3} & 9 & 14 & 6 & 10\\
+			\hline
+			\textbf{4} & 7 & 8 & 11 & 9\\
+			\hline
+		\end{tabular}
+	\end{center}
 	Dove i valori interni alla tabella si riferiscono a quanto costerebbe far realizzare un progetto ad un particolare studio. Ad esempio, il progetto 2 costerebbe 16 se lo svolgesse lo studio 4, e così via.
 	
 	Pappalardo ci fa subito presente una cosa prima della fine della lezione, ossia che il numero possibile di assegnamenti è pari a $\boldsymbol{n!}$ (n fattoriale), mentre invece se inseriamo i vincoli che implicano il fatto che un progetto può esser fatto solo da uno studio e ogni studio può realizzare solo un progetto, gli assegnamenti diventano $\boldsymbol{n^n}$.\\
 	
 	Fine \textit{Lezione 2}
 	
-	\noindent\rule{\textwidth}{0.4pt}\\
+	\separatore\\
 	
-	\textit{\textbf{Questa lezione, come le sue precedenti e successive, può contenere errori e/o imprecisioni. Per il bene di tutti, è buona norma far notare all'autore l'errore o l'imprecisione così da risolvere nel minor tempo possibile. I canali di comunicazione, per eventuali avvisi generali o di errori trovati negli appunti, sono in cima al file. Grazie per la collaborazione e Buono studio!}}
+	\avviso{\textit{\textbf{Questa lezione, come le sue precedenti e successive, può contenere errori e/o imprecisioni. Per il bene di tutti, è buona norma far notare all'autore l'errore o l'imprecisione così da risolvere nel minor tempo possibile. I canali di comunicazione, per eventuali avvisi generali o di errori trovati negli appunti, sono in cima al file. Grazie per la collaborazione e Buono studio!}}}
 	
 	\section*{Lezione 3 | 23 settembre 2026}
 	\subsection*{Approfondimento del problema di assegnamento e studio della Combinazione Convessa e della Combinazione Conica}
 	
 	Per i prossimi esempi si userà una tabella con valori differenti da quelli della tabella della precedente lezione.
 	
-	\begin{tabular}{|c|c|c|c|c|}
-		\hline
-		Progetti $\downarrow$/Studi di ing $\rightarrow$ & \textbf{1} & \textbf{2} & \textbf{3} & \textbf{4}\\
-		\hline
-		\textbf{1} & 8 & 6 & 9 & 4\\
-		\hline
-		\textbf{2} & 7 & 5 & 6 & 10\\
-		\hline
-		\textbf{3} & 3 & 8 & 2 & 7\\
-		\hline
-		\textbf{4} & 4 & 9 & 6 & 5\\
-		\hline
-	\end{tabular}\\\\
+	\begin{center}
+		\begin{tabular}{|c|c|c|c|c|}
+			\hline
+			Progetti $\downarrow$/Studi di ing $\rightarrow$ & \textbf{1} & \textbf{2} & \textbf{3} & \textbf{4}\\
+			\hline
+			\textbf{1} & 8 & 6 & 9 & 4\\
+			\hline
+			\textbf{2} & 7 & 5 & 6 & 10\\
+			\hline
+			\textbf{3} & 3 & 8 & 2 & 7\\
+			\hline
+			\textbf{4} & 4 & 9 & 6 & 5\\
+			\hline
+		\end{tabular}
+	\end{center}
 	
 	Forse la parte più importante del medesimo problema è stabilire il numero di variabili perché, essendo numerose come vedremo a breve, mancarne una può creare uno sballamento di tutto il modello e del risultato finale.
 	
@@ -567,6 +650,334 @@
 		Come anticipato, qui il numero di assegnamenti possibili è pari a $n!$.
 		\item \textbf{Non Cooperativo} (PLI): a differenza del Cooperativo, qui uno studio può dedicarsi ad un solo progetto e ogni progetto deve essere realizzato da un solo studio. Come anticipato, qui il numero di assegnamenti possibili è pari a $n^n$.
 	\end{itemize}
+	
+	Un tipico problema di assegnamento, rappresentato con il nostro tipico Matematichese che Pappalardo ci insegna, è questo:
+	\[
+	\begin{tabular}{c}
+		\text{Assegnamento} \\
+		\text{non cooperativo} \\
+		\text{in } $\mathbb{R}^{16}$
+	\end{tabular}
+	\quad
+	\begin{cases}
+		\begin{aligned} 
+			\min \ & 8x_{11} + 6x_{12} + 9x_{13} + 4x_{14} + 7x_{21} + 5x_{22} + 6x_{23} + 10x_{24} \, + \\
+			& 3x_{31} + 8x_{32} + 2x_{33} + 7x_{34} + 4x_{41} + 9x_{42} + 6x_{43} + 5x_{44}
+		\end{aligned}\\
+		x_{11} + x_{12} + x_{13} + x_{14} = 1\\
+		x_{21} + x_{22} + x_{23} + x_{24} = 1\\
+		x_{31} + x_{32} + x_{33} + x_{34} = 1\\
+		x_{41} + x_{42} + x_{43} + x_{44} = 1\\
+		x_{11} + x_{21} + x_{31} + x_{41} = 1\\
+		x_{12} + x_{22} + x_{32} + x_{42} = 1\\
+		x_{13} + x_{23} + x_{33} + x_{43} = 1\\
+		x_{14} + x_{24} + x_{34} + x_{44} = 1\\
+		x_{ij} \geq 0
+	\end{cases}
+	\]
+	All'esame è caldamente consigliato portarsi dei file (.txt o .md se preferite) che contengono la base di tutti gli script di MATLAB, così dovete solo sostituire i valori del vostro esercizio corrente, dato che scrivere tutto questo porterebbe via una miriade di tempo, soprattutto considerando che il modello matematico "nasconde" una gran parte dei valori che MATLAB dovrà ricevere per trovare l'ottimo.\\
+	
+	Ecco esattamente come mappare il modello all'interno della funzione \textbf{MATLAB} seguendo alla lettera le regole del \textbf{Formato Primale Standard} (tutto ricondotto a $\leq$ e al $\max$):
+	\begin{center}
+		\texttt{x = linprog(c, A, b, [], [], [], [])}
+	\end{center}
+	
+	Il nostro problema ha 16 variabili. Dalle 8 uguaglianze originarie ricaveremo 16 vincoli di disuguaglianza (il $\leq$ e il $\geq$ invertito), a cui aggiungeremo i 16 vincoli di non negatività anch'essi invertiti. In totale avremo una matrice \texttt{A} di \textbf{32 righe e 16 colonne}.
+	\begin{itemize}
+		\item \textbf{\texttt{c}} (Vettore dei costi della F.O. $\rightarrow 1 \times 16$):\\
+		Siccome stiamo minimizzando ma \texttt{linprog} cerca nativamente il massimo, dobbiamo invertire i segni della Funzione Obiettivo.\\
+		\texttt{c = [-8 -6 -9 -4 -7 -5 -6 -10 -3 -8 -2 -7 -4 -9 -6 -5];}\\
+		\textbf{IMPORTANTE PER L'ESAME}: i problemi di assegnamento che ci verranno dati avranno sempre una tabella quadrata perché, è vero che esistono sicuramente problemi con situazioni in cui la tabella non sarebbe quadrata, ma nel nostro corso non vengono trattati, quindi il numero di variabili da inserire nella FO di questo problema sarà sempre $n^2$ con $n$ che si riferisce alla lunghezza di un lato della tabella.
+		
+		\item \textbf{\texttt{A}} (Matrice dei vincoli $\rightarrow 32 \times 16$):\\
+		Popoliamo esplicitamente tutte e 32 le righe. 
+		Le prime 8 sono i vincoli $\leq 1$. 
+		Le successive 8 sono i vincoli $\geq 1$ invertiti ($\leq -1$). 
+		Le ultime 16 sono i vincoli di non negatività invertiti ($-x_{ij} \leq 0$).\\
+		\texttt{A = [}\\
+		\texttt{1  1  1  1  0  0  0  0  0  0  0  0  0  0  0  0;}\\
+		\texttt{0  0  0  0  1  1  1  1  0  0  0  0  0  0  0  0;}\\
+		\texttt{0  0  0  0  0  0  0  0  1  1  1  1  0  0  0  0;}\\
+		\texttt{0  0  0  0  0  0  0  0  0  0  0  0  1  1  1  1;}\\
+		\texttt{1  0  0  0  1  0  0  0  1  0  0  0  1  0  0  0;}\\
+		\texttt{0  1  0  0  0  1  0  0  0  1  0  0  0  1  0  0;}\\
+		\texttt{0  0  1  0  0  0  1  0  0  0  1  0  0  0  1  0;}\\
+		\texttt{0  0  0  1  0  0  0  1  0  0  0  1  0  0  0  1;}\\
+		\texttt{-1 -1 -1 -1  0  0  0  0  0  0  0  0  0  0  0  0;}\\
+		\texttt{0  0  0  0 -1 -1 -1 -1  0  0  0  0  0  0  0  0;}\\
+		\texttt{0  0  0  0  0  0  0  0 -1 -1 -1 -1  0  0  0  0;}\\
+		\texttt{0  0  0  0  0  0  0  0  0  0  0  0 -1 -1 -1 -1;}\\
+		\texttt{-1  0  0  0 -1  0  0  0 -1  0  0  0 -1  0  0  0;}\\
+		\texttt{0 -1  0  0  0 -1  0  0  0 -1  0  0  0 -1  0  0;}\\
+		\texttt{0  0 -1  0  0  0 -1  0  0  0 -1  0  0  0 -1  0;}\\
+		\texttt{0  0  0 -1  0  0  0 -1  0  0  0 -1  0  0  0 -1;}\\
+		\texttt{-1  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0;}\\
+		\texttt{0 -1  0  0  0  0  0  0  0  0  0  0  0  0  0  0;}\\
+		\texttt{0  0 -1  0  0  0  0  0  0  0  0  0  0  0  0  0;}\\
+		\texttt{0  0  0 -1  0  0  0  0  0  0  0  0  0  0  0  0;}\\
+		\texttt{0  0  0  0 -1  0  0  0  0  0  0  0  0  0  0  0;}\\
+		\texttt{0  0  0  0  0 -1  0  0  0  0  0  0  0  0  0  0;}\\
+		\texttt{0  0  0  0  0  0 -1  0  0  0  0  0  0  0  0  0;}\\
+		\texttt{0  0  0  0  0  0  0 -1  0  0  0  0  0  0  0  0;}\\
+		\texttt{0  0  0  0  0  0  0  0 -1  0  0  0  0  0  0  0;}\\
+		\texttt{0  0  0  0  0  0  0  0  0 -1  0  0  0  0  0  0;}\\
+		\texttt{0  0  0  0  0  0  0  0  0  0 -1  0  0  0  0  0;}\\
+		\texttt{0  0  0  0  0  0  0  0  0  0  0 -1  0  0  0  0;}\\
+		\texttt{0  0  0  0  0  0  0  0  0  0  0  0 -1  0  0  0;}\\
+		\texttt{0  0  0  0  0  0  0  0  0  0  0  0  0 -1  0  0;}\\
+		\texttt{0  0  0  0  0  0  0  0  0  0  0  0  0  0 -1  0;}\\
+		\texttt{0  0  0  0  0  0  0  0  0  0  0  0  0  0  0 -1}\\
+		\texttt{];}
+		
+		\item \textbf{\texttt{b}} (Vettore colonna dei termini noti $\rightarrow 32 \times 1$):\\
+		Rispetta rigorosamente l'ordine della matrice \texttt{A}: 8 uni positivi, 8 uni negativi e 16 zeri.\\
+		\texttt{b = [1; 1; 1; 1; 1; 1; 1; 1; -1; -1; -1; -1; -1; -1; -1; -1; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0];}
+		
+		\item \textbf{\texttt{Aeq, beq, lb, ub}}:\\
+		Poiché abbiamo forzato l'intero modello nel Primale Standard utilizzando unicamente \texttt{A} e \texttt{b}, tutti gli altri parametri obbligatori della sintassi di MATLAB restano vuoti.\\
+		\texttt{Aeq = [];}\\
+		\texttt{beq = [];}\\
+		\texttt{lb = [];}\\
+		\texttt{ub = [];}
+	\end{itemize}
+	
+	\textit{Nota pratica}: Avere già pronto sul proprio computer un file con la matrice \texttt{A} schematizzata a blocchi come mostrato qui sopra (magari per problemi tipici fino a $5 \times 5$) fa risparmiare preziosi minuti all'esame, riducendo drasticamente il rischio di perdersi gli zeri per strada.\\
+	
+	Quello mostrato fin qui implica l'utilizzo dell'assegnamento non cooperativo, e questo dimostrerebbe come sia stato inserito persino il vincolo che obbliga ogni progetto a non essere toccato da più di uno studio. Nella PL si usa l'assegnamento Cooperativo, quindi quello mostrato qui serve principalmente per la PLI, mentre per la PL è uguale togliendo però i vincoli di troppo.\\
+	
+	Pappalardo ci tiene a darci una definizione importante per l'orale:\\
+	\textit{Quando la Regione Ammissibile si allarga, i minimi salgono, quando la Regione Ammissibile si restringe, i minimi scendono}.\\
+	
+	Ecco alcuni concetti fondamentali per i Poliedri:
+	\begin{itemize}
+		\item \textbf{\underline{Combinazione Convessa}}:\\
+		Dati $k$ punti $x_1, x_2, \dots, x_k \in \mathbb{R}^n$, un generico punto $y \in \mathbb{R}^n$ si definisce \textit{combinazione convessa} di tali punti se:
+		\[
+		\begin{aligned}
+			& \exists \lambda_i \in [0, 1] \quad \text{per } i = 1, \dots, k, \quad \text{con } \sum_{i=1}^k \lambda_i = 1 \quad \text{tale che:} \\
+			& y = \sum_{i=1}^k \lambda_i x_i = \lambda_1 x_1 + \lambda_2 x_2 + \dots + \lambda_k x_k
+		\end{aligned}
+		\]\\
+		Da un punto di vista geometrico, l'insieme di tutte le possibili combinazioni convesse di un dato numero di punti rappresenta l'insieme (che in questo caso è a tutti gli effetti un \textbf{Poliedro}) più piccolo esistente in grado di contenere tutti i k punti citati.
+		
+		\vspace{0.2cm}
+		\textbf{Esempio intuitivo:}\\
+		Un banale \textbf{segmento} nel piano cartesiano è un poliedro ed è, geometricamente, l'insieme delle combinazioni convesse dei suoi due punti $x_1$ e $x_2$ (situati agli estremi). Ogni singolo punto che giace su quel segmento si ottiene semplicemente variando i valori di $\lambda_1$ e $\lambda_2$.
+		
+		\begin{figure}[H]
+			\centering
+			\begin{tikzpicture}[scale=1.5]
+				% Coordinate dei 2 punti estremi
+				\coordinate (x1) at (0, 0);
+				\coordinate (x2) at (4, 1.5);
+				
+				% Un generico punto sul segmento (es. con lambda_1 = 0.5 e lambda_2 = 0.5)
+				\coordinate (y) at (2, 0.75); 
+				
+				% Disegno il segmento (il Poliedro unidimensionale)
+				\draw[thick, color=black] (x1) -- (x2);
+				
+				% Disegno i pallini per i punti e le etichette
+				\filldraw (x1) circle (1pt) node[below left] {$x_1$};
+				\filldraw (x2) circle (1pt) node[above right] {$x_2$};
+				
+				% Disegno il punto interno generato dalla combinazione convessa
+				\filldraw[color=blue] (y) circle (1pt) node[below right, text=black] {$y$};
+				
+			\end{tikzpicture}
+			\caption{Il segmento è l'insieme di tutte le Combinazioni Convesse dei suoi estremi $x_1$ e $x_2$. Un generico punto $y$ si ottiene variando i pesi $\lambda_1$ e $\lambda_2$.}
+		\end{figure}
+		
+		\vspace{0.2cm}
+		\textbf{Altro esempio (Punto interno):}\\
+		Supponiamo di avere 4 punti nel piano, di cui tre formano i vertici di un triangolo e il quarto ($x_4$) si trova posizionato all'interno di essi. L'insieme di tutte le loro combinazioni convesse genererà proprio quel triangolo. Anche se $x_4$ non "partecipa" alla creazione del bordo (non è un vertice), il triangolo risultante è comunque la Combinazione Convessa dell'intero set, perché rappresenta fedelmente il Poliedro più piccolo in assoluto in grado di contenerli tutti e 4.
+		
+		\begin{figure}[H]
+			\centering
+			\begin{tikzpicture}[scale=1.5]
+				% Coordinate dei 4 punti
+				\coordinate (x1) at (0, 0);
+				\coordinate (x2) at (2, 2);
+				\coordinate (x3) at (4, -0.5);
+				\coordinate (x4) at (2.2, 0.4); % Punto interno
+				
+				% Disegno il perimetro del triangolo (il Poliedro)
+				\draw[thick, color=black] (x1) -- (x2) -- (x3) -- cycle;
+				
+				% Riempimento leggero per far capire che è un'area (opzionale, decommenta se ti piace)
+				% \fill[gray, opacity=0.1] (x1) -- (x2) -- (x3) -- cycle;
+				
+				% Disegno i pallini per i punti e le etichette
+				\filldraw (x1) circle (1pt) node[below left] {$x_1$};
+				\filldraw (x2) circle (1pt) node[above right] {$x_2$};
+				\filldraw (x3) circle (1pt) node[below right] {$x_3$};
+				\filldraw (x4) circle (1pt) node[right] {$x_4$};
+			\end{tikzpicture}
+			\caption{Combinazione Convessa di 4 punti dove $x_4$ è interno al poliedro generato.}
+		\end{figure}
+		
+		\textbf{\underline{Attenzione a non confondersi!}}\\
+		Prendendo come riferimento i 4 punti dell'esempio appena visto, cosa succederebbe se decidessimo di "chiudere" il perimetro collegando i punti in questo modo: $x_1 \rightarrow x_2 \rightarrow x_4 \rightarrow x_3 \rightarrow x_1$? 
+		
+		Otterremmo una figura con una "rientranza". Questa figura \textbf{NON} rappresenta la Combinazione Convessa dei 4 punti. 
+		
+		Il motivo geometrico e matematico è rigoroso: se disegnassimo i bordi in quel modo, tutta l'area compresa tra il punto $x_4$ e il segmento diretto $x_2-x_3$ verrebbe esclusa dal nostro insieme. Ma un insieme, per essere \textit{convesso} (e quindi per essere una vera Combinazione Convessa), deve rispettare la regola d'oro: \textbf{presi due punti qualsiasi appartenenti all'insieme, l'intero segmento che li unisce deve essere contenuto all'interno dell'insieme stesso}. 
+		
+		Come si vede chiaramente nel grafico sottostante, se provassimo a unire $x_2$ e $x_3$ con un segmento, questo finirebbe "fuori" dal nostro perimetro rientrante. Dunque, non è una Combinazione Convessa valida.
+		
+		\begin{figure}[H]
+			\centering
+			\begin{tikzpicture}[scale=1.5]
+				% Coordinate dei 4 punti (le stesse di prima)
+				\coordinate (x1) at (0, 0);
+				\coordinate (x2) at (2, 2);
+				\coordinate (x3) at (4, -0.5);
+				\coordinate (x4) at (2.2, 0.4);
+				
+				% Disegno il perimetro ERRATO (rientrante, non convesso)
+				\draw[thick, color=red] (x1) -- (x2) -- (x4) -- (x3) -- cycle;
+				
+				% Disegno il segmento che dimostra che non è convesso
+				\draw[thick, dashed, color=black] (x2) -- (x3);
+				
+				% Etichetta per l'area esclusa erroneamente (spostata all'esterno con anchor=west)
+				\node[color=red, align=left, anchor=west] at (3.3, 1.4) {\footnotesize Segmento\\[-1mm]\footnotesize fuori dall'insieme\\[-1mm]\footnotesize (Area esclusa!)};
+				
+				% Disegno i pallini per i punti e le etichette
+				\filldraw (x1) circle (1pt) node[below left] {$x_1$};
+				\filldraw (x2) circle (1pt) node[above right] {$x_2$};
+				\filldraw (x3) circle (1pt) node[below right] {$x_3$};
+				\filldraw (x4) circle (1pt) node[below left] {$x_4$}; % Etichetta spostata per non incrociare le linee
+			\end{tikzpicture}
+			\caption{Esempio di figura NON convessa. La "rientranza" in $x_4$ esclude un'area, violando la regola fondamentale della convessità: il segmento $x_2-x_3$ passa fuori dall'insieme.}
+		\end{figure}
+		\item \textbf{\underline{Combinazione Conica}}:\\
+		Dati $k$ punti $x_1, x_2, \dots, x_k \in \mathbb{R}^n$, un generico punto $y \in \mathbb{R}^n$ si definisce \textit{combinazione conica} di tali punti se:
+		\[
+		\begin{aligned}
+			& \exists \lambda_i \geq 0 \quad \text{per } i = 1, \dots, k, \quad \text{tale che:} \\
+			& y = \sum_{i=1}^k \lambda_i x_i = \lambda_1 x_1 + \lambda_2 x_2 + \dots + \lambda_k x_k
+		\end{aligned}
+		\]
+		
+		\vspace{0.2cm}
+		\textbf{Differenze chiave rispetto alla Convessa:}
+		\begin{itemize}
+			\item I pesi $\lambda_i$ non sono più limitati superiormente a 1, ma possono assumere qualsiasi valore reale purché non negativo ($\lambda_i \geq 0$).
+			\item Cade il vincolo fondamentale $\sum \lambda_i = 1$. Non è più richiesta alcuna somma fissa.
+		\end{itemize}
+		
+		\vspace{0.3cm}
+		Da un punto di vista geometrico, l'insieme di tutte le possibili combinazioni coniche di un dato insieme di vettori genera un \textbf{cono convesso} avente il vertice nell'origine. 
+		
+		Mentre la combinazione convessa crea un "recinto" chiuso e limitato tra i punti stessi (come un segmento o un triangolo), la combinazione conica si "espande" all'infinito partendo dall'origine e passando attraverso e oltre quei punti, proprio come il fascio di luce di una torcia.
+		
+		\vspace{0.2cm}
+		\textbf{Rappresentazione Grafica (Il Cono):}\\
+		Nel grafico sottostante vediamo la differenza visiva fondamentale della combinazione conica. Partendo dall'origine degli assi, i vettori diretti verso i punti $x_1$ e $x_2$ non si fermano, ma si estendono all'infinito creando un "fascio" (l'area ombreggiata). 
+		Tutta questa regione infinita è a tutti gli effetti un \textbf{Poliedro illimitato}.
+		
+		Come evidenziato dall'esempio pratico, i punti $x_1$ e $x_2$ appartengono ovviamente all'insieme da loro stessi generato (sono combinazioni coniche valide, indicate con $\checkmark$), mentre un generico punto $x_3$, trovandosi al di fuori di questo fascio, \textbf{non} può in alcun modo essere generato da una combinazione conica di $x_1$ e $x_2$ (dunque ne resta escluso, $\times$).
+		
+		\begin{figure}[H]
+			\centering
+			\begin{tikzpicture}[scale=1.5]
+				% Assi cartesiani
+				\draw[->, thin, gray] (-0.5, 0) -- (4.5, 0) node[right, text=black] {asse $x$};
+				\draw[->, thin, gray] (0, -0.5) -- (0, 3) node[above, text=black] {asse $y$};
+				
+				% Coordinate dei punti
+				\coordinate (O) at (0,0);
+				\coordinate (x1) at (1.2, 2.2);
+				\coordinate (x2) at (2.5, 0.8);
+				\coordinate (x3) at (3.2, 0.3); % Il punto che sta "fuori"
+				
+				% Raggi infiniti (moltiplicati per farli estendere oltre i punti)
+				\coordinate (r1) at (1.5, 2.75);
+				\coordinate (r2) at (3.8, 1.21);
+				
+				% Area della Combinazione Conica (Poliedro illimitato)
+				% Uso un colore grigio/azzurro leggero per simulare il tratteggio del quaderno
+				\fill[blue, opacity=0.08] (O) -- (r1) -- (r2) -- cycle;
+				
+				% Vettori (frecce) dall'origine ai punti generatori
+				\draw[->, thick, color=black] (O) -- (x1);
+				\draw[->, thick, color=black] (O) -- (x2);
+				
+				% Estensione dei raggi tratteggiata per far capire che vanno all'infinito
+				\draw[dashed, thick, color=black] (x1) -- (r1);
+				\draw[dashed, thick, color=black] (x2) -- (r2);
+				
+				% Pallini per i punti ed etichette (le spunte e le X come nel quaderno)
+				\filldraw (x1) circle (1pt) node[left] {$x_1 (\checkmark)$};
+				\filldraw (x2) circle (1pt) node[below] {$x_2 (\checkmark)$};
+				\filldraw[color=red] (x3) circle (1pt) node[right, text=red] {$x_3 (\times \text{ fuori})$};
+				
+				% Etichetta Poliedro con la freccia, simile all'appunto a mano
+				\draw[<-, thick, color=darkgray] (1.8, 1.4) -- (2.8, 2.2) node[right, align=left] {\textbf{Poliedro illimitato}\\[-1mm]\footnotesize (perché delimitato\\[-1mm]\footnotesize da semispazi ma \footnotesize non è chiuso)};
+				
+			\end{tikzpicture}
+			\caption{Combinazione Conica generata dai punti $x_1$ e $x_2$. L'area ombreggiata rappresenta un poliedro illimitato. Il punto $x_3$ è esterno al cono, pertanto non è combinazione conica di $x_1$ e $x_2$.}
+		\end{figure}
+	\end{itemize}
+	
+	\vspace{0.8cm}
+	\separatore
+	\vspace{0.3cm}
+	
+	\subsection*{Teorema di Rappresentazione di Weyl}
+	
+	Avendo definito le combinazioni convesse e coniche, possiamo introdurre uno dei teoremi più importanti della Ricerca Operativa che unisce i due concetti.
+	
+	Dato un poliedro $P$ (che sappiamo essere definito dalla matrice $A$ e dal vettore colonna $b$ nel modello $Ax \leq b$), il teorema afferma che esistono sempre:
+	\begin{itemize}
+		\item Un insieme di punti (vertici) $V = \{v_1, v_2, \dots, v_k\} \in P$.
+		\item Un insieme di direzioni (raggi) $E = \{e_1, e_2, \dots, e_p\}$, dove $p$ è semplicemente l'indice massimo dell'insieme $E$ e non c'entra nulla con la lettera $P$ del Poliedro.
+	\end{itemize}
+	
+	Allora l'intero Poliedro $P$ si può esprimere come la \textbf{somma della combinazione convessa dell'insieme $V$ e della combinazione conica dell'insieme $E$}.
+	
+	$P=Conv(V)+Conp(E)$
+	
+	In "Matematichese" si scrive così:
+	\[
+	\begin{aligned}
+		P = \left\{ x \in \mathbb{R}^n \;\middle|\; x = \underbrace{\sum_{i=1}^k \lambda_i v_i}_{\text{Comb. Convessa di } V} + \underbrace{\sum_{j=1}^p \mu_j e_j}_{\text{Comb. Conica di } E} \right\}
+	\end{aligned}
+	\]
+	Rispettando ovviamente i vincoli tipici che abbiamo studiato per le due combinazioni:
+	\[
+	\begin{aligned}
+		& \lambda_i \geq 0 \quad \forall i = 1, \dots, k \quad \text{e} \quad \sum_{i=1}^k \lambda_i = 1 \\
+		& \mu_j \geq 0 \quad \forall j = 1, \dots, p
+	\end{aligned}
+	\]
+	
+	\vspace{0.3cm}
+	\textbf{Significato della somma di insiemi:}\\
+	Come si può intuire dalla formula, la combinazione convessa esprime \textit{tutte} le possibili combinazioni convesse dei punti di $V$, mentre la combinazione conica esprime \textit{tutte} le possibili combinazioni coniche delle direzioni di $E$. 
+	
+	In matematica, la somma di due insiemi di questo tipo (nota come \textit{Somma di Minkowski}) rappresenta esattamente \textbf{l'insieme di tutte le possibili somme che si possono fare prendendo un elemento dal primo insieme e un elemento dal secondo}. 
+	
+	Geometricamente, significa che prendiamo la figura "chiusa" generata dalla combinazione convessa dei vertici e la facciamo "scivolare" (traslare) lungo le direzioni infinite generate dalla combinazione conica, ottenendo così la forma esatta e completa del nostro poliedro originario.
+	
+	\vspace{0.3cm}
+	\textbf{Cosa significa concretamente tutto questo?}\\
+	In maniera geometrica e visiva, sommare questi due insiemi significa prendere \textbf{ogni singolo punto} dell'insieme $V$ (generato dalla combinazione convessa) e trattarlo esattamente come se fosse una "nuova origine". Da ognuna di queste nuove origini di partenza viene fatto scaturire l'intero fascio infinito di direzioni creato dall'insieme $E$ (la combinazione conica). 
+	
+	È letteralmente come se prendessimo il cono di direzioni (generato da $E$) e ne facessimo coincidere il vertice di partenza con ogni singolo punto valido dell'insieme $V$: l'unione di tutte queste proiezioni "spazza" l'intero spazio generando la forma esatta e completa del nostro Poliedro originario. Questo è il significato concreto della frase detta prima, ossia "\textit{Allora l'intero Poliedro $P$ si può esprimere come la \textbf{somma della combinazione convessa dell'insieme $V$ e della combinazione conica dell'insieme $E$}.}"
+	\begin{center}
+		\textit{Nota: Questo teorema e la relativa costruzione geometrica verranno ripresi e approfonditi nel dettaglio con degli esempi pratici nella prossima lezione.}
+	\end{center}
+	
+	Fine \textit{Lezione 3}
+	
+	\separatore\\
+	
+	\avviso{\textit{\textbf{Questa lezione, come le sue precedenti e successive, può contenere errori e/o imprecisioni. Per il bene di tutti, è buona norma far notare all'autore l'errore o l'imprecisione così da risolvere nel minor tempo possibile. I canali di comunicazione, per eventuali avvisi generali o di errori trovati negli appunti, sono in cima al file. Grazie per la collaborazione e Buono studio!}}}
+	
+	\section*{Lezione 4 | 24 settembre 2026}
+	\subsection*{Esempi di somme di Combinazioni Convesse e Coniche per capire e comprendere il vero utilizzo del teorema di Weyl}
 	
 	
 	
