@@ -363,7 +363,7 @@
 	
 	Geometricamente, il grafico del problema affrontato precedentemente è questo:
 	
-	\begin{figure}[h]
+	\begin{figure}[H]
 		\centering
 		\begin{tikzpicture}[line cap=round,line join=round]
 			\begin{axis}[
@@ -408,7 +408,7 @@
 				
 			\end{axis}
 		\end{tikzpicture}
-		\caption{Poliedro dei vincoli. La Regione Ammissibile è la zona dove tutti i colori si sovrappongono.}
+		\caption{La Regione Ammissibile è la zona dove tutti i colori si sovrappongono.}
 	\end{figure}
 	
 	La Regione Ammissibile è anche detta \textbf{\textit{Poliedro}} la cui definizione è:
@@ -416,7 +416,20 @@
 		\item Definizione che piace ai Matematici: \textit{Si definisce tale l'intersezione di un numero finito di semispazi chiusi.}
 		\item Definizione che piace a Ingegneri e Informatici: \textit{Si definisce tale le soluzioni di $Ax \leq b$}.
 	\end{itemize}
-	Meglio usare quella che piace ai matematici dato che Pappalardo è un Matematico.\\
+	Meglio usare quella che piace ai matematici dato che Pappalardo è un Matematico.\\\\
+	\textbf{Nota importante sulla Notazione (per evitare disastri all'esame):}\\
+	Il professore ci tiene a fare una precisazione fondamentale per non confondere i concetti. Fate molta attenzione all'uso delle parentesi, perché indicano due cose radicalmente diverse:
+	\begin{itemize}
+		\item Quando si usa la lettera \textbf{senza parentesi}, si intende esclusivamente il \textbf{Poliedro geometrico}, ovvero il puro insieme delle soluzioni ammissibili.
+		\item Quando si usa la lettera \textbf{tra parentesi}, ci si riferisce all'\textbf{intero Problema in corso}, che comprende sia lo spazio ammissibile che la Funzione Obiettivo da ottimizzare.
+	\end{itemize}
+	
+	Visivamente e algebricamente, la differenza si riassume in questo modo:
+	\[
+	\underbrace{P = \{ Ax \leq b \}}_{\text{Il Poliedro}} 
+	\qquad \text{vs} \qquad 
+	\underbrace{(P) = \begin{cases} \max/\min c^T x \\ x \in P \end{cases}}_{\text{Il Problema completo}}
+	\]
 	
 	In particolar modo, il modello matematico del problema di riferimento era questo:
 	\[ 
@@ -442,12 +455,15 @@
 	\end{aligned}
 	\]
 	Risolvendo questo sistema, si otterranno dei risultati che indicheranno il valore del vertice in cui si intersecano. Ovviamente, i risultati che si ottengono riguardano i valori assunti da $x_1$ e $x_2$ in questo specifico caso di un problema in $R^2$.
-	Inoltre, per controllare che anche un altro vincolo passi esattamente da quel punto, è sufficiente inserire nel medesimo vincolo i risultati ottenuti nel precedente sistema di equazioni risolvendo anche il terzo vincolo con l'uguale.\\
+	Dopo aver ottenuto i risultati, è fondamentale prendere questi risultati e inserirli nelle equazioni che \textbf{\underline{non}} sono state inserite nel sistema risolvendo però con il $\leq$ e non con l'$=$ come per il sottosistema. Se le disequazioni vengono rispettate, allora il sottosistema di equazioni create rappresenta un \textbf{Vertice} del nostro Poliedro.\\
 	
 	Quanto è importante il Determinante della matrice di questo sottosistema creato? \textbf{\underline{MOLTISSIMO}}, infatti, se $det(matrice) \neq 0$, allora la soluzione esiste ed è unica e quindi il vertice esiste.\\
-	PS: la definizione di Vertice la vedremo più in là, per ora possiamo solo dire che un vertice esiste SOLO SE si intersecano nello stesso punto (sistema di prima) N vincoli dove N è il numero di variabili del problema, quindi, in $R^3$ dovranno intersecarsi 3 vincoli in un solo punto per poterlo definire Vertice, e così via per $R^N$.
 	
-	Nota bene: scrivere $det(matrice)$ fa parte della sintassi di MATLAB che, ovviamente, durante l'esame si può usare soprattutto per questi dettagli. Semplicemente, crei la matrice A secondo le regole stabilite dal linguaggio, poi si scrive la stringa che vi ho fornito e vi restituisce il risultato.\\\\
+	Nota bene:
+	\begin{itemize}
+		\item Ciò che è stato detto a riguardo dei Vertici riguarda solo una grossissima anticipazione di ciò che vedremo più in là. Credo che sia una buona cosa sapere questo in anticipo, ma senza metterci troppa testa perché i dettagli importanti verranno visti dopo.
+		\item scrivere "$det(matrice)$" fa parte della sintassi di MATLAB che, ovviamente, durante l'esame si può usare soprattutto per questi dettagli. Semplicemente, crei la matrice A secondo le regole stabilite dal linguaggio, poi si scrive la stringa che vi ho fornito e vi restituisce il risultato.
+	\end{itemize}
 	
 	Come anticipato nella \textit{\underline{Lezione 1}}, nei problemi di PL si esclude l'utilizzo del $<$ e del $>$ dalla realizzazione dei modelli matematici per la seguente definizione:\\\\
 	\textit{La soluzione ottima del problema non è dentro al Poliedro, dunque, se esiste, si trova sempre sul bordo}.\\\\
@@ -977,8 +993,414 @@
 	\avviso{\textit{\textbf{Questa lezione, come le sue precedenti e successive, può contenere errori e/o imprecisioni. Per il bene di tutti, è buona norma far notare all'autore l'errore o l'imprecisione così da risolvere nel minor tempo possibile. I canali di comunicazione, per eventuali avvisi generali o di errori trovati negli appunti, sono in cima al file. Grazie per la collaborazione e Buono studio!}}}
 	
 	\section*{Lezione 4 | 24 settembre 2026}
-	\subsection*{Esempi di somme di Combinazioni Convesse e Coniche per capire e comprendere il vero utilizzo del teorema di Weyl}
+	\subsection*{Comprensione del vero utilizzo del teorema di Weyl e Teorema fondamentale della PL}
 	
+	Il Teorema di Rappresentazione di Weyl non è solo una nozione teorica, ma lo strumento pratico su cui si fonda gran parte della Ricerca Operativa. La sua vera utilità è permetterci di \textbf{passare costantemente e senza perdita di informazioni} dalla fredda rappresentazione algebrica (quella "da calcolatore", definita dalla matrice $A$ e dal vettore colonna $b$) alla rappresentazione basata sui vertici e sulle direzioni.
 	
+	\vspace{0.2cm}
+	\textbf{Esempio pratico sulla Somma di Insiemi:}\\
+	Riprendendo il concetto finale della scorsa lezione, cerchiamo di visualizzare cosa significa sommare due insiemi (la cosiddetta \textit{Somma di Minkowski}). 
+	Ipotizziamo che il nostro insieme dei vertici $V$ sia composto solo da due punti, $v_1$ e $v_2$. La loro combinazione convessa ($Conv(V)$) genera un banale segmento limitato. 
+	Ora ipotizziamo che l'insieme delle direzioni $E$ contenga un unico raggio $e_1$ che punta verso l'alto. La sua combinazione conica ($Cone(E)$) è una retta infinita che parte dall'origine. 
+	
+	Cosa succede applicando il Teorema di Weyl ($P = Conv(V) + Cone(E)$)? 
+	Stiamo prendendo ogni singolo punto del segmento limitato e lo stiamo usando come origine per far scaturire la direzione infinita verso l'alto. Geometricamente, è come se "trascinassimo" l'intero segmento verso l'infinito superiore. Il risultato finale è un nuovo poliedro illimitato a forma di "nastro" infinito.
+	
+	\vspace{0.4cm}
+	\textbf{Il Triangolo delle Rappresentazioni}\\
+	L'obiettivo primario di questo corso è rendervi capaci di muovervi agilmente tra queste tre forme. Molto spesso, un problema che risulta incomprensibile o troppo calcoloso nella sua Forma Algebrica, può essere risolto in pochissimi passaggi se tradotto e analizzato nella sua Forma Geometrica.
+	
+	\begin{figure}[H]
+		\centering
+		\begin{tikzpicture}[
+			>=stealth,
+			block/.style={rectangle, draw=titlecolor, fill=titlecolor!5, 
+				text width=5cm, text centered, rounded corners=4pt, 
+				minimum height=1.8cm, line width=1pt, font=\small},
+			arrow/.style={<->, line width=1.2pt}
+			]
+			
+			% Nodi (I tre blocchi) posizionati con coordinate assolute per evitare sovrapposizioni
+			\node[block] (algebrica) at (0, 0) {\textbf{Forma Algebrica}\\[2mm] Esempio:\\ $Ax \leq b, \quad x \geq 0$};
+			
+			\node[block] (weyl) at (-4.8, -4.5) {\textbf{Forma di Weyl}\\[2mm] Esempio:\\ $P = Conv(V) + Cone(E)$};
+			
+			\node[block] (geometrica) at (4.8, -4.5) {\textbf{Forma Geometrica}\\[2mm] Risoluzione del problema guardandolo\\ visivamente e graficamente.};
+			
+			% Collegamenti (Frecce bi-direzionali senza testo)
+			\draw[arrow, color=myblue] (algebrica) -- (weyl);
+			
+			\draw[arrow, color=myred] (algebrica) -- (geometrica);
+			
+			\draw[arrow, color=mygreen] (weyl) -- (geometrica);
+			
+		\end{tikzpicture}
+	\end{figure}
+	
+	Nota bene:
+	\begin{itemize}
+		\item All'esame orale Pappalardo non ti chiederà di rappresentare graficamente un problema in $\mathbb{R}^6$, ma neanche in $\mathbb{R}^3$, dato che è impossibile farlo a mano. Dunque, è utile sicuramente ragionare in $\mathbb{R}^2$, all'orale una domanda riguardante questo argomento non è improbabile, anzi.
+		\item All'esame scritto è importante però conoscere bene la logica di passaggio da una forma all'altra perché lui comunque vuole sempre tutti i passaggi. Meglio sapere almeno di cosa si sta parlando.
+	\end{itemize}
+	
+	\vspace{0.4cm}
+
+	\textbf{Il trucco pratico sull'illimitatezza del Poliedro:}\\
+	Possiamo visualizzare concretamente questo fenomeno applicando la Funzione Obiettivo ($c^T x$) all'intera espressione del Teorema di Weyl. Sostituendo la $x$ con la somma degli insiemi, otteniamo:
+	\[
+	c^T x = c^T \left( \sum_{i=1}^k \lambda_i v_i + \sum_{j=1}^p \mu_j e_j \right)
+	\]
+	
+	\vspace{0.2cm}
+	Distribuendo il vettore dei costi $c^T$ all'interno delle due sommatorie, la separazione tra la parte limitata e la parte potenzialmente illimitata del problema diventa evidente:
+	\[
+	c^T x = \underbrace{\sum_{i=1}^k \lambda_i (c^T v_i)}_{\text{Parte limitata (Vertici)}} + \underbrace{\sum_{j=1}^p \mu_j (c^T e_j)}_{\text{Parte divergente (Direzioni)}}
+	\]
+	Il professore ci ha fornito una chiave di lettura immediata e un trucco pratico per analizzare la natura del Poliedro e del problema di ottimizzazione semplicemente guardando gli elementi di questa formula:
+	\begin{itemize}
+		\item \textbf{Poliedro limitato:} Se l'insieme delle direzioni $E$ è vuoto ($E = \emptyset$), l'intera seconda sommatoria (quella relativa alla combinazione conica) scompare. Il Poliedro risulta formato unicamente dalla combinazione convessa dei suoi vertici ($P = Conv(V)$). Questo ci dà la certezza matematica assoluta che il poliedro è chiuso e \textbf{limitato}.
+		\item \textbf{Poliedro illimitato e divergenza:} La presenza stessa di una direzione $e_j$ rende il poliedro strutturalmente \textbf{illimitato}. Il trucco sta nell'analizzare il prodotto tra la Funzione Obiettivo (il vettore $c^T$) e le direzioni della combinazione conica. Se esiste almeno una direzione $e_j$ tale per cui il prodotto scalare è maggiore di zero:
+		\[
+		\begin{aligned}
+			\sum_{j=1}^p \mu_j e_j \qquad \text{con:} \quad c^T e_j > 0
+		\end{aligned}
+		\]
+		allora l'intero membro non si annulla. Questo ha un significato concreto fortissimo: significa che muovendoci all'infinito lungo quel raggio, il valore della nostra funzione obiettivo continuerà a crescere all'infinito. È l'indicazione precisa che non solo il poliedro è illimitato, ma che il problema \textbf{non ammette un ottimo finito} (la soluzione diverge a $+\infty$).
+	\end{itemize}
+	
+	\vspace{0.3cm}
+	\textbf{La massimizzazione algebrica della Funzione Obiettivo:}\\
+	Come evidenziato dal professore, questa trasformazione (ovvero tradurre il $c^T x$ generico nei prodotti mirati $c^T v_i$ e $c^T e_j$) non è un semplice vezzo teorico, ma rappresenta il \textbf{vero e proprio metodo algebrico per massimizzare la Funzione Obiettivo}. 
+	
+	Invece di dover cercare la soluzione ottima "alla cieca" tra gli infiniti punti $x$ del Poliedro, questa scomposizione ci permette di controllare il massimo in maniera sistematica:
+	\begin{itemize}
+		\item \textbf{Controllo delle direzioni:} Se anche per un solo raggio il prodotto $c^T e_j$ risulta strettamente maggiore di zero, sappiamo subito che all'aumentare di $\mu_j$ il valore schizzerà a $+\infty$. Abbiamo trovato la divergenza senza fare calcoli complessi.
+		\item \textbf{Controllo dei vertici:} Se invece nessuna direzione ci fa "esplodere" la funzione (quindi tutti i $c^T e_j \leq 0$), la componente di destra si azzera ai fini della massimizzazione. A quel punto, per trovare il massimo assoluto dell'intero problema, ci basterà calcolare i vari $c^T v_i$ e prendere banalmente il vertice che restituisce il valore più alto, come vedremo in uno degli esempi.
+	\end{itemize}
+	
+	\vspace{0.4cm}
+	\textbf{Dimostrazione dell'ottimo sui vertici:}\\
+	Ipotizziamo ora di trovarci in un caso in cui il problema non diverga all'infinito. La componente delle direzioni si annulla (ovvero $\sum \mu_j e_j = 0$ ai fini del calcolo) e ogni punto $x$ del Poliedro può essere espresso come sola combinazione convessa dei vertici:
+	\[
+	x = \sum_{i=1}^k \lambda_i v_i
+	\]
+	
+	Applicando la Funzione Obiettivo, cerchiamo il massimo di $c^T x$:
+	\[
+	\max c^T x = \max \left( \sum_{i=1}^k \lambda_i (c^T v_i) \right)
+	\]
+	
+	Sviluppando la sommatoria, l'espressione diventa banalmente:
+	\[
+	\lambda_1(c^T v_1) + \lambda_2(c^T v_2) + \dots + \lambda_k(c^T v_k)
+	\]
+	
+	Sappiamo per definizione che i pesi $\lambda_i$ sono tutti non negativi e che la loro somma deve fare rigorosamente 1 ($\sum \lambda_i = 1$). Grazie a questa proprietà, possiamo applicare un trucco algebrico fondamentale (una \textit{maggiorazione}): una combinazione convessa di più valori non potrà \textbf{mai} superare il valore del termine più grande moltiplicato per la somma dei pesi. 
+	
+	Se chiamiamo $v_{max}$ il vertice che restituisce il valore più alto in assoluto tra tutti i $v_i$, possiamo sostituirlo agli altri e "raccoglierlo":
+	\[
+	\sum_{i=1}^k \lambda_i (c^T v_i) \leq (c^T v_{max}) \underbrace{(\lambda_1 + \lambda_2 + \dots + \lambda_k)}_{= 1} = c^T v_{max}
+	\]
+	
+	Poiché $v_{max}$ è esso stesso un punto appartenente al Poliedro $P$ (è uno dei suoi vertici), abbiamo appena dimostrato matematicamente che il valore massimo ottenibile sull'intero poliedro è uguale al valore massimo ottenibile sui soli vertici:
+	\[
+	\max_{x \in P} c^T x = \max_{v_i \in V} c^T v_i
+	\]
+	
+	Questa uguaglianza è la prova definitiva dell'equivalenza tra il \textbf{Formato Primale Standard} e la \textbf{Rappresentazione di Weyl}. Ci conferma la regola d'oro: cercare l'ottimo sull'intero dominio del poliedro equivale a cercarlo esplorando unicamente i suoi vertici. 
+	
+	\vspace{0.2cm}
+	\textit{Nota: In presenza di una componente conica con direzioni di crescita illimitata ($\sum \mu_j e_j$ con $c^T e_j > 0$), la medesima struttura logica porterebbe banalmente la funzione a scalare verso $+\infty$, confermando l'illimitatezza del Poliedro $P$ e del problema stesso.}
+	
+	\vspace{0.3cm}
+	
+	\subsection*{Esercizi utili come esempio}
+	Di seguito analizzeremo alcuni casi studio pratici per dimostrare il legame diretto tra la Geometria, l'Algebra (matrici $A$ e $b$) e la Rappresentazione di Weyl (insiemi $V$ ed $E$).
+	
+	\begin{enumerate}[label=\textbf{Esercizio \arabic*:}, itemsep=15pt, parsep=5pt, leftmargin=*]
+		
+		\item \textbf{Il Quadrato Unitario (Poliedro Limitato)}\\
+		Abbiamo un problema definito dalla matrice $A$ e dal vettore colonna $b$:
+		\[
+		A = \begin{bmatrix} 
+			-1 & 0 \\ 
+			0 & -1 \\ 
+			1 & 0 \\ 
+			0 & 1 
+		\end{bmatrix}, \qquad 
+		b = \begin{bmatrix} 
+			0 \\ 
+			0 \\ 
+			1 \\ 
+			1 
+		\end{bmatrix}
+		\]
+		Traduciamo l'espressione algebrica $Ax \leq b$ in vincoli geometrici veri e propri, ottenendo un sistema lineare:
+		\[
+		\begin{cases}
+			x_1 \geq 0 \\
+			x_2 \geq 0 \\
+			x_1 \leq 1 \\
+			x_2 \leq 1
+		\end{cases}
+		\]
+		
+		Essendo un poliedro perfettamente limitato, l'insieme delle direzioni è vuoto ($E = \emptyset$). I suoi vertici sono banalmente $V = \{v_1, v_2, v_3, v_4\}$ con $v_1=(0,0)$, $v_2=(1,0)$, $v_3=(1,1)$ e $v_4=(0,1)$. L'intero poliedro è generato esclusivamente dalla Combinazione Convessa di questi 4 punti ($P = Conv(V)$).
+		
+		\begin{figure}[H]
+			\centering
+			\begin{tikzpicture}
+				\begin{axis}[
+					width=8cm, height=8cm, axis lines=middle, ymajorgrids=true, xmajorgrids=true,
+					xmin=-0.5, xmax=1.8, ymin=-0.5, ymax=1.8, xtick={0,1}, ytick={0,1},
+					xlabel={$x_1$}, ylabel={$x_2$}
+					]
+					\draw[line width=2pt, color=myblue, fill=myblue, fill opacity=0.2] (0,0) -- (1,0) -- (1,1) -- (0,1) -- cycle;
+					
+					\filldraw (0,0) circle (2pt) node[below left] {$v_1 (0,0)$};
+					\filldraw (1,0) circle (2pt) node[below right] {$v_2 (1,0)$};
+					\filldraw (1,1) circle (2pt) node[above right] {$v_3 (1,1)$};
+					\filldraw (0,1) circle (2pt) node[above left] {$v_4 (0,1)$};
+					
+					\node[align=center, fill=white, draw=titlecolor, rounded corners=3pt, inner sep=4pt] at (0.5, 0.5) {\footnotesize $P = Conv(V)$};
+				\end{axis}
+			\end{tikzpicture}
+		\end{figure}
+		
+		\item \textbf{Il Quarto Quadrante (Poliedro Illimitato)}\\
+		In questo caso la forma algebrica è molto compatta. Abbiamo la matrice $A$ e il vettore $b$:
+		\[
+		A = \begin{bmatrix} 
+			-1 & 0 \\ 
+			0 & 1 
+		\end{bmatrix}, \qquad 
+		b = \begin{bmatrix} 
+			0 \\ 
+			0 
+		\end{bmatrix}
+		\]
+		Traduciamo l'espressione $Ax \leq b$ nei vincoli geometrici, ottenendo il sistema:
+		\[
+		\begin{cases}
+			x_1 \geq 0 \\
+			x_2 \leq 0
+		\end{cases}
+		\]
+		Siamo nel quadrante in basso a destra del piano cartesiano. Essendo il poliedro illimitato, la Rappresentazione di Weyl richiederà l'insieme delle direzioni $E$. 
+		L'unico vertice disponibile per partire è l'origine, quindi $V = \{v_1\}$ con $v_1=(0,0)$. Da lì scaturiscono due direzioni all'infinito: $e_1=(1,0)$ (lungo l'asse $x_1$ positivo) e $e_2=(0,-1)$ (lungo l'asse $x_2$ negativo).
+		
+		\begin{figure}[H]
+			\centering
+			\begin{tikzpicture}
+				\begin{axis}[
+					width=8cm, height=8cm, axis lines=middle, ymajorgrids=true, xmajorgrids=true,
+					xmin=-1, xmax=4, ymin=-4, ymax=1, xtick={0,2,4}, ytick={0,-2,-4},
+					xlabel={$x_1$}, ylabel={$x_2$}
+					]
+					\draw[line width=0pt, fill=myblue, fill opacity=0.15] (0,0) -- (4,0) -- (4,-4) -- (0,-4) -- cycle;
+					
+					\draw[->, line width=2pt, color=myred] (0,0) -- (3,0) node[above] {$e_1 (1,0)$};
+					\draw[->, line width=2pt, color=myred] (0,0) -- (0,-3) node[left] {$e_2 (0,-1)$};
+					
+					\filldraw (0,0) circle (2pt) node[above left] {$v_1 (0,0)$};
+				\end{axis}
+			\end{tikzpicture}
+		\end{figure}
+		
+		\item \textbf{Il Cono Traslato}\\
+		Cosa succede se il vertice di partenza non è l'origine? Consideriamo $V = \{v_1\}$ con $v_1=(1,2)$ e direzioni $E = \{e_1, e_2\}$ con $e_1=(1,1)$ e $e_2=(1,0)$. 
+		Come studiato nel Teorema di Weyl, la combinazione conica usa \textbf{ogni punto dell'insieme $V$ come nuova origine}. In questo caso, le frecce delle direzioni non partono da $(0,0)$, ma si agganciano al vertice $v_1$, "trascinando" il cono nel piano.
+		
+		\begin{figure}[H]
+			\centering
+			\begin{tikzpicture}
+				\begin{axis}[
+					width=8cm, height=8cm, axis lines=middle, ymajorgrids=true, xmajorgrids=true,
+					xmin=-0.5, xmax=5, ymin=-0.5, ymax=5, xtick={0,1,2,3,4}, ytick={0,1,2,3,4},
+					xlabel={$x_1$}, ylabel={$x_2$}
+					]
+					\draw[line width=0pt, fill=myblue, fill opacity=0.15] (1,2) -- (4,5) -- (5,5) -- (5,2) -- cycle;
+					
+					\draw[->, line width=2pt, color=myred] (1,2) -- (3,4) node[above left] {$e_1 (1,1)$};
+					\draw[->, line width=2pt, color=myred] (1,2) -- (4,2) node[below] {$e_2 (1,0)$};
+					
+					\filldraw (1,2) circle (2pt) node[above left] {$v_1 (1,2)$};
+				\end{axis}
+			\end{tikzpicture}
+		\end{figure}
+		
+		\item \textbf{La Direzione Ridondante}\\
+		Dato $V=\{v_1\}$ con $v_1=(0,0)$ e direzioni $e_1=(1,1)$ ed $e_2=(1,0)$. Ci viene fornita una terza direzione $e_3=(1,0.5)$ e ci viene chiesto se serve a generare il poliedro. 
+		La risposta è \textbf{NO}. Dal grafico è palese che il raggio $e_3$ transita internamente allo spazio già delimitato e generato da $e_1$ ed $e_2$. Matematicamente significa che $e_3$ è già una Combinazione Conica di $e_1$ ed $e_2$, risulta quindi \textit{ridondante} e può essere scartata dall'insieme $E$.
+		
+		\begin{figure}[H]
+			\centering
+			\begin{tikzpicture}
+				\begin{axis}[
+					width=8cm, height=8cm, axis lines=middle, ymajorgrids=true, xmajorgrids=true,
+					xmin=-0.5, xmax=3, ymin=-0.5, ymax=3, xtick={0,1,2}, ytick={0,1,2},
+					xlabel={$x_1$}, ylabel={$x_2$}
+					]
+					\draw[line width=0pt, fill=mygreen, fill opacity=0.15] (0,0) -- (3,3) -- (3,0) -- cycle;
+					
+					\draw[->, line width=2pt, color=myblue] (0,0) -- (2,2) node[above left] {$e_1 (1,1)$};
+					\draw[->, line width=2pt, color=myblue] (0,0) -- (2,0) node[below] {$e_2 (1,0)$};
+					
+					\draw[->, line width=2pt, dashed, color=myred] (0,0) -- (2,1) node[right, font=\footnotesize] {$e_3$ (Ridondante)};
+					
+					\filldraw (0,0) circle (2pt) node[above left] {$v_1 (0,0)$};
+				\end{axis}
+			\end{tikzpicture}
+		\end{figure}
+		
+		\item \textbf{Il Segmento come Poliedro Limitato}\\
+		Dato l'insieme $V=\{(1,1), (2,2)\}$ ed $E = \emptyset$. L'obiettivo qui è distruggere il pregiudizio visivo che un poliedro debba per forza essere una figura con un'area (come un quadrato o un triangolo). 
+		La sola combinazione convessa di due punti genera un segmento. Un segmento ha un perimetro chiuso dai suoi stessi estremi, pertanto è a tutti gli effetti un Poliedro chiuso e limitato.
+		
+		\begin{figure}[H]
+			\centering
+			\begin{tikzpicture}
+				\begin{axis}[
+					width=8cm, height=8cm, axis lines=middle, ymajorgrids=true, xmajorgrids=true,
+					xmin=-0.5, xmax=3.5, ymin=-0.5, ymax=3.5, xtick={0,1,2,3}, ytick={0,1,2,3},
+					xlabel={$x_1$}, ylabel={$x_2$}
+					]
+					% Disegnato come un vero segmento senza frecce (non è un vettore)
+					\draw[line width=2.5pt, color=myblue] (1,1) -- (2,2);
+					
+					\filldraw (1,1) circle (2.5pt) node[below right] {$v_1 (1,1)$};
+					\filldraw (2,2) circle (2.5pt) node[above left] {$v_2 (2,2)$};
+				\end{axis}
+			\end{tikzpicture}
+		\end{figure}
+		
+		\item \textbf{Il Tubo Infinito (Somma Minkowski Avanzata)}\\
+		Questo esercizio è uno "scherzo logico" che inganna l'occhio. Dati $V = \{v_1, v_2\}$ con $v_1=(0,1)$ e $v_2=(0,2)$. Ci viene chiesto di aggiungere direzioni per creare un poliedro illimitato da $-\infty$ a $+\infty$ sull'asse $x$. 
+		
+		L'errore comune è pensare che $E$ abbia direzioni "alle altezze $y=1$ e $y=2$". In realtà, per definizione, \textbf{le direzioni dell'insieme $E$ sono semplici vettori ancorati all'origine}. L'insieme $E$ contiene semplicemente le direzioni destra e sinistra: $e_1=(1,0)$ ed $e_2=(-1,0)$. 
+		
+		La vera magia avviene applicando Weyl (la \textit{Somma di Minkowski}): le direzioni $e_1$ ed $e_2$ vengono duplicate e fatte scaturire \textbf{da tutti i punti} della combinazione convessa dei vertici (ossia l'intero segmento tra $v_1$ e $v_2$). Trascinando il segmento a destra e a sinistra verso l'infinito, si crea visivamente questo "tubo" o nastro orizzontale.
+		
+		\begin{figure}[H]
+			\centering
+			\begin{tikzpicture}
+				\begin{axis}[
+					width=12cm, height=6cm, axis lines=middle, ymajorgrids=true, xmajorgrids=true,
+					xmin=-5, xmax=5, ymin=-0.5, ymax=3, xtick={-4,-2,0,2,4}, ytick={0,1,2},
+					xlabel={$x_1$}, ylabel={$x_2$}
+					]
+					% L'area infinita del tubo
+					\draw[line width=0pt, fill=orange, fill opacity=0.2] (-5,1) rectangle (5,2);
+					
+					% Il segmento dei vertici Conv(V)
+					\draw[line width=3pt, color=myblue] (0,1) -- (0,2);
+					
+					% I vertici
+					\filldraw (0,1) circle (2.5pt) node[below right, text=black] {$v_1 (0,1)$};
+					\filldraw (0,2) circle (2.5pt) node[above right, text=black] {$v_2 (0,2)$};
+					
+					% Le direzioni applicate al centro per dare l'idea del trascinamento
+					\draw[->, line width=2pt, color=myred] (0,1.5) -- (3,1.5) node[above] {$e_1 (1,0)$};
+					\draw[->, line width=2pt, color=myred] (0,1.5) -- (-3,1.5) node[above] {$e_2 (-1,0)$};
+				\end{axis}
+			\end{tikzpicture}
+		\end{figure}
+		
+		\item \textbf{Verifica Analitica e Calcolo dell'Ottimo}\\
+		In quest'ultimo caso non ci viene fornita la matrice $A$, ma passiamo direttamente all'approccio analitico avendo a disposizione gli insiemi della Rappresentazione di Weyl e il vettore della Funzione Obiettivo $c$:
+		\[
+		V = \left\{ v_1=\begin{pmatrix} 1 \\ 1 \end{pmatrix}, v_2=\begin{pmatrix} 2 \\ 3 \end{pmatrix}, v_3=\begin{pmatrix} -1 \\ 0 \end{pmatrix} \right\}, \quad 
+		E = \left\{ e_1=\begin{pmatrix} 0 \\ 1 \end{pmatrix}, e_2=\begin{pmatrix} 1 \\ 3 \end{pmatrix} \right\}, \quad 
+		c = \begin{bmatrix} 4 \\ -3 \end{bmatrix}
+		\]
+		Il professore ribadisce un concetto fondamentale: l'insieme dei vertici è sempre contenuto nel poliedro ($V \subset P$). 
+		
+		Per trovare il massimo, non basta calcolare subito i vertici. Dobbiamo applicare rigorosamente la regola studiata precedentemente procedendo in due step.
+		
+		\textbf{Step 1: Controllo della divergenza sulle direzioni ($E$)}\\
+		Verifichiamo innanzitutto se il problema esplode a $+\infty$ calcolando i prodotti scalari $c^T e_j$:
+		\begin{itemize}
+			\item $c^T e_1 = (4 \cdot 0) + (-3 \cdot 1) = -3 \leq 0$
+			\item $c^T e_2 = (4 \cdot 1) + (-3 \cdot 3) = 4 - 9 = -5 \leq 0$
+		\end{itemize}
+		Dato che nessuna direzione produce un valore strettamente positivo, siamo certi che \textbf{il problema non diverge}. L'ottimo finito esiste e si trova sicuramente su uno dei vertici!
+		
+		\textbf{Step 2: Calcolo dell'ottimo sui vertici ($V$)}\\
+		Solo ora siamo autorizzati a calcolare il prodotto $c^T v_i$ per ogni vertice e prendere il valore massimo:
+		\begin{itemize}
+			\item $c^T v_1 = (4 \cdot 1) + (-3 \cdot 1) = 4 - 3 = 1$ \quad $\leftarrow \textbf{MASSIMO}$
+			\item $c^T v_2 = (4 \cdot 2) + (-3 \cdot 3) = 8 - 9 = -1$
+			\item $c^T v_3 = (4 \cdot -1) + (-3 \cdot 0) = -4 - 0 = -4$
+		\end{itemize}
+		La soluzione ottima del problema è quindi il valore $1$, che si ottiene in corrispondenza del vertice $v_1 = (1,1)$.
+		
+		\begin{figure}[H]
+			\centering
+			\begin{tikzpicture}
+				\begin{axis}[
+					width=10cm, height=9cm, axis lines=middle, ymajorgrids=true, xmajorgrids=true,
+					xmin=-2, xmax=4, ymin=-1, ymax=6, xtick={-2,-1,0,1,2,3,4}, ytick={-1,0,1,2,3,4,5,6},
+					xlabel={$x_1$}, ylabel={$x_2$}
+					]
+					% Area del Poliedro illimitato generato dalla Somma di Minkowski
+					\draw[line width=0pt, fill=myblue, fill opacity=0.1] (-1,6) -- (-1,0) -- (1,1) -- (2,3) -- (3,6) -- cycle;
+					
+					% Conv(V) - Il triangolo generato dalla Combinazione Convessa dei vertici
+					\draw[line width=1.5pt, color=myblue, dashed, fill=myblue, fill opacity=0.25] (-1,0) -- (1,1) -- (2,3) -- cycle;
+					
+					% Vertici
+					\filldraw[color=mygreen] (1,1) circle (3pt) node[below right, text=black] {$v_1 (1,1)$ \textbf{(Ottimo)}};
+					\filldraw (2,3) circle (2pt) node[right] {$v_2 (2,3)$};
+					\filldraw (-1,0) circle (2pt) node[above left] {$v_3 (-1,0)$};
+					
+					% Direzioni E applicate ai vertici estremi per mostrare l'illimitatezza
+					\draw[->, line width=2pt, color=myred] (-1,0) -- (-1,3) node[left] {$e_1 (0,1)$};
+					\draw[->, line width=2pt, color=myred] (2,3) -- (3,6) node[right] {$e_2 (1,3)$};
+					
+				\end{axis}
+			\end{tikzpicture}
+			\caption{Somma di Minkowski dell'Esercizio 7. Il triangolo tratteggiato è $Conv(V)$, mentre le frecce rosse sono le direzioni $Cone(E)$ applicate ai vertici estremi. Il punto $v_1$ massimizza la Funzione Obiettivo. All'inizio può sembrare strano, ma sapendo che il vettore $c$ va praticamente verso il basso, oltre che algebricamente, si capisce come il punto $v_1$ sia l'ottimo a discapito del punto $v_2$ che poteva sembrarlo a primo impatto. È sempre importante vedere dove va la Funzione Obiettivo.}
+		\end{figure}
+		\vspace{0.4cm}
+		\textbf{Nota Geometrica sulla Ridondanza Visiva:}\\
+		Osservando il grafico dell'Esercizio 7, si nota che le direzioni dell'insieme $E$ non sono state tracciate a partire dal vertice $v_1(1,1)$, e sui vertici $v_2$ e $v_3$ è stata applicata una sola direzione per ciascuno. 
+		
+		Questo avviene per un principio di \textbf{ridondanza geometrica}. Sebbene la Somma di Minkowski imponga matematicamente di applicare l'intero cono delle direzioni a \textit{ogni} punto di $Conv(V)$, ai fini della rappresentazione grafica ci interessa tracciare unicamente l'involucro esterno (i bordi) del Poliedro. 
+		
+		\begin{itemize}
+			\item \textbf{Sul vertice interno ($v_1$):} Qualsiasi direzione fatta scaturire da qui punterebbe direttamente verso l'interno dell'area già evidenziata, risultando visivamente superflua.
+			\item \textbf{Sui vertici esterni ($v_2$ e $v_3$):} Tracciamo esclusivamente il raggio necessario a costruire la "parete" esterna del poliedro (ad esempio, solo $e_1$ su $v_3$). L'altra direzione finirebbe per transitare all'interno del poliedro, venendo "assorbita" dallo spazio già delimitato.
+		\end{itemize}
+		
+		Questa semplice intuizione ci permette di tradurre la complessa regola algebrica di Weyl in un disegno rapido, pulito e privo di informazioni sovrapposte.
+		
+	\end{enumerate}
+	
+	\subsection*{Teorema Fondamentale della Programmazione Lineare}
+	
+	Tutto ciò che abbiamo dimostrato fino a questo momento, a partire dalle combinazioni convesse fino alla scomposizione della Funzione Obiettivo, converge nel risultato teorico in assoluto più importante di questa prima parte del corso. 
+	
+	Dato un problema di Programmazione Lineare rigorosamente in \textbf{Formato Primale Standard}, e definiti $V$ (insieme dei vertici) ed $E$ (insieme delle direzioni) come gli insiemi della rappresentazione del suo Poliedro $P$, il teorema afferma che \textbf{si verificherà sempre e soltanto uno dei seguenti tre casi}:
+	
+	\begin{itemize}[label=\textcolor{titlecolor}{\Large\textbullet}, itemsep=8pt, parsep=2pt, leftmargin=1.5cm]
+		
+		\item \textbf{Caso 1: Poliedro Vuoto (Inammissibilità)}\\
+		Il problema non ammette alcuna soluzione ammissibile perché il Poliedro è banalmente vuoto ($P = \emptyset$). Nella pratica geometrica e analitica, questo accade tipicamente quando ci sono \textit{troppi vincoli} o vincoli severamente contraddittori tra loro, rendendo impossibile l'esistenza di uno spazio geometrico condiviso che li rispetti tutti.
+		
+		\item \textbf{Caso 2: Problema Illimitato (Divergenza)}\\
+		Il problema ammette soluzioni ammissibili, ma il valore della Funzione Obiettivo diverge verso $+\infty$. Come dimostrato precedentemente, questo si verifica quando il Poliedro è aperto lungo direzioni favorevoli alla Funzione Obiettivo. Spesso, nei problemi reali, questo è il sintomo della dimenticanza di alcuni limiti fisici, traducendosi in \textit{troppo pochi vincoli} a "chiudere" la regione ammissibile.
+		
+		\item \textbf{Caso 3: Esistenza dell'Ottimo Finito (Soluzione sui vertici)}\\
+		Se non si verificano i due casi patologici precedenti (ovvero il Poliedro esiste e la funzione non diverge), allora il problema ammette rigorosamente un ottimo finito. In questo scenario, il teorema garantisce matematicamente che \textbf{uno dei punti dell'insieme $V$ (dunque uno dei vertici del Poliedro) è sicuramente la soluzione ottima} del nostro problema.
+		
+	\end{itemize}
+	\vspace{0.4cm}
+	\textbf{Condizioni algebriche di verifica:}\\
+	A livello puramente operativo, il professore ha sintetizzato il riconoscimento di questi tre scenari in regole matematiche immediate:
+	\begin{itemize}
+		\item Ci troviamo nel \textbf{Caso 1} se l'insieme dei vertici è vuoto ($V = \emptyset$).
+		\item Ci troviamo nel \textbf{Caso 2} se, calcolando i prodotti tra la Funzione Obiettivo e le direzioni, esiste anche solo un risultato strettamente positivo ($c^T e_j > 0$).
+		\item Siamo nel \textbf{Caso 3} quando non ricadiamo nei due scenari precedenti. In questa situazione, per trovare la soluzione ottima è sufficiente calcolare i prodotti $c^T v_i$ per tutti i vertici dell'insieme $V$ e selezionare il valore massimo.
+	\end{itemize}
 	
 \end{document}
