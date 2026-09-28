@@ -1436,6 +1436,270 @@
 	\avviso{\textit{\textbf{Questa lezione, come le sue precedenti e successive, può contenere errori e/o imprecisioni. Per il bene di tutti, è buona norma far notare all'autore l'errore o l'imprecisione così da risolvere nel minor tempo possibile. I canali di comunicazione, per eventuali avvisi generali o di errori trovati negli appunti, sono in cima al file. Grazie per la collaborazione e Buono studio!}}}
 	
 	\section*{Lezione 5 | 28 settembre 2026}
-	\subsection*{}
+	\subsection*{Richiami e ripetizioni dei concetti delle lezioni passate e 2 esercizi per iniziare ad apprendere la sintassi di MATLAB}
+	
+	\vspace{0.4cm}
+	\textbf{Relazioni Fondamentali sui Poliedri}\\
+	Il professore ha illustrato alcune relazioni logiche cruciali per analizzare il comportamento e la struttura di un Poliedro $P$ e dell'intero problema di ottimizzazione $(P)$:
+	
+	\begin{itemize}[label=\textcolor{titlecolor}{\Large\textbullet}, itemsep=8pt, parsep=2pt, leftmargin=1.5cm]
+		\item \textbf{Poliedro $\boldsymbol{P}$ limitato $\longleftrightarrow$ Insieme Conico $\boldsymbol{E = \{(0,0)\}}$}\\
+		Se il Poliedro è limitato, l'insieme delle direzioni (Insieme Conico $E$) non può contenere rette o semirette che vanno all'infinito. Attenzione però: in matematica, effettuare la Somma di Minkowski tra un insieme pieno e un insieme vuoto ($\emptyset$) restituisce un insieme vuoto, distruggendo il nostro poliedro. Per evitare questo collasso algebrico, quando $P$ è limitato imponiamo che l'insieme $E$ contenga unicamente l'origine: $E = \{(0,0)\}$.
+		
+		\item \textbf{$\boldsymbol{E \neq \{(0,0)\}} \longleftrightarrow$ Problema $\boldsymbol{(P)}$ illimitato}\\
+		Ricordiamo la notazione: $P$ è solo lo spazio geometrico, mentre $(P)$ rappresenta l'intero problema (spazio + funzione obiettivo). Se l'insieme conico $E$ contiene almeno una direzione diversa dall'origine, significa che il poliedro si estende all'infinito. In queste condizioni, l'ottimo dell'intero problema $(P)$ viaggerà lungo quella direzione fino a raggiungere $+\infty$ (o $-\infty$).
+		
+		\item \textbf{Presenza di Vertici $\longleftrightarrow$ Insieme $\boldsymbol{V \neq \emptyset}$}\\
+		Nella Rappresentazione di Weyl, diremmo d'istinto che tutti i vertici si trovano nell'insieme $V$. Questo è vero al 99\%, ma esiste una condizione necessaria: \textit{il poliedro deve possedere almeno un vertice}. Esistono infatti poliedri sprovvisti di vertici (formati, ad esempio, solo da rette parallele). \textbf{Nota bene:} I vertici sono \textit{insostituibili}. Poiché l'insieme $V$ genera l'involucro convesso (il più piccolo insieme che contiene tutti i punti), rimuovere anche un solo vertice altererebbe irrimediabilmente la struttura geometrica del problema.
+		
+		\item \textbf{Problema $\boldsymbol{(P)}$ finito $\longleftrightarrow$ Vertice}\\
+		Un problema con soluzione finita non implica obbligatoriamente che l'ottimo cada su un vertice geometrico (potrebbe anche non averne, come nel caso di una "fascia" limitata solo da due semispazi paralleli in cui la Funzione Obiettivo è parallela ai vincoli).
+		
+		\item \textbf{Problema $\boldsymbol{(P)}$ finito $\longleftrightarrow$ Soluzione in $\boldsymbol{V}$}\\
+		Alla luce di quanto detto, se il problema è finito e possiede vertici, possiamo affermare con certezza che tutte le soluzioni ottime giacciono nell'insieme dei vertici $V$ (o in una combinazione convessa tra essi).
+	\end{itemize}
+	
+	\vspace{0.4cm}
+	\textbf{Distinzione tra Poliedro Chiuso e Poliedro Limitato}\\
+	È un errore comune confondere questi due concetti, ma geometricamente sono molto diversi:
+	
+	\begin{enumerate}
+		\item \textbf{Poliedro Chiuso ma Illimitato:} I semispazi (i vincoli) definiscono una frontiera rigida in alcune direzioni, ma lasciano il poligono "aperto" verso l'infinito in altre. Se un problema $(P)$ ha ottimo finito su un poliedro simile, tale ottimo deve trovarsi \textit{sulla frontiera} (tipicamente su un vertice), altrimenti la soluzione scapperebbe a $+\infty$.
+		
+		\item \textbf{Poliedro Limitato:} È un "blocco" chiuso su ogni lato. Non esistono direzioni che vanno all'infinito, e la soluzione ottima converge in ogni caso a un valore finito situato in corrispondenza dell'insieme $V$.
+	\end{enumerate}
+	
+	\begin{figure}[H]
+		\centering
+		\begin{minipage}{0.45\textwidth}
+			\centering
+			\textbf{1. Esempio Chiuso ma Illimitato}\\
+			\vspace{0.2cm}
+			\begin{tikzpicture}
+				\begin{axis}[width=7cm, height=5.5cm, axis lines=middle, xmin=-1, xmax=5, ymin=-1, ymax=5, xtick=\empty, ytick=\empty]
+					\draw[->, thick, color=black] (4,3) -- (2,1.5) node[midway, below right] {$v_1$};
+					\draw[->, thick, color=black] (2,1.5) -- (0.5,2.5) node[midway, below left] {$v_2$};
+					\draw[->, thick, color=black] (0.5,2.5) -- (1,4.5) node[midway, above left] {$v_3$};
+					% Area ombreggiata
+					\addplot[fill=blue, fill opacity=0.1, draw=none] coordinates {(4,3) (2,1.5) (0.5,2.5) (1,4.5) (5,5) (5,3)};
+				\end{axis}
+			\end{tikzpicture}
+		\end{minipage}
+		\hfill
+		\begin{minipage}{0.45\textwidth}
+			\centering
+			\textbf{2. Esempio Poliedro Limitato}\\
+			\vspace{0.2cm}
+			\begin{tikzpicture}
+				\begin{axis}[width=7cm, height=5.5cm, axis lines=middle, xmin=-1, xmax=5, ymin=-1, ymax=5, xtick=\empty, ytick=\empty]
+					\addplot[thick, color=blue, fill=blue, fill opacity=0.2] coordinates {(1,1) (4,1.5) (3,4) (1.5,3.5) (1,1)};
+					\node[circle, fill=black, scale=0.6] at (1,1) {};
+					\node[circle, fill=black, scale=0.6] at (4,1.5) {};
+					\node[circle, fill=black, scale=0.6] at (3,4) {};
+					\node[circle, fill=black, scale=0.6] at (1.5,3.5) {};
+				\end{axis}
+			\end{tikzpicture}
+		\end{minipage}
+		\caption{A sinistra, la frontiera chiude lo spazio a sud e a ovest, ma l'area prosegue infinitamente verso nord-est. A destra, un poliedro perfettamente limitato e racchiuso dai suoi vertici in $V$.}
+	\end{figure}
+	
+	\vspace{0.6cm}
+	\separatore
+	\vspace{0.4cm}
+	
+	\subsection*{Sintassi di MATLAB e la funzione linprog}
+	
+	Per risolvere computazionalmente i problemi di Ricerca Operativa, si utilizza il software MATLAB, il quale si affida alla funzione predefinita \texttt{linprog}. È fondamentale capire che MATLAB è strutturato per risolvere nativamente \textbf{solo problemi di MINIMO con vincoli di MINORE O UGUALE ($\leq$)}. 
+	Il modello standard che il software si aspetta è:
+	\[
+	\begin{cases}
+		\min c^T x \\
+		Ax \leq b \\
+		A_{eq} x = b_{eq} \\
+		LB \leq x \leq UB
+	\end{cases}
+	\]
+	
+	\textbf{Le Variabili di Input}
+	\begin{itemize}
+		\item \texttt{c}: Vettore riga contenente i coefficienti della Funzione Obiettivo. Es. \texttt{c = [60 70]}. \textit{Nota bene:} Se il problema originale è di Massimo ($\max$), dobbiamo invertire i segni di $c$ per "ingannare" MATLAB facendogli calcolare un minimo.
+		\item \texttt{A} e \texttt{b}: Matrice dei coefficienti tecnici e vettore dei termini noti per i vincoli di disuguaglianza ($\leq$). Se un vincolo è $\geq$, si moltiplica tutto per $-1$. In MATLAB si usa il punto e virgola (\texttt{;}) per andare a capo alla fine di ogni vincolo. 
+		\item \texttt{Aeq} e \texttt{beq}: Parametri per i vincoli di uguaglianza stretta (utilizzati nella PLI). Al momento li lasceremo vuoti inserendo parentesi quadre vuote \texttt{[]}.
+		\item \texttt{LB} e \texttt{UB}: Lower Bound e Upper Bound. Rappresentano i limiti inferiori (es. $x \geq 0$) e superiori delle variabili. Possiamo lasciarli vuoti \texttt{[]} poiché li integreremo direttamente nella matrice $A$.
+	\end{itemize}
+	
+	Il comando finale per avviare il calcolo è:
+	\begin{verbatim}
+		[x v] = linprog(c, A, b, [], [], [], [])
+	\end{verbatim}
+	In questo modo, la variabile \texttt{x} restituirà i valori ottimi delle variabili decisionali, mentre \texttt{v} restituirà il valore finale della Funzione Obiettivo.
+	
+	\vspace{0.6cm}
+	
+	% ==========================================
+	% ESERCIZIO 1
+	% ==========================================
+	\subsubsection*{Esercizio 1: Problema di Produzione (Lana, Cotone, Nylon)}
+	Prima di passare alla risoluzione in MATLAB, analizziamo nel dettaglio la logica economica e matematica di questo modello (il classico "Problema di Mix Produttivo"). \textbf{Cosa rappresentano esattamente questi numeri e perché stiamo massimizzando?}
+	
+	L'obiettivo dell'azienda è stabilire il miglior piano di produzione (quante unità di Prodotto A e Prodotto B realizzare) per ottenere il massimo ricavo possibile. 
+	Nella Funzione Obiettivo ($60x_1 + 70x_2$), i coefficienti \textbf{60 e 70 indicano il profitto unitario} (ad esempio in euro) ricavato dalla vendita, rispettivamente, di una singola unità di Prodotto A ($x_1$) e di Prodotto B ($x_2$). Volendo arricchirci il più possibile, il problema impone la ricerca di un massimo ($\max$).
+	
+	Se non avessimo limiti fisici, l'azienda produrrebbe infinite unità per generare infiniti profitti. Tuttavia, la produzione è vincolata dalle scorte limitate di materie prime. Ed è qui che entrano in gioco i vincoli e i loro coefficienti:
+	\begin{itemize}
+		\item I coefficienti tecnici a sinistra (es. \textbf{2 e 3} nel primo vincolo) indicano il \textbf{consumo di risorse} necessario per fabbricare la merce. Ad esempio, per assemblare un singolo Prodotto A servono 2 unità di Lana, mentre per un Prodotto B ne servono 3.
+		\item I termini noti a destra (\textbf{375, 192 e 283}) rappresentano le \textbf{capacità massime del magazzino}, ovvero la quantità di Lana, Cotone e Nylon attualmente e fisicamente a nostra disposizione.
+	\end{itemize}
+	
+	Questo spiega in modo logico l'uso del segno di minore o uguale ($\leq$): l'azienda può tranquillamente decidere di non consumare tutta la materia prima (avanzando qualche scorta in magazzino), o di consumarla tutta arrivando al limite esatto, ma è fisicamente impossibile impiegare una quantità di materiale superiore a quella che si possiede.
+	
+	Il modello matematico originale si presenta quindi così:
+	\[
+	\begin{cases}
+		\max \quad 60x_1 + 70x_2 \\
+		2x_1 + 3x_2 \leq 375 \quad \text{(Lana)} \\
+		2x_1 + x_2 \leq 192 \quad \text{(Cotone)} \\
+		2x_1 + 2x_2 \leq 283 \quad \text{(Nylon)} \\
+		x_1 \geq 0, x_2 \geq 0
+	\end{cases}
+	\]
+	
+	Adattiamo il modello per MATLAB:
+	1) Invertiamo la F.O. (da $\max$ a $\min$) cambiando i segni $\rightarrow \min -60x_1 - 70x_2$.
+	2) Inseriamo i vincoli di non negatività nella matrice $A$ moltiplicandoli per $-1 \rightarrow -x_1 \leq 0$ e $-x_2 \leq 0$.
+	
+	\textbf{Esecuzione in MATLAB:}
+	\begin{verbatim}
+		>> c = [-60 -70]
+		>> A = [2 3; 2 1; 2 2; -1 0; 0 -1]
+		>> b = [375; 192; 283; 0; 0]
+		>> [x v] = linprog(c, A, b, [], [], [], [])
+		
+		Optimal solution found.
+		
+		x =
+		49.5000
+		92.0000
+		
+		v =
+		-9410
+	\end{verbatim}
+	\textit{Nota:} Il risultato \texttt{v} esce negativo ($-9410$) perché avevamo invertito la funzione obiettivo. Il profitto reale massimo è $9410$.
+	
+	\begin{figure}[H]
+		\centering
+		\begin{tikzpicture}
+			\begin{axis}[
+				width=12cm, height=9cm,
+				axis lines=middle,
+				xmin=0, xmax=200, ymin=0, ymax=200,
+				xlabel={$x_1$ (Prodotto A)}, ylabel={$x_2$ (Prodotto B)},
+				grid=both,
+				minor tick num=1]
+				
+				% Poligono Ammissibile
+				\addplot[fill=myblue, fill opacity=0.2, draw=none] coordinates {
+					(0,0) (96,0) (50.5, 91) (49.5, 92) (0,125) (0,0)
+				};
+				
+				% Rette dei Vincoli
+				\addplot[thick, color=red, domain=0:187.5] {125 - (2/3)*x} node[pos=0.8, above right] {Lana};
+				\addplot[thick, color=green!60!black, domain=0:96] {192 - 2*x} node[pos=0.2, right] {Cotone};
+				\addplot[thick, color=orange, domain=0:141.5] {141.5 - x} node[pos=0.6, above right] {Nylon};
+				
+				% Punto Ottimo
+				\node[circle, fill=black, scale=0.8] at (49.5, 92) {};
+				\node[above right, font=\bfseries] at (49.5, 92) {Ottimo (49.5; 92)};
+				
+				% Vettore Gradiente
+				\draw[->, line width=1.5pt, color=blue] (0,0) -- (60,70) node[above right] {$\nabla z$ (60, 70)};
+			\end{axis}
+		\end{tikzpicture}
+		\caption{Rappresentazione grafica dell'Esercizio 1. La regione ammissibile è limitata. L'ottimo si trova all'intersezione tra il vincolo della Lana e quello del Nylon.}
+	\end{figure}
+	
+	\vspace{0.6cm}
+	
+	% ==========================================
+	% ESERCIZIO 2
+	% ==========================================
+	\subsubsection*{Esercizio 2: Problema di Minimizzazione ed errori compiuti}
+	Prima di approcciare MATLAB, è fondamentale comprendere la logica economica e matematica di questo modello (spesso noto in Ricerca Operativa come "Problema della Dieta"). \textbf{Cosa rappresentano esattamente questi numeri e perché stiamo minimizzando?} 
+	
+	A differenza dell'Esercizio 1, dove lo scopo era massimizzare un profitto limitato dalla capienza del magazzino, qui la prospettiva è ribaltata: l'obiettivo è \textit{minimizzare i costi} per l'acquisto del cibo. 
+	Nella Funzione Obiettivo ($20x_1 + 30x_2$), i coefficienti \textbf{20 e 30 indicano il costo unitario} (ad esempio in euro) rispettivamente del prodotto A ($x_1$) e del prodotto B ($x_2$). Vogliamo spendere il meno possibile per nutrirci, per questo il problema richiede un minimo ($\min$).
+	
+	Tuttavia, non possiamo semplicemente decidere di "non comprare nulla" (scelta che azzererebbe la spesa) perché siamo bloccati dalla necessità di garantire una dieta adeguata. Ed è qui che entrano in gioco i vincoli e i loro coefficienti:
+	\begin{itemize}
+		\item I coefficienti tecnici (\textbf{4 e 2} per le proteine; \textbf{2 e 3} per i carboidrati) rappresentano \textbf{l'apporto nutrizionale} fornito da una singola unità di prodotto. Ad esempio, un'unità del prodotto A ci dona 4 grammi di proteine e 2 di carboidrati.
+		\item I termini noti (\textbf{32} e \textbf{24}) rappresentano il \textbf{fabbisogno vitale minimo} di cui abbiamo bisogno per sopravvivere.
+	\end{itemize}
+	
+	Ecco spiegato l'uso del segno di maggiore o uguale ($\geq$): superare la soglia vitale di 32 proteine o 24 carboidrati è assolutamente consentito dal modello (spenderemo magari qualcosa in più, ma saremo nutriti), mentre scendere sotto quel fabbisogno non è una soluzione ammissibile. 
+	In un problema con questo tipo di vincoli, cercare il "massimo" non avrebbe alcun senso logico: la soluzione esploderebbe a $+\infty$, suggerendoci di comprare infinite quantità di cibo a un costo infinito.
+	
+	Il modello matematico originale si presenta quindi così:
+	\[
+	\begin{cases}
+		\min \quad 20x_1 + 30x_2 \\
+		4x_1 + 2x_2 \geq 32 \quad \text{(Proteine minime)} \\
+		2x_1 + 3x_2 \geq 24 \quad \text{(Carboidrati minimi)} \\
+		x_1 \geq 0, x_2 \geq 0
+	\end{cases}
+	\]
+	
+	\textbf{La sintassi corretta per MATLAB:}\\
+	Per risolvere correttamente il problema, dobbiamo prestare attenzione a due aspetti fondamentali:
+	\begin{itemize}
+		\item La funzione obiettivo parte \textit{già} come una minimizzazione, perciò i coefficienti nel vettore \texttt{c} non vanno invertiti e si inseriscono esattamente come si presentano nel modello.
+		\item I vincoli originali sono di tipo $\geq$, ma MATLAB accetta nativamente solo vincoli $\leq$. Per questo motivo, occorre invertire la disuguaglianza moltiplicando tutti i coefficienti della matrice $A$ e i termini noti del vettore $b$ per $-1$.
+	\end{itemize}
+	
+	\begin{verbatim}
+		>> c = [20 30]
+		>> A = [-4 -2; -2 -3; -1 0; 0 -1]
+		>> b = [-32; -24; 0; 0]
+		>> [x v] = linprog(c, A, b, [], [], [], [])
+		
+		Optimal solution found.
+		
+		x =
+		6.0000
+		4.0000
+		
+		v =
+		240.0000
+	\end{verbatim}
+	
+	\begin{figure}[H]
+		\centering
+		\begin{tikzpicture}
+			\begin{axis}[
+				width=12cm, height=9cm,
+				axis lines=middle,
+				xmin=0, xmax=15, ymin=0, ymax=20,
+				xlabel={$x_1$}, ylabel={$x_2$},
+				grid=both,
+				minor tick num=1]
+				
+				% Poligono Ammissibile (Regione illimitata verso l'alto/destra)
+				\addplot[fill=myred, fill opacity=0.15, draw=none] coordinates {
+					(0,20) (0,16) (6,4) (12,0) (15,0) (15,20)
+				};
+				
+				% Rette dei Vincoli
+				\addplot[thick, color=blue, domain=0:8] {16 - 2*x} node[pos=0.15, right] {Proteine};
+				\addplot[thick, color=purple, domain=0:12] {8 - (2/3)*x} node[pos=0.8, above right] {Carboidrati};
+				
+				% Punto Ottimo
+				\node[circle, fill=black, scale=0.8] at (6,4) {};
+				\node[above right, font=\bfseries] at (6,4) {Ottimo (6; 4)};
+				
+				% Vettore Gradiente
+				\draw[->, line width=1.5pt, color=black] (0,0) -- (6,9) node[above right] {$\nabla z$ (20, 30)};
+			\end{axis}
+		\end{tikzpicture}
+		\caption{Rappresentazione grafica dell'Esercizio 2. Notare come lo spazio ammissibile (in rosso) sia limitato inferiormente ma illimitato superiormente. Trattandosi di un problema di minimizzazione, l'ottimo si appoggia sul vertice inferiore (6, 4).}
+	\end{figure}
 	
 \end{document}
