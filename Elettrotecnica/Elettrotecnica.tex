@@ -1,0 +1,478 @@
+\documentclass[12pt, a4paper]{article}
+
+% --- IMPOSTAZIONI DI BASE E LINGUA ---
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[italian]{babel}
+\usepackage[none]{hyphenat}
+\usepackage[a4paper, top=2.4cm, bottom=2.4cm, left=2cm, right=2cm, headheight=14pt, headsep=10pt]{geometry}
+
+% --- TIPOGRAFIA RAFFINATA ---
+\usepackage{microtype}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt plus 1.5pt minus 1pt}
+\setlength{\emergencystretch}{2em}
+
+% --- MATEMATICA E FORMATTAZIONE ---
+\usepackage{amsmath}
+\usepackage{amssymb} % Aggiunto per i simboli come i numeri reali \mathbb{R}
+
+% --- IMMAGINI, GRAFICA E COLORI ---
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{xcolor} % Caricato PRIMA di tikz
+
+% --- DISEGNO GRAFICI E POLIEDRI (TIKZ / PGFPLOTS) ---
+\usepackage{tikz}
+\usetikzlibrary{arrows}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.15} % Usiamo la 1.15 per massima stabilità
+\usepgfplotslibrary{fillbetween}
+
+% --- COLORI PERSONALIZZATI (Stile GeoGebra) ---
+\definecolor{myblue}{rgb}{0,0,1}
+\definecolor{myred}{rgb}{1,0,0}
+\definecolor{mygreen}{rgb}{0,0.5,0}
+
+% --- COLORE DI STILE (titoli, righe e box) ---
+\definecolor{titlecolor}{RGB}{16,52,96}
+
+% --- TITOLI DI SEZIONE ELEGANTI ---
+\usepackage{titlesec}
+\titleformat{\section}
+{\color{titlecolor}\Large\bfseries\raggedright}
+{\thesection}{0.7em}{}
+[\vspace{0.4ex}{\color{titlecolor!50}\titlerule[1pt]}]
+\titleformat{\subsection}
+{\color{titlecolor}\large\bfseries\raggedright}
+{\thesubsection}{0.6em}{}
+[]
+\titlespacing*{\section}{0pt}{2.2em}{1em}
+\titlespacing*{\subsection}{0pt}{1.8em}{0.6em}
+
+% --- LISTE CON SPAZIATURE PIÙ ARIOSE ---
+\usepackage{enumitem}
+\setlist{itemsep=2pt, topsep=3pt, parsep=2pt, partopsep=0pt}
+
+% --- TABELLE PIÙ RESPIRABILI ---
+\renewcommand{\arraystretch}{1.25}
+
+% --- DIDASCALIE RAFFINATE ---
+\usepackage{caption}
+\captionsetup{font=small, labelfont={bf,color=titlecolor}, labelsep=period, textfont=it, skip=4pt}
+
+% --- TESTATINA E PIÈ DI PAGINA ---
+\usepackage{zref-totpages}
+\usepackage{fancyhdr}
+\fancypagestyle{plain}{%
+	\fancyhf{}%
+	\fancyhead[L]{\small\itshape\color{gray}Elettrotecnica}%
+	\fancyhead[R]{\small\color{gray}Andrea Salvatore}%
+	\fancyfoot[C]{\small\color{gray}Pagina \thepage\ di \ztotpages}%
+	\renewcommand{\headrulewidth}{0.4pt}%
+}
+\pagestyle{plain}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0pt}
+
+% --- TITOLO DEL DOCUMENTO RAFFINATO ---
+\makeatletter
+\renewcommand{\@maketitle}{%
+	\begin{center}%
+		{\LARGE\bfseries\color{titlecolor}\@title\par}%
+		\vskip 0.6em%
+		{\large\color{titlecolor}\@author\par}%
+		\vskip 0.5em%
+		{\normalsize\itshape\color{gray}\@date\par}%
+	\end{center}%
+	\vskip 0.4em%
+	{\color{titlecolor!50}\hrule height 1pt}%
+	\vskip 1.2em%
+}
+\makeatother
+
+% --- RIGA SEPARATRICE ELEGANTE ---
+\newcommand{\separatore}{\noindent{\color{titlecolor!50}\rule{\textwidth}{0.6pt}}}
+
+% --- BOX PER L'AVVISO DI OGNI LEZIONE ---
+\newcommand{\avviso}[1]{%
+	\par\medskip
+	\noindent
+	\begin{tikzpicture}
+		\node[rounded corners=2.5pt, fill=titlecolor!5, draw=titlecolor!35, line width=0.6pt,
+		inner xsep=9pt, inner ysep=7pt, text width=\dimexpr\linewidth-18.6pt\relax, align=left] {#1};
+	\end{tikzpicture}
+	\par\medskip
+}
+
+% --- LINK IPERTESTUALI ---
+\usepackage[colorlinks=true, linkcolor=titlecolor, urlcolor=titlecolor, pdfauthor={Andrea Salvatore}, pdftitle={Elettrotecnica}]{hyperref} % hyperref va sempre caricato per ultimo!
+
+\usepackage[european]{circuitikz}
+
+\begin{document}
+	\title{\textbf{Elettrotecnica}}
+	\author{\textbf{Andrea Salvatore}}
+	\date{Anno accademico: 2026/2027}
+	\maketitle
+	
+	I miei contatti:
+	\begin{itemize}
+		\item \textbf{GitHub}: \href{https://github.com/andrea-salvatore}{andrea-salvatore}
+		\item \textbf{Website}: \href{https://andreasalvatore.dev/}{andreasalvatore.dev}
+		\item \textbf{Cellulare}: +39 3703116443
+		\item \textbf{E-mail}:
+		\begin{itemize}
+			\item Personale: asalvatore.junior@gmail.com
+			\item Lavorativa: ajs.sdk.mt@gmail.com
+			\item Istituzionale: a.salvatore9@studenti.unipi.it
+		\end{itemize}
+	\end{itemize}
+	\vspace{1cm}
+	
+	L'intento di questo file è contenere le lezioni del prof. Crisostomi in ordine strettamente cronologico seguendo, dunque, le lezioni dell'anno accademico citato sopra. L'idea nasce dal fatto che spesso capita che gli assenti abbiano bisogno di recuperare delle lezioni. Attraverso i file in questo repository ora hanno tutto in tempo reale lezione dopo lezione. Inoltre, per senso di collaborazione, agli studenti è fornito non solo il PDF, bensì anche il sorgente .tex, utile per correggere errori e/o aggiungere dettagli utili direttamente tramite le Pull Request di GitHub. Oppure, nell'ipotesi che io sia in difficoltà con la trascrizione corretta degli appunti, ci si può aiutare inserendo tutto qui e mettendo a disposizione di \textbf{tutti} il materiale in ordine cronologico e in tempi ristretti. Grazie a tutti per la collaborazione.
+	
+	\separatore\\
+	
+	\avviso{\textit{\textbf{Questa lezione, come le sue precedenti e successive, può contenere errori e/o imprecisioni. Per il bene di tutti, è buona norma far notare all'autore l'errore o l'imprecisione così da risolvere nel minor tempo possibile. I canali di comunicazione, per eventuali avvisi generali o di errori trovati negli appunti, sono in cima al file. Grazie per la collaborazione e Buono studio!}}}
+	
+	\section*{Lezione 1 | 23 settembre 2026} % Usato section* invece di andare a capo a mano
+	\subsection*{Introduzione all'elettrotecnica e studio delle due leggi di kirchhoff} % Usato subsection* invece di \title
+	
+	L'Elettrotecnica è la disciplina che si occupa dello studio dei circuiti elettrici. Alla sua base risiedono le leggi dell'elettromagnetismo (le Equazioni di Maxwell), che sono di natura piuttosto complessa. Per analizzare il comportamento dei segnali elettrici (come tensioni e correnti alternate), si ricorre allo studio delle onde tramite una funzione a due variabili, tipicamente indicata con la lettera greca $\psi$ (psi):
+	\[
+	\psi(x,t) = Y \sin\left(\frac{2\pi x}{\lambda} - \frac{2\pi t}{T}\right)
+	\]
+	
+	Questa formula descrive l'andamento di un'onda nello spazio e nel tempo. Analizziamo nel dettaglio le sue componenti:
+	\begin{itemize}[label=\textcolor{titlecolor}{\Large\textbullet}, itemsep=6pt, parsep=2pt, leftmargin=1.5cm]
+		\item \textbf{Le variabili $\boldsymbol{x}$ e $\boldsymbol{t}$}: Rappresentano rispettivamente la \textit{posizione} (lo spazio) e il \textit{tempo}.
+		
+		\item \textbf{L'Ampiezza ($\boldsymbol{Y}$)}: È il coefficiente che moltiplica la funzione seno. Dato che il seno oscilla sempre tra $+1$ e $-1$, il segnale fluttuerà costantemente tra un valore massimo di $+Y$ e un valore minimo di $-Y$.
+		
+		\item \textbf{Il Periodo ($\boldsymbol{T}$)}: Misurato in secondi (o millisecondi), rappresenta la distanza \textit{temporale} tra due punti identici dell'onda (ad esempio, il tempo che trascorre tra due picchi minimi a $-Y$). Il Periodo si calcola come il reciproco della Frequenza ($f$):
+		\[
+		T = \frac{1}{f}
+		\]
+		\textit{Nota applicativa:} Nelle reti elettriche delle nostre case, la frequenza è fissata a $50\text{ Hz}$. Di conseguenza, il periodo della nostra corrente di casa è esattamente $T = \frac{1}{50} = 0.02\text{ s}$, ovvero $20\text{ ms}$.
+		
+		\item \textbf{La Lunghezza d'onda ($\boldsymbol{\lambda}$)}: Da non confondere con il Periodo. Mentre $T$ misura il tempo, $\lambda$ (lambda) misura la distanza \textit{fisica} (lo spazio $x$) tra due picchi consecutivi dell'onda. L'unità di misura nel Sistema Internazionale è il metro (m), ma spesso è più comodo esprimerla in chilometri (km). Si calcola con la formula:
+		\[
+		\lambda = \frac{c}{f}
+		\]
+		dove $c$ rappresenta la velocità di propagazione dell'onda (la velocità della luce, pari a circa $300\,000\text{ km/s}$) ed $f$ è la frequenza. \\
+		\textit{Esempio del professore:} Calcolando la lunghezza d'onda del segnale elettrico domestico a $50\text{ Hz}$, si ottiene un risultato notevole: $\lambda = \frac{300\,000\,000\text{ m/s}}{50\text{ Hz}} = 6000\text{ km}$.
+	\end{itemize}
+	
+	\vspace{0.4cm}
+	\textbf{Il trucco dell'analisi a singola variabile}\\
+	Analizzare a mente o su carta una funzione in due variabili $(x, t)$ è inutilmente complesso. Il trucco fondamentale dell'ingegneria e della fisica per studiare questi fenomeni è \textbf{fissare una delle due variabili a zero} (o a un valore costante), studiando il comportamento dell'altra. È l'equivalente matematico di "scattare una fotografia" o "piazzare un sensore fisso".
+	
+	\begin{figure}[H]
+		\centering
+		% GRAFICO 1: Fissiamo il tempo t=0
+		\begin{tikzpicture}
+			\begin{axis}[
+				width=12cm, height=5.5cm,
+				axis lines=middle,
+				ymin=-1.5, ymax=2.2, xmin=0, xmax=5.2,
+				xtick={1,2,3,4}, xticklabels={$\frac{\lambda}{2}$, $\lambda$, $\frac{3\lambda}{2}$, $2\lambda$},
+				ytick={-1, 1}, yticklabels={$-Y$, $+Y$},
+				xlabel={Spazio ($x$)}, ylabel={$\psi(x,0)$},
+				xlabel style={anchor=north west}, % Sposta l'etichetta X in basso a destra
+				ylabel style={anchor=south east}, % Sposta l'etichetta Y in alto a sinistra
+				domain=0:4.5, samples=150
+				]
+				% Equazione con t=0: y = Y * sin(2*pi*x/lambda) -> in rad normalizzati sin(pi*x)
+				\addplot[line width=1.5pt, color=myblue] {sin(deg(pi*x))};
+				
+				% Disegno l'indicatore della lunghezza d'onda lambda alzato a 1.4 per evitare sovrapposizioni
+				\draw[<->, line width=1pt] (0.5, 1.4) -- (2.5, 1.4) node[midway, above] {Lunghezza d'onda $\lambda$ (Spazio)};
+			\end{axis}
+		\end{tikzpicture}
+		
+		\vspace{0.6cm}
+		
+		% GRAFICO 2: Fissiamo lo spazio x=0
+		\begin{tikzpicture}
+			\begin{axis}[
+				width=12cm, height=5.5cm,
+				axis lines=middle,
+				ymin=-2.2, ymax=1.5, xmin=0, xmax=5.2,
+				xtick={1,2,3,4}, xticklabels={$\frac{T}{2}$, $T$, $\frac{3T}{2}$, $2T$},
+				ytick={-1, 1}, yticklabels={$-Y$, $+Y$},
+				xlabel={Tempo ($t$)}, ylabel={$\psi(0,t)$},
+				xlabel style={anchor=north west},
+				ylabel style={anchor=south east},
+				domain=0:4.5, samples=150
+				]
+				% Equazione con x=0: y = Y * sin(-2*pi*t/T) = -Y * sin(2*pi*t/T) -> -sin(pi*t)
+				\addplot[line width=1.5pt, color=myred] {-sin(deg(pi*x))};
+				
+				% Disegno l'indicatore del periodo T abbassato a -1.4
+				\draw[<->, line width=1pt] (1.5, -1.4) -- (3.5, -1.4) node[midway, below] {Periodo $T$ (Tempo)};
+			\end{axis}
+		\end{tikzpicture}
+		\caption{\textbf{Sopra:} Ponendo $t=0$ ("scattando una foto"), analizziamo l'andamento del segnale nello spazio evidenziando la lunghezza d'onda $\lambda$. \textbf{Sotto:} Ponendo $x=0$ (es. mettendoci fermi a guardare la presa di casa), analizziamo l'andamento del segnale nel tempo evidenziando il periodo $T$.}
+	\end{figure}
+	
+	\subsection*{Il Circuito Generico e la Propagazione Spaziale}
+	
+	Per comprendere appieno la funzione dell'onda $\psi(x,t)$ appena studiata, è necessario visualizzare il circuito elettrico su cui questo segnale viaggia. 
+	
+	Nel diagramma sottostante notiamo due elementi fondamentali:
+	\begin{itemize}
+		\item \textbf{I Bipoli Generici (le "scatolette"):} Sono rappresentati come dei rettangoli vuoti. In Elettrotecnica, questa è la rappresentazione standard di un componente a due morsetti di cui non si conosce (o non interessa ancora specificare) la natura. Potrebbero essere resistori, condensatori, induttori o generatori.
+		\item \textbf{L'asse di propagazione $\boldsymbol{x}$:} La freccia in alto non indica semplicemente "da che parte vanno gli elettroni" (la corrente scorre in tutti i rami del circuito chiuso), bensì rappresenta il nostro asse di riferimento spaziale. È letteralmente la variabile $x$ della formula $\psi(x,t)$: ci indica la direzione di propagazione dell'onda elettromagnetica lungo la linea e ci fornisce un riferimento per misurare le distanze.
+	\end{itemize}
+	
+	\begin{figure}[H]
+		\centering
+		\begin{circuitikz}[european, thick, scale=1.2, transform shape]
+			% Asse spaziale x in alto
+			\draw[->, line width=1.5pt] (-0.5, 5) -- (4.5, 5) node[right] {\large $x$};
+			
+			% Ramo superiore
+			\draw (0,4) -- (1,4) to[generic] (3,4) -- (4,4);
+			
+			% Ramo sinistro
+			\draw (0,4) -- (0,2) to[generic] (0,0);
+			
+			% Ramo orizzontale centrale
+			\draw (0,2) to[generic] (2,2) to[generic] (4,2);
+			
+			% Ramo verticale centrale
+			\draw (2,2) to[generic] (2,0);
+			
+			% Ramo destro (senza la scatoletta in alto a destra)
+			\draw (4,4) -- (4,2) to[generic] (4,0);
+			
+			% Ramo inferiore
+			\draw (0,0) -- (4,0);
+		\end{circuitikz}
+		\caption{Rappresentazione topologica di un circuito con bipoli generici. L'asse $x$ superiore definisce la coordinata spaziale per l'analisi dei segnali propagati.}
+	\end{figure}
+	
+	\subsection*{Le Grandezze Elettriche Fondamentali}
+	
+	Il professore ha introdotto le quattro grandezze pilastro dell'Elettrotecnica: Corrente, Tensione (o Differenza di Potenziale), Potenza Elettrica ed Energia Elettrica. 
+	
+	\begin{itemize}[label=\textcolor{titlecolor}{\Large\textbullet}, itemsep=12pt, parsep=4pt, leftmargin=1.5cm]
+		
+		\item \textbf{Corrente Elettrica ($i$):}\\
+		Si misura in \textbf{Ampere (A)} e si indica tipicamente come funzione del tempo $i(t)$. Rappresenta la quantità di carica elettrica ($q$) che attraversa una sezione del circuito nel tempo. Matematicamente, è la derivata della carica rispetto al tempo:
+		\[
+		i(t) = \frac{dq(t)}{dt} \approx \frac{\Delta q}{\Delta t}
+		\]
+		
+		\item \textbf{Tensione o Differenza di Potenziale ($v$):}\\
+		È la grandezza duale rispetto alla corrente e si misura in \textbf{Volt (V)}. Fisica alla mano, la tensione è espressione del \textit{lavoro} (energia) necessario per spostare una carica, matematicamente definita proprio dal lavoro diviso per la carica (spesso espressa in forma integrale nello studio dei campi):
+		\[
+		v(t) = \frac{dL(t)}{dq(t)}
+		\]
+		Trattandosi di una \textbf{differenza di potenziale} tra due punti (es. $A$ e $B$), la \textit{direzione è tutto}. Spostarsi da $A$ verso $B$ o viceversa produce lo stesso valore numerico, ma con segno algebrico opposto. Questa dualità vale specularmente anche per la corrente:
+		\[
+		v_{AB}(t) = -v_{BA}(t) \qquad \text{e} \qquad i_{AB}(t) = -i_{BA}(t)
+		\]
+		\begin{figure}[H]
+			\centering
+			\begin{circuitikz}[european, thick, scale=1.2]
+				\draw (0,0) node[above] {$A$} to[short, i=$i_{AB}(t)$, *-*] (3,0) node[above] {$B$};
+			\end{circuitikz}
+		\end{figure}
+		
+		\item \textbf{Potenza Elettrica ($p$):}\\
+		Si misura in \textbf{Watt (W)} e si calcola semplicemente come il prodotto tra la tensione e la corrente in un determinato istante di tempo:
+		\[
+		p(t) = v(t) \cdot i(t)
+		\]
+		
+		\vspace{0.2cm}
+		\textbf{Convenzioni sui Riferimenti (Associati e Non Associati)}\\
+		Quando calcoliamo la potenza su un bipolo (la famosa "scatoletta"), dobbiamo fare estrema attenzione ai segni. Abbiamo a disposizione una tensione (con un polo $+$ e un polo $-$ agli estremi del bipolo) e una freccia della corrente. 
+		
+		\textbf{Attenzione:} nella pratica (come all'interno di una resistenza), la corrente fisica scivola naturalmente dal potenziale maggiore ($+$) a quello minore ($-$). Tuttavia, in un circuito sono presenti anche i generatori, i quali al loro interno forzano la corrente a viaggiare al contrario (dal $-$ verso il $+$). Essendo il bipolo generico un componente di cui ignoriamo ancora la natura, la freccia che disegniamo non indica il movimento fisico assoluto, ma solo un \textbf{verso di riferimento arbitrario} per impostare i calcoli. 
+		
+		A seconda di come la freccia della corrente si accoppia con i poli della tensione, si definiscono due convenzioni fondamentali:
+		
+		\begin{enumerate}
+			\item \textbf{Riferimenti Associati:} La freccia della corrente $i(t)$ entra dal morsetto positivo ($+$) ed esce dal negativo ($-$). In questo caso, calcolando il prodotto $v(t) \cdot i(t)$ stiamo ricavando la \textbf{Potenza Dissipata} (o assorbita) dal bipolo.
+			
+			\item \textbf{Riferimenti Non Associati:} La freccia della corrente $i(t)$ entra dal morsetto negativo ($-$) ed esce dal positivo ($+$). In questo caso, il prodotto standard ci darebbe la \textbf{Potenza Erogata} (generata). Se in questa configurazione volessimo comunque calcolare la \textit{potenza dissipata}, basterà semplicemente moltiplicare la formula per $-1$.
+		\end{enumerate}
+		
+		\begin{figure}[H]
+			\centering
+			% Grafico 1: Riferimenti Associati
+			\begin{minipage}{0.45\textwidth}
+				\centering
+				\textbf{Riferimenti Associati}\\
+				\vspace{0.3cm}
+				\begin{circuitikz}[european, thick, scale=1.2]
+					% Bipolo generico, tensione v, corrente verso dx (entra nel +)
+					\draw (0,0) to[generic, v=$v(t)$, i=$i(t)$] (3,0);
+					% Aggiunta manuale ed esplicita dei poli + e - agli estremi delle linee
+					\node at (0, 0.4) {$+$};
+					\node at (3, 0.4) {$-$};
+				\end{circuitikz}\\
+				\vspace{0.2cm}
+				Potenza \textbf{Dissipata}: \\
+				$p(t) = v(t) \cdot i(t)$
+			\end{minipage}
+			\hfill
+			% Grafico 2: Riferimenti Non Associati
+			\begin{minipage}{0.45\textwidth}
+				\centering
+				\textbf{Riferimenti Non Associati}\\
+				\vspace{0.3cm}
+				\begin{circuitikz}[european, thick, scale=1.2]
+					% Bipolo generico, tensione v, corrente verso sx (entra nel -)
+					\draw (0,0) to[generic, v=$v(t)$, i<=$i(t)$] (3,0);
+					% Aggiunta manuale ed esplicita dei poli + e - agli estremi delle linee
+					\node at (0, 0.4) {$+$};
+					\node at (3, 0.4) {$-$};
+				\end{circuitikz}\\
+				\vspace{0.2cm}
+				Potenza \textbf{Erogata}: \\
+				$p(t) = - [v(t) \cdot i(t)]$\\
+			\end{minipage}
+			\caption{Visualizzazione grafica dei bipoli con i relativi poli di polarità ($+$ e $-$). Nel circuito di sinistra (associato), la corrente di riferimento asseconda la naturale caduta di potenziale. In quello di destra (non associato), la corrente entra dal polo negativo, rendendo necessaria l'inversione di segno per calcolare la dissipazione.}
+		\end{figure}
+		
+		\textbf{Sintesi Pratica: Convenzione degli Utilizzatori e dei Generatori}\\
+		Per consolidare questi concetti ed evitare confusione, nella letteratura tecnica queste due casistiche prendono nomi specifici strettamente legati alla natura reale dei componenti:
+		
+		\begin{itemize}[label=$\circ$, leftmargin=0.5cm, itemsep=4pt]
+			\item \textbf{Convenzione degli Utilizzatori (Riferimenti Associati):} La corrente $i$ entra nel morsetto positivo ($+$) della tensione $v$. Se $p > 0$, il componente sta assorbendo (o dissipando) potenza. Uso tipico: componenti \textbf{passivi} (utilizzatori, come i resistori).
+			\item \textbf{Convenzione dei Generatori (Riferimenti Non Associati):} La corrente $i$ esce dal morsetto positivo ($+$) della tensione $v$. Se $p > 0$, il componente sta erogando (o generando) potenza. Uso tipico: componenti \textbf{attivi} (generatori, come batterie), il cui scopo è fornire energia.
+		\end{itemize}
+		
+		\item \textbf{Energia Elettrica ($w$):}\\
+		Si misura in \textbf{Joule (J)} e si indica tipicamente con $w(t)$. Rappresenta l'energia totale accumulata, consumata o prodotta nel tempo. Matematicamente, è definita come l'integrale definito della potenza elettrica rispetto al tempo, calcolato da un istante iniziale ($-\infty$) fino all'istante di osservazione $t$:
+		\[
+		w(t) = \int_{-\infty}^{t} p(t) \, dt
+		\]
+		
+		\vspace{0.2cm}
+		\textbf{Il significato pratico (La Bolletta e il Contatore):}\\
+		Per comprendere a fondo la differenza tra \textit{Potenza} ed \textit{Energia}, il professore ha fatto il classico esempio casalingo. 
+		Il grafico sottostante mostra l'andamento della potenza elettrica $p(t)$ richiesta da un'abitazione (sull'asse Y) col trascorrere del tempo (sull'asse X). Di notte la curva è bassa e costante, ma durante la giornata si verificano dei picchi dovuti all'accensione simultanea di più elettrodomestici (frigorifero, phon, forno).
+		
+		Quello che noi paghiamo in bolletta alla fine del mese non è il picco, ma l'\textbf{area sottesa alla curva}, ovvero l'Integrale della funzione: l'Energia Elettrica $w(t)$ effettivamente consumata.
+		Tuttavia, il nostro contratto di fornitura impone un limite tecnico alla Potenza istantanea prelevabile (la linea tratteggiata, tipicamente fissata a $3\text{ kW}$). Se la nostra curva $p(t)$ oltrepassa questa soglia limite, il sistema va in blocco e "salta il contatore".
+		
+		\begin{figure}[H]
+			\centering
+			\begin{tikzpicture}
+				\begin{axis}[
+					width=12cm, height=6.5cm,
+					axis lines=middle,
+					xmin=0, xmax=10,
+					ymin=0, ymax=4.5,
+					xlabel={Tempo ($t$)},
+					ylabel={Potenza $p(t)$},
+					xtick=\empty,
+					ytick={3},
+					yticklabels={$3\text{ kW}$},
+					every axis y label/.style={at={(ticklabel* cs:1.05)},anchor=south},
+					every axis x label/.style={at={(ticklabel* cs:1.05)},anchor=west},
+					]
+					
+					% Limite contatore (3 kW) - Etichetta spostata più a destra (pos=0.3) per non toccare l'asse Y
+					\draw[dashed, thick, color=myred] (0, 3) -- (9.5, 3) node[pos=0.3, above] {Limite Contatore};
+					
+					% Curva della potenza con area colorata per rappresentare l'integrale
+					\addplot[smooth, tension=0.7, fill=myblue, fill opacity=0.2, draw=myblue, line width=1.5pt] coordinates {
+						(0, 0.4) 
+						(1.5, 0.4) 
+						(3.5, 2.2) 
+						(5.0, 0.8) 
+						(7.0, 4.0) % Il picco che fa saltare il contatore
+						(8.5, 1.0) 
+						(9.8, 0.6)
+					} \closedcycle;
+					
+					% Etichetta interna ridimensionata (footnotesize) e abbassata (y=0.2) per evitare sovrapposizioni
+					\node[color=myblue!80!black, font=\footnotesize\bfseries] at (5.0, 0.2) {Energia Consumata (Area = Integrale)};
+					
+				\end{axis}
+			\end{tikzpicture}
+			\caption{Grafico indicativo della potenza assorbita nel tempo. L'area evidenziata rappresenta l'energia totale (ciò che si paga in bolletta). La soglia tratteggiata a 3 kW rappresenta il limite di potenza istantanea imposto dal contatore: il secondo picco della curva, superando tale soglia, causerebbe l'interruzione di corrente.}
+		\end{figure}
+		
+	\end{itemize}
+	
+	\subsection*{Le Leggi di Kirchhoff}
+	
+	Per analizzare e risolvere i circuiti elettrici, si utilizzano due principi fondamentali noti come \textbf{Leggi di Kirchhoff}. Esse si basano sulla conservazione della carica e dell'energia all'interno di una rete elettrica.
+	
+	\begin{itemize}[label=\textcolor{titlecolor}{\Large\textbullet}, itemsep=8pt, parsep=2pt, leftmargin=1.5cm]
+		\item \textbf{Prima Legge di Kirchhoff (LKC - Legge delle Correnti):}\\
+		Stabilisce che la somma algebrica delle correnti sui rami tagliati da una qualsiasi linea (o superficie) chiusa è pari a zero. \\
+		Nella sua formulazione più pratica e utilizzata, applicata ai nodi (i punti di giunzione in cui si incontrano tre o più rami), la legge afferma che: \textit{"La somma delle correnti entranti in un nodo è sempre uguale alla somma delle correnti uscenti."}
+		
+		\textit{Esempio dal circuito:} Osservando il nodo in alto a destra (evidenziato dal pallino), vediamo la corrente $i_1$ che entra nel nodo dall'alto e si biforca nei due rami adiacenti generando $i_2$ e $i_3$. Matematicamente avremo:
+		\[
+		i_1(t) = i_2(t) + i_3(t)
+		\]
+		
+		\item \textbf{Seconda Legge di Kirchhoff (LKT - Legge delle Tensioni):}\\
+		Prima di enunciarla, definiamo cos'è una \textbf{Maglia}: si tratta di un insieme di rami che formano un percorso chiuso. Partendo da un nodo qualsiasi, si torna al nodo iniziale percorrendo ogni ramo interessato \textit{una volta soltanto} (come evidenziato dalla freccia quadrata nel disegno).
+		
+		La legge stabilisce che in una qualsiasi maglia, la somma algebrica delle cadute di potenziale (tensioni) lungo quel percorso chiuso è uguale a zero. \\
+		\textit{Esempio:} Immaginando di percorrere una maglia passando per i nodi consecutivi $a, b, c, d$ per poi tornare ad $a$, avremo:
+		\[
+		v_{ab}(t) + v_{bc}(t) + v_{cd}(t) + v_{da}(t) = 0
+		\]
+	\end{itemize}
+	
+	\begin{figure}[H]
+		\centering
+		\begin{circuitikz}[european, thick, scale=1.2, transform shape]
+			% Ramo superiore con frecce generiche di direzione
+			\draw (0,4) to[short, i^=$\ $] (1,4) to[generic] (3,4) to[short, i^=$\ $] (4,4);
+			
+			% Ramo sinistro con freccia in alto
+			\draw (0,0) to[generic] (0,2) to[short, i^=$\ $] (0,4);
+			
+			% Ramo orizzontale centrale con i2 verso sinistra
+			\draw (0,2) to[generic] (2,2) to[generic, i<=$i_2$] (4,2);
+			
+			% Ramo verticale centrale
+			\draw (2,2) to[generic] (2,0);
+			
+			% Ramo destro con i1 entrante (verso il basso) e i3 uscente (verso il basso)
+			\draw (4,4) to[short, i=$i_1$] (4,2) to[generic, i=$i_3$] (4,0);
+			
+			% Ramo inferiore
+			\draw (0,0) -- (4,0);
+			
+			% Nodi evidenziati (pallini neri) per mostrare le intersezioni
+			\node[circ] at (0,2) {};
+			\node[circ] at (2,2) {};
+			\node[circ] at (4,2) {};
+			\node[circ] at (2,0) {};
+			
+			% Rappresentazione della Maglia (Riquadro in basso a sinistra)
+			\draw[color=myblue, thick, -latex, rounded corners] 
+			(1.6, 0.6) -- (1.6, 1.6) -- (0.4, 1.6) -- (0.4, 0.4) -- (1.4, 0.4);
+			% Scritta rimpicciolita ulteriormente con \scriptsize (o \tiny se la vuoi ancora più piccola)
+			\node[color=myblue, font=\scriptsize\bfseries\itshape] at (1, 1) {maglia};
+			
+		\end{circuitikz}
+		\caption{Rappresentazione di un circuito per le Leggi di Kirchhoff. Nel nodo a destra, la corrente entrante $i_1$ si divide nelle uscenti $i_2$ (a sinistra) e $i_3$ (in basso). Nel quadrante in basso a sinistra è evidenziato il percorso chiuso tipico di una maglia.}
+	\end{figure}
+	
+	\vspace{1.5cm}
+	\begin{center}
+		\rule{0.65\textwidth}{1pt} \\
+		\vspace{0.4cm}
+		\textcolor{titlecolor}{\LARGE \textbf{--- Fine Lezione 1 ---}} \\
+		\vspace{0.2cm}
+		\rule{0.65\textwidth}{1pt}
+	\end{center}
+	\newpage
+	
+	
+	
+\end{document}

@@ -301,12 +301,12 @@
 	
 	\vspace{1cm}
 	
-	La funzione di MATLAB che usiamo per i problemi di PL (e poi anche di PLI e PL su Reti quando arriverà il loro monento) è \textbf{\underline{limprog}} che accetta valori in questo modo:\\\\ \textit{\textbf{linprog(c, A, b, Aeq, beq, lb, ub)}}\\\\
+	La funzione di MATLAB che usiamo per i problemi di PL (e poi anche di PLI e PL su Reti quando arriverà il loro monento) è \textbf{\underline{linprog}} che accetta valori in questo modo:\\\\ \textit{\textbf{linprog(c, A, b, Aeq, beq, lb, ub)}}\\\\
 	dove \textit{Aeq} e \textit{beq} valgono 0 per i problemi di PL, dato che si usano in PLI, e poi, come detto in precedenza, abbiamo \textit{lb} che rappresenta il minimo valore che le x possono assumere e \textit{ub} che rappresenta il massimo valore che le x possono assumere. Le altre variabili non citate qui sono state spiegate in precedenza.
 	
 	\vspace{1cm}
 	
-	\textbf{IMPORTANTE!!!} \textit{linprog} cerca solo i massimi. Matematicamente sappiamo però che il massimo di una funzione è come fare il minimo della sua opposta:
+	\textbf{IMPORTANTE!!!} \textit{linprog} cerca solo i minimi. Matematicamente sappiamo però che il minimo di una funzione è come fare il massimo della sua opposta:
 	
 	\textit{$\boldsymbol{f(x) = - f(x) \rightarrow}$}
 	\underline{Ed è fondamentale da sapere!}\\
@@ -315,9 +315,15 @@
 		\item $\min \Leftrightarrow \max$
 		\item $\leq \Leftrightarrow \geq$
 	\end{itemize}
-	Fine \textit{Lezione 1}
-	
-	\separatore\\
+	\vspace{1.5cm}
+	\begin{center}
+		\rule{0.65\textwidth}{1pt} \\
+		\vspace{0.4cm}
+		\textcolor{titlecolor}{\LARGE \textbf{--- Fine Lezione 1 ---}} \\
+		\vspace{0.2cm}
+		\rule{0.65\textwidth}{1pt}
+	\end{center}
+	\newpage
 	
 	\avviso{\textit{\textbf{Questa lezione, come le sue precedenti e successive, può contenere errori e/o imprecisioni. Per il bene di tutti, è buona norma far notare all'autore l'errore o l'imprecisione così da risolvere nel minor tempo possibile. I canali di comunicazione, per eventuali avvisi generali o di errori trovati negli appunti, sono in cima al file. Grazie per la collaborazione e Buono studio!}}}
 	
@@ -627,9 +633,15 @@
 	
 	Pappalardo ci fa subito presente una cosa prima della fine della lezione, ossia che il numero possibile di assegnamenti è pari a $\boldsymbol{n!}$ (n fattoriale), mentre invece se inseriamo i vincoli che implicano il fatto che un progetto può esser fatto solo da uno studio e ogni studio può realizzare solo un progetto, gli assegnamenti diventano $\boldsymbol{n^n}$.\\
 	
-	Fine \textit{Lezione 2}
-	
-	\separatore\\
+	\vspace{1.5cm}
+	\begin{center}
+		\rule{0.65\textwidth}{1pt} \\
+		\vspace{0.4cm}
+		\textcolor{titlecolor}{\LARGE \textbf{--- Fine Lezione 2 ---}} \\
+		\vspace{0.2cm}
+		\rule{0.65\textwidth}{1pt}
+	\end{center}
+	\newpage
 	
 	\avviso{\textit{\textbf{Questa lezione, come le sue precedenti e successive, può contenere errori e/o imprecisioni. Per il bene di tutti, è buona norma far notare all'autore l'errore o l'imprecisione così da risolvere nel minor tempo possibile. I canali di comunicazione, per eventuali avvisi generali o di errori trovati negli appunti, sono in cima al file. Grazie per la collaborazione e Buono studio!}}}
 	
@@ -693,7 +705,7 @@
 	\]
 	All'esame è caldamente consigliato portarsi dei file (.txt o .md se preferite) che contengono la base di tutti gli script di MATLAB, così dovete solo sostituire i valori del vostro esercizio corrente, dato che scrivere tutto questo porterebbe via una miriade di tempo, soprattutto considerando che il modello matematico "nasconde" una gran parte dei valori che MATLAB dovrà ricevere per trovare l'ottimo.\\
 	
-	Ecco esattamente come mappare il modello all'interno della funzione \textbf{MATLAB} seguendo alla lettera le regole del \textbf{Formato Primale Standard} (tutto ricondotto a $\leq$ e al $\max$):
+	Ecco esattamente come mappare il modello all'interno della funzione \textbf{MATLAB} seguendo alla lettera le regole del \textbf{Formato Primale Standard} (tutto ricondotto a $\leq$ e al $\min$):
 	\begin{center}
 		\texttt{x = linprog(c, A, b, [], [], [], [])}
 	\end{center}
@@ -986,9 +998,15 @@
 		\textit{Nota: Questo teorema e la relativa costruzione geometrica verranno ripresi e approfonditi nel dettaglio con degli esempi pratici nella prossima lezione.}
 	\end{center}
 	
-	Fine \textit{Lezione 3}
-	
-	\separatore\\
+	\vspace{1.5cm}
+	\begin{center}
+		\rule{0.65\textwidth}{1pt} \\
+		\vspace{0.4cm}
+		\textcolor{titlecolor}{\LARGE \textbf{--- Fine Lezione 3 ---}} \\
+		\vspace{0.2cm}
+		\rule{0.65\textwidth}{1pt}
+	\end{center}
+	\newpage
 	
 	\avviso{\textit{\textbf{Questa lezione, come le sue precedenti e successive, può contenere errori e/o imprecisioni. Per il bene di tutti, è buona norma far notare all'autore l'errore o l'imprecisione così da risolvere nel minor tempo possibile. I canali di comunicazione, per eventuali avvisi generali o di errori trovati negli appunti, sono in cima al file. Grazie per la collaborazione e Buono studio!}}}
 	
@@ -1404,5 +1422,20 @@
 		\item Ci troviamo nel \textbf{Caso 2} se, calcolando i prodotti tra la Funzione Obiettivo e le direzioni, esiste anche solo un risultato strettamente positivo ($c^T e_j > 0$).
 		\item Siamo nel \textbf{Caso 3} quando non ricadiamo nei due scenari precedenti. In questa situazione, per trovare la soluzione ottima è sufficiente calcolare i prodotti $c^T v_i$ per tutti i vertici dell'insieme $V$ e selezionare il valore massimo.
 	\end{itemize}
+	
+	\vspace{1.5cm}
+	\begin{center}
+		\rule{0.65\textwidth}{1pt} \\
+		\vspace{0.4cm}
+		\textcolor{titlecolor}{\LARGE \textbf{--- Fine Lezione 4 ---}} \\
+		\vspace{0.2cm}
+		\rule{0.65\textwidth}{1pt}
+	\end{center}
+	\newpage
+	
+	\avviso{\textit{\textbf{Questa lezione, come le sue precedenti e successive, può contenere errori e/o imprecisioni. Per il bene di tutti, è buona norma far notare all'autore l'errore o l'imprecisione così da risolvere nel minor tempo possibile. I canali di comunicazione, per eventuali avvisi generali o di errori trovati negli appunti, sono in cima al file. Grazie per la collaborazione e Buono studio!}}}
+	
+	\section*{Lezione 5 | 28 settembre 2026}
+	\subsection*{}
 	
 \end{document}
