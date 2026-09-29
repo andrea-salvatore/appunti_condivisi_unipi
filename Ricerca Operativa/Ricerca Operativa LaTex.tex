@@ -1870,6 +1870,20 @@
 	\end{itemize}
 	Poiché tutte le disuguaglianze sono rispettate, la soluzione è \textbf{Ammissibile}. Il punto $(1,0)$ è ufficialmente un Vertice del poliedro.
 	
+	\vspace{0.4cm}
+	\textbf{Nota Cruciale sui Vincoli di Non Negatività (Attenzione all'esame!)}\\
+	In questo esempio abbiamo trattato i vincoli di non negatività ($x_1, x_2 \geq 0$) separatamente per pura comodità didattica, omettendoli dalla definizione formale degli insiemi $B$ e $N$. Tuttavia, è un errore concettuale dimenticare che \textbf{essi fanno parte a tutti gli effetti della matrice $A$ e del vettore $b$}. 
+	
+	Essendo vincoli che contribuiscono alla creazione del poliedro esattamente come gli altri, essi \textbf{possono essere scelti come indici di base} (inserendoli in $B$). Di conseguenza, se non vengono scelti per formare la sottomatrice, essi devono obbligatoriamente presenziare all'interno dell'insieme degli indici non di base $N$.
+	
+	Applicando il rigore formale assoluto, fondamentale sia allo scritto che all'orale, il nostro problema non ha $m=4$ vincoli, ma \textbf{$m=6$ vincoli totali} (identificando $x_1 \geq 0$ come Vincolo 5 e $x_2 \geq 0$ come Vincolo 6). Pertanto, se decidiamo di mantenere la scelta degli indici di base $B = \{2, 4\}$, i veri insiemi formali sarebbero stati:
+	\[
+	B = \{2, 4\} \qquad \text{e} \qquad N = \{1, 3, 5, 6\}
+	\]
+	Questa "comodità" di ometterli all'inizio può trarre in inganno e portare a errori. Non a caso, nel passaggio 4 del Controllo di Ammissibilità, li abbiamo dovuti chiamare in causa ugualmente per verificare il vertice. 
+	
+	In altri esercizi, potresti tranquillamente dover valutare una base mista, ad esempio $B = \{1, 5\}$, mettendo a sistema un vincolo standard e un vincolo di non negatività. Abituati quindi a considerarli sempre parte integrante degli insiemi matematici del problema per non commettere errori ingenui all'esame.
+	
 	\vspace{0.6cm}
 	\separatore
 	\vspace{0.4cm}
