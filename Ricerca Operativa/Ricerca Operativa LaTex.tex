@@ -1712,4 +1712,529 @@
 	\end{center}
 	\newpage
 	
+	\avviso{\textit{\textbf{Questa lezione, come le sue precedenti e successive, può contenere errori e/o imprecisioni. Per il bene di tutti, è buona norma far notare all'autore l'errore o l'imprecisione così da risolvere nel minor tempo possibile. I canali di comunicazione, per eventuali avvisi generali o di errori trovati negli appunti, sono in cima al file. Grazie per la collaborazione e Buono studio!}}}
+	
+	\section*{Lezione 6 | 29 settembre 2026}
+	\subsection*{Definizione di Vertice e introduzione al Problema del Trasporto}
+	
+	\subsection*{Definizione Matematica e Geometrica di Vertice}
+	
+	Fino ad ora, in Ricerca Operativa, abbiamo anticipato il concetto di Vertice attraverso l'insieme delle combinazioni convesse $V$ e la sua intuitiva visualizzazione grafica. Ora formalizziamo ufficialmente questo concetto.
+	
+	La definizione matematica rigorosa cita testualmente:
+	\begin{quote}
+		\textit{"Un punto $\bar{x} \in P$ (appartenente al poliedro) si dice \textbf{vertice} se non si può esprimere come combinazione convessa di due punti del poliedro con $\lambda \neq 0$ e $\lambda \neq 1$."}
+	\end{quote}
+	
+	\textbf{Il trucco per l'orale:}\\
+	Al professore non interessa necessariamente che tu reciti la formula a memoria come una poesia. Ciò che vuole valutare è se \textit{hai capito veramente il concetto}. Saper spiegare l'idea a parole tue (anche se matematicamente meno eleganti) dimostra che hai compreso l'argomento ed è sufficiente per superare l'esame. Utilizzare la terminologia esatta serve ovviamente per alzare il voto e puntare all'eccellenza, ma la priorità assoluta resta la comprensione logica.
+	
+	\vspace{0.4cm}
+	\textbf{Significato Geometrico (L'esempio del Quadrato)}\\
+	Per chiarire cosa significa "non esprimibile come combinazione convessa", il professore ha utilizzato l'esempio di un quadrato (il nostro poliedro). 
+	
+	Intuitivamente, pensiamo al vertice come a uno degli "angoli" della figura. Se prendiamo un punto esattamente sull'angolo in alto a destra, è impossibile tracciare un segmento tra due \textit{altri} punti qualsiasi del quadrato che passi proprio per quell'angolo. 
+	Al contrario, se prendiamo un punto posizionato su uno dei lati (i segmenti verticali o orizzontali), possiamo tranquillamente ottenerlo collegando i due estremi di quel lato, ovvero creandolo come combinazione convessa dei due angoli adiacenti (con un certo peso $\lambda$ compreso strettamente tra 0 e 1). Pertanto, un punto adagiato su un lato \textit{non è un vertice}.
+	
+	\begin{figure}[H]
+		\centering
+		\begin{tikzpicture}
+			\begin{axis}[
+				width=9cm, height=9cm,
+				axis lines=middle,
+				xmin=-1, xmax=7, ymin=-1, ymax=5.5, % Aumentati xmax e ymax per far allungare gli assi oltre le scritte
+				xtick=\empty, ytick=\empty,
+				clip=false % Comando fondamentale: impedisce a pgfplots di tagliare i testi che escono dal bounding box
+				]
+				
+				% Poliedro (Quadrato)
+				\addplot[thick, color=myblue, fill=myblue, fill opacity=0.1] coordinates {(0,0) (4,0) (4,4) (0,4) (0,0)};
+				
+				% Vertice in alto a destra
+				\node[circle, fill=black, scale=0.6] at (4,4) {};
+				\node[above right, font=\bfseries, color=black] at (4,4) {Vertice ($\bar{x}$)};
+				
+				% Punto sul segmento destro (NON vertice)
+				\node[circle, fill=myred, scale=0.6] at (4,2) {};
+				\node[right, font=\bfseries, color=myred, xshift=2pt] at (4,2) {NON è un Vertice}; % xshift distanzia leggermente il testo dal pallino
+				
+				% Secondo vertice in basso a destra per mostrare il segmento
+				\node[circle, fill=black, scale=0.6] at (4,0) {};
+				
+				% Segmento tratteggiato rosso per indicare la combinazione convessa tra gli angoli
+				\draw[dashed, color=myred, thick] (4,4) -- (4,0);
+				
+				% Note testuali interne al grafico
+				\node[color=black, font=\footnotesize, align=center] at (2, 2.5) {Poliedro\\Quadrato}; % align=center permette di andare a capo correttamente
+				
+			\end{axis}
+		\end{tikzpicture}
+		\caption{Visualizzazione geometrica di un vertice. Il punto nero nell'angolo in alto a destra è un vertice perché non esiste alcun segmento interno al quadrato che lo attraversi usandolo come punto intermedio (nessuna combinazione convessa possibile). Il punto rosso sul lato, invece, \textit{non} è un vertice: appartiene al segmento che collega i due angoli, dimostrando di poter essere scritto come combinazione convessa con $\lambda$ compreso tra 0 e 1.}
+	\end{figure}
+	
+	\vspace{0.6cm}
+	\textbf{La Visione Algebrica di un Vertice}\\
+	Per la risoluzione pratica dei problemi e per comprendere l'algoritmo risolutivo che studieremo nelle prossime lezioni, è fondamentale affiancare all'intuizione geometrica la \textbf{visione algebrica} di un vertice.
+	
+	Consideriamo un sistema con $m$ vincoli e $n$ variabili, rappresentato dalla matrice dei coefficienti $A \in \mathbb{R}^{m \times n}$. Ipotizziamo che:
+	\begin{itemize}[label=\textcolor{titlecolor}{\Large\textbullet}, itemsep=4pt, parsep=2pt, leftmargin=1.5cm]
+		\item Il numero di vincoli sia maggiore del numero di variabili ($m > n$).
+		\item La matrice $A$ abbia \textbf{rango massimo} (ovvero $\text{rg}(A) = n$). 
+	\end{itemize}
+	\textit{Ricorda:} Una matrice $m \times n$ si definisce di rango massimo se esiste al suo interno almeno una sottomatrice quadrata $n \times n$ invertibile, ossia con determinante diverso da zero ($\det \neq 0$).
+	
+	\vspace{0.4cm}
+	\textbf{Sottomatrici e Soluzioni di Base}\\
+	Prendiamo un sottoinsieme di indici di riga della matrice $A$ e chiamiamolo $B$. Questo sottoinsieme conterrà esattamente $n$ indici scelti tra tutti gli $m$ disponibili ($B \subset \{1, 2, \dots, m\}$). Gli indici $i$ compresi nell'insieme $B$ prendono formalmente il nome di \textbf{indici di base}.
+	
+	Estraendo dalla matrice $A$ e dal vettore dei termini noti $b$ \textit{solo} le righe corrispondenti agli indici di $B$, andiamo a costruire una sottomatrice quadrata $A_B$ e un vettore ridotto $b_B$. Imponendo che questi specifici vincoli siano soddisfatti all'uguaglianza, otteniamo il seguente sottosistema lineare:
+	\[
+	A_B x = b_B
+	\]
+	Risolvendo questo sistema, si ottengono quelle che vengono definite \textbf{Soluzioni di Base}, chiamate così proprio perché derivano dalla base $B$ creata con gli indici di riga prelevati. 
+	
+	In termini puramente matematici, essendo la sottomatrice quadrata $A_B$ invertibile per ipotesi, la soluzione di base associata $\bar{x}$ si calcola semplicemente moltiplicando l'inversa della sottomatrice per i termini noti scelti:
+	\[
+	\bar{x} = A_B^{-1} \cdot b_B
+	\]
+	
+	\vspace{0.4cm}
+	\textbf{Il collegamento tra Algebra e Geometria (Il Vertice)}\\
+	Affinché un punto sia effettivamente un \textbf{vertice} all'interno di un poliedro, algebricamente deve essere descritto da una sottomatrice in cui il numero di vincoli messi a sistema è \textit{uguale stretto} al numero di variabili del problema in questione.
+	
+	\textit{Esempio pratico:} Ipotizziamo un problema di grandi dimensioni con 20 variabili e 200 vincoli. La matrice $A$ intera avrà 200 righe e 20 colonne. Una delle sue sottomatrici potrebbe essere una qualsiasi in cui vengono presi esattamente 20 vincoli alla volta (per pareggiare le 20 variabili). Risolvendo di volta in volta i vari sottosistemi quadrati ottenuti, si estraggono le coordinate delle diverse soluzioni di base generate dalla base $B$ scelta in quel momento.
+	
+	\vspace{0.6cm}
+	\textbf{Esercizio Pratico: Ricerca Algebrica di un Vertice}\\
+	Il professore ha proposto un modello matematico in cui viene volutamente omessa la Funzione Obiettivo (in quanto ininfluente per la ricerca geometrico-algebrica dei vertici del poliedro). Il sistema di vincoli è il seguente:
+	
+	\[
+	\begin{cases}
+		2x_1 + 3x_2 \leq 7 \quad &\text{(Vincolo 1)} \\
+		3x_1 + x_2 \leq 3 \quad &\text{(Vincolo 2)} \\
+		x_1 + 2x_2 \leq 5 \quad &\text{(Vincolo 3)} \\
+		4x_1 + 3x_2 \leq 4 \quad &\text{(Vincolo 4)} \\
+		x_1, x_2 \geq 0 \quad &\text{(Vincoli 5 e 6)}
+	\end{cases}
+	\]
+	
+	In questo problema abbiamo \textbf{$n = 2$ variabili} e \textbf{$m = 4$ vincoli} espliciti (senza contare la non negatività per comodità di calcolo). 
+	
+	\vspace{0.3cm}
+	\textbf{1. Scelta della Base e Costruzione della Sottomatrice}\\
+	Il professore ci fa scegliere di accoppiare gli indici di riga 2 e 4. Questo crea il nostro \textbf{Insieme degli Indici di Base}:
+	\[
+	B = \{2, 4\}
+	\]
+	\textit{Nota Fondamentale:} Come ripetuto a lezione, il numero di indici all'interno dell'insieme $B$ \textbf{deve sempre essere uguale a $n$} (il numero di variabili). Essendo in $\mathbb{R}^2$, ci servono esattamente 2 indici.
+	Di conseguenza, tutti i vincoli che scartiamo finiscono nell'\textbf{Insieme degli Indici Non di Base} $N$, che avrà dimensione $m-n$:
+	\[
+	N = \{1, 3\} 
+	\]
+	
+	Andiamo ora a estrarre la sottomatrice quadrata $A_B$ e il vettore dei termini noti $b_B$ prelevando \textit{esclusivamente} i coefficienti dei vincoli 2 e 4:
+	\[
+	A_B = \begin{pmatrix} 3 & 1 \\ 4 & 3 \end{pmatrix}, \qquad b_B = \begin{pmatrix} 3 \\ 4 \end{pmatrix}
+	\]
+	
+	\textbf{2. Verifica del Rango Massimo}\\
+	Per poter proseguire e definire una soluzione di base, $A_B$ deve essere invertibile. Calcoliamo il determinante:
+	\[
+	\det(A_B) = (3 \cdot 3) - (1 \cdot 4) = 9 - 4 = 5
+	\]
+	Poiché $\det(A_B) = 5 \neq 0$, il rango è massimo. Il sistema ammette una e una sola soluzione.
+	
+	\vspace{0.3cm}
+	\textbf{3. Risoluzione del Sottosistema}\\
+	Mettiamo a sistema le equazioni scelte, trasformando le disuguaglianze in uguaglianze strette ($A_B x = b_B$):
+	\[
+	\begin{cases}
+		3x_1 + x_2 = 3 \\
+		4x_1 + 3x_2 = 4
+	\end{cases}
+	\]
+	Dalla prima equazione ricaviamo $x_2 = 3 - 3x_1$. Sostituendo nella seconda:
+	\[
+	4x_1 + 3(3 - 3x_1) = 4 \implies 4x_1 + 9 - 9x_1 = 4 \implies -5x_1 = -5 \implies x_1 = 1
+	\]
+	Sostituendo $x_1$ nella prima: $x_2 = 3 - 3(1) = 0$.
+	Abbiamo trovato la nostra \textbf{Soluzione di Base}: $\bar{x} = \begin{pmatrix} 1 \\ 0 \end{pmatrix}$.
+	
+	\vspace{0.3cm}
+	\textbf{4. Controllo di Ammissibilità}\\
+	Questa soluzione è un vertice del poliedro? Per scoprirlo, dobbiamo verificare se $\bar{x}$ rispetta le disuguaglianze dei vincoli rimasti nell'insieme $N = \{1, 3\}$ e i vincoli di non negatività:
+	\begin{itemize}
+		\item \textit{Vincolo 1:} $2(1) + 3(0) = 2 \leq 7 \quad \text{\textcolor{green!60!black}{(Vero)}}$
+		\item \textit{Vincolo 3:} $1(1) + 2(0) = 1 \leq 5 \quad \text{\textcolor{green!60!black}{(Vero)}}$
+		\item \textit{Non negatività:} $1 \geq 0$ e $0 \geq 0 \quad \text{\textcolor{green!60!black}{(Vero)}}$
+	\end{itemize}
+	Poiché tutte le disuguaglianze sono rispettate, la soluzione è \textbf{Ammissibile}. Il punto $(1,0)$ è ufficialmente un Vertice del poliedro.
+	
+	\vspace{0.6cm}
+	\separatore
+	\vspace{0.4cm}
+	
+	\subsection*{Soluzioni Ammissibili vs Inammissibili}
+	Le Soluzioni di Base si dividono in due categorie ben distinte:
+	\begin{itemize}[label=$\circ$, itemsep=4pt, leftmargin=1.5cm]
+		\item \textbf{Ammissibili:} Rispettano tutti i vincoli del sistema (inclusi quelli di non negatività). Geometricamente, si trovano \textit{sulla frontiera} (esattamente su un angolo) della regione ammissibile del Poliedro.
+		\item \textbf{Inammissibili:} Rappresentano l'intersezione matematica tra due vincoli, ma violano almeno uno degli altri vincoli del sistema. Geometricamente, sono "vertici" che si trovano \textit{fuori} dalla regione ammissibile (non fanno parte del poliedro).
+	\end{itemize}
+	
+	\textbf{Il Teorema Fondamentale dei Vertici:}\\
+	Alla luce di quanto dimostrato, possiamo enunciare una delle definizioni più importanti dell'intera materia:
+	\begin{quote}
+		\textit{"Un punto $\bar{x} \in P$ è un Vertice se e solo se è una \textbf{Soluzione di Base Ammissibile} (S.B.A.)."}
+	\end{quote}
+	
+	\vspace{0.3cm}
+	Per visualizzare questa enorme differenza, rappresentiamo l'intero modello e analizziamo graficamente cosa succede incrociando i vari vincoli.
+	
+	\begin{figure}[H]
+		\centering
+		% Grafico 1: Modello completo e soluzione ammissibile
+		\begin{minipage}{0.45\textwidth}
+			\centering
+			\textbf{1. Soluzione di Base Ammissibile}\\
+			$B = \{2, 4\} \implies \bar{x} = (1,0)$
+			\vspace{0.2cm}
+			\begin{tikzpicture}
+				\begin{axis}[
+					width=7.5cm, height=7cm,
+					axis lines=middle,
+					xmin=-0.5, xmax=4, ymin=-0.5, ymax=4,
+					xtick={1,2,3}, ytick={1,2,3},
+					xlabel={$x_1$}, ylabel={$x_2$},
+					every axis x label/.style={at={(current axis.right of origin)},anchor=north west},
+					every axis y label/.style={at={(current axis.above origin)},anchor=south east}
+					]
+					
+					% Regione Ammissibile (estremamente piccola, limitata da x=0, y=0, e V4)
+					\addplot[fill=myblue, fill opacity=0.2, draw=none] coordinates {(0,0) (1,0) (0,1.333) (0,0)};
+					
+					% Rette
+					\addplot[thick, color=gray, domain=0:3.5] {7/3 - (2/3)*x} node[pos=0.1, above right] {$V_1$};
+					\addplot[thick, color=orange, domain=0:1.5] {3 - 3*x} node[pos=0.2, right] {$V_2$};
+					\addplot[thick, color=brown, domain=0:4] {2.5 - 0.5*x} node[pos=0.1, above right] {$V_3$};
+					\addplot[thick, color=myred, domain=0:1.2] {4/3 - (4/3)*x} node[pos=0.5, left] {$V_4$};
+					
+					% Vertice Ammissibile (1,0)
+					\node[circle, fill=black, scale=0.6] at (1,0) {};
+					\node[above right, font=\bfseries, color=black] at (1,0) {S.B. Ammissibile};
+					
+				\end{axis}
+			\end{tikzpicture}
+		\end{minipage}
+		\hfill
+		% Grafico 2: Soluzione Inammissibile
+		\begin{minipage}{0.45\textwidth}
+			\centering
+			\textbf{2. Soluzione di Base Inammissibile}\\
+			Incrocio tra $V_1$ e $V_2 \implies B=\{1, 2\}$
+			\vspace{0.2cm}
+			\begin{tikzpicture}
+				\begin{axis}[
+					width=7.5cm, height=7cm,
+					axis lines=middle,
+					xmin=-0.5, xmax=4, ymin=-0.5, ymax=4,
+					xtick={1,2,3}, ytick={1,2,3},
+					xlabel={$x_1$}, ylabel={$x_2$},
+					every axis x label/.style={at={(current axis.right of origin)},anchor=north west},
+					every axis y label/.style={at={(current axis.above origin)},anchor=south east}
+					]
+					
+					% Regione Ammissibile
+					\addplot[fill=myblue, fill opacity=0.2, draw=none] coordinates {(0,0) (1,0) (0,1.333) (0,0)};
+					
+					% Rette
+					\addplot[thick, color=gray, domain=0:3.5] {7/3 - (2/3)*x} node[pos=0.9, above] {$V_1$};
+					\addplot[thick, color=orange, domain=0:1.5] {3 - 3*x} node[pos=0.2, right] {$V_2$};
+					\addplot[thick, color=brown, domain=0:4] {2.5 - 0.5*x} node[pos=0.1, above right] {$V_3$};
+					\addplot[thick, color=myred, domain=0:1.2] {4/3 - (4/3)*x} node[pos=0.5, left] {$V_4$};
+					
+					% Punto Inammissibile (intersezione V1 e V2 a x=2/7, y=15/7 -> ~0.28, 2.14)
+					\node[circle, fill=myred, scale=0.6] at (0.285, 2.14) {};
+					\node[right, font=\bfseries, color=myred] at (0.285, 2.14) {Inammissibile};
+					
+					% Frecce per far capire la violazione
+					\draw[->, color=myred, thick, dashed] (0.285, 2.14) -- (0.285, 1.333) node[midway, right] {Viola $V_4$};
+					
+				\end{axis}
+			\end{tikzpicture}
+		\end{minipage}
+		\caption{A sinistra: La base formata da $V_2$ e $V_4$ genera il punto $(1,0)$ che giace sui bordi della zona azzurra (Poliedro), rispettando tutti i limiti. A destra: Ipotizzando di scegliere la base formata da $V_1$ e $V_2$, la matematica trova il punto di intersezione, ma questo cade ben al di fuori della zona ammissibile (viola platealmente il tetto imposto dal vincolo $V_4$).}
+	\end{figure}
+	
+	\vspace{0.6cm}
+	\separatore
+	\vspace{0.4cm}
+	
+	\subsection*{Le Soluzioni di Base Degeneri e il Paradosso Geometrico}
+	
+	Aggiungiamo un ulteriore tassello fondamentale. Una Soluzione di Base si dice \textbf{Degenere} se, una volta trovate le coordinate $\bar{x}$, inserendo quest'ultime nei vincoli dell'insieme $N$ (non di base), si scopre che \textbf{almeno un vincolo non di base è soddisfatto con l'uguaglianza} (invece che con la disuguaglianza stretta).
+	
+	\textit{Cosa significa geometricamente?}\\
+	In una situazione standard, in $\mathbb{R}^2$, due rette si incontrano in un punto (generando una base). In $\mathbb{R}^3$, tre piani si incontrano in un punto. 
+	Se una soluzione è degenere, significa che \textbf{un vincolo "extra" passa esattamente per quel vertice}. Poiché in quel punto convergono più vincoli del necessario, esisteranno \textit{più basi diverse} che, se risolte a sistema, produrranno esattamente le stesse coordinate per lo stesso identico vertice geometrico.
+	
+	\textbf{L'Esempio della Piramide Egizia:}\\
+	Per visualizzare la degenerazione, il professore ha fatto il brillante esempio della Piramide a base quadrata, che "vive" nello spazio $\mathbb{R}^3$ ($n=3$ variabili).
+	\begin{itemize}
+		\item Gli angoli della base quadrata sono \textbf{S.B. Ammissibili Non Degeneri}: in ogni angolo convergono esattamente 3 piani (il piano del pavimento e i due lati inclinati adiacenti). 3 piani in $\mathbb{R}^3 \implies$ 1 sola base possibile per ogni angolo.
+		\item La punta alta della piramide è una \textbf{S.B. Ammissibile DEGENERE}: per creare quell'apice convergono contemporaneamente i \textbf{4 piani inclinati} (le facce laterali). Poiché per fare una base in $\mathbb{R}^3$ bastano 3 indici, estrarne 3 su 4 ci restituisce $\binom{4}{3} = 4$ combinazioni possibili. Abbiamo 4 basi matematiche diverse, ma tutte ci daranno la stessa medesima coordinata spaziale dell'apice!
+	\end{itemize}
+	
+	\begin{figure}[H]
+		\centering
+		\begin{tikzpicture}[scale=1.5, join=round, line cap=round]
+			% Coordinate 3D simulate per la piramide (prospettiva modificata per maggiore tridimensionalità)
+			\coordinate (A) at (-1, 1);       % Dietro SX
+			\coordinate (B) at (2, 1);        % Dietro DX
+			\coordinate (C) at (3, -1);       % Avanti DX
+			\coordinate (D) at (-2, -1);      % Avanti SX
+			\coordinate (Apex) at (0.5, 4);   % Apice decentrato per rafforzare l'effetto prospettico 3D
+			
+			% Disegno i bordi posteriori (nascosti) tratteggiati
+			\draw[dashed, thick, color=gray] (D) -- (A) -- (B);
+			\draw[dashed, thick, color=gray] (A) -- (Apex);
+			
+			% Facce visibili con opacità diverse per simulare la luce e dare vera profondità 3D
+			% Faccia laterale destra (in ombra, più scura)
+			\draw[thick, color=black, fill=myblue, fill opacity=0.4] (C) -- (B) -- (Apex) -- cycle;
+			% Faccia frontale (in luce, più chiara)
+			\draw[thick, color=black, fill=myblue, fill opacity=0.15] (D) -- (C) -- (Apex) -- cycle;
+			
+			% Nodi per i vertici di base
+			\node[circle, fill=black, scale=0.5] at (D) {};
+			\node[circle, fill=black, scale=0.5] at (C) {};
+			\node[circle, fill=black, scale=0.5] at (B) {};
+			\node[below left, font=\footnotesize] at (D) {Vertice Regolare (3 Piani)};
+			
+			% Nodo per l'apice (Degenere)
+			\node[circle, fill=myred, scale=0.7] at (Apex) {};
+			% Titolo dell'apice spostato a sinistra per liberare spazio a destra
+			\node[above left, font=\bfseries, color=myred, yshift=2pt] at (Apex) {Vertice DEGENERE (Apice)};
+			
+			% Freccia e blocco di testo spostati nettamente a destra e abbassati per evitare sovrapposizioni
+			\draw[->, color=myred, thick] (3.2, 3) -- (0.8, 3.8) node[pos=0, right, align=left, font=\footnotesize] {Qui convergono 4 facce.\\$\mathbb{R}^3 \implies$ servono 3 indici.\\Ci sono 4 Basi per 1 vertice.};
+			
+		\end{tikzpicture}
+		\caption{Visualizzazione 3D del concetto di Degenerazione. In un problema a 3 variabili ($n=3$), per formare una base occorrono 3 vincoli (piani). Gli angoli della base sono formati esattamente dall'incrocio di 3 piani. L'apice è formato dall'incrocio di 4 piani, superando il numero $n$. Pertanto è una soluzione degenere in cui molteplici basi algebriche descrivono lo stesso punto geometrico.}
+	\end{figure}
+	
+	\begin{figure}[H]
+		\centering
+		\begin{tikzpicture}[scale=1.5, join=round, line cap=round]
+			% Coordinate per la base quadrata vista dall'alto
+			\coordinate (D) at (-2, -2); % In basso a SX
+			\coordinate (C) at (2, -2);  % In basso a DX
+			\coordinate (B) at (2, 2);   % In alto a DX
+			\coordinate (A) at (-2, 2);  % In alto a SX
+			\coordinate (Apex) at (0, 0); % L'apice è esattamente al centro
+			
+			% Disegno le 4 facce laterali viste dall'alto.
+			% Uso diverse sfumature di opacità per mantenere l'illusione della tridimensionalità e della luce
+			\draw[thick, color=black, fill=myblue, fill opacity=0.15] (D) -- (C) -- (Apex) -- cycle; % Faccia Sud
+			\draw[thick, color=black, fill=myblue, fill opacity=0.4] (C) -- (B) -- (Apex) -- cycle;  % Faccia Est (ombra)
+			\draw[thick, color=black, fill=myblue, fill opacity=0.25] (B) -- (A) -- (Apex) -- cycle; % Faccia Nord
+			\draw[thick, color=black, fill=myblue, fill opacity=0.05] (A) -- (D) -- (Apex) -- cycle; % Faccia Ovest (luce)
+			
+			% Etichette sui 4 spigoli (i vincoli che salgono verso la punta)
+			\node[font=\footnotesize, sloped, above] at (-1, -1) {Faccia 1};
+			\node[font=\footnotesize, sloped, above] at (1, -1) {Faccia 2};
+			\node[font=\footnotesize, sloped, below] at (1, 1) {Faccia 3};
+			\node[font=\footnotesize, sloped, below] at (-1, 1) {Faccia 4};
+			
+			% Nodi per i vertici di base (Non Degeneri)
+			\node[circle, fill=black, scale=0.5] at (A) {};
+			\node[circle, fill=black, scale=0.5] at (B) {};
+			\node[circle, fill=black, scale=0.5] at (C) {};
+			\node[circle, fill=black, scale=0.5] at (D) {};
+			
+			% Spiegazione su un vertice di base
+			\node[below left, font=\footnotesize, align=right] at (D) {Vertice Regolare\\(Incrocio tra 2 facce laterali\\+ 1 piano di base = 3 Piani)};
+			
+			% Nodo per l'apice (Degenere) al centro
+			\node[circle, fill=myred, scale=0.8] at (Apex) {};
+			\node[above, font=\bfseries, color=myred, yshift=4pt] at (Apex) {Apice DEGENERE};
+			
+			% Freccia esplicativa
+			\draw[->, color=myred, thick] (2.8, 0) -- (0.2, 0) node[pos=0, right, align=left, font=\footnotesize] {Proiezione 2D dell'Apice.\\Le 4 facce (spigoli neri)\\si incrociano in 1 solo punto.\\Ne basterebbero 3!};
+			
+		\end{tikzpicture}
+		\caption{Vista dall'alto (proiezione ortogonale) della piramide. Da questa prospettiva emerge chiaramente l'anomalia matematica della degenerazione: l'apice è il punto di intersezione in cui collidono simultaneamente ben 4 facce (linee nere). Essendo in uno spazio a 3 variabili ($\mathbb{R}^3$), l'intersezione di 4 piani in un solo punto crea una ridondanza che genera le molteplici basi degeneri.}
+	\end{figure}
+	
+	\vspace{0.4cm}
+	\textbf{L'Esempio 2D: Il Pentagono e il Vincolo Ridondante}\\
+	Per consolidare definitivamente il concetto di degenerazione, è utilissimo riportare il classico esempio bidimensionale fatto dal professore. La piramide 3D è affascinante, ma in $\mathbb{R}^2$ (due variabili) la dinamica diventa visivamente inequivocabile.
+	
+	Essendo in un problema con due variabili ($n=2$), la regola dell'algebra lineare stabilisce che per formare una base $B$ e trovare un vertice servono \textbf{esattamente 2 indici} (ovvero l'intersezione di due rette). 
+	
+	Immaginiamo un poliedro a forma di pentagono definito da 5 vincoli standard. Normalmente, ogni "spigolo" del pentagono è un vertice regolare creato dall'incrocio di sole due rette (ad esempio, le rette 1 e 2 creano il vertice in alto). 
+	Tuttavia, il professore ha ipotizzato l'esistenza di un \textbf{sesto vincolo (retta 6)} che passa *esattamente* nel punto in cui si intersecano già la retta 2 e la retta 3.
+	
+	In quel preciso angolo, convergono ora \textbf{3 rette (2, 3 e 6)}. Poiché per calcolare algebricamente un vertice in $\mathbb{R}^2$ ci bastano solo 2 equazioni alla volta, la matematica ci permette di estrarre diverse combinazioni (sottomatrici $2 \times 2$) da questo gruppo di 3 vincoli. Nello specifico, il calcolo combinatorio ci dice che abbiamo $\binom{3}{2} = 3$ basi possibili:
+	
+	\begin{itemize}[label=$\circ$, itemsep=2pt, leftmargin=1.5cm]
+		\item $B_1 = \{2, 3\}$
+		\item $B_2 = \{2, 6\}$
+		\item $B_3 = \{3, 6\}$
+	\end{itemize}
+	
+	Ecco la definizione perfetta e testabile di \textbf{Soluzione di Base Degenere}: tre basi matematiche distinte ($B_1, B_2, B_3$) che, se messe a sistema e risolte, generano le coordinate dello \textit{stesso identico punto geometrico}.
+	
+	\begin{figure}[H]
+		\centering
+		\begin{tikzpicture}
+			\begin{axis}[
+				width=13cm, height=9.5cm,
+				axis lines=middle,
+				xmin=-1, xmax=14, ymin=-1, ymax=11.5,
+				xtick=\empty, ytick=\empty,
+				clip=false % Permette alle scritte di uscire fuori dai bordi dell'asse senza essere tagliate
+				]
+				% Area Ammissibile (Pentagono ingrandito in scala per creare più spazio interno)
+				\addplot[fill=myblue, fill opacity=0.15, draw=none] coordinates {(0,4) (4,8) (8,6) (6,0) (2,0) (0,4)};
+				
+				% Rette dei vincoli standard (estese oltre i vertici per far capire che sono rette infinite)
+				\addplot[thick, color=black, domain=-0.5:4.5] {x + 4};
+				\addplot[thick, color=black, domain=3.5:8.5] {-0.5*x + 10};
+				\addplot[thick, color=black, domain=5.5:8.5] {3*x - 18};
+				\addplot[thick, color=black, domain=1:7] {0};
+				\addplot[thick, color=black, domain=-0.5:2.5] {-2*x + 4};
+				
+				% Etichette delle Rette posizionate ESATTAMENTE al centro dei segmenti
+				\node[above left, font=\small] at (2,6) {Retta 1};
+				\node[above right, font=\small] at (6,7) {Retta 2};
+				\node[right, font=\small, xshift=2pt] at (7,3) {Retta 3};
+				\node[below, font=\small, yshift=-2pt] at (4,0) {Retta 5};
+				\node[left, font=\small, xshift=-2pt] at (1,2) {Retta 4};
+				
+				% La retta 6 "ridondante" che passa per il vertice (8,6)
+				% Scritta posizionata esattamente SOPRA la linea tratteggiata come richiesto
+				\draw[thick, color=myred, dashed] (8, -0.5) -- (8, 10.5) node[above, font=\bfseries] {Retta 6 (Vincolo Extra)};
+				
+				% Nodi per i vertici normali (Non Degeneri)
+				\node[circle, fill=black, scale=0.6] at (0,4) {};
+				\node[circle, fill=black, scale=0.6] at (4,8) {};
+				\node[circle, fill=black, scale=0.6] at (6,0) {};
+				\node[circle, fill=black, scale=0.6] at (2,0) {};
+				
+				% Nodo per il vertice degenere
+				\node[circle, fill=myred, scale=0.9] at (8,6) {};
+				
+				% Etichetta e spiegazione puntata sul vertice degenere
+				\draw[->, color=myred, thick] (11.5, 8.5) -- (8.3, 6.3) node[pos=0, above, align=center, font=\footnotesize\bfseries] {VERTICE DEGENERE\\Incrocio Rette 2, 3 e 6};
+				
+				% Blocco di spiegazione delle Basi, mantenuto fuori a destra
+				\node[color=myred, align=left, font=\footnotesize, fill=white, draw=myred, rounded corners, inner sep=4pt] at (11.5, 3.5) {
+					3 Basi per 1 Punto:\\
+					$B_1 = \{2, 3\}$\\
+					$B_2 = \{2, 6\}$\\
+					$B_3 = \{3, 6\}$
+				};
+				
+				% Spiegazione testuale interna al poliedro (centrata grazie al nuovo spazio)
+				\node[color=black!70, align=center, font=\bfseries] at (4, 4) {Regione\\Ammissibile};
+				
+			\end{axis}
+		\end{tikzpicture}
+		\caption{Rappresentazione 2D di un vertice degenere su un pentagono. In uno spazio a 2 variabili occorrono due rette per trovare un vertice. Nel vertice evidenziato in rosso convergono simultaneamente 3 rette (la 2, la 3 e la 6). Questo crea una ridondanza per la quale 3 sistemi lineari differenti (le tre basi $B_1, B_2, B_3$) produrranno matematicamente le stesse coordinate geometriche.}
+	\end{figure}
+	
+	\vspace{0.6cm}
+	\subsection*{Introduzione al Problema del Trasporto}
+	
+	Iniziamo ad affrontare una nuova tipologia di problema fondamentale in Ricerca Operativa: il \textbf{Problema del Trasporto}. La logica di base consiste nel dover trasferire merci da determinati punti di origine (es. Depositi) a determinati punti di destinazione (es. Supermercati), minimizzando ovviamente i costi di spedizione.
+	
+	Per comprendere la struttura, il professore ha proposto un esercizio introduttivo con i seguenti dati:
+	\begin{itemize}[label=\textcolor{titlecolor}{\Large\textbullet}, itemsep=2pt, leftmargin=1.5cm]
+		\item \textbf{2 Depositi} (che offrono merce). Il Deposito 1 ha una disponibilità di 50 unità, il Deposito 2 di 40 unità.
+		\item \textbf{3 Supermercati} (che richiedono merce). Ognuno di essi richiede \textit{esattamente} 30 unità.
+		\item Ogni tratta (dal Deposito $i$ al Supermercato $j$) ha un \textbf{costo unitario di trasporto} specifico.
+	\end{itemize}
+	
+	\begin{table}[H]
+		\centering
+		\renewcommand{\arraystretch}{1.3}
+		\begin{tabular}{|c|c|c|c||c|}
+			\hline
+			\textbf{Costi Unitari} & \textbf{Supermercato 1} & \textbf{Supermercato 2} & \textbf{Supermercato 3} & \textbf{Disponibilità} \\ \hline
+			\textbf{Deposito 1} & 26 & 21 & 22 & \textbf{50} \\ \hline
+			\textbf{Deposito 2} & 32 & 18 & 26 & \textbf{40} \\ \hline\hline
+			\textbf{Richiesta} & \textbf{30} & \textbf{30} & \textbf{30} & \textbf{Tot: 90} \\ \hline
+		\end{tabular}
+		\caption{Tabella dei costi unitari del trasporto. Sulle righe i depositi con le relative disponibilità massime, sulle colonne i supermercati con le relative richieste esatte.}
+	\end{table}
+	
+	\textbf{Costruzione del Modello Matematico (Caso Specifico)}\\
+	Trattandosi di costi da abbattere (siamo noi gli acquirenti/gestori della logistica), ci troviamo di fronte a un problema di \textbf{Minimo}. Le variabili decisionali $x_{ij}$ indicheranno la quantità di merce inviata dal deposito $i$ al supermercato $j$.
+	
+	La \textbf{Funzione Obiettivo} sommerà tutte le possibili spedizioni moltiplicate per il loro costo unitario (esattamente come nel problema dell'assegnamento).
+	Per i \textbf{vincoli}, la struttura è identica ma dobbiamo prestare attenzione ai segni logici:
+	\begin{itemize}[label=$\circ$, itemsep=2pt, leftmargin=1.5cm]
+		\item Se un deposito ha una disponibilità massima, usiamo il $\leq$.
+		\item Se un supermercato \textit{esige} una quantità precisa (es. "voglio esattamente 30 caramelle"), si usa il vincolo di uguaglianza stretta ($=$). Se invece dicesse "voglio al massimo 30 caramelle", si userebbe il $\leq$.
+	\end{itemize}
+	
+	Il modello matematico si traduce in:
+	\[
+	\begin{cases}
+		\min \quad 26x_{11} + 21x_{12} + 22x_{13} + 32x_{21} + 18x_{22} + 26x_{23} \\
+		x_{11} + x_{12} + x_{13} \leq 50 \quad &\text{(Disponibilità Deposito 1)} \\
+		x_{21} + x_{22} + x_{23} \leq 40 \quad &\text{(Disponibilità Deposito 2)} \\
+		x_{11} + x_{21} = 30 \quad &\text{(Richiesta Supermercato 1)} \\
+		x_{12} + x_{22} = 30 \quad &\text{(Richiesta Supermercato 2)} \\
+		x_{13} + x_{23} = 30 \quad &\text{(Richiesta Supermercato 3)} \\
+		x_{ij} \geq 0 \quad \forall i,j
+	\end{cases}
+	\]
+	
+	\textit{Nota sulle variabili:} Abbiamo posto le variabili semplicemente maggiori o uguali a zero ($x_{ij} \geq 0$, che algebricamente equivale a una matrice identità con i $-1$). In futuro, quando passeremo alla Programmazione Lineare Intera (PLI), questa notazione cambierà per forzare il sistema ad accettare \textit{solo valori interi} (non possiamo spedire mezza scatola), ma per ora ci limitiamo alla condizione di base.
+	
+	\vspace{0.4cm}
+	\textbf{Il Trucco del Bilanciamento (Per non sbagliare)}\\
+	Analizzando i dati del nostro problema, emerge una relazione interessante:
+	\begin{itemize}[label=$\circ$, itemsep=2pt, leftmargin=1.5cm]
+		\item Totale merce disponibile nei depositi: $50 + 40 = \textbf{90}$
+		\item Totale merce richiesta dai supermercati: $30 + 30 + 30 = \textbf{90}$
+	\end{itemize}
+	Dal punto di vista del modello matematico, per minimizzare i costi e contemporaneamente soddisfare tutti i supermercati (90 richiesti), \textit{saremo fisicamente obbligati} a svuotare completamente entrambi i depositi (90 disponibili). 
+	Questo ci insegna che possiamo tranquillamente usufruire di tutte le scorte \textbf{trasformando anche i primi due vincoli da $\leq$ a uguale stretto ($=$)}. 
+	
+	Conoscendo questa informazione, possiamo calcolare esattamente la dimensione del problema. Abbiamo \textbf{6 variabili} e \textbf{16 vincoli} matematici: infatti, se consideriamo tutti i 5 vincoli principali come uguaglianze, essi all'interno di un software si sdoppieranno in 10 disuguaglianze ($\leq$ e $\geq$), a cui vanno sommate le 6 disuguaglianze di non negatività ($x_{ij} \geq 0$), portando il totale a $10 + 6 = 16$.
+	
+	\vspace{0.6cm}
+	\separatore
+	\vspace{0.4cm}
+	
+	\textbf{Il Modello Matematico Formale (Per l'esame orale)}\\
+	All'orale, il professore richiede che il modello del trasporto venga esposto in maniera formale e rigorosa. Ipotizzando di avere $n$ depositi (origini) e $m$ supermercati (destinazioni), si scrive così:
+	
+	\[
+	\min c^T x
+	\]
+	Soggetto a:
+	\[
+	\begin{cases}
+		\displaystyle \sum_{j=1}^{m} x_{ij} \leq D_i \quad &\forall i = 1, \dots, n \quad \text{(Disponibilità)}\\[15pt]
+		\displaystyle \sum_{i=1}^{n} x_{ij} \geq R_j \quad &\forall j = 1, \dots, m \quad \text{(Richieste)}\\[15pt]
+		x_{ij} \geq 0 \quad &\forall i, j
+	\end{cases}
+	\]
+	
+	\textbf{Trucco per l'esame orale:} 
+	L'attenzione del professore cade sulla seconda sommatoria. In formula generale si utilizza il $\geq$ a indicare che la richiesta $R_j$ deve essere perlomeno soddisfatta (voglio \textit{più} di 30 caramelle). Tuttavia, devi chiarire che se il cliente o il problema esigono una richiesta \textit{esatta} (voglio \textit{esattamente} 30 caramelle), allora puoi sostituire il $\geq$ direttamente con un $=$ (esattamente come abbiamo fatto nel nostro esercizio).
+	
+	\vspace{1.5cm}
+	\begin{center}
+		\rule{0.65\textwidth}{1pt} \\
+		\vspace{0.4cm}
+		\textcolor{titlecolor}{\LARGE \textbf{--- Fine Lezione 6 ---}} \\
+		\vspace{0.2cm}
+		\rule{0.65\textwidth}{1pt}
+	\end{center}
+	\newpage
+	
 \end{document}
