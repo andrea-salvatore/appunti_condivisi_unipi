@@ -2079,6 +2079,21 @@
 		\caption{Vista dall'alto (proiezione ortogonale) della piramide. Da questa prospettiva emerge chiaramente l'anomalia matematica della degenerazione: l'apice è il punto di intersezione in cui collidono simultaneamente ben 4 facce (linee nere). Essendo in uno spazio a 3 variabili ($\mathbb{R}^3$), l'intersezione di 4 piani in un solo punto crea una ridondanza che genera le molteplici basi degeneri.}
 	\end{figure}
 	
+	\vspace{0.3cm}
+	\textbf{Nota Matematica: Il Coefficiente Binomiale}\\
+	La notazione $\binom{m}{n}$ (letta "$m$ su $n$") rappresenta il \textbf{Coefficiente Binomiale}, uno strumento fondamentale del calcolo combinatorio. Serve a rispondere a una domanda specifica e ricorrente in Ricerca Operativa: \textit{"In quanti modi diversi posso scegliere $n$ elementi all'interno di un gruppo totale di $m$ elementi, senza preoccuparmi dell'ordine in cui li scelgo?"}
+	
+	La formula matematica per calcolarlo sfrutta il fattoriale (il simbolo $!$, che indica la moltiplicazione di un numero per tutti i suoi interi precedenti fino a 1, ad esempio $3! = 3 \cdot 2 \cdot 1 = 6$). La formula corretta è:
+	\[
+	\binom{m}{n} = \frac{m!}{n!(m-n)!}
+	\]
+	
+	Nel caso dell'apice della piramide, avevamo a disposizione $m=4$ vincoli totali (le quattro facce convergenti) e avevamo bisogno di estrarne $n=3$ alla volta (poiché in $\mathbb{R}^3$ servono 3 equazioni per creare una base). Applicando la formula:
+	\[
+	\binom{4}{3} = \frac{4!}{3!(4-3)!} = \frac{4 \cdot 3 \cdot 2 \cdot 1}{(3 \cdot 2 \cdot 1) \cdot (1!)} = \frac{24}{6 \cdot 1} = 4
+	\]
+	Ecco dimostrato matematicamente perché, incrociando 4 piani in uno spazio 3D, otteniamo esattamente 4 combinazioni (basi) differenti che descrivono quello stesso identico vertice degenere.
+	
 	\vspace{0.4cm}
 	\textbf{L'Esempio 2D: Il Pentagono e il Vincolo Ridondante}\\
 	Per consolidare definitivamente il concetto di degenerazione, è utilissimo riportare il classico esempio bidimensionale fatto dal professore. La piramide 3D è affascinante, ma in $\mathbb{R}^2$ (due variabili) la dinamica diventa visivamente inequivocabile.
@@ -2250,5 +2265,775 @@
 		\rule{0.65\textwidth}{1pt}
 	\end{center}
 	\newpage
+	
+	\avviso{\textit{\textbf{Questa lezione, come le sue precedenti e successive, può contenere errori e/o imprecisioni. Per il bene di tutti, è buona norma far notare all'autore l'errore o l'imprecisione così da risolvere nel minor tempo possibile. I canali di comunicazione, per eventuali avvisi generali o di errori trovati negli appunti, sono in cima al file. Grazie per la collaborazione e Buono studio!}}}
+	
+	\section*{Lezione 7 | 30 settembre 2026}
+	\subsection*{Formato Duale Standard}
+	
+	\textbf{Il Formato Duale Standard}\\
+	In questa lezione introduciamo un nuovo assetto per il nostro modello matematico: il \textbf{Formato Duale Standard}. La sua formulazione matriciale si presenta in questo modo:
+	\[
+	\begin{cases}
+		Ax = b \\
+		x \geq 0
+	\end{cases}
+	\]
+	È fondamentale notare la differenza principale rispetto al \textit{Formato Primale Standard} su cui abbiamo lavorato finora: nel primale il sistema dei vincoli è espresso tramite disuguaglianze (tipicamente $Ax \leq b$), mentre nel duale standard \textbf{i vincoli sono tutti equazioni strette} ($Ax = b$).
+	
+	\vspace{0.4cm}
+	\textbf{Le Trasformazioni del Modello: Le Variabili di Scarto}\\
+	Per poter convertire un problema qualsiasi e portarlo in questo nuovo formato, è necessario completare il quadro delle trasformazioni matematiche discusse nelle lezioni passate. Facciamo un rapido riepilogo delle due trasformazioni già note:
+	\begin{itemize}[label=\textcolor{titlecolor}{\Large\textbullet}, itemsep=4pt, leftmargin=1.5cm]
+		\item \textbf{Passaggio da Min a Max (e viceversa):} Si inverte il segno di tutti i coefficienti della Funzione Obiettivo.
+		\item \textbf{Passaggio da $\leq$ a $\geq$ (e viceversa):} Si moltiplica l'intera disequazione (sia i coefficienti tecnici che il termine noto) per $-1$.
+	\end{itemize}
+	
+	Quello che ci mancava era l'ultimo step, fondamentale per il formato duale standard: \textbf{il passaggio da una disuguaglianza ($\leq$) a un'uguaglianza ($=$)}. 
+	
+	Geometricamente, passare da un $\leq$ a un $=$ significa abbandonare un intero semipiano per restringersi a una singola retta. Per fare questo senza distruggere la logica del problema e subire una "perdita di valore", si introducono le \textbf{variabili di scarto} (\textit{slack variables}). Il compito di queste variabili è proprio quello di "salvare" l'equazione: esse colmano algebricamente la differenza che manca al lato sinistro del vincolo per eguagliare esattamente il termine noto.
+	
+	\textbf{Esempio Pratico:}\\
+	Prendiamo in esame una classica disequazione:
+	\[
+	3x_1 + 2x_2 \leq 7
+	\]
+	Per trasformarla in un'uguaglianza, aggiungiamo una nuova variabile algebrica, che chiameremo $x_3$:
+	\[
+	3x_1 + 2x_2 + x_3 = 7
+	\]
+	In questa nuova equazione, $x_3$ è la nostra variabile di scarto. Affinché il senso logico del vincolo originale (che imponeva di \textit{non superare} 7) resti matematicamente intatto, questa variabile "cuscinetto" non potrà mai assumere valori negativi. Di conseguenza, ogni variabile di scarto inserita porta con sé un vincolo implicito:
+	\[
+	x_3 \geq 0
+	\]
+	
+	\vspace{0.6cm}
+	\textbf{Gestione delle Variabili Non Vincolate in Segno}\\
+	\textit{\small Nota dell'autore: Durante la lezione il professore non ha approfondito nel dettaglio questo specifico passaggio, lasciando la questione un po' fumosa. Mi sono personalmente documentato su Internet per comprendere appieno l'argomento e poterne fornire qui una spiegazione chiara ed esaustiva.}
+	
+	\vspace{0.2cm}
+	Sappiamo bene che all'interno dei formati standard della Ricerca Operativa \textbf{tutte le variabili devono essere strettamente non negative} ($x \geq 0$). Tuttavia, nei problemi reali è molto frequente imbattersi in una o più variabili che non sono sottoposte ad alcun vincolo di segno. Una variabile "libera" può assumere valori positivi, negativi o essere pari a zero.
+	
+	Come facciamo a inserirla in un formato standard che rifiuta i numeri negativi? 
+	La metodologia matematica risolutiva sfrutta un principio semplicissimo: \textit{qualsiasi numero reale può essere espresso come la differenza di due numeri non negativi}.
+	
+	Se abbiamo una variabile libera $x$, la \textbf{sostituiamo nell'intero modello matematico} con la differenza di due nuove variabili ausiliarie:
+	\[
+	x = x' - x''
+	\]
+	Imponendo il vincolo standard che entrambe le nuove variabili siano maggiori o uguali a zero:
+	\[
+	x' \geq 0, \quad x'' \geq 0
+	\]
+	
+	\textbf{L'Esempio del Conto Bancario}\\
+	Per capire meglio questa logica, usiamo un esempio trovato online: il saldo di un conto corrente bancario.
+	Il nostro saldo ($x$) può essere sia in attivo (positivo) che in rosso (negativo). Possiamo rappresentare questo saldo come la differenza tra i \textit{guadagni} ($x'$) e le \textit{spese} ($x''$), entrambi valori che intrinsecamente non possono essere negativi (non puoi "spendere" -10 euro).
+	\begin{itemize}[label=$\circ$, itemsep=2pt, leftmargin=1.5cm]
+		\item Se hai \textbf{+50 €} sul conto: lo vediamo come $50$ € guadagnati e $0$ € spesi $\implies x = 50 - 0 = 50$.
+		\item Se hai \textbf{-30 €} sul conto: lo vediamo come $0$ € guadagnati e $30$ € spesi $\implies x = 0 - 30 = -30$.
+	\end{itemize}
+	
+	\textbf{Il Vantaggio nell'Ottimizzazione}\\
+	Questa sostituzione ci porta a un vantaggio algoritmico importantissimo. Quando il risolutore matematico (come MATLAB o l'algoritmo del Simplesso che vedremo) andrà a calcolare la soluzione ottima, queste due variabili si allineeranno automaticamente in base alle necessità del problema:
+	\begin{itemize}[label=\textcolor{titlecolor}{\Large\textbullet}, itemsep=4pt, leftmargin=1.5cm]
+		\item Se per raggiungere l'ottimo la variabile originaria $x$ \textbf{deve essere positiva} (es. $x=8$), il sistema assegnerà automaticamente $x' = 8$ e porrà $x'' = 0$. Il risultato sarà $8 - 0 = 8$.
+		\item Se per raggiungere l'ottimo la variabile originaria $x$ \textbf{deve essere negativa} (es. $x=-4$), il sistema porrà $x' = 0$ e assegnerà il valore algebrico positivo alla variabile di sottrazione, ovvero $x'' = 4$. Noi leggeremo il risultato come $0 - 4 = -4$, interpretando correttamente che la variabile originale doveva essere negativa.
+	\end{itemize}
+	In sintesi, il sistema sceglierà di "accendere" (valore $>0$) solo la variabile che gli serve, tenendo "spenta" (valore $=0$) l'altra. Non accadrà mai che entrambe abbiano un valore positivo contemporaneamente, garantendo una conversione perfetta e senza ambiguità nel formato standard.
+	
+	\vspace{0.6cm}
+	\textbf{Esercizio: Trasformazioni nei Formati Standard}\\
+	Per consolidare questi concetti, il professore ha proposto un nuovo poliedro. Questa volta ci troviamo di fronte a un modello in cui la variabile $x_2$ è \textbf{libera} (non vincolata in segno), ricollegandoci esattamente a quanto appena spiegato. Il sistema di vincoli di partenza è il seguente:
+	\[
+	\begin{cases}
+		3x_1 + x_2 \geq 9 \\
+		2x_1 + 3x_2 = 6 \\
+		4x_1 - 5x_2 \leq -3 \\
+		x_1 \geq 0
+	\end{cases}
+	\]
+	\textit{Nota:} La variabile $x_2$ non compare nei vincoli di non negatività finali, confermando che è libera.
+	
+	\vspace{0.4cm}
+	\textbf{1. Formato per i Calcolatori (Tutto $\leq$)}\\
+	I software risolutori (come abbiamo visto per MATLAB) preferiscono lavorare nativamente con disuguaglianze $\leq$. Dobbiamo quindi adattare il modello:
+	\begin{itemize}[label=\textcolor{titlecolor}{\Large\textbullet}, itemsep=2pt, leftmargin=1.5cm]
+		\item Il vincolo 1 ($\geq$) viene invertito moltiplicando per $-1$.
+		\item Il vincolo 2 ($=$) si sdoppia obbligatoriamente in due disequazioni logiche: una $\leq$ che va già bene, e una $\geq$ che andrà anch'essa invertita moltiplicando per $-1$.
+		\item Il vincolo 3 ($\leq$) è già nel formato corretto.
+		\item Il vincolo di non negatività per $x_1$ ($\geq$) viene portato a $\leq$ moltiplicando per $-1$.
+	\end{itemize}
+	
+	Il modello tradotto diventa:
+	\[
+	\begin{cases}
+		-3x_1 - x_2 \leq -9 \\
+		2x_1 + 3x_2 \leq 6 \\
+		-2x_1 - 3x_2 \leq -6 \\
+		4x_1 - 5x_2 \leq -3 \\
+		-x_1 \leq 0
+	\end{cases}
+	\]
+	
+	Estraendo i coefficienti, ricaviamo la matrice $A$ e il vettore colonna $b$ di questo formato:
+	\[
+	A = \begin{pmatrix} 
+		-3 & -1 \\ 
+		2 & 3 \\ 
+		-2 & -3 \\ 
+		4 & -5 \\ 
+		-1 & 0 
+	\end{pmatrix}, \qquad 
+	b = \begin{pmatrix} 
+		-9 \\ 
+		6 \\ 
+		-6 \\ 
+		-3 \\ 
+		0 
+	\end{pmatrix}
+	\]
+	
+	\vspace{0.6cm}
+	\textbf{2. Formato Duale Standard (Tutto $=$ con variabili $\geq 0$)}\\
+	Ora applichiamo le nozioni teoriche più avanzate. Vogliamo che tutti i vincoli siano uguaglianze strette e che \textit{tutte} le variabili presenti siano non negative. 
+	Poiché $x_2$ è libera, applichiamo immediatamente la sostituzione studiata: $x_2 = (x'_2 - x''_2)$.
+	Dopodiché, aggiungiamo le variabili di scarto ($x_3$ e $x_4$) alle disequazioni per trasformarle in uguaglianze. 
+	
+	Il modello (partendo dalle disequazioni del formato calcolatore) si trasforma così:
+	\begin{itemize}
+		\item \textit{Vincolo 1:} Aggiungiamo lo scarto $x_3 \implies -3x_1 - (x'_2 - x''_2) + x_3 = -9$
+		\item \textit{Vincolo 2 originale (già uguaglianza):} Sostituiamo solo la variabile $\implies 2x_1 + 3(x'_2 - x''_2) = 6$
+		\item \textit{Vincolo 3:} Aggiungiamo lo scarto $x_4 \implies 4x_1 - 5(x'_2 - x''_2) + x_4 = -3$
+	\end{itemize}
+	
+	Il nuovo sistema completo, in Formato Duale Standard, risulta:
+	\[
+	\begin{cases}
+		-3x_1 - x'_2 + x''_2 + x_3 = -9 \\
+		2x_1 + 3x'_2 - 3x''_2 = 6 \\
+		4x_1 - 5x'_2 + 5x''_2 + x_4 = -3 \\
+		x_1, x'_2, x''_2, x_3, x_4 \geq 0
+	\end{cases}
+	\]
+	
+	A fronte di questa massiccia trasformazione, il professore ci chiede di ridefinire la matrice $A$ e il vettore $b$. Nel nuovo modello abbiamo ben \textbf{5 variabili}, il che significa che la nostra matrice avrà 5 colonne. L'ordine logico delle variabili per l'estrazione dei coefficienti sarà $\begin{pmatrix} x_1 & x'_2 & x''_2 & x_3 & x_4 \end{pmatrix}^T$.
+	
+	\[
+	A = \begin{pmatrix} 
+		-3 & -1 & 1 & 1 & 0 \\ 
+		2 & 3 & -3 & 0 & 0 \\ 
+		4 & -5 & 5 & 0 & 1 \\
+		-1 & 0 & 0 & 0 & 0 \\
+		0 & -1 & 0 & 0 & 0 \\
+		0 & 0 & -1 & 0 & 0 \\
+		0 & 0 & 0 & -1 & 0 \\
+		0 & 0 & 0 & 0 & -1
+	\end{pmatrix}, \qquad 
+	b = \begin{pmatrix} 
+		-9 \\ 
+		6 \\ 
+		-3 \\
+		0 \\
+		0 \\
+		0 \\
+		0 \\
+		0
+	\end{pmatrix}
+	\]
+	
+	\vspace{0.4cm}
+	\textbf{Nota sulle Variabili di Scarto nella Matrice}\\
+	Finora siamo stati abituati a considerare le variabili decisionali del problema (come $x_1$ o $x_2$) come elementi "globali": esse fanno parte strutturalmente di tutti i vincoli. Quando non le vediamo comparire in un'equazione, è semplicemente perché il loro coefficiente in quella specifica riga è pari a zero.
+	
+	Questo ragionamento \textbf{non si applica alle variabili di scarto}. Una variabile di scarto, per definizione, colma il divario di una \textit{specifica equazione} e non ha alcun significato per le altre. Ad esempio, $x_3$ è stata generata esclusivamente per bilanciare il primo vincolo: pertanto, il suo coefficiente sarà $1$ nella prima riga e rigorosamente $0$ in tutte le altre equazioni del sistema. Allo stesso modo, $x_4$ è lo scarto specifico del terzo vincolo e sarà posta a $0$ nel primo e nel secondo.
+	
+	Questa dinamica "locale" è ben visibile osservando le ultime due colonne della nuova matrice $A$: ogni variabile di scarto compare con un valore non nullo unicamente in corrispondenza della propria riga di competenza.
+	
+	\vspace{0.6cm}
+	\textbf{Esempio Pratico: Conversione di una Soluzione di Base}\\
+	Per comprendere fino in fondo il funzionamento delle variabili libere e delle variabili di scarto, il professore propone un nuovo poliedro. Partiamo dal seguente modello in \textbf{Formato Primale Standard}:
+	
+	\[
+	\begin{cases}
+		2x_1 - x_2 \leq 5 \quad &\text{(Vincolo 1)} \\
+		x_1 - x_2 = 3 \quad &\text{(Vincolo 2)} \\
+		-x_1 - 5x_2 \geq 1 \quad &\text{(Vincolo 3)} \\
+		x_1 \geq 0, \quad x_2 \text{ libera}
+	\end{cases}
+	\]
+	
+	\textbf{1. Trasformazione in Formato Duale Standard}\\
+	Per portare il modello nel formato duale standard, dobbiamo trasformare tutti i vincoli in uguaglianze e garantire che tutte le variabili siano non negative. 
+	Poiché $x_2$ è libera, applichiamo la scomposizione: $x_2 = (x'_2 - x''_2)$.
+	Inoltre, inseriamo le opportune variabili ausiliarie nei vincoli di disuguaglianza:
+	\begin{itemize}[label=\textcolor{titlecolor}{\Large\textbullet}, itemsep=2pt, leftmargin=1.5cm]
+		\item \textit{Vincolo 1 ($\leq$):} Aggiungiamo una variabile di scarto $x_3 \implies 2x_1 - (x'_2 - x''_2) + x_3 = 5$
+		\item \textit{Vincolo 2 ($=$):} È già un'uguaglianza, applichiamo solo la sostituzione $\implies x_1 - (x'_2 - x''_2) = 3$
+		\item \textit{Vincolo 3 ($\geq$):} Moltiplichiamo la disequazione per $-1$, portandola nella forma con il $\leq$, poi aggiungiamo una variabile di scarto $x_4 \implies x_1 + 5(x'_2 - x''_2) + x_4 = -1$
+	\end{itemize}
+	
+	Il nuovo modello duale standard completo è:
+	\[
+	\begin{cases}
+		2x_1 - x'_2 + x''_2 + x_3 = 5 \\
+		x_1 - x'_2 + x''_2 = 3 \\
+		x_1 + 5x'_2 - 5x''_2 + x_4 = -1 \\
+		x_1, x'_2, x''_2, x_3, x_4 \geq 0
+	\end{cases}
+	\]
+	
+	\vspace{0.4cm}
+	\textbf{2. Conversione della Soluzione di Base}\\
+	\textit{Nota: Corrigiamo un piccolo refuso di battitura rispetto agli appunti per far quadrare perfettamente la matematica.} 
+	Ipotizziamo che la Soluzione di Base originaria (nel primale) sia:
+	\[
+	\bar{x} = \begin{pmatrix} x_1 \\ x_2 \end{pmatrix} = \begin{pmatrix} 2 \\ -1 \end{pmatrix}
+	\]
+	Come si mappa questa soluzione sul nuovo vettore a 5 variabili del modello duale? Calcoliamo passo dopo passo:
+	
+	1) Il valore di $x_1$ resta identico: \textbf{$x_1 = 2$}.\\
+	2) Il valore di $x_2$ è negativo ($-1$). Come spiegato nel paragrafo precedente, la sua scomposizione assegnerà $0$ alla componente positiva e $1$ alla componente negativa. Dunque: \textbf{$x'_2 = 0$} e \textbf{$x''_2 = 1$}.\\
+	3) Sostituiamo questi valori nel \textit{Vincolo 1} per trovare $x_3$:
+	\[ 2(2) - 0 + 1 + x_3 = 5 \implies 5 + x_3 = 5 \implies \textbf{x}_3 \textbf{ = 0} \]
+	4) Sostituiamo i valori nel \textit{Vincolo 3} per trovare $x_4$:
+	\[ 2 + 5(0) - 5(1) + x_4 = -1 \implies 2 - 5 + x_4 = -1 \implies -3 + x_4 = -1 \implies \textbf{x}_4 \textbf{ = 2} \]
+	
+	Assemblando il tutto, la nuova soluzione di base in formato duale standard sarà:
+	\[
+	\bar{x}_{duale} = \begin{pmatrix} x_1 \\ x'_2 \\ x''_2 \\ x_3 \\ x_4 \end{pmatrix} = \begin{pmatrix} 2 \\ 0 \\ 1 \\ 0 \\ 2 \end{pmatrix}
+	\]
+	
+	\vspace{0.4cm}
+	\textbf{L'Importanza della Scomposizione (Il paradosso del $6=5$)}\\
+	Questa trasformazione illustra brillantemente perché il metodo $x = x' - x''$ è vitale per la tenuta algebrica del sistema. Innanzitutto, verifichiamo matematicamente come il sistema ricostruisce il valore originale della variabile libera. Prendendo i valori calcolati per le variabili ausiliarie ($x'_2 = 0$ e $x''_2 = 1$) e applicando la formula della scomposizione, otteniamo esattamente il valore primale atteso:
+	\[
+	x_2 = x'_2 - x''_2 \implies x_2 = 0 - 1 = -1
+	\]
+	Ora analizziamo il primo vincolo modificato:
+	\[
+	2x_1 - x'_2 + x''_2 + x_3 = 5
+	\]
+	Inserendo i nostri valori corretti, otteniamo $2(2) - 0 + 1 + 0 = 5$, che è un'identità perfetta ($5=5$).
+	
+	Se, per un errore di calcolo o di comprensione, avessimo attribuito alla componente negativa $x''_2$ un valore sbagliato (ad esempio ponendola uguale a $2$), l'equazione sarebbe letteralmente "esplosa":
+	\[
+	2(2) - 0 + 2 + 0 \stackrel{?}{=} 5 \implies 6 = 5 \quad \text{\textcolor{red}{\textbf{(Assurdo!)}}}
+	\]
+	La scomposizione della variabile libera assicura che il sistema legga e ricostruisca correttamente il segno negativo della variabile originale, mantenendo l'uguaglianza bilanciata pur lavorando esclusivamente con variabili finali strettamente non negative.
+	
+	\vspace{0.6cm}
+	\textbf{Esempio 3: Calcolo Diretto degli Scarti da una Soluzione Ottima}\\
+	Per fissare ulteriormente il concetto, il professore propone un altro esempio partendo da un nuovo modello matematico. Questa volta ci viene fornita fin da subito la \textbf{soluzione ottima primale} $\bar{x} = \begin{pmatrix} 2 \\ 0 \end{pmatrix}$.
+	
+	Il modello di partenza è il seguente:
+	\[
+	\begin{cases}
+		4x_1 + x_2 \leq 9 \quad &\text{(Vincolo 1)} \\
+		7x_1 - x_2 \geq 8 \quad &\text{(Vincolo 2)} \\
+		x_1 \geq 0, \quad x_2 \text{ libera}
+	\end{cases}
+	\]
+	
+	\textbf{1. Conversione in Formato Primale Standard}\\
+	Ogni qualvolta ci troviamo di fronte a un modello con segni misti, la prima regola assoluta è normalizzare tutto nel formato standard per i calcolatori, ovvero convertire tutti i vincoli in $\leq$.
+	Mentre il primo vincolo è già corretto, il secondo presenta un $\geq$ e deve essere moltiplicato per $-1$ in ogni suo termine:
+	\[
+	\begin{cases}
+		4x_1 + x_2 \leq 9 \\
+		-7x_1 + x_2 \leq -8 \\
+		x_1 \geq 0, \quad x_2 \text{ libera}
+	\end{cases}
+	\]
+	Avendo a disposizione la soluzione ottima $\bar{x} = (2, 0)$, possiamo subito verificare la sua correttezza all'interno del primale, moltiplicando i valori per i rispettivi coefficienti tecnici e controllando che le disuguaglianze siano rispettate:
+	\begin{itemize}[label=\textcolor{titlecolor}{\Large\textbullet}, itemsep=2pt, leftmargin=1.5cm]
+		\item \textit{Vincolo 1:} $4(2) + (0) = 8 \leq 9 \quad \text{\textcolor{green!60!black}{(Vero)}}$
+		\item \textit{Vincolo 2:} $-7(2) + (0) = -14 \leq -8 \quad \text{\textcolor{green!60!black}{(Vero)}}$
+	\end{itemize}
+	
+	\vspace{0.4cm}
+	\textbf{2. Trasformazione in Formato Duale Standard}\\
+	Ora passiamo al formato duale standard, in cui \textbf{tutti i vincoli diventano equazioni ($=$)} e tutte le variabili devono essere non negative.
+	\begin{itemize}
+		\item Scomponiamo la variabile libera: $x_2 = (x'_2 - x''_2)$.
+		\item Aggiungiamo le variabili di scarto $x_3$ (per il primo vincolo) e $x_4$ (per il secondo vincolo).
+	\end{itemize}
+	Il modello diventa:
+	\[
+	\begin{cases}
+		4x_1 + (x'_2 - x''_2) + x_3 = 9 \\
+		-7x_1 + (x'_2 - x''_2) + x_4 = -8 \\
+		x_1, x'_2, x''_2, x_3, x_4 \geq 0
+	\end{cases}
+	\]
+	
+	\vspace{0.4cm}
+	\textbf{3. Mappatura della Soluzione e Ricerca degli Scarti}\\
+	Il nostro obiettivo ora è convertire l'assegnamento primale $(2, 0)$ in un vettore a 5 dimensioni valido per il duale. 
+	\begin{itemize}
+		\item Sappiamo che $x_1 = 2$.
+		\item Essendo $x_2 = 0$, la sua scomposizione assegnerà $0$ sia alla parte positiva che a quella negativa: $x'_2 = 0$ e $x''_2 = 0$.
+	\end{itemize}
+	
+	La logica da applicare è: \textit{quanto devono valere le variabili di scarto $x_3$ e $x_4$ affinché questo assegnamento non faccia esplodere le equazioni?}
+	Sostituiamo i valori noti all'interno delle equazioni e isoliamo le variabili di scarto per ricavarne il valore:
+	
+	\begin{itemize}[label=$\circ$, itemsep=4pt, leftmargin=1.5cm]
+		\item \textbf{Dalla prima equazione:}
+		\[
+		4(2) + 0 - 0 + x_3 = 9 \implies 8 + x_3 = 9 \implies \textbf{x}_3 \textbf{ = 1}
+		\]
+		\textit{(Per arrivare da 8 a 9, lo scarto necessario è esattamente 1 unità).}
+		
+		\item \textbf{Dalla seconda equazione:}
+		\[
+		-7(2) + 0 - 0 + x_4 = -8 \implies -14 + x_4 = -8 \implies x_4 = -8 + 14 \implies \textbf{x}_4 \textbf{ = 6}
+		\]
+		\textit{(Per colmare la distanza da -14 e far quadrare l'equazione a -8, lo scarto richiesto è esattamente 6 unità).}
+	\end{itemize}
+	
+	Abbiamo così individuato i veri valori di scarto. Assemblando tutti i risultati, il corretto assegnamento per la soluzione nel formato duale standard è:
+	\[
+	\bar{x}_{duale} = \begin{pmatrix} x_1 \\ x'_2 \\ x''_2 \\ x_3 \\ x_4 \end{pmatrix} = \begin{pmatrix} 2 \\ 0 \\ 0 \\ 1 \\ 6 \end{pmatrix}
+	\]
+	Questa procedura dimostra l'esatto meccanismo matematico con cui le variabili ausiliarie bilanciano il sistema, permettendo al calcolatore di leggere un'equazione stretta pur garantendo il rispetto del limite originario imposto dal problema.
+	
+	\vspace{0.6cm}
+	\subsection*{I Vertici nel Formato Duale Standard}
+	
+	Passando al Formato Duale Standard, il concetto di vertice subisce una variazione algebrica fondamentale rispetto a quanto visto per il primale. Questa differenza nasce dalla struttura stessa della matrice dei coefficienti $A$.
+	
+	Nel formato primale standard eravamo abituati a una matrice "alta e stretta", dove il numero di vincoli $m$ era nettamente superiore al numero di variabili $n$ ($m > n$). Nel formato duale standard, specialmente dopo l'aggiunta delle numerose variabili di scarto, ci troviamo di fronte a una matrice "larga e bassa", dove \textbf{le variabili sono più numerose dei vincoli} ($n > m$). Geometricamente e algebricamente, questo capovolge il nostro approccio alla sottomatrice quadrata.
+	
+	\textbf{La Differenza Sostanziale nella Scelta della Base:}\\
+	\begin{itemize}[label=\textcolor{titlecolor}{\Large\textbullet}, itemsep=4pt, leftmargin=1.5cm]
+		\item \textbf{Nel Primale ($m > n$):} Per creare una sottomatrice quadrata $n \times n$ (e pareggiare le variabili), dovevamo scegliere quali \textit{vincoli} (righe) prendere e quali scartare. 
+		\item \textbf{Nel Duale ($n > m$):} Avendo a disposizione solo $m$ equazioni ma $n$ variabili, \textbf{i vincoli si prendono sempre tutti}. Per creare la sottomatrice quadrata $m \times m$, dobbiamo invece scegliere quali \textit{variabili} (colonne) tenere nell'insieme di base $B$ e quali escludere, inserendole nell'insieme non di base $N$ e \textbf{ponendole a zero}.
+	\end{itemize}
+	
+	\vspace{0.4cm}
+	\textbf{Esempio Pratico: Creazione delle Sottomatrici}\\
+	Ipotizziamo un modello duale standard composto da soli due vincoli ($m=2$) e tre variabili ($n=3$):
+	\[
+	\begin{cases}
+		3x_1 + 2x_2 + 5x_3 = 8 \\
+		4x_1 + x_2 + 2x_3 = 9 \\
+		x_1, x_2, x_3 \geq 0
+	\end{cases}
+	\]
+	
+	Essendo in $\mathbb{R}^2$ dal punto di vista delle equazioni (abbiamo 2 vincoli), la nostra sottomatrice di base $A_B$ dovrà essere di dimensioni $2 \times 2$. Dobbiamo quindi scegliere esattamente 2 variabili su 3 da inserire in $B$, ponendo la terza a zero (in $N$). Le combinazioni possibili sono tre:
+	
+	\begin{itemize}[label=$\circ$, itemsep=6pt, leftmargin=1.5cm]
+		\item \textbf{Sottomatrice 1 (Scelta di $x_1$ e $x_2$):}\\
+		$B = \{1, 2\}, \quad N = \{3\} \implies x_3 = 0$\\
+		Il sistema si riduce a:
+		$\begin{cases} 3x_1 + 2x_2 = 8 \\ 4x_1 + x_2 = 9 \end{cases} \implies A_{B_1} = \begin{pmatrix} 3 & 2 \\ 4 & 1 \end{pmatrix}$
+		
+		\item \textbf{Sottomatrice 2 (Scelta di $x_2$ e $x_3$):}\\
+		$B = \{2, 3\}, \quad N = \{1\} \implies x_1 = 0$\\
+		Il sistema si riduce a:
+		$\begin{cases} 2x_2 + 5x_3 = 8 \\ x_2 + 2x_3 = 9 \end{cases} \implies A_{B_2} = \begin{pmatrix} 2 & 5 \\ 1 & 2 \end{pmatrix}$
+		
+		\item \textbf{Sottomatrice 3 (Scelta di $x_1$ e $x_3$):}\\
+		$B = \{1, 3\}, \quad N = \{2\} \implies x_2 = 0$\\
+		Il sistema si riduce a:
+		$\begin{cases} 3x_1 + 5x_3 = 8 \\ 4x_1 + 2x_3 = 9 \end{cases} \implies A_{B_3} = \begin{pmatrix} 3 & 5 \\ 4 & 2 \end{pmatrix}$
+	\end{itemize}
+	
+	\vspace{0.4cm}
+	\textbf{Il Calcolo Algebrico della Soluzione di Base}\\
+	Una volta isolata la sottomatrice quadrata $A_B$ formata dalle colonne delle variabili scelte, il sistema si esprime come:
+	\[
+	A_B x_B = b
+	\]
+	Esattamente come per il primale, la soluzione di base (le coordinate del vertice) si ottiene calcolando la matrice inversa:
+	\[
+	x_B = A_B^{-1} \cdot b
+	\]
+	Questo ci ricorda che la precondizione vitale affinché una base sia valida è che \textbf{il determinante della sottomatrice sia diverso da zero} ($\det(A_B) \neq 0$). Se la matrice non è invertibile, significa che quella combinazione di variabili non descrive un vertice del poliedro.
+	
+	\vspace{0.4cm}
+	\textbf{Definizioni Fondamentali da Ricordare:}\\
+	Il professore ha posto l'accento su due definizioni formali essenziali per l'esame:
+	\begin{quote}
+		1. \textit{"Un punto $\bar{x}$ compreso nel poliedro duale standard è un vertice se e solo se è una \textbf{Soluzione di Base Ammissibile}."}
+	\end{quote}
+	\begin{quote}
+		2. \textit{"Una soluzione di base duale è \textbf{degenere} se almeno una delle variabili $x$ dell'insieme di base $B$ risulta essere pari a zero."}
+	\end{quote}
+	
+	\vspace{0.4cm}
+	\textbf{La Procedura Operativa in 3 Step:}\\
+	Riassumendo, per trovare e classificare un vertice nel formato duale standard, i passaggi sequenziali sono:
+	\begin{enumerate}
+		\item \textbf{Verifica dell'invertibilità:} Scegli le variabili per l'insieme $B$ ($x_B$) e controlla immediatamente che $\det(A_B) \neq 0$. Se è uguale a zero, fermati: non è una base valida.
+		\item \textbf{Azzera l'insieme $N$:} Poni rigorosamente a zero tutte le variabili scartate (quelle finite nell'insieme non di base $N$).
+		\item \textbf{Controllo di Ammissibilità (e Degenerazione):} Risolvi il sistema per trovare i valori delle variabili in $B$ ($x_B$) e verifica il rispetto dei vincoli di non negatività:
+		\begin{itemize}
+			\item Se \textit{tutte} le variabili in $B$ ($x_B$) sono $> 0$, la soluzione è un \textbf{Vertice Ammissibile e Non Degenere}.
+			\item Se anche solo una variabile in $B$ ($x_B$) è $< 0$, la soluzione viola la non negatività ed è quindi \textbf{Inammissibile} (fuori dal poliedro).
+			\item Se una variabile in $B$ ($x_B$) assume il valore esatto $= 0$, la soluzione è ammissibile ma \textbf{Degenere} (ci sono più basi che descrivono lo stesso vertice).
+		\end{itemize}
+	\end{enumerate}
+	
+	\vspace{0.6cm}
+	\textbf{Esercizio Pratico: Ricerca di Vertici nel Formato Duale}\\
+	Per applicare l'algoritmo appena descritto, il professore ha proposto un problema duale standard con due equazioni e quattro variabili:
+	\[
+	\begin{cases}
+		2x_1 + 3x_2 + x_3 + 4x_4 = 3 \\
+		4x_1 + x_2 + 3x_3 + x_4 = 7 \\
+		x_1, x_2, x_3, x_4 \geq 0
+	\end{cases}
+	\]
+	Come specificato dal professore, la procedura che stiamo per applicare è \textbf{l'unico algoritmo esistente} per trovare i vertici all'interno del formato duale standard.
+	
+	\vspace{0.4cm}
+	\textbf{Test 1: Scelta della Base $B = \{1, 3\}$}\\
+	Scegliamo come indici di base le variabili $x_1$ e $x_3$. Di conseguenza, le variabili scartate finiscono nell'insieme non di base $N = \{2, 4\}$ e vengono poste immediatamente a zero ($x_2 = 0, x_4 = 0$).
+	
+	Estraiamo la sottomatrice quadrata $A_B$ prelevando le colonne 1 e 3 dal modello, e il vettore colonna $b$:
+	\[
+	A_B = \begin{pmatrix} 2 & 1 \\ 4 & 3 \end{pmatrix}, \qquad b_B = \begin{pmatrix} 3 \\ 7 \end{pmatrix}
+	\]
+	
+	\textbf{1. Controllo del Determinante:}\\
+	Prima di procedere, verifichiamo che la matrice sia invertibile:
+	\[
+	\det(A_B) = (2 \cdot 3) - (1 \cdot 4) = 6 - 4 = 2
+	\]
+	Poiché $2 \neq 0$, la matrice ha rango massimo, è invertibile e il vertice esiste.
+	
+	\textbf{2. Risoluzione del Sottosistema:}\\
+	Sebbene la formula matriciale $x_B = A_B^{-1} \cdot b$ sia utilissima nei calcolatori con decine di variabili, in un sistema $2 \times 2$ è molto più rapido risolvere il tutto manualmente per sostituzione. Mettiamo a sistema le sole equazioni con le variabili scelte:
+	\[
+	\begin{cases}
+		2x_1 + x_3 = 3 \\
+		4x_1 + 3x_3 = 7
+	\end{cases}
+	\]
+	Dalla prima equazione ricaviamo $x_3 = 3 - 2x_1$. Sostituendo questo valore nella seconda equazione otteniamo:
+	\[
+	4x_1 + 3(3 - 2x_1) = 7 \implies 4x_1 + 9 - 6x_1 = 7 \implies -2x_1 = 7 - 9 \implies -2x_1 = -2 \implies \mathbf{x_1 = 1}
+	\]
+	Sostituendo il valore di $x_1$ nella prima equazione:
+	\[
+	x_3 = 3 - 2(1) \implies \mathbf{x_3 = 1}
+	\]
+	Abbiamo trovato la soluzione di base $x_B = (1, 1)$. L'assegnamento totale del vettore $\bar{x}$, reintegrando gli zeri dell'insieme $N$, sarà:
+	\[
+	\bar{x} = \begin{pmatrix} 1 \\ 0 \\ 1 \\ 0 \end{pmatrix}
+	\]
+	\textbf{Conclusione:} Poiché tutte le variabili in base ($x_1=1, x_3=1$) sono strettamente maggiori di zero (rispettando il vincolo di non negatività), questo assegnamento rappresenta una Soluzione di Base \textbf{Ammissibile e Non Degenere}. È un vertice effettivo del poliedro duale.
+	
+	\vspace{0.6cm}
+	\separatore
+	\vspace{0.4cm}
+	
+	\textbf{Test 2: Scelta della Base $B = \{1, 2\}$}\\
+	Applichiamo lo stesso identico algoritmo scegliendo stavolta le variabili $x_1$ e $x_2$. Le variabili scartate sono $N = \{3, 4\}$, pertanto poniamo $x_3 = 0, x_4 = 0$.
+	
+	Estraiamo la nuova sottomatrice $A_B$ (colonne 1 e 2):
+	\[
+	A_B = \begin{pmatrix} 2 & 3 \\ 4 & 1 \end{pmatrix}, \qquad b_B = \begin{pmatrix} 3 \\ 7 \end{pmatrix}
+	\]
+	
+	\textbf{1. Controllo del Determinante:}\\
+	\[
+	\det(A_B) = (2 \cdot 1) - (3 \cdot 4) = 2 - 12 = -10
+	\]
+	Poiché $-10 \neq 0$, il sistema ammette una soluzione unica.
+	
+	\textbf{2. Risoluzione del Sottosistema:}\\
+	Mettiamo a sistema le equazioni residue:
+	\[
+	\begin{cases}
+		2x_1 + 3x_2 = 3 \\
+		4x_1 + x_2 = 7
+	\end{cases}
+	\]
+	Dalla seconda equazione ricaviamo $x_2 = 7 - 4x_1$. Sostituendolo nella prima:
+	\[
+	2x_1 + 3(7 - 4x_1) = 3 \implies 2x_1 + 21 - 12x_1 = 3 \implies -10x_1 = 3 - 21 \implies -10x_1 = -18
+	\]
+	Dividendo entrambi i membri per $-10$:
+	\[
+	x_1 = \frac{-18}{-10} \implies \mathbf{x_1 = \frac{9}{5}}
+	\]
+	Sostituendo $x_1$ nella formula di $x_2$:
+	\[
+	x_2 = 7 - 4\left(\frac{9}{5}\right) \implies x_2 = \frac{35}{5} - \frac{36}{5} \implies \mathbf{x_2 = -\frac{1}{5}}
+	\]
+	Abbiamo ottenuto $x_B = \left(\frac{9}{5}, -\frac{1}{5}\right)$. L'assegnamento totale $\bar{x}$ risulta quindi:
+	\[
+	\bar{x} = \begin{pmatrix} 9/5 \\ -1/5 \\ 0 \\ 0 \end{pmatrix}
+	\]
+	\textbf{Conclusione:} Sebbene la matematica abbia trovato un'intersezione esatta, la variabile in base $x_2$ ha assunto un valore negativo ($-\frac{1}{5}$), violando apertamente il vincolo fondamentale $x \geq 0$. Questa soluzione di base è \textbf{Inammissibile} (e \textbf{Non Degenere}, poiché nessuna variabile in $B$ è esattamente uguale a zero). Geometricamente, si tratta di un vertice che cade fuori dalla regione ammissibile.
+	
+	\vspace{0.6cm}
+	\textbf{Un Modello Avanzato: La Struttura del Problema di Assegnamento}\\
+	Per introdurre una proprietà fondamentale delle matrici in Ricerca Operativa, il professore ha proposto un modello strutturalmente simile al \textbf{Problema dell'Assegnamento} (e strettamente imparentato con il problema del trasporto). Consideriamo un sistema con $9$ variabili decisionali $x_{ij}$ (con $i, j \in \{1, 2, 3\}$) e un sistema di vincoli di uguaglianza:
+	\[
+	\begin{cases}
+		x_{11} + x_{12} + x_{13} = 1 \quad &\text{(Vincolo di riga 1)} \\
+		x_{21} + x_{22} + x_{23} = 1 \quad &\text{(Vincolo di riga 2)} \\
+		x_{31} + x_{32} + x_{33} = 1 \quad &\text{(Vincolo di riga 3)} \\
+		x_{11} + x_{21} + x_{31} = 1 \quad &\text{(Vincolo di colonna 1)} \\
+		x_{12} + x_{22} + x_{32} = 1 \quad &\text{(Vincolo di colonna 2)} \\
+		x_{13} + x_{23} + x_{33} = 1 \quad &\text{(Vincolo di colonna 3)}
+	\end{cases}
+	\]
+	
+	\vspace{0.3cm}
+	\textbf{Perché il sesto vincolo è ridondante?}\\
+	Il professore sottolinea che l'ultimo vincolo ($x_{13} + x_{23} + x_{33} = 1$) è perfettamente \textbf{ridondante}. Il motivo risiede nella dipendenza lineare intrinseca di questa tipologia di equazioni:
+	Se sommiamo tra loro i primi tre vincoli (le righe), otteniamo la somma totale di tutte le variabili presenti nella tabella, che risulterà pari a $1 + 1 + 1 = 3$.
+	Allo stesso modo, se sommiamo i vincoli delle prime due colonne, otteniamo la somma parziale delle variabili di quelle colonne.
+	In sintesi, la somma di tutti i vincoli di riga e la somma di tutti i vincoli di colonna descrivono esattamente la medesima quantità globale ($3$). Di conseguenza, l'ultimo vincolo di colonna può essere ricavato algebricamente conoscendo i primi cinque: esso non aggiunge alcuna informazione geometrica nuova al poliedro, ma è una conseguenza lineare dei precedenti.
+	
+	\vspace{0.3cm}
+	\textbf{La Mancanza di Rango Massimo nelle Matrici di Assegnamento e Trasporto}\\
+	Questa particolarità ci porta a una regola fondamentale: \textbf{le matrici dei vincoli nei problemi di Assegnamento e di Trasporto non hanno mai rango massimo}.
+	Mentre in un sistema di equazioni standard la presenza di $m$ equazioni garantisce solitamente un rango pari a $m$ (se indipendenti), in questi modelli la struttura a righe e colonne fa sì che vi sia sempre una dipendenza lineare.
+	Se abbiamo $3$ righe e $3$ colonne, il numero totale di vincoli scritti è $6$, ma il \textbf{rango effettivo della matrice sarà sempre pari a $m + n - 1$} (ovvero $3 + 3 - 1 = 5$). C'è sempre una riga o una colonna di troppo che dipende dalle altre.
+	
+	\vspace{0.3cm}
+	\textbf{Una Soluzione di Base Ammissibile e Degenere}\\
+	Un possibile assegnamento che rispetta tutti i vincoli senza violare alcuna regola è dato dalla configurazione in cui le variabili assumono i seguenti valori:
+	\[
+	\bar{x} = \begin{pmatrix} 1, 0, 0, & 0, 1, 0, & 0, 0, 1 \end{pmatrix}^T
+	\]
+	Ovvero: $x_{11}=1, x_{22}=1, x_{33}=1$ (mentre tutte le altre 6 variabili sono poste a zero).
+	Questa configurazione rappresenta una \textbf{Soluzione di Base Ammissibile Degenere}. La degenerazione è una caratteristica strutturale e inevitabile dei problemi di trasporto e assegnamento: a causa della forte simmetria e della dipendenza lineare dei vincoli, vi sono molteplici basi algebriche differenti che portano a descrivere esattamente lo stesso identico vertice geometrico.
+	
+	Nonostante questo modello sia piuttosto avanzato e complesso per la fase iniziale del corso, il professore ha voluto mostrarcelo proprio per fissare due concetti chiave: la ridondanza algebrica dei vincoli e la perdita di rango massimo nelle matrici di questa famiglia.
+	
+	\vspace{0.4cm}
+	\textbf{La Regola degli Zeri e la Degenerazione nel Duale}\\
+	Il professore ha aggiunto un dettaglio fondamentale per riconoscere a colpo d'occhio la degenerazione, una regola d'oro che \textbf{vale per tutto il formato duale standard} e non solo per il problema dell'assegnamento appena visto.
+	
+	In un modello duale con $n$ variabili e $m$ vincoli linearmente indipendenti (il rango effettivo della matrice), l'algoritmo impone di porre a zero tutte le variabili scartate (l'insieme $N$). Di conseguenza, in un vertice regolare (non degenere), il numero esatto di zeri presenti nell'assegnamento deve essere pari a:
+	\[
+	\text{Numero di zeri fisiologici} = n - m
+	\]
+	
+	Tuttavia, se in una soluzione di base $\bar{x}$ contiamo un numero di zeri \textbf{strettamente maggiore} di $n - m$, significa matematicamente che anche una o più variabili scelte all'interno dell'insieme di base $B$ hanno assunto il valore zero. Questa è esattamente la definizione di \textbf{soluzione degenere} nel duale!
+	
+	Possiamo verificare questa regola proprio sull'esempio dell'assegnamento precedente:
+	\begin{itemize}[label=\textcolor{titlecolor}{\Large\textbullet}, itemsep=2pt, leftmargin=1.5cm]
+		\item Il problema ha $n = 9$ variabili.
+		\item Il problema ha $m = 5$ vincoli linearmente indipendenti (ricordando che il sesto era ridondante).
+		\item Il numero di zeri necessari per formare un vertice non degenere è $n - m = 9 - 5 = \textbf{4 zeri}$.
+	\end{itemize}
+	
+	Se osserviamo l'assegnamento ammissibile che abbiamo formulato prima ($\bar{x} = 1,0,0,0,1,0,0,0,1$), possiamo contare al suo interno ben \textbf{6 zeri}. Poiché $6 > 4$, il test ci conferma immediatamente che ci troviamo di fronte a una soluzione di base ammissibile degenere, spiegando il motivo strutturale per cui esistono molteplici basi $B$ in grado di restituire esattamente quello stesso risultato.
+	
+	\vspace{0.6cm}
+	\textbf{Esercizio Inverso: Trovare la Base a partire dalla Soluzione}\\
+	Fino ad ora abbiamo scelto una base $B$ per poi calcolarne il vertice risultante. Il professore ha deciso di capovolgere l'esercizio proponendo un nuovo poliedro in formato duale standard e fornendoci già la soluzione di base. L'obiettivo è ricostruire a ritroso quale base $B$ ha generato tale assegnamento.
+	
+	Il modello è il seguente:
+	\[
+	\begin{cases}
+		3x_1 + x_2 + x_3 = 4 \quad &\text{(Vincolo 1)} \\
+		2x_1 + 3x_2 + 5x_3 = 7 \quad &\text{(Vincolo 2)} \\
+		x_1, x_2, x_3 \geq 0
+	\end{cases}
+	\]
+	E la soluzione fornita è $\bar{x} = \begin{pmatrix} 1 \\ 0 \\ 1 \end{pmatrix}$.
+	
+	\vspace{0.4cm}
+	\textbf{1. Analisi degli Zeri e Scelta degli Insiemi}\\
+	Per capire quale base ha generato questo vertice, dobbiamo sfruttare la regola degli zeri analizzata in precedenza. Il nostro sistema ha $n = 3$ variabili e $m = 2$ vincoli. Il numero di variabili da scartare (e quindi da porre a zero) è pari a $n - m = 3 - 2 = 1$.
+	
+	Osservando la soluzione proposta $\bar{x} = (1, 0, 1)$, notiamo che c'è \textbf{esattamente uno zero}, posizionato in corrispondenza della variabile $x_2$. 
+	Questo ci fornisce immediatamente la chiave di lettura: la variabile $x_2$ è stata posta a zero di proposito perché scartata, finendo nell'insieme non di base $N$. Le variabili rimanenti, $x_1$ e $x_3$, avendo valori strettamente positivi, formano obbligatoriamente il nostro insieme di base.
+	\[
+	N = \{2\} \implies B = \{1, 3\}
+	\]
+	
+	\vspace{0.4cm}
+	\textbf{2. Costruzione della Sottomatrice e Verifica}\\
+	Estraiamo la sottomatrice quadrata $A_B$ prelevando esclusivamente le colonne relative alle variabili scelte (1 e 3) e il vettore dei termini noti $b$:
+	\[
+	A_B = \begin{pmatrix} 3 & 1 \\ 2 & 5 \end{pmatrix}, \qquad b_B = \begin{pmatrix} 4 \\ 7 \end{pmatrix}
+	\]
+	
+	Prima di cantare vittoria, dobbiamo assicurarci matematicamente che questa matrice descriva effettivamente un vertice, calcolandone il determinante:
+	\[
+	\det(A_B) = (3 \cdot 5) - (1 \cdot 2) = 15 - 2 = 13
+	\]
+	Poiché $13 \neq 0$, la sottomatrice è invertibile. La base $B = \{1, 3\}$ è matematicamente valida.
+	
+	\vspace{0.4cm}
+	\textbf{3. Dimostrazione Algebrica (Risoluzione del Sottosistema)}\\
+	Per confermare al 100\% che la base individuata generi la soluzione iniziale, risolviamo il sistema $A_B x_B = b$ mostrando tutti i passaggi algebrici:
+	\[
+	\begin{cases}
+		3x_1 + x_3 = 4 \\
+		2x_1 + 5x_3 = 7
+	\end{cases}
+	\]
+	Isoliamo $x_3$ dalla prima equazione:
+	\[
+	x_3 = 4 - 3x_1
+	\]
+	Sostituiamo questo blocco all'interno della seconda equazione:
+	\[
+	2x_1 + 5(4 - 3x_1) = 7 \implies 2x_1 + 20 - 15x_1 = 7 \implies -13x_1 = 7 - 20 \implies -13x_1 = -13 
+	\]
+	Dividendo per $-13$ otteniamo:
+	\[
+	\mathbf{x_1 = 1}
+	\]
+	Ora reinseriamo il valore di $x_1$ appena trovato nella prima equazione isolata per trovare $x_3$:
+	\[
+	x_3 = 4 - 3(1) \implies \mathbf{x_3 = 1}
+	\]
+	
+	\textbf{Conclusione:}\\
+	Abbiamo dimostrato matematicamente che l'insieme $B = \{1, 3\}$ genera esattamente il vettore $x_B = \begin{pmatrix} 1 \\ 1 \end{pmatrix}$. 
+	Reintegrando lo zero dell'insieme $N$, otteniamo l'assegnamento finale $\bar{x} = (1, 0, 1)$, che corrisponde perfettamente alla soluzione fornita dal professore. Trattandosi di un assegnamento in cui le variabili di base sono tutte $> 0$, essa è una \textbf{Soluzione di Base Ammissibile e Non Degenere}.
+	
+	\vspace{0.6cm}
+	\textbf{Esempio 4: Riconoscere una Soluzione Non di Base}\\
+	Il professore procede presentandoci un'altra casistica, fornendoci un nuovo poliedro e una nuova soluzione da analizzare. 
+	\textit{Nota: Ho corretto un piccolo refuso di dettatura nei coefficienti del secondo vincolo per far quadrare matematicamente l'uguaglianza con il punto fornito.}
+	
+	Il modello in formato duale standard è:
+	\[
+	\begin{cases}
+		3x_1 + x_2 + x_3 = 5 \quad &\text{(Vincolo 1)} \\
+		2x_1 + 3x_2 + 5x_3 = 10 \quad &\text{(Vincolo 2)} \\
+		x_1, x_2, x_3 \geq 0
+	\end{cases}
+	\]
+	Ci viene fornito il seguente assegnamento: $\bar{x} = \begin{pmatrix} 1 \\ 1 \\ 1 \end{pmatrix}$. 
+	Il professore ci anticipa immediatamente che questa \textbf{non è una soluzione di base}. Ma come facciamo a dimostrarlo formalmente senza perdere tempo?
+	
+	\vspace{0.4cm}
+	\textbf{1. Test Rapido: La Regola degli Zeri}\\
+	Prima di imbarcarci in qualsiasi calcolo di matrici o determinanti, applichiamo la "regola degli zeri" discussa nel paragrafo precedente. Questa regola è il filtro principale per capire se un punto ha le carte in regola per essere un vertice.
+	\begin{itemize}[label=\textcolor{titlecolor}{\Large\textbullet}, itemsep=2pt, leftmargin=1.5cm]
+		\item Il nostro modello ha \textbf{$n = 3$} variabili.
+		\item Il nostro modello ha \textbf{$m = 2$} vincoli (equazioni).
+		\item Per essere una soluzione di base, il punto \textit{deve} avere almeno $n - m = 3 - 2 = \textbf{1 zero}$ fisiologico (la variabile scartata nell'insieme $N$).
+	\end{itemize}
+	Guardiamo il punto fornito: $\bar{x} = (1, 1, 1)$. \\
+	Al suo interno, \textbf{ci sono $0$ zeri}. Nessuna variabile è stata posta a zero. 
+	Poiché $0 < 1$, il test fallisce istantaneamente: si va contro il vincolo strutturale della creazione di una base. Questo punto non potrà mai essere un vertice.
+	
+	\vspace{0.4cm}
+	\textbf{2. Dimostrazione Algebrica (Perché l'algoritmo fallisce?)}\\
+	Per capire profondamente il perché, proviamo ad applicare l'algoritmo standard e vediamo dove si "incastra".
+	Verifichiamo innanzitutto se il punto è perlomeno ammissibile (ovvero se si trova dentro il poliedro/sui suoi piani), sostituendo i valori $\bar{x} = (1,1,1)$ nel sistema:
+	\begin{itemize}[label=$\circ$, itemsep=2pt, leftmargin=1.5cm]
+		\item \textit{Vincolo 1:} $3(1) + 1(1) + 1(1) = 3 + 1 + 1 = 5 \quad \text{\textcolor{green!60!black}{(Vero)}}$
+		\item \textit{Vincolo 2:} $2(1) + 3(1) + 5(1) = 2 + 3 + 5 = 10 \quad \text{\textcolor{green!60!black}{(Vero)}}$
+	\end{itemize}
+	Il punto rispetta perfettamente i vincoli. Si trova fisicamente sulla superficie del poliedro.
+	
+	Tuttavia, per calcolare un vertice dobbiamo creare una sottomatrice $A_B$ di dimensioni $2 \times 2$. Questo ci obbliga a scegliere due variabili per l'insieme $B$ e a \textbf{scartarne una nell'insieme $N$, ponendola tassativamente a zero}.
+	\begin{itemize}
+		\item Se scegliessimo $B = \{1, 2\}$, dovremmo porre $N = \{3\} \implies x_3 = 0$. Ma nel nostro punto, $x_3 = 1$.
+		\item Se scegliessimo $B = \{1, 3\}$, dovremmo porre $N = \{2\} \implies x_2 = 0$. Ma nel nostro punto, $x_2 = 1$.
+		\item Se scegliessimo $B = \{2, 3\}$, dovremmo porre $N = \{1\} \implies x_1 = 0$. Ma nel nostro punto, $x_1 = 1$.
+	\end{itemize}
+	
+	\textbf{Conclusione:}\\
+	È matematicamente impossibile che questo assegnamento provenga dalla risoluzione di un sistema $A_B x_B = b$, perché nessuna variabile può essere assegnata all'insieme non di base $N$. \\
+	Pertanto, $\bar{x} = (1, 1, 1)$ è una \textbf{Soluzione Ammissibile ma NON di Base}. Geometricamente parlando, questo punto si trova all'interno della regione ammissibile (o su una faccia/spigolo del poliedro), ma \textit{non è uno dei suoi "angoli"} (vertici).
+	
+	\vspace{0.6cm}
+	\textbf{Esempio 5: Riconoscere una Soluzione di Base Degenere}\\
+	\textit{Nota dell'autore: Per far quadrare perfettamente la matematica, ho corretto i termini noti a destra dell'uguale ponendoli a $3$ e $2$ (invece di $5$ e $10$, che con molta probabilità sono stati copiati per sbaglio dall'esercizio precedente). Se avessimo tenuto $5$ e $10$, sostituendo il punto $(1,0,0)$ avremmo ottenuto un assurdo matematico ($3=5$). Inoltre, ho interpretato il refuso "2X1 più 3X1 più X" come $2x_1 + 3x_2 + x_3$ per dare coerenza al sistema.}
+	
+	Il modello corretto in formato duale standard è:
+	\[
+	\begin{cases}
+		3x_1 + x_2 + x_3 = 3 \quad &\text{(Vincolo 1)} \\
+		2x_1 + 3x_2 + x_3 = 2 \quad &\text{(Vincolo 2)} \\
+		x_1, x_2, x_3 \geq 0
+	\end{cases}
+	\]
+	L'assegnamento fornito dal professore è: $\bar{x} = \begin{pmatrix} 1 \\ 0 \\ 0 \end{pmatrix}$.
+	
+	\vspace{0.4cm}
+	\textbf{1. Test Rapido: La Regola degli Zeri}\\
+	Applichiamo subito il test per capire la natura di questo punto senza dover prima fare troppi calcoli:
+	\begin{itemize}[label=\textcolor{titlecolor}{\Large\textbullet}, itemsep=2pt, leftmargin=1.5cm]
+		\item Variabili totali $n = 3$.
+		\item Vincoli (equazioni) $m = 2$.
+		\item Zeri fisiologici necessari per una base: $n - m = 3 - 2 = \textbf{1 zero}$.
+	\end{itemize}
+	Se guardiamo l'assegnamento fornito $\bar{x} = (1, 0, 0)$, notiamo che \textbf{ha ben 2 zeri} (sia $x_2 = 0$ che $x_3 = 0$). 
+	Poiché il numero di zeri è strettamente superiore a quello necessario ($2 > 1$), il professore ci conferma all'istante che ci troviamo di fronte a una \textbf{Soluzione di Base Ammissibile Degenere}. Questo eccesso di zeri significa algebricamente che esisteranno \textit{più basi} in grado di generare questo identico punto geometrico.
+	
+	\vspace{0.4cm}
+	\textbf{2. Dimostrazione Algebrica (Ricerca delle molteplici Basi)}\\
+	Per dimostrare all'atto pratico questo fenomeno, andiamo a calcolare lo sviluppo del sistema estraendo due basi differenti, mostrando come entrambe convergano allo stesso identico risultato.
+	
+	\textbf{Caso A: Scegliamo la Base $B_1 = \{1, 2\}$}\\
+	Dovendo scegliere due variabili, scartiamo $x_3$ ponendolo a zero ($N_1 = \{3\}$). Estraiamo la sottomatrice e il vettore $b$:
+	\[
+	A_{B1} = \begin{pmatrix} 3 & 1 \\ 2 & 3 \end{pmatrix}, \qquad b_{B1} = \begin{pmatrix} 3 \\ 2 \end{pmatrix}
+	\]
+	Controlliamo il determinante: $\det(A_{B1}) = (3 \cdot 3) - (1 \cdot 2) = 9 - 2 = 7 \neq 0$ (Base valida). \\
+	Mettiamo a sistema:
+	\[
+	\begin{cases}
+		3x_1 + x_2 = 3 \\
+		2x_1 + 3x_2 = 2
+	\end{cases}
+	\]
+	Dalla prima equazione ricaviamo: $x_2 = 3 - 3x_1$. Sostituiamo nella seconda:
+	\[
+	2x_1 + 3(3 - 3x_1) = 2 \implies 2x_1 + 9 - 9x_1 = 2 \implies -7x_1 = 2 - 9 \implies -7x_1 = -7 \implies \mathbf{x_1 = 1}
+	\]
+	Sostituendo il valore di $x_1$ appena trovato: $x_2 = 3 - 3(1) \implies \mathbf{x_2 = 0}$. \\
+	L'assegnamento finale generato dalla base $B_1$ è: $\bar{x} = (1, 0, 0)$.
+	
+	\vspace{0.3cm}
+	\textbf{Caso B: Scegliamo la Base $B_2 = \{1, 3\}$}\\
+	Proviamo a cambiare base. Stavolta scartiamo $x_2$ ponendolo a zero ($N_2 = \{2\}$). Estraiamo la nuova sottomatrice:
+	\[
+	A_{B2} = \begin{pmatrix} 3 & 1 \\ 2 & 1 \end{pmatrix}, \qquad b_{B2} = \begin{pmatrix} 3 \\ 2 \end{pmatrix}
+	\]
+	Controlliamo il determinante: $\det(A_{B2}) = (3 \cdot 1) - (1 \cdot 2) = 3 - 2 = 1 \neq 0$ (Base valida). \\
+	Mettiamo a sistema:
+	\[
+	\begin{cases}
+		3x_1 + x_3 = 3 \\
+		2x_1 + x_3 = 2
+	\end{cases}
+	\]
+	Dalla prima equazione ricaviamo: $x_3 = 3 - 3x_1$. Sostituiamo nella seconda:
+	\[
+	2x_1 + (3 - 3x_1) = 2 \implies -x_1 + 3 = 2 \implies -x_1 = 2 - 3 \implies -x_1 = -1 \implies \mathbf{x_1 = 1}
+	\]
+	Sostituendo il valore di $x_1$: $x_3 = 3 - 3(1) \implies \mathbf{x_3 = 0}$. \\
+	L'assegnamento finale generato dalla base $B_2$ è: $\bar{x} = (1, 0, 0)$.
+	
+	\vspace{0.4cm}
+	\textbf{Conclusione:}\\
+	Come preannunciato accuratamente dalla regola degli zeri, i calcoli confermano che due scelte di base completamente diverse ($B_1=\{1,2\}$ e $B_2=\{1,3\}$) conducono matematicamente a ottenere le coordinate dello stesso identico vertice $\bar{x} = (1, 0, 0)$. 
+	
+	Inoltre, se si facesse il calcolo anche per la terza base possibile $B_3=\{2,3\}$, si otterrebbe un punto del tutto diverso [nello specifico $\bar{x} = (0, -0.5, 3.5)$], dimostrando che la degenerazione non significa che \textit{tutte} le basi portano allo stesso punto, ma che \textit{più basi} descrivono quel singolo vertice.
+	
+	\vspace{1.5cm}
+	\begin{center}
+		\rule{0.65\textwidth}{1pt} \\
+		\vspace{0.4cm}
+		\textcolor{titlecolor}{\LARGE \textbf{--- Fine Lezione 7 ---}} \\
+		\vspace{0.2cm}
+		\rule{0.65\textwidth}{1pt}
+	\end{center}
+	\newpage
+	
+	\avviso{\textit{\textbf{Questa lezione, come le sue precedenti e successive, può contenere errori e/o imprecisioni. Per il bene di tutti, è buona norma far notare all'autore l'errore o l'imprecisione così da risolvere nel minor tempo possibile. I canali di comunicazione, per eventuali avvisi generali o di errori trovati negli appunti, sono in cima al file. Grazie per la collaborazione e Buono studio!}}}
+	
+	\section*{Lezione 8 | 1 ottobre 2026}
+	\subsection*{}
 	
 \end{document}
