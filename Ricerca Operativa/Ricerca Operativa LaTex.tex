@@ -3034,6 +3034,446 @@
 	\avviso{\textit{\textbf{Questa lezione, come le sue precedenti e successive, può contenere errori e/o imprecisioni. Per il bene di tutti, è buona norma far notare all'autore l'errore o l'imprecisione così da risolvere nel minor tempo possibile. I canali di comunicazione, per eventuali avvisi generali o di errori trovati negli appunti, sono in cima al file. Grazie per la collaborazione e Buono studio!}}}
 	
 	\section*{Lezione 8 | 1 ottobre 2026}
+	\subsection*{La Teoria della Dualità e il Test di Ottimalità}
+	
+	Supponendo di avere un normale problema di ottimizzazione in \textbf{Formato Primale Standard}:
+	\[
+	\max c^T x
+	\]
+	soggetto a:
+	\[
+	Ax \leq b
+	\]
+	Definiamo gli spazi di appartenenza degli elementi: $A \in \mathbb{R}^{m \times n}$ (supponendo che la matrice sia di rango massimo), il vettore dei termini noti $b \in \mathbb{R}^m$ e il vettore dei costi $c \in \mathbb{R}^n$. Supponiamo inoltre che il poliedro descritto da questi vincoli sia non vuoto (ovvero che esista almeno una soluzione ammissibile).
+	
+	Ogni problema in formato primale possiede un suo corrispettivo diretto, chiamato \textbf{Problema Duale Associato} (o in Formato Duale Standard), che si costruisce matematicamente scambiando i ruoli dei vettori $b$ e $c$ e trasponendo la matrice dei coefficienti $A$. 
+	
+	Il modello duale standard si descrive come:
+	\[
+	\min b^T y
+	\]
+	soggetto a:
+	\[
+	\begin{cases}
+		A^T y = c \\
+		y \geq 0
+	\end{cases}
+	\]
+	
+	È importante fare attenzione alle nuove dimensioni degli elementi in gioco:
+	\begin{itemize}[label=\textcolor{titlecolor}{\Large\textbullet}, itemsep=2pt, leftmargin=1.5cm]
+		\item Il vettore delle nuove variabili duali è $y \in \mathbb{R}^m$.
+		\item La matrice trasposta è $A^T \in \mathbb{R}^{n \times m}$ (esattamente al contrario rispetto a prima, dato che le righe sono diventate colonne e viceversa).
+	\end{itemize}
+	
+	Questa formulazione rappresenta il legame algebrico fondamentale tra il mondo primale e il mondo duale.
+	
+	\vspace{0.6cm}
+	\textbf{Esempio Pratico: Dal Primale al Duale}\\
+	Costruiamo un esempio numerico per visualizzare questa trasformazione. Partiamo da un problema in formato primale standard con 2 variabili ($x_1, x_2$) e 3 vincoli, per poi ricavarne il suo corrispettivo duale.
+	
+	\vspace{0.4cm}
+	\noindent
+	\begin{minipage}[t]{0.48\textwidth}
+		\centering
+		\textbf{Problema Primale Standard}
+		\[
+		\begin{cases}
+			\max \quad x_1 - 3x_2 \\[6pt]
+			4x_1 + 5x_2 \leq 6 \\
+			-x_1 + x_2 \leq 7 \\
+			3x_1 + x_2 \leq 8 \\[6pt]
+			x_1, x_2 \geq 0
+		\end{cases}
+		\]
+	\end{minipage}%
+	\hfill%
+	\begin{minipage}[t]{0.48\textwidth}
+		\centering
+		\textbf{Problema Duale Associato}
+		\[
+		\begin{cases}
+			\min \quad 6y_1 + 7y_2 + 8y_3 \\[6pt]
+			4y_1 - y_2 + 3y_3 = 1 \\
+			5y_1 + y_2 + y_3 = -3 \\[6pt]
+			y_1, y_2, y_3 \geq 0
+		\end{cases}
+		\]
+	\end{minipage}
+	
+	\vspace{0.6cm}
+	Come si evince dal confronto diretto:
+	\begin{itemize}[label=$\circ$, itemsep=2pt, leftmargin=1.5cm]
+		\item I termini noti del primale ($6, 7, 8$) diventano i coefficienti della funzione obiettivo del duale.
+		\item I coefficienti della funzione obiettivo del primale ($1, -3$) diventano i termini noti dei vincoli duali.
+		\item La matrice dei vincoli viene trasposta (le colonne di $x_1$ e $x_2$ sono diventate le righe del sistema di $y$).
+	\end{itemize}
+	
+	\vspace{0.6cm}
+	\separatore
+	\vspace{0.4cm}
+	
+	\textbf{Il Teorema della Dualità Forte}\\
+	Questa stretta correlazione tra i due modelli ci permette di introdurre uno dei teoremi più importanti della Ricerca Operativa, fondamentale per certificare l'ottimalità di una soluzione: il \textbf{Teorema della Dualità Forte}.
+	
+	\begin{quote}
+		\textit{"Supponiamo che i poliedri del problema primale ($P$) e del problema duale ($D$) siano non vuoti. Allora il valore massimo raggiungibile dal primale sarà esattamente uguale al valore minimo raggiungibile dal duale."}
+	\end{quote}
+	
+	Mettendo a confronto le funzioni obiettivo dei modelli generali visti in precedenza, questo teorema stabilisce un'uguaglianza perfetta all'ottimo:
+	\[
+	\max (c^T x) = \min (b^T y)
+	\]
+	
+	\vspace{0.3cm}
+	\textbf{Interpretazione Grafica e Logica dell'Ottimo}\\
+	Per chiarire questo concetto, il professore ha proposto un'analogia visiva molto efficace. Immaginiamo una linea retta orizzontale (che rappresenta l'asse dei valori della funzione obiettivo), divisa esattamente a metà da una barriera verticale.
+	
+	\begin{figure}[H]
+		\centering
+		\begin{tikzpicture}[xscale=1.3, yscale=1.2]
+			% Asse orizzontale
+			\draw[->, thick] (-5.5, 0) -- (5.5, 0) node[right, font=\bfseries] {Valore Obiettivo};
+			
+			% Linea centrale (Ottimo)
+			\draw[thick, color=myred] (0, -2) -- (0, 2) node[above, font=\Large\bfseries] {OTTIMO ($\max = \min$)};
+			
+			% Regione Primale (Rettangolo ingrandito)
+			\fill[myblue, opacity=0.15] (-5, -1) rectangle (0, 1);
+			% Freccia superiore per il Primale (Spostata più in alto per non sovrapporsi)
+			\draw[->, thick, color=myblue!80!black] (-4.5, 1.4) -- (-0.2, 1.4) node[midway, above, font=\small\bfseries] {Spinta verso il Massimo};
+			% Etichetta testuale (Spostata in basso, fuori dall'asse orizzontale)
+			\node[color=myblue!80!black, font=\large\bfseries] at (-2.5, -1.5) {Soluzioni Primale $c^T x$};
+			
+			% Regione Duale (Rettangolo ingrandito)
+			\fill[mygreen, opacity=0.15] (0, -1) rectangle (5, 1); 
+			% Freccia superiore per il Duale (Spostata più in alto)
+			\draw[->, thick, color=green!50!black] (4.5, 1.4) -- (0.2, 1.4) node[midway, above, font=\small\bfseries] {Spinta verso il Minimo};
+			% Etichetta testuale (Spostata in basso, fuori dall'asse orizzontale)
+			\node[color=green!50!black, font=\large\bfseries] at (2.5, -1.5) {Soluzioni Duale $b^T y$};
+			
+			% Punti sulle regioni (Sull'asse, ora perfettamente visibili)
+			\node[circle, fill=black, scale=0.5] at (-4, 0) {};
+			\node[circle, fill=black, scale=0.5] at (-2, 0) {};
+			\node[circle, fill=myred, scale=0.8] at (0, 0) {}; % Punto di ottimo leggermente più grande
+			\node[circle, fill=black, scale=0.5] at (2, 0) {};
+			\node[circle, fill=black, scale=0.5] at (4, 0) {};
+		\end{tikzpicture}
+		\caption{Rappresentazione del Teorema della Dualità Forte. Qualsiasi soluzione primale restituisce un valore inferiore (o al più uguale) a qualsiasi soluzione duale. L'ottimo si verifica nel punto esatto di collisione tra il massimo sforzo del primale e il minimo sforzo del duale.}
+	\end{figure}
+	
+	Come mostra il grafico:
+	\begin{itemize}[label=\textcolor{titlecolor}{\Large\textbullet}, itemsep=2pt, leftmargin=1.5cm]
+		\item Le soluzioni del \textbf{Primale} si muovono sul lato sinistro: essendo un problema di massimo, esse cercano di crescere il più possibile, spingendo verso destra.
+		\item Le soluzioni del \textbf{Duale} si muovono sul lato destro: essendo un problema di minimo, esse cercano di decrescere il più possibile, spingendo verso sinistra.
+	\end{itemize}
+	
+	La dualità forte stabilisce che vi è sempre un punto in cui le soluzioni primali e quelle duali si scontrano. Se troviamo una soluzione ammissibile $\bar{x} \in P$ e una soluzione ammissibile $\bar{y} \in D$ tali per cui i valori delle loro funzioni obiettivo coincidono:
+	\[
+	c^T \bar{x} = b^T \bar{y}
+	\]
+	Possiamo affermare con assoluta certezza di aver trovato l'ottimo. La logica è disarmante nella sua semplicità: se l'unico modo per far coincidere i due valori è ottenere il massimo possibile dal primale e il minimo possibile dal duale, la loro coincidenza è la \textbf{prova matematica inconfutabile} che non si può migliorare ulteriormente. Entrambe le soluzioni sono ottime.
+	
+	\vspace{0.6cm}
+	\textbf{La Soluzione Duale Complementare}\\
+	Ipotizziamo di avere un vertice $\bar{x}$ compreso all'interno del poliedro primale. Sappiamo che questo vertice (soluzione di base) è definito da un insieme di indici di base $B$ (le cui righe formano la sottomatrice quadrata $A_B$) e un insieme di indici non di base $N$. Ricordiamo le dimensioni (le cardinalità) degli insiemi: 
+	\begin{itemize}[label=\textcolor{titlecolor}{\Large\textbullet}, itemsep=2pt, leftmargin=1.5cm]
+		\item Cardinalità di $B = n$ (il numero di variabili).
+		\item Cardinalità di $N = m - n$ (il resto dei vincoli).
+	\end{itemize}
+	Mettendo a sistema i vincoli di base, il vertice si ottiene dall'equazione $A_B \bar{x} = b_B$, dalla quale deriviamo la formula già nota:
+	\[
+	\bar{x} = A_B^{-1} b_B
+	\]
+	
+	A questo punto sorge una domanda spontanea: \textit{posso ottenere una soluzione di base duale $\bar{y}$ utilizzando la stessa identica base $B$ che abbiamo usato per il primale?} 
+	La risposta è \textbf{sì}. Nel primale l'insieme $B$ definisce quali \textit{righe} (vincoli) estrarre; nel duale, avendo la matrice trasposta, lo stesso insieme $B$ definirà quali \textit{colonne} (variabili) prendere, ponendo le restanti a zero. Questa costruzione prende il nome di \textbf{Soluzione Duale Complementare}.
+	
+	\vspace{0.4cm}
+	\textbf{Costruzione della Base Duale Complementare}\\
+	Nel formato duale, il sistema di uguaglianze è $A^T y = c$. 
+	Se dividiamo i blocchi della soluzione duale $\bar{y}$ in variabili di base ($\bar{y}_B$) e variabili non di base ($\bar{y}_N$), sappiamo che per definizione le variabili non scelte vanno poste rigorosamente a zero:
+	\[
+	\bar{y}_N = 0
+	\]
+	Il sistema di equazioni si riduce quindi alla sola sottomatrice $A_B$ trasposta moltiplicata per le variabili duali in base:
+	\[
+	A_B^T \bar{y}_B = c
+	\]
+	Invertendo questa equazione, possiamo ricavare il valore delle variabili duali in base:
+	\[
+	\bar{y}_B = (A_B^T)^{-1} c
+	\]
+	Assemblando i due blocchi, il vettore completo della soluzione duale complementare si scrive matematicamente così:
+	\[
+	\bar{y} = \begin{pmatrix} \bar{y}_B \\ \bar{y}_N \end{pmatrix} = \begin{pmatrix} (A_B^T)^{-1} c \\ 0 \end{pmatrix}
+	\]
+	
+	\vspace{0.4cm}
+	\textbf{La Prova dell'Ottimalità (I due valori coincidono)}\\
+	Prima di concludere, il professore ci fa eseguire i conti per dimostrare algebricamente che i valori delle due funzioni obiettivo ($c^T \bar{x}$ per il primale e $b^T \bar{y}$ per il duale) sono identici quando si utilizza la base complementare.
+	
+	1. \textbf{Valore del Primale:}\\
+	Sostituiamo la formula di $\bar{x}$ all'interno della funzione obiettivo primale:
+	\[
+	\text{Valore Primale} = c^T \bar{x} = c^T (A_B^{-1} b_B)
+	\]
+	
+	2. \textbf{Valore del Duale:}\\
+	Ora calcoliamo la funzione obiettivo duale espandendo il vettore $b$ e il vettore $\bar{y}$ nei loro blocchi $B$ ed $N$:
+	\[
+	\text{Valore Duale} = b^T \bar{y} = \begin{pmatrix} b_B^T & b_N^T \end{pmatrix} \begin{pmatrix} \bar{y}_B \\ \bar{y}_N \end{pmatrix}
+	\]
+	Moltiplicando i blocchi otteniamo:
+	\[
+	b^T \bar{y} = b_B^T \bar{y}_B + b_N^T \bar{y}_N
+	\]
+	Poiché sappiamo che $\bar{y}_N = 0$, l'intero blocco di destra si annulla, lasciando solo:
+	\[
+	b^T \bar{y} = b_B^T \bar{y}_B
+	\]
+	Ora sostituiamo $\bar{y}_B$ con la formula trovata in precedenza ($\bar{y}_B = (A_B^T)^{-1} c$):
+	\[
+	b^T \bar{y} = b_B^T (A_B^T)^{-1} c
+	\]
+	
+	\textbf{Nota matematica cruciale:}\\
+	Come visto in algebra lineare, il risultato di questi prodotti vettoriali e matriciali è un singolo numero scalare (il valore finale della funzione). Il trasposto di un numero scalare è il numero stesso. Inoltre, il trasposto di un prodotto inverte l'ordine dei fattori ($ (U \cdot V)^T = V^T \cdot U^T $) e $(A_B^T)^{-1} = (A_B^{-1})^T$. 
+	Per questo motivo, possiamo trasporre l'intera espressione del valore duale senza alterarne il risultato, per renderla visivamente identica a quella del primale:
+	\[
+	\left( b_B^T (A_B^T)^{-1} c \right)^T = c^T \left( (A_B^T)^{-1} \right)^T (b_B^T)^T = \mathbf{c^T A_B^{-1} b_B}
+	\]
+	
+	\textbf{Conclusione:}\\
+	Abbiamo appena dimostrato che:
+	\[
+	c^T \bar{x} = b^T \bar{y}
+	\]
+	Preso un vertice nel poliedro primale, costruendo la sua duale complementare con la stessa base $B$, i valori delle funzioni obiettivo coincidono sempre algebricamente.
+	Di conseguenza, per il Teorema della Dualità Forte: \textbf{se sia la soluzione primale che la sua duale complementare risultano ammissibili (ovvero rispettano le loro disuguaglianze e vincoli di segno), allora abbiamo la certezza matematica assoluta di trovarci nel valore ottimo del problema.}
+	
+	\vspace{0.6cm}
+	\textbf{Il Test di Ottimalità}\\
+	Adesso possediamo tutti gli strumenti per applicare il \textbf{Test di Ottimalità}. 
+	La primissima regola fondamentale da ricordare è che questo test \textbf{si applica solo ed esclusivamente sui vertici}. Prima di avviare qualsiasi calcolo, bisogna assicurarsi che la soluzione di base $\bar{x}$ sia effettivamente un vertice del poliedro; in caso contrario, bisogna fermarsi subito perché il test non avrebbe senso.
+	
+	Se abbiamo accertato che $\bar{x}$ è un vertice generato da una certa base $B$, il test di ottimalità afferma che:
+	\begin{quote}
+		\textit{Una soluzione di base primale $\bar{x}$ è ottima se e solo se la sua soluzione duale complementare associata $\bar{y}$ è ammissibile, ovvero se $\bar{y}_B \geq 0$.}
+	\end{quote}
+	Matematicamente, poiché sappiamo che $\bar{y}_B = (A_B^T)^{-1} c$, questo significa che il calcolo di questa formula deve restituire un vettore in cui \textbf{tutti i valori sono maggiori o uguali a zero}. Se accade, $\bar{x}$ è il vertice ottimo.
+	
+	\vspace{0.4cm}
+	\textbf{Esempio di Conversione Formato (Modello a 4 vincoli)}\\
+	Prima di fare un test completo, il professore ha fornito un modello in classe per farci esercitare sulla costruzione del duale. 
+	\textit{Nota: Il modello primale di partenza dettato a lezione era volutamente confusionario (conteneva segni di $=$ e $\geq$). Per una questione di rigore, l'ho già convertito e trascritto direttamente nel Formato Primale Standard corretto (tutti $\leq$) in modo da poter ricavare il duale senza errori.}
+	
+	\noindent
+	\begin{minipage}[t]{0.48\textwidth}
+		\centering
+		\textbf{Primale Standard}
+		\[
+		\begin{cases}
+			\max \quad x_1 + 3x_2 \\[6pt]
+			-3x_1 + 2x_2 \leq -8 \\
+			2x_1 + x_2 \leq 9 \\
+			-2x_1 - x_2 \leq -9 \\
+			4x_1 + x_2 \leq 7 \\[6pt]
+			x_1, x_2 \geq 0
+		\end{cases}
+		\]
+	\end{minipage}%
+	\hfill%
+	\begin{minipage}[t]{0.48\textwidth}
+		\centering
+		\textbf{Duale Associato}
+		\[
+		\begin{cases}
+			\min \quad -8y_1 + 9y_2 - 9y_3 + 7y_4 \\[6pt]
+			-3y_1 + 2y_2 - 2y_3 + 4y_4 = 1 \\
+			2y_1 + y_2 - y_3 + y_4 = 3 \\[6pt]
+			y_1, y_2, y_3, y_4 \geq 0
+		\end{cases}
+		\]
+	\end{minipage}
+	
+	\vspace{0.6cm}
+	\separatore
+	\vspace{0.4cm}
+	
+	\textbf{Esercizio Pratico: Applicazione del Test di Ottimalità}\\
+	Veniamo ora al vero e proprio test. Il professore ci fornisce un poliedro in formato primale standard (in cui ha esplicitato per comodità i vincoli di non negatività come vere e proprie equazioni $\leq$) e una soluzione di base di cui dobbiamo \textbf{verificare l'ottimalità}.
+	
+	\textbf{Il Modello Primale:}
+	\[
+	\begin{cases}
+		\max \quad 3x_1 + 2x_2 \\[6pt]
+		4x_1 + 7x_2 \leq 13 \quad &\text{(Vincolo 1)} \\
+		6x_1 + 4x_2 \leq 11 \quad &\text{(Vincolo 2)} \\
+		-x_1 \leq 0 \quad &\text{(Vincolo 3)} \\
+		-x_2 \leq 0 \quad &\text{(Vincolo 4)}
+	\end{cases}
+	\]
+	Ci viene fornita la soluzione: $\bar{x} = \begin{pmatrix} 0 \\ 13/7 \end{pmatrix}$.
+	
+	\vspace{0.3cm}
+	\textbf{Step 1: Ricerca della Base $B$ (Verifica dei vincoli attivi)}\\
+	Per capire se $\bar{x}$ è ottima, dobbiamo prima individuare quale base l'ha generata. Inseriamo i valori $x_1 = 0$ e $x_2 = 13/7$ all'interno del sistema primale per vedere quali vincoli vengono "saturati" (ovvero dove la disuguaglianza diventa un'uguaglianza stretta $=$, indicando che la soluzione giace su quel bordo).
+	
+	\begin{itemize}[label=$\circ$, itemsep=2pt, leftmargin=1.5cm]
+		\item \textit{Vincolo 1:} $4(0) + 7(13/7) = 13 \leq 13 \implies$ \textbf{Saturato ($=$)}. L'indice 1 entra in $B$.
+		\item \textit{Vincolo 2:} $6(0) + 4(13/7) = 52/7 \approx 7.42 \leq 11 \implies$ Non saturato. L'indice 2 entra in $N$.
+		\item \textit{Vincolo 3:} $-0 = 0 \leq 0 \implies$ \textbf{Saturato ($=$)}. L'indice 3 entra in $B$.
+		\item \textit{Vincolo 4:} $-(13/7) \leq 0 \implies$ Non saturato. L'indice 4 entra in $N$.
+	\end{itemize}
+	Abbiamo trovato i nostri insiemi: $\mathbf{B = \{1, 3\}}$ e $\mathbf{N = \{2, 4\}}$.
+	
+	\vspace{0.3cm}
+	\textbf{Step 2: Costruzione del Problema Duale}\\
+	Per eseguire il test costruiamo il modello duale associato. Trasponiamo i coefficienti per formare le equazioni duali:
+	\[
+	\begin{cases}
+		\min \quad 13y_1 + 11y_2 + 0y_3 + 0y_4 \\[6pt]
+		4y_1 + 6y_2 - y_3 + 0y_4 = 3 \quad &\text{(Vincolo riga 1 duale)} \\
+		7y_1 + 4y_2 + 0y_3 - y_4 = 2 \quad &\text{(Vincolo riga 2 duale)} \\[6pt]
+		y_1, y_2, y_3, y_4 \geq 0
+	\end{cases}
+	\]
+	
+	\vspace{0.3cm}
+	\textbf{Step 3: Calcolo della Soluzione Duale Complementare}\\
+	Ora dobbiamo calcolare la soluzione duale complementare $\bar{y}$. Sapendo che l'insieme non di base è $N = \{2, 4\}$, imponiamo immediatamente a zero le relative variabili:
+	\[
+	y_2 = 0, \quad y_4 = 0
+	\]
+	Le uniche variabili duali che potranno avere un valore diverso da zero sono quelle relative all'insieme di base: $y_1$ e $y_3$. 
+	
+	A questo punto il professore ci svela un trucco visivo molto comodo: l'espressione matriciale complessa $A_B^T \bar{y}_B = c$ equivale semplicemente a \textbf{prendere il sistema di equazioni del problema duale ed estrarre solo le colonne relative alle variabili in $B$}.
+	Cancellando $y_2$ e $y_4$, il sottosistema si riduce a:
+	\[
+	\begin{cases}
+		4y_1 - y_3 = 3 \\
+		7y_1 = 2
+	\end{cases}
+	\]
+	Risolviamo matematicamente:
+	Dalla seconda equazione otteniamo immediatamente:
+	\[
+	\mathbf{y_1 = \frac{2}{7}}
+	\]
+	Sostituendo il valore di $y_1$ nella prima equazione:
+	\[
+	4\left(\frac{2}{7}\right) - y_3 = 3 \implies \frac{8}{7} - 3 = y_3 \implies y_3 = \frac{8}{7} - \frac{21}{7} \implies \mathbf{y_3 = -\frac{13}{7}}
+	\]
+	
+	\vspace{0.4cm}
+	\textbf{Conclusione del Test:}\\
+	La soluzione duale complementare $\bar{y}_B$ ha prodotto i valori $y_1 = 2/7$ e $y_3 = -13/7$. 
+	Affinché il vertice primale $\bar{x}$ fosse ottimo, tutti i valori della $\bar{y}$ avrebbero dovuto essere $\geq 0$. 
+	Tuttavia, abbiamo ottenuto \textbf{$y_3 = -13/7 < 0$}. Questo significa che la soluzione duale complementare \textbf{non è ammissibile}. 
+	
+	Di conseguenza, per il test di ottimalità, possiamo affermare con certezza che $\bar{x} = (0, 13/7)$ \textbf{non è la soluzione ottima} del problema primale.
+	
+	\vspace{0.6cm}
+	\textbf{Osservazione: Il Duale del Duale è il Primale}\\
+	Come abbiamo appena dimostrato, se prendiamo un problema Primale e applichiamo le regole di trasposizione, otteniamo il Duale. Se prendiamo il Duale e lo trasponiamo a sua volta, torniamo esattamente al Primale originario. Anche se all'esame è raro che venga chiesto esplicitamente di calcolare "il duale del duale", il professore ci tiene a ribadire questo concetto per garantirci la massima flessibilità mentale nella gestione dei modelli.
+	
+	\vspace{0.4cm}
+	\textbf{Esercizio Pratico: Dal Duale al Primale}\\
+	A tal proposito, il professore ci propone un esercizio fornendoci un modello di partenza che si trova \textbf{già in formato duale}. Il modello ha $6$ variabili e $2$ equazioni:
+	\[
+	\textbf{Duale (D)} \implies
+	\begin{cases}
+		\min \quad 4y_3 + 14y_4 + 4y_5 + 4y_6 \\[6pt]
+		-y_2 + y_3 + 3y_4 - y_6 = 8 \quad &\text{(Vincolo riga 1)} \\
+		y_1 + y_3 + y_4 - y_5 - y_6 = 5 \quad &\text{(Vincolo riga 2)} \\[6pt]
+		y_1, y_2, y_3, y_4, y_5, y_6 \geq 0
+	\end{cases}
+	\]
+	Ci viene inoltre fornita una base $B = \{3, 5\}$. Notiamo che la base contiene esattamente $2$ indici, il che è corretto poiché il numero di equazioni del duale è $m = 2$.
+	
+	\vspace{0.3cm}
+	\textbf{1. Costruzione del Primale (Duale del Duale)}\\
+	Per esercitarci, il professore ci chiede di applicare le regole di conversione. Trasponendo questo duale, otterremo il suo primale.
+	Sapendo che le 6 variabili del duale diventeranno 6 vincoli nel primale, e le 2 equazioni del duale diventeranno 2 variabili decisionali nel primale ($x_1, x_2$), il modello risultante sarà:
+	\[
+	\textbf{Primale (P)} \implies
+	\begin{cases}
+		\max \quad 8x_1 + 5x_2 \\[6pt]
+		x_2 \leq 0 \quad &\text{(Dal coefficiente di } y_1: 0x_1 + 1x_2 \leq 0) \\
+		-x_1 \leq 0 \quad &\text{(Dal coefficiente di } y_2: -1x_1 + 0x_2 \leq 0) \\
+		x_1 + x_2 \leq 4 \quad &\text{(Dal coefficiente di } y_3) \\
+		3x_1 + x_2 \leq 14 \quad &\text{(Dal coefficiente di } y_4) \\
+		-x_2 \leq 4 \quad &\text{(Dal coefficiente di } y_5: 0x_1 - 1x_2 \leq 4) \\
+		-x_1 - x_2 \leq 4 \quad &\text{(Dal coefficiente di } y_6)
+	\end{cases}
+	\]
+	
+	\vspace{0.3cm}
+	\textbf{2. Risoluzione del Sottosistema Duale}\\
+	Andiamo ora a calcolare la soluzione di base duale $\bar{y}$ utilizzando l'insieme $B = \{3, 5\}$. Le variabili scartate finiscono nell'insieme $N = \{1, 2, 4, 6\}$ e vengono poste immediatamente a zero:
+	\[
+	y_1 = 0, \quad y_2 = 0, \quad y_4 = 0, \quad y_6 = 0
+	\]
+	Estraiamo il sottosistema duale mantenendo solo le colonne di $y_3$ e $y_5$:
+	\[
+	\begin{cases}
+		y_3 = 8 \\
+		y_3 - y_5 = 5
+	\end{cases}
+	\]
+	Risolviamo: la prima equazione ci fornisce direttamente $\mathbf{y_3 = 8}$. 
+	Sostituendo nella seconda otteniamo:
+	\[
+	8 - y_5 = 5 \implies -y_5 = 5 - 8 \implies -y_5 = -3 \implies \mathbf{y_5 = 3}
+	\]
+	L'assegnamento completo duale è quindi: $\bar{y} = \begin{pmatrix} 0, & 0, & 8, & 0, & 3, & 0 \end{pmatrix}^T$. 
+	
+	\vspace{0.3cm}
+	\textbf{3. Risoluzione del Sottosistema Primale Complementare}\\
+	Adesso troviamo la soluzione complementare primale $\bar{x}$ sfruttando la \textit{stessa identica base} $B = \{3, 5\}$. Questo significa che nel primale dobbiamo estrarre i vincoli corrispondenti a quegli indici, ovvero il 3° e il 5° vincolo, forzandoli all'uguaglianza stretta ($=$):
+	\[
+	\begin{cases}
+		x_1 + x_2 = 4 \quad &\text{(Equazione 3)} \\
+		-x_2 = 4 \quad &\text{(Equazione 5)}
+	\end{cases}
+	\]
+	Dalla seconda equazione ricaviamo immediatamente: $\mathbf{x_2 = -4}$.
+	Sostituendo il valore nella prima equazione:
+	\[
+	x_1 + (-4) = 4 \implies x_1 - 4 = 4 \implies x_1 = 4 + 4 \implies \mathbf{x_1 = 8}
+	\]
+	La soluzione di base primale complementare è: $\bar{x} = \begin{pmatrix} 8 \\ -4 \end{pmatrix}$.
+	
+	\vspace{0.4cm}
+	\textbf{4. Verifica di Ammissibilità}\\
+	Questa soluzione primale $\bar{x} = (8, -4)$ è ammissibile? Per scoprirlo, dobbiamo verificare se rispetta \textit{tutti} gli altri vincoli del modello primale. Controlliamo, ad esempio, il 4° vincolo ($3x_1 + x_2 \leq 14$):
+	\[
+	3(8) + (-4) = 24 - 4 = 20
+	\]
+	Poiché $20 \not\leq 14$, la disuguaglianza è palesemente violata. Di conseguenza, $\bar{x} = (8, -4)$ è una soluzione \textbf{inammissibile}.
+	
+	\vspace{0.4cm}
+	\textbf{Ultima Osservazione: Il Test di Ottimalità per il Duale}\\
+	Questa procedura ci permette di enunciare l'ultima importantissima osservazione della lezione, che funge da Test di Ottimalità quando si lavora a partire dal duale:
+	\begin{quote}
+		\textit{"Dato un vertice $\bar{y}$ appartenente al poliedro duale, se la sua soluzione primale complementare $\bar{x}$ risulta \textbf{ammissibile} (ovvero rispetta tutti i vincoli del primale), allora abbiamo la garanzia che $\bar{y}$ è la \textbf{soluzione ottima}."}
+	\end{quote}
+	Nel nostro esercizio, la soluzione complementare primale ha violato un vincolo. Essendo inammissibile, possiamo dedurre con certezza che l'assegnamento duale $\bar{y}$ da cui eravamo partiti \textbf{non è l'ottimo} del problema.
+	
+	\vspace{1.5cm}
+	\begin{center}
+		\rule{0.65\textwidth}{1pt} \\
+		\vspace{0.4cm}
+		\textcolor{titlecolor}{\LARGE \textbf{--- Fine Lezione 8 ---}} \\
+		\vspace{0.2cm}
+		\rule{0.65\textwidth}{1pt}
+	\end{center}
+	\newpage
+	
+	\avviso{\textit{\textbf{Questa lezione, come le sue precedenti e successive, può contenere errori e/o imprecisioni. Per il bene di tutti, è buona norma far notare all'autore l'errore o l'imprecisione così da risolvere nel minor tempo possibile. I canali di comunicazione, per eventuali avvisi generali o di errori trovati negli appunti, sono in cima al file. Grazie per la collaborazione e Buono studio!}}}
+	
+	\section*{Lezione 9 | 5 ottobre 2026}
 	\subsection*{}
 	
 \end{document}
