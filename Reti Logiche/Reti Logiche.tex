@@ -1,0 +1,2122 @@
+\documentclass[11pt,a4paper]{article}
+
+% --- IMPOSTAZIONI DI BASE E LINGUA ---
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[italian]{babel}
+\usepackage[margin=2.5cm]{geometry}
+
+% --- MATEMATICA E FORMATTAZIONE ---
+\usepackage{amsmath,amssymb}
+\usepackage{enumitem}
+\usepackage{listings}
+
+% --- COLORI ---
+\usepackage{tcolorbox}
+\usepackage{tikz}
+\usepackage{array}
+\usepackage{colortbl}
+
+\definecolor{titlecolor}{RGB}{16,52,96}
+
+% --- TIPOGRAFIA RAFFINATA ---
+\usepackage{microtype}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt plus 1.5pt minus 1pt}
+\setlength{\emergencystretch}{2em}
+
+% --- TITOLI DI SEZIONE ELEGANTI ---
+\usepackage{titlesec}
+\titleformat{\section}
+  {\color{titlecolor}\Large\bfseries\raggedright}
+  {\thesection}{0.7em}{}
+  [\vspace{0.4ex}{\color{titlecolor!50}\titlerule[1pt]}]
+\titleformat{\subsection}
+  {\color{titlecolor}\large\bfseries\raggedright}
+  {\thesubsection}{0.6em}{}
+  []
+\titlespacing*{\section}{0pt}{2.2em}{1em}
+\titlespacing*{\subsection}{0pt}{1.8em}{0.6em}
+
+
+% --- TITOLI DEI LIVELLI PROFONDI (argomenti e sotto-argomenti) ---
+\titleformat{\subsubsection}
+  {\normalsize\bfseries\raggedright}
+  {}{0em}{}
+\titlespacing*{\subsubsection}{0pt}{1.6em}{0.5em}
+
+\titleformat{\paragraph}[block]
+  {\normalsize\bfseries\raggedright}
+  {}{0em}{}
+\titlespacing*{\paragraph}{0pt}{1.2em}{0.4em}
+
+\titleformat{\subparagraph}[block]
+  {\small\bfseries\raggedright}
+  {}{0em}{}
+\titlespacing*{\subparagraph}{0pt}{1.0em}{0.3em}
+
+% --- TABELLE PIÙ RESPIRABILI ---
+\renewcommand{\arraystretch}{1.25}
+\setlength{\arrayrulewidth}{0.4pt}
+\arrayrulecolor{titlecolor!45}
+
+% --- LISTE CON SPAZIATURE PIÙ ARIOSE ---
+\setlist{itemsep=2pt, topsep=3pt, parsep=2pt, partopsep=0pt}
+
+% --- BOX, AVVISO E CODICE ---
+\newtcolorbox{nota}[1][Nota]{colback=yellow!10,colframe=yellow!50!black,title=#1,fonttitle=\bfseries}
+\newtcolorbox{integrazione}[1][Integrazione]{colback=blue!5,colframe=blue!50!black,title=#1,fonttitle=\bfseries}
+
+\lstset{basicstyle=\ttfamily\small,columns=fullflexible,frame=single,keepspaces=true,
+        backgroundcolor=\color{gray!8},framesep=5pt,xleftmargin=1em,framexleftmargin=1em,
+        showstringspaces=false,breaklines=true}
+
+\newcommand{\reg}[1]{\texttt{\%#1}}
+
+% --- RIGA SEPARATRICE ELEGANTE ---
+\newcommand{\separatore}{\noindent{\color{titlecolor!50}\rule{\textwidth}{0.6pt}}}
+
+% --- BOX PER L'AVVISO DI OGNI LEZIONE ---
+\newcommand{\avviso}[1]{%
+  \par\medskip
+  \noindent
+  \begin{tikzpicture}
+    \node[rounded corners=2.5pt, fill=titlecolor!5, draw=titlecolor!35, line width=0.6pt,
+          inner xsep=9pt, inner ysep=7pt, text width=\dimexpr\linewidth-18.6pt\relax, align=left] {#1};
+  \end{tikzpicture}
+  \par\medskip
+}
+
+% --- TESTATINA E PIÈ DI PAGINA ---
+\usepackage{zref-totpages}
+\usepackage{fancyhdr}
+\fancypagestyle{plain}{%
+  \fancyhf{}%
+  \fancyhead[L]{\small\itshape\color{gray}Reti Logiche}%
+  \fancyhead[R]{\small\color{gray}Andrea Salvatore e Elisa De Salvo}%
+  \fancyfoot[C]{\small\color{gray}Pagina \thepage\ di \ztotpages}%
+  \renewcommand{\headrulewidth}{0.4pt}%
+}
+\pagestyle{plain}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0pt}
+
+% --- LINK IPERTESTUALI ---
+\usepackage[colorlinks=true, linkcolor=titlecolor, urlcolor=titlecolor, pdfauthor={Andrea Salvatore e Elisa De Salvo}, pdftitle={Reti Logiche}]{hyperref} % hyperref va sempre caricato per ultimo!
+
+\begin{document}
+	\title{\textbf{Reti Logiche}}
+	\author{\textbf{Andrea Salvatore} e \textbf{Elisa De Salvo}}
+	\date{Anno accademico: 2026/2027}
+	\maketitle
+
+	\begin{minipage}[t]{0.56\textwidth}
+	I miei contatti:
+	\begin{itemize}
+		\item \textbf{GitHub}: \href{https://github.com/andrea-salvatore}{andrea-salvatore}
+		\item \textbf{Website}: \href{https://andreasalvatore.dev/}{andreasalvatore.dev}
+		\item \textbf{Cellulare}: +39 3703116443
+		\item \textbf{E-mail}:
+		\begin{itemize}
+			\item Personale: asalvatore.junior@gmail.com
+			\item Lavorativa: ajs.sdk.mt@gmail.com
+			\item Istituzionale: a.salvatore9@studenti.unipi.it
+		\end{itemize}
+	\end{itemize}
+	\end{minipage}\hfill
+	\begin{minipage}[t]{0.42\textwidth}
+	Contatti di Elisa De Salvo:
+	\begin{itemize}
+		\item \textbf{Cellulare}: +39 370 37 14 218
+		\item \textbf{E-mail}: desalvo.elisa@outlook.it
+	\end{itemize}
+	\end{minipage}
+	\vspace{1cm}
+
+	L'intento di questo file è contenere le lezioni di Reti Logiche del prof. Giovanni Stea, con il dott. Zippo come assistente di laboratorio, in ordine strettamente cronologico seguendo, dunque, le lezioni dell'anno accademico citato sopra. L'idea nasce dal fatto che spesso capita che gli assenti abbiano bisogno di recuperare delle lezioni. Attraverso i file in questo repository ora hanno tutto in tempo reale lezione dopo lezione. Inoltre, per senso di collaborazione, agli studenti è fornito non solo il PDF, bensì anche il sorgente .tex, utile per correggere errori e/o aggiungere dettagli utili direttamente tramite le Pull Request di GitHub. Oppure, nell'ipotesi che io sia in difficoltà con la trascrizione corretta degli appunti, ci si può aiutare inserendo tutto qui e mettendo a disposizione di \textbf{tutti} il materiale in ordine cronologico e in tempi ristretti. Grazie a tutti per la collaborazione.
+
+	\separatore
+
+	\avviso{\textit{\textbf{Questa lezione, come le sue precedenti e successive, può contenere errori e/o imprecisioni. Per il bene di tutti, è buona norma far notare all'autore l'errore o l'imprecisione così da risolvere nel minor tempo possibile. I canali di comunicazione, per eventuali avvisi generali o di errori trovati negli appunti, sono in cima al file. Grazie per la collaborazione e Buono studio!}}}
+
+	\section*{Lezione 1 | 22 settembre 2026}
+	\subsection*{Introduzione: dalle reti logiche al linguaggio macchina, Assembly e assemblatore, La ALU, Struttura di un calcolatore}
+
+	
+	\subsubsection*{Introduzione: dalle reti logiche al linguaggio macchina}
+	
+	\textbf{Reti logiche:} si parla di hardware da una prospettiva \textbf{funzionale}. Ad esempio, una porta NOR esegue la stessa funzione indipendentemente da come è realizzata internamente.
+	
+	A questo punto smettiamo di ragionare ad alto livello e iniziamo a ragionare a basso livello.
+	
+	Un processore \textbf{preleva} un'istruzione dalla memoria e poi la \textbf{elabora}.
+	
+	\begin{integrazione}
+		Questo è il ciclo \emph{fetch--decode--execute}: prelievo (fetch) dell'istruzione dalla memoria, decodifica, esecuzione. Il ciclo si ripete per ogni istruzione.
+	\end{integrazione}
+	
+	\subsubsection*{Assembly e assemblatore}
+	
+	\textbf{Come traduco gli 0 e gli 1 (linguaggio macchina) che ci sono nei registri e in memoria?}
+	Attraverso l'\textbf{Assembly}, che usa codifiche testuali (ASCII) per essere \emph{human friendly}: si scrivono direttamente le \textbf{istruzioni da far eseguire al processore}.
+	
+	\begin{itemize}[leftmargin=*]
+		\item Il \textbf{linguaggio} si chiama \textbf{Assembly} (per noi ``Assembler'').
+		\item Il programma che si occupa dell'\textbf{assemblaggio}, cioè della traduzione in linguaggio macchina, è l'\textbf{assemblatore}. Si tratta di una situazione molto diversa dalla compilazione: la traduzione è sostanzialmente uno-a-uno, un'istruzione Assembly corrisponde a un'istruzione macchina.
+	\end{itemize}
+	
+	\begin{nota}[Nota: controllo di flusso]
+		In Assembly mancano i \textbf{costrutti di controllo di flusso} dei linguaggi ad alto livello (\texttt{if}, cicli). Esiste l'istruzione \texttt{JMP}, che salta a un'altra parte del codice.
+	\end{nota}
+	
+	\begin{integrazione}
+		Oltre al salto incondizionato \texttt{JMP} esistono i \textbf{salti condizionali} (\texttt{JE}, \texttt{JNE}, \texttt{JL}, \ldots), che saltano in base ai flag impostati dall'ultima operazione della ALU. Combinando salti e confronti si realizzano \texttt{if} e cicli.
+	\end{integrazione}
+	
+	\paragraph*{Caratteristiche}
+	
+	\begin{itemize}[leftmargin=*]
+		\item Un processore manipola \textbf{stringhe di bit}. La loro \textbf{rappresentazione} (numero, carattere, indirizzo, \ldots) la conosciamo \textbf{noi e solo noi}: non ha nulla a che vedere con il linguaggio, e c'è poco aiuto da parte del sistema sottostante (nessun controllo sui tipi).
+		\item L'Assembly è \textbf{specifico di un processore}: il codice non è mai portabile. Noi usiamo \textbf{Intel x86}.
+		\item Un processore a 64 bit è diverso da uno a 32 bit: quello a 32 bit è più comprensibile, mentre quello a 64 bit presenta molte più limitazioni (e complicazioni). Per questo ci concentriamo sul modello a 32 bit.
+		\item Esiste un sottosistema che traduce i nostri input in sequenze di bit.
+		\item La \textbf{memoria principale} contiene sia \textbf{dati} sia \textbf{programmi}.
+	\end{itemize}
+	
+	\subsubsection*{La ALU}
+	
+	Dal punto di vista funzionale, la ALU (\emph{Arithmetic Logic Unit}, unità aritmetico-logica) si occupa di:
+	\begin{itemize}[leftmargin=*]
+		\item \textbf{operazioni logiche};
+		\item \textbf{operazioni aritmetiche} in base 2 o in complemento a 2.
+	\end{itemize}
+	
+	\emph{(La FPU, unità per la virgola mobile, da studiare autonomamente se c'è tempo.)}
+	
+	\subsubsection*{Struttura di un calcolatore}
+	
+	\paragraph*{Spazio di memoria}
+	
+	Lo spazio di memoria è formato da $2^{32}$ locazioni contigue, da un byte ciascuna, per un totale di $2^{32}\,\text{byte} = 4\,\text{GiB}$ indirizzabili.
+	
+	\begin{itemize}[leftmargin=*]
+		\item Per accedere a un singolo byte bisogna specificare il suo \textbf{indirizzo}.
+		\item Un dato che occupa più byte (ad esempio 2 o 4) è identificato dall'\textbf{indirizzo più piccolo} tra quelli coinvolti.
+		\item In x86 vale la convenzione \emph{little endian}: il byte \textbf{meno} significativo si trova all'indirizzo più piccolo e il byte \textbf{più} significativo all'indirizzo più grande.
+	\end{itemize}
+	
+	\begin{integrazione}
+		Esempio: il valore a 32 bit \texttt{0x12345678} memorizzato a partire dall'indirizzo $A$ occupa
+		\begin{center}
+			\begin{tabular}{c|cccc}
+				indirizzo & $A$ & $A+1$ & $A+2$ & $A+3$ \\ \hline
+				contenuto & \texttt{78} & \texttt{56} & \texttt{34} & \texttt{12}
+			\end{tabular}
+		\end{center}
+		L'appunto originale parlava di ``bit più significativi'': il concetto corretto riguarda i \emph{byte} più significativi.
+	\end{integrazione}
+	
+	\paragraph*{Spazio di I/O}
+	
+	Lo \textbf{spazio di I/O} è lo spazio che il programmatore vede e che consiste nelle \textbf{interfacce} dei vari dispositivi.
+	
+	\begin{itemize}[leftmargin=*]
+		\item È formato da $2^{16}$ locazioni, dette \textbf{porte}, per un totale di $64\text{k}$ porte.
+		\item Vi si accede con le istruzioni dedicate \texttt{IN} e \texttt{OUT}.
+	\end{itemize}
+	
+	\begin{nota}[Differenza tra memoria e porte]
+		Le locazioni di memoria sono \textbf{tutte equivalenti}: contengono semplicemente dati che si leggono e si scrivono. Le porte \textbf{no}: ciascuna è legata a un dispositivo specifico e il suo significato dipende dall'interfaccia a cui appartiene (leggere o scrivere una porta può avere effetti sul dispositivo).
+	\end{nota}
+	
+
+	\vspace{1.5cm}
+	\begin{center}
+		\rule{0.65\textwidth}{1pt} \\
+		\vspace{0.4cm}
+		\textcolor{titlecolor}{\LARGE \textbf{--- Fine Lezione 1 ---}} \\
+		\vspace{0.2cm}
+		\rule{0.65\textwidth}{1pt}
+	\end{center}
+	\newpage
+
+	\avviso{\textit{\textbf{Questa lezione, come le sue precedenti e successive, può contenere errori e/o imprecisioni. Per il bene di tutti, è buona norma far notare all'autore l'errore o l'imprecisione così da risolvere nel minor tempo possibile. I canali di comunicazione, per eventuali avvisi generali o di errori trovati negli appunti, sono in cima al file. Grazie per la collaborazione e Buono studio!}}}
+
+	\section*{Lezione 2 | 23 settembre 2026}
+	\subsection*{I registri, EIP e ciclo di esecuzione, Codice macchina e codifica mnemonica, Formato delle istruzioni mnemoniche, Un esempio, Modalità di indirizzamento, Porte di I/O, Riepilogo delle notazioni}
+
+\subsubsection*{I registri}
+
+Un \textbf{registro} è una locazione di memoria \textbf{interna al processore}. I registri si dividono in:
+\begin{itemize}[leftmargin=*]
+  \item \textbf{generali}: usati nelle elaborazioni;
+  \item \textbf{di stato}: servono per far andare avanti il processore. Sono \texttt{EIP} e \texttt{EFLAGS} (nelle note \texttt{EF}), che contiene i \emph{flag}.
+\end{itemize}
+
+\paragraph*{I flag}
+
+I primi due flag (\texttt{OF}, \texttt{SF}) hanno significato sugli \textbf{interi} (con segno), l'ultimo (\texttt{CF}) sui \textbf{naturali} (senza segno).
+
+\begin{center}
+\begin{tabular}{l p{11cm}}
+\textbf{Flag} & \textbf{Vale 1 se\ldots} \\ \hline
+\texttt{OF} (overflow) & durante l'ultima istruzione si è avuto un traboccamento, ossia il risultato non è rappresentabile (\emph{interi}). \\
+\texttt{SF} (sign) & il bit più significativo del risultato dell'ultima istruzione è 1, cioè è rappresentato un numero negativo (\emph{interi}). \\
+\texttt{ZF} (zero) & il risultato è composto da soli 0. \\
+\texttt{CF} (carry) & l'ultima operazione ha generato un riporto o un prestito (\emph{solo naturali}). \\
+\end{tabular}
+\end{center}
+
+\paragraph*{Registri generali}
+
+Sono 8 registri a 32 bit: \texttt{EAX}, \texttt{EBX}, \texttt{ECX}, \texttt{EDX}, \texttt{ESI}, \texttt{EDI}, \texttt{EBP}, \texttt{ESP}.
+
+Con il passaggio all'architettura a 32 bit, i \textbf{16 bit più bassi} dei registri generali sono riferibili autonomamente. Di alcuni è possibile riferire anche parti da \textbf{8 bit}.
+
+\begin{integrazione}
+\begin{center}
+\begin{tabular}{c c c c}
+\textbf{32 bit} & \textbf{16 bit} & \textbf{8 bit (alto)} & \textbf{8 bit (basso)} \\ \hline
+\texttt{EAX} & \texttt{AX} & \texttt{AH} & \texttt{AL} \\
+\texttt{EBX} & \texttt{BX} & \texttt{BH} & \texttt{BL} \\
+\texttt{ECX} & \texttt{CX} & \texttt{CH} & \texttt{CL} \\
+\texttt{EDX} & \texttt{DX} & \texttt{DH} & \texttt{DL} \\
+\texttt{ESI} & \texttt{SI} & -- & -- \\
+\texttt{EDI} & \texttt{DI} & -- & -- \\
+\texttt{EBP} & \texttt{BP} & -- & -- \\
+\texttt{ESP} & \texttt{SP} & -- & -- \\
+\end{tabular}
+\end{center}
+Le parti da 8 bit esistono solo per i primi quattro registri.
+\end{integrazione}
+
+Alcuni registri sono \textbf{riservati a particolari funzioni}:
+\begin{itemize}[leftmargin=*]
+  \item \texttt{EAX}: operandi e risultati (\emph{accumulatore});
+  \item \texttt{ESI}, \texttt{EDI}, \texttt{EBX}, \texttt{EBP}: \emph{registri puntatore} (\texttt{B} = base, \texttt{I} = indice);
+  \item \texttt{ESP}: indirizzamento della \emph{pila} (stack).
+\end{itemize}
+
+\begin{integrazione}
+Altri usi che incontreremo: \texttt{ECX} come contatore (negli esempi si usa \texttt{CL}) e \texttt{DX} per indirizzare le porte di I/O.
+\end{integrazione}
+
+\begin{nota}
+Se scrivo su un registro, il suo contenuto precedente viene \textbf{sovrascritto}: se mi serve ancora, devo averlo salvato altrove prima di riutilizzare il registro.
+\end{nota}
+
+\subsubsection*{EIP e ciclo di esecuzione}
+
+\texttt{EIP} (o \emph{program counter}) contiene l'\textbf{indirizzo di memoria della prossima istruzione da eseguire}.
+
+Al \textbf{reset iniziale} la prima istruzione da eseguire si trova nella ROM (il \emph{bootstrap}). Nelle note: \texttt{EIP} vale \texttt{0x0000FFF0}.
+
+\begin{integrazione}
+Nei processori x86 reali, al reset il registro di segmento \texttt{CS} ha base \texttt{0xFFFF0000}, quindi l'indirizzo fisico della prima istruzione è \texttt{0xFFFFFFF0}, cioè in cima ai 4~GiB, dove è mappata la ROM. Il valore \texttt{0x0000FFF0} è quello contenuto in \texttt{EIP}.
+\end{integrazione}
+
+Perciò il processore:
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{preleva} dalla memoria, all'indirizzo contenuto in \texttt{EIP}, l'istruzione;
+  \item \textbf{incrementa} \texttt{EIP} (in modo che punti all'istruzione successiva);
+  \item \textbf{esegue} l'istruzione e ripete il procedimento per le successive.
+\end{enumerate}
+
+Il procedimento è \textbf{sequenziale}, ma può essere modificato dal comando \texttt{JMP} (e dai salti condizionati), che scrive un nuovo valore in \texttt{EIP}.
+
+\subsubsection*{Codice macchina e codifica mnemonica}
+
+\textbf{Codice macchina} $\neq$ \textbf{codifica mnemonica}.
+\begin{itemize}[leftmargin=*]
+  \item \emph{Macchina}: serie di 0 e 1.
+  \item \emph{Mnemonica}: codifica semplice (ASCII), pensata per l'essere umano.
+\end{itemize}
+
+Non ci interessa scrivere in codifica macchina, poiché \textbf{non stiamo costruendo un assemblatore}. Inoltre \textbf{non scriveremo gli indirizzi di memoria, ma nomi simbolici}. Un indirizzo di memoria (4 byte) si può scrivere nel campo \emph{displacement}.
+
+\subsubsection*{Formato delle istruzioni mnemoniche}
+
+Un'istruzione ha 3 campi:
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Codice operativo} (\emph{opcode}): l'operazione da eseguire.
+  \item \textbf{Suffisso di lunghezza}: la lunghezza degli operandi.
+  \item \textbf{Operandi}: possono essere
+  \begin{itemize}
+    \item registri,
+    \item memoria (indirizzi),
+    \item I/O,
+    \item costanti.
+  \end{itemize}
+  Se ne possono avere 0, 1 o 2 per istruzione.
+\end{enumerate}
+
+Se gli operandi sono due, il primo è la \textbf{sorgente} (\emph{source}) e \textbf{non viene mai modificato}; il secondo è il \textbf{destinatario}, che \textbf{viene sostituito con il risultato} dell'istruzione.
+
+\begin{nota}
+\begin{itemize}[leftmargin=*]
+  \item Gli operandi devono essere \textbf{sempre della stessa lunghezza}.
+  \item Il suffisso di lunghezza è \textbf{attaccato al codice operativo}; dopo uno spazio vengono gli operandi.
+  \item Non è sempre necessario scrivere il suffisso (ad esempio quando almeno un operando è un registro, perché la lunghezza è dedotta dal registro).
+  \item \textbf{I conti si fanno dentro il processore}: i dati in memoria vengono portati nel processore, elaborati e poi riscritti.
+\end{itemize}
+\end{nota}
+
+\begin{integrazione}
+Nelle istruzioni aritmetiche il destinatario è anche un \emph{ingresso}: \texttt{ADDL \%EBX, \%EAX} calcola $\text{EAX} \leftarrow \text{EAX} + \text{EBX}$. Il suo vecchio valore partecipa al calcolo, poi viene sostituito dal risultato.
+\end{integrazione}
+
+\paragraph*{Sintassi generale}
+
+\begin{center}
+\texttt{OPCODE}\emph{size} \texttt{source, destination}
+\end{center}
+
+\paragraph*{Suffissi di lunghezza}
+
+\begin{center}
+\begin{tabular}{c l l}
+\textbf{Suffisso} & \textbf{Nome} & \textbf{Dimensione} \\ \hline
+\texttt{B} & byte & 8 bit (1 byte) \\
+\texttt{W} & word & 16 bit (2 byte) \\
+\texttt{L} & long & 32 bit (4 byte) \\
+\end{tabular}
+\end{center}
+
+\paragraph*{Tipi di istruzioni}
+
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Operative}: modificano lo stato del processore; sono tante.
+  \item \textbf{Di controllo}: cambiano il flusso del programma (salti e salti condizionati).
+\end{itemize}
+Essendo il linguaggio semplice e limitato, il lavoro del programmatore risulta più difficile.
+
+\begin{nota}
+Si programma in Assembler \textbf{con il manuale davanti}. L'assemblatore \textbf{non ci aiuta}: bisogna fare molta attenzione ai suffissi.
+\end{nota}
+
+\subsubsection*{Un esempio}
+
+Dalle note: \texttt{CL} è il contatore e all'inizio vale 0. Il valore viene \emph{shiftato} e ciò che esce finisce nel flag \texttt{CF}: se è 0 non succede nulla, se è 1 si incrementa il contatore. Il risultato finisce in \texttt{CL}.
+
+\begin{itemize}[leftmargin=*]
+  \item \texttt{L} sta per \emph{Long}, cioè 32 bit.
+  \item Sorgente scritta come \textbf{numero esadecimale senza \$} $\to$ \textbf{indirizzo di memoria}.
+  \item Con il \textbf{\$} davanti ci si riferisce a una \textbf{costante}.
+  \item \texttt{CMP} = \emph{compare}: confronta due operandi aggiornando i flag, senza modificarli.
+  \item \texttt{JE} = \emph{jump if equal}: salta se $\texttt{ZF}=1$; altrimenti il salto condizionato non ha effetto e si prosegue in sequenza.
+  \item \texttt{ADC} = \emph{add with carry}: somma sorgente, destinatario e \texttt{CF}.
+\end{itemize}
+
+\begin{integrazione}[Integrazione: esempio ricostruito]
+Le note originali sono frammentarie. Questo programma (sintassi AT\&T) conta i bit a 1 di una parola in memoria, in accordo con quanto descritto sopra; l'indirizzo \texttt{0x1000} è inventato.
+\begin{lstlisting}
+        MOVB  $0, %CL          # contatore = 0
+        MOVL  0x1000, %EAX     # senza $: indirizzo di memoria
+ciclo:  CMPL  $0, %EAX         # ZF=1 se EAX = 0
+        JE    fine             # salta solo se ZF=1
+        SHRL  $1, %EAX         # il bit espulso va in CF
+        ADCB  $0, %CL          # CL = CL + 0 + CF
+        JMP   ciclo
+fine:
+\end{lstlisting}
+\end{integrazione}
+
+\subsubsection*{Modalità di indirizzamento}
+
+\texttt{source} e \texttt{destination} sono individuati tramite le \textbf{modalità di indirizzamento}.
+
+\paragraph*{Indirizzamento di registro}
+
+L'operando è in un registro: 8 registri generali a 32 bit, oppure a 16 bit, oppure a 8 bit. I registri si scrivono con il prefisso \texttt{\%}, ad esempio \reg{EAX}.
+
+\paragraph*{Indirizzamento immediato}
+
+Vale \textbf{solo per l'operando sorgente}: l'operando è una costante scritta nell'istruzione.
+
+\begin{nota}
+È assolutamente necessario inserire il \texttt{\$} prima della costante, ad esempio \texttt{\$5}. Senza il \texttt{\$} il numero sarebbe interpretato come indirizzo di memoria.
+\end{nota}
+
+\paragraph*{Indirizzamento di memoria}
+
+L'operando (\textbf{o sorgente o destinatario}) è in memoria. L'indirizzo effettivo è
+\[
+\text{indirizzo} = \big(\text{base} + \text{indice}\times\text{scala} \pm \text{displacement}\big) \bmod 2^{32}
+\]
+\begin{itemize}[leftmargin=*]
+  \item la \textbf{base} è un registro generale \textbf{a 32 bit};
+  \item l'\textbf{indice} è un registro generale a 32 bit;
+  \item la \textbf{scala} vale 1, 2, 4 oppure 8 (dimensione in byte degli elementi);
+  \item il \textbf{displacement} è una costante intera.
+\end{itemize}
+
+Quindi la sintassi completa è
+\begin{center}
+\texttt{OPCODE\emph{sfx} $\pm$disp(base,indice,scala)}
+\end{center}
+Alcune componenti possono mancare, e si ottengono i casi particolari:
+
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Diretto}: si usa solo il \emph{displacement} (l'indirizzo). Se la memoria sia sorgente o destinatario dipende dall'opcode.
+  \item \textbf{Indiretto}: \textbf{non si scrive il displacement}, si mette tra parentesi il registro base, ad esempio \texttt{(\%EBX)}. L'operando si trova nelle 4 locazioni consecutive a partire dall'indirizzo contenuto in \texttt{EBX} (\emph{operando puntato da} \texttt{EBX}).
+
+  \textbf{Come faccio a sapere che l'operando occupa 4 byte?} Dal \textbf{suffisso}: è assolutamente necessario specificarlo (\texttt{L}), perché il puntatore da solo non dice la dimensione dell'operando.
+  \item \textbf{Base e displacement}: \texttt{disp(\%EBX)}, l'indirizzo è il contenuto di \texttt{EBX} spostato di \texttt{disp} byte.
+  \item \textbf{Con indice e scala}: lo spostamento è \texttt{indice}$\times$\texttt{scala} byte, utile per scorrere vettori.
+  \item \textbf{Base, indice e displacement} insieme (il caso completo, detto anche \emph{bimodificato} con displacement).
+\end{itemize}
+
+Se il risultato supera $2^{32}$ si \textbf{tronca}, scartando il bit più significativo (calcolo modulo $2^{32}$).
+
+\begin{nota}[Nota: due operandi in memoria]
+Non si possono scrivere due operandi che provengano entrambi dalla memoria. Almeno uno dei due deve essere un registro (o la sorgente una costante).
+\end{nota}
+
+\subsubsection*{Porte di I/O}
+
+Le porte non si trattano come la memoria: non si possono fare operazioni (aritmetiche, \texttt{MOV}, \ldots) direttamente sulle porte, ma solo trasferimenti con le istruzioni dedicate \texttt{IN} e \texttt{OUT}. Ci sono due indirizzamenti:
+
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Diretto}: il numero della porta è una costante a 8 bit (offset fino a 255).
+  \item \textbf{Indiretto con registro puntatore}: si usa \textbf{solo il registro} \texttt{DX}, che contiene il numero della porta.
+\end{itemize}
+
+\begin{integrazione}
+Nelle note l'indirizzamento indiretto era indicato con offset $<255$, ma \texttt{DX} è a 16 bit e permette di raggiungere tutte le $2^{16}$ porte (0--65535): il limite a 255 vale solo per l'indirizzamento diretto. Esempi (il dato passa per \texttt{AL}/\texttt{AX}/\texttt{EAX}):
+\begin{lstlisting}
+        INB   $0x60, %AL       # diretto: porta 0x60
+        OUTB  %AL, (%DX)       # indiretto: porta il cui numero e' in DX
+\end{lstlisting}
+\end{integrazione}
+
+\subsubsection*{Riepilogo delle notazioni}
+
+\begin{center}
+\begin{tabular}{l l}
+\textbf{Simbolo} & \textbf{Significato} \\ \hline
+\texttt{\$} & costante (indirizzamento immediato) \\
+\texttt{\%} & registro \\
+numero senza \texttt{\$} & indirizzo di memoria \\
+\texttt{B}, \texttt{W}, \texttt{L} & byte (8 bit), word (16 bit), long (32 bit) \\
+\end{tabular}
+\end{center}
+
+	\vspace{1.5cm}
+	\begin{center}
+		\rule{0.65\textwidth}{1pt} \\
+		\vspace{0.4cm}
+		\textcolor{titlecolor}{\LARGE \textbf{--- Fine Lezione 2 ---}} \\
+		\vspace{0.2cm}
+		\rule{0.65\textwidth}{1pt}
+	\end{center}
+	\newpage
+
+	\avviso{\textit{\textbf{Questa lezione, come le sue precedenti e successive, può contenere errori e/o imprecisioni. Per il bene di tutti, è buona norma far notare all'autore l'errore o l'imprecisione così da risolvere nel minor tempo possibile. I canali di comunicazione, per eventuali avvisi generali o di errori trovati negli appunti, sono in cima al file. Grazie per la collaborazione e Buono studio!}}}
+
+	\section*{Lezione 3 | 24 settembre 2026}
+	\subsection*{Istruzioni operative di trasferimento, La pila (stack), Istruzioni aritmetiche, Moltiplicazione, Divisione, Estensione di campo}
+
+\subsubsection*{Istruzioni operative di trasferimento}
+
+Le istruzioni di \textbf{trasferimento} spostano dati:
+\begin{itemize}[leftmargin=*]
+  \item dallo spazio di memoria a un registro;
+  \item da registro a registro;
+  \item da I/O a un registro.
+\end{itemize}
+\textbf{Non} è possibile il trasferimento \textbf{da memoria a memoria} (si potrebbero usare le \emph{istruzioni stringa}).
+
+\begin{integrazione}
+Valgono anche i trasferimenti nei versi opposti (da registro a memoria, da registro a I/O) e da costante a registro o memoria. L'unico vincolo è che memoria--memoria è esclusa.
+\end{integrazione}
+
+\begin{nota}
+Le istruzioni di trasferimento \textbf{non modificano i flag}.
+\end{nota}
+
+Le principali istruzioni sono:
+\begin{itemize}[leftmargin=*]
+  \item \texttt{MOV}: copia un dato dalla sorgente al destinatario (ad esempio va in memoria e sposta il dato in un registro). La sorgente non viene modificata.
+  \item \texttt{LEA} (\emph{load effective address}): \textbf{fa un conto}, calcola l'indirizzo effettivo dell'operando di memoria e lo inserisce in un registro, \textbf{senza accedere alla memoria}.
+  \item \texttt{XCHG} (\emph{exchange}): \textbf{scambia} sorgente e destinatario.
+\end{itemize}
+
+\begin{integrazione}
+Con \texttt{MOV} il destinatario viene sovrascritto (i registri non sono ``trasparenti'': scrivere distrugge il valore precedente), quindi per scambiare due valori servirebbe un registro temporaneo. \texttt{XCHG} lo fa in una sola istruzione. Differenza tra \texttt{MOV} e \texttt{LEA}:
+\begin{lstlisting}
+        MOVL  4(%EBX,%ECX,2), %EAX   # EAX <- contenuto della memoria
+        LEAL  4(%EBX,%ECX,2), %EAX   # EAX <- EBX + ECX*2 + 4 (l'indirizzo)
+\end{lstlisting}
+\end{integrazione}
+
+\subsubsection*{La pila (stack)}
+
+Esiste un registro del processore che punta al \textbf{top della pila}: \texttt{ESP}. Potremmo usarlo come registro generale, ma molto probabilmente otterremmo un \emph{segmentation fault}.
+
+\paragraph*{A cosa serve}
+
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Chiamata di sottoprogramma}: l'istruzione che chiama un sottoprogramma modifica \texttt{EIP}, ma prima deve fare la \texttt{PUSH} dell'indirizzo da cui ripartire al termine del sottoprogramma: \texttt{EIP} viene salvato dentro la pila.
+  \item \textbf{``Parcheggio''} di valori: i registri generali sono \textbf{pochi e indispensabili per determinati conti}, quindi se ne salva il contenuto nella pila e lo si ripristina dopo.
+\end{itemize}
+
+\begin{integrazione}
+Le istruzioni che fanno la \texttt{PUSH} di \texttt{EIP} e il ripristino sono \texttt{CALL} e \texttt{RET}.
+\end{integrazione}
+
+\paragraph*{Funzionamento}
+
+La pila è una \textbf{zona di memoria gestita dagli indirizzi più alti verso quelli più bassi}: quando si inserisce un dato, \texttt{ESP} viene \textbf{decrementato}.
+
+\begin{itemize}[leftmargin=*]
+  \item \texttt{PUSH}: decrementa \texttt{ESP} (di 2 o 4 byte, in base alla dimensione dell'operando) e scrive l'operando all'indirizzo puntato da \texttt{ESP}.
+  \item \texttt{POP}: copia il dato puntato da \texttt{ESP} nel destinatario e \textbf{poi} incrementa \texttt{ESP}.
+\end{itemize}
+
+\begin{lstlisting}
+        PUSHL %EAX     # ESP <- ESP-4 ; [ESP] <- EAX
+        ...            # uso EAX per altri conti
+        POPL  %EAX     # EAX <- [ESP]  ; ESP <- ESP+4
+\end{lstlisting}
+
+\paragraph*{Inizializzazione}
+
+Dobbiamo \textbf{dichiarare una zona di memoria da usare come pila}, e \texttt{ESP} deve essere \textbf{inizializzato prima} di eseguire il nostro programma. Il valore iniziale di \texttt{ESP} è quello \textbf{subito oltre} l'ultimo indirizzo della zona (il più alto), perché la \texttt{PUSH} decrementa prima di scrivere.
+
+\paragraph*{PUSH e POP nel dettaglio}
+
+\begin{itemize}[leftmargin=*]
+  \item La \texttt{PUSH} ha \textbf{un solo operando}, che è la \textbf{sorgente}, e deve essere a \textbf{16 o 32 bit}.
+  \item La \texttt{PUSH} di un operando in memoria è di fatto un trasferimento memoria--memoria (verso la pila), ma è ammessa.
+  \item La \texttt{POP} \textbf{toglie} un dato dalla pila e lo mette in un registro generale o in memoria.
+\end{itemize}
+
+\begin{nota}[Attenzione]
+Ogni \texttt{PUSH} deve avere la sua \texttt{POP} corrispondente: altrimenti la pila si ``incasina'' e si ha \emph{segmentation fault}.
+\end{nota}
+
+\subsubsection*{Istruzioni aritmetiche}
+
+Molte istruzioni aritmetiche lavorano \textbf{senza distinguere tra naturali e interi}: l'operazione sui bit è la stessa. Modificano i \textbf{flag} con \textbf{due algoritmi diversi}, a seconda del tipo di operando; quindi devo guardare flag diversi:
+\begin{itemize}[leftmargin=*]
+  \item \textbf{naturali} $\to$ \texttt{CF};
+  \item \textbf{interi} $\to$ \texttt{OF}.
+\end{itemize}
+
+\begin{nota}[Consiglio del professore]
+Rivedere l'algoritmo di aggiornamento dei flag.
+\end{nota}
+
+\paragraph*{Addizione (ADD)}
+
+Il riporto entrante è sempre su un bit.
+
+\begin{itemize}[leftmargin=*]
+  \item \texttt{CF} contiene l'\textbf{ultimo riporto} dell'operazione: se vale 1, il risultato non è rappresentabile con il numero di cifre disponibili. Va bene per i \textbf{naturali}; per gli interi non significa nulla.
+  \item Per gli \textbf{interi} si usa l'\emph{overflow flag} \texttt{OF}: la somma è fuori dall'intervallo di rappresentabilità.
+\end{itemize}
+
+\textbf{Algoritmo per gli interi:}
+\begin{itemize}[leftmargin=*]
+  \item \textbf{segni discordi} $\to$ \texttt{OF} vale sempre 0 (il risultato è sempre rappresentabile);
+  \item \textbf{segni concordi} $\to$ il risultato è corretto se ha lo stesso segno degli operandi, e allora $\texttt{OF}=0$; altrimenti $\texttt{OF}=1$.
+\end{itemize}
+
+\paragraph*{Incremento e decremento}
+
+\texttt{INC} \emph{dest}: incrementa di 1 il destinatario. Esiste per motivi storici e strutturali. \texttt{INC dest} $\neq$ \texttt{ADD \$1, dest}: la prima \textbf{occupa meno byte} (è più compatta).
+
+\texttt{DEC} \emph{dest}: l'operazione contraria (sottrae 1).
+
+\begin{integrazione}
+Un'altra differenza: \texttt{INC} e \texttt{DEC} \textbf{non modificano} \texttt{CF}, mentre \texttt{ADD} e \texttt{SUB} sì.
+\end{integrazione}
+
+\paragraph*{Sottrazione (SUB)}
+
+\[
+\text{destinazione} \leftarrow \text{destinazione} - \text{sorgente}
+\]
+\begin{itemize}[leftmargin=*]
+  \item Il \textbf{prestito uscente} viene inserito in \texttt{CF}. Per i naturali, se $\texttt{CF}=1$ il risultato non è rappresentabile (non posso scrivere il risultato).
+  \item \textbf{Interi}: se i due numeri hanno \textbf{segni concordi} ci si muove verso il centro dell'intervallo, quindi il risultato è sempre interno all'intervallo (rappresentabile). Se i segni sono \textbf{discordi}, il risultato è corretto solo se ha il \textbf{segno del minuendo}; altrimenti $\texttt{OF}=1$.
+\end{itemize}
+
+\paragraph*{Addizione e sottrazione con riporto}
+
+\begin{itemize}[leftmargin=*]
+  \item \texttt{ADC} (\emph{add with carry}): somma \textbf{sorgente, destinatario e} \texttt{CF}.
+  \item \texttt{SBB} (\emph{subtract with borrow}): fa la stessa cosa con la sottrazione.
+\end{itemize}
+
+Servono per la \textbf{somma di operandi a tanti bit}: si spezza la somma in blocchi da 32 bit, propagando il riporto da un blocco al successivo.
+
+\begin{integrazione}[Integrazione: esempio]
+Somma a 64 bit, $\texttt{EDX:EAX} \leftarrow \texttt{EDX:EAX} + \texttt{ECX:EBX}$:
+\begin{lstlisting}
+        ADDL  %EBX, %EAX     # parte bassa, genera il riporto in CF
+        ADCL  %ECX, %EDX     # parte alta + riporto
+\end{lstlisting}
+\end{integrazione}
+
+\paragraph*{Negazione (NEG)}
+
+\texttt{NEG} calcola l'\textbf{opposto} di un operando (\textbf{se questo esiste}) e aggiorna \texttt{CF} per i naturali e \texttt{OF} per gli interi.
+
+\begin{integrazione}
+Per gli interi l'opposto non esiste per il valore minimo dell'intervallo ($-2^{n-1}$, che non ha il corrispondente positivo): in quel caso $\texttt{OF}=1$. Per i naturali l'opposto esiste solo per lo 0.
+\end{integrazione}
+
+\paragraph*{Confronto (CMP)}
+
+\texttt{CMP} calcola $\text{destinazione} - \text{sorgente}$ e \textbf{scarta il risultato}: serve solo ad aggiornare i flag. Dai flag si può capire se un numero è minore dell'altro.
+
+\begin{integrazione}
+Dopo \texttt{CMP} (destinazione $-$ sorgente):
+\begin{itemize}[leftmargin=*]
+  \item uguali: $\texttt{ZF}=1$;
+  \item \textbf{naturali}: destinazione $<$ sorgente se e solo se $\texttt{CF}=1$;
+  \item \textbf{interi}: destinazione $<$ sorgente se e solo se $\texttt{SF}\neq\texttt{OF}$.
+\end{itemize}
+Questi flag sono quelli letti dai salti condizionati.
+\end{integrazione}
+
+\subsubsection*{Moltiplicazione}
+
+La moltiplicazione è \textbf{diversa tra naturali e interi}:
+\begin{itemize}[leftmargin=*]
+  \item \texttt{MUL} (\emph{multiply}): \textbf{naturali};
+  \item \texttt{IMUL} (\emph{integer multiply}): \textbf{interi}.
+\end{itemize}
+
+Un operando è \textbf{implicito} (nell'accumulatore): viene usato sia come moltiplicando sia come contenitore del risultato. Cambia a seconda della dimensione scelta (8, 16 o 32 bit). Il risultato ha \textbf{il doppio dei bit} degli operandi, quindi non può traboccare.
+
+\begin{center}
+\begin{tabular}{c l l}
+\textbf{Dimensione} & \textbf{Operando implicito} & \textbf{Risultato} \\ \hline
+8 bit (\texttt{B}) & \texttt{AL} & \texttt{AX} \\
+16 bit (\texttt{W}) & \texttt{AX} & \texttt{DX:AX} \\
+32 bit (\texttt{L}) & \texttt{EAX} & \texttt{EDX:EAX} \\
+\end{tabular}
+\end{center}
+
+\subsubsection*{Divisione}
+
+\textbf{La divisione è molto difficile.} Anche qui ci sono due istruzioni: \texttt{DIV} per i naturali e \texttt{IDIV} (\emph{integer divide}) per gli interi, ciascuna in tre versioni (8, 16 e 32 bit). Si specifica \textbf{solo il divisore}: l'istruzione ha un solo operando (\texttt{DIV source}), mentre il dividendo è implicito.
+
+\begin{center}
+\begin{tabular}{c l l}
+\textbf{Dimensione} & \textbf{Quoziente} & \textbf{Resto} \\ \hline
+8 bit & $\texttt{AL} = \dfrac{\texttt{AX}}{\text{source}}$ & \texttt{AH} \\[2ex]
+16 bit & $\texttt{AX} = \dfrac{\texttt{DX:AX}}{\text{source}}$ & \texttt{DX} \\[2ex]
+32 bit & $\texttt{EAX} = \dfrac{\texttt{EDX:EAX}}{\text{source}}$ & \texttt{EDX} \\
+\end{tabular}
+\end{center}
+
+(Il quoziente è la divisione intera; il resto è in un registro diverso.)
+
+\paragraph*{Il problema della dimensione del quoziente}
+
+L'architettura Intel vuole mettere il \textbf{quoziente in metà dei bit} del dividendo. Se il quoziente non ci sta, la divisione \textbf{non è fattibile}: il programma non può avanzare (errore di divisione) e non si può fare nulla. Lo stesso accade per la divisione per zero. Dobbiamo \textbf{ovviare noi}: usare la divisione \textbf{di dimensione maggiore} rispetto a quella che consideriamo corretta.
+
+\begin{nota}[Azzerare sempre DX ed EDX]
+Nella divisione tra naturali bisogna \textbf{azzerare sempre} \texttt{DX} (o \texttt{EDX}) prima della divisione: il loro contenuto verrà comunque modificato successivamente (conterranno il resto).
+\end{nota}
+
+\begin{integrazione}[Integrazione: esempio e \texttt{IDIV}]
+Divisione di due naturali a 32 bit (\texttt{a} e \texttt{b} sono nomi simbolici di locazioni di memoria):
+\begin{lstlisting}
+        MOVL  $0, %EDX     # parte alta del dividendo = 0
+        MOVL  a, %EAX      # dividendo
+        DIVL  b            # EAX = quoziente, EDX = resto
+\end{lstlisting}
+Per \texttt{IDIV} la parte alta del dividendo non va azzerata: deve contenere l'\textbf{estensione di segno} del dividendo (vedi istruzioni di conversione più avanti), altrimenti un dividendo negativo verrebbe letto come un grande numero positivo.
+\end{integrazione}
+
+\paragraph*{Segno e approssimazione}
+
+Con \texttt{IDIV} valgono le stesse limitazioni.
+\begin{itemize}[leftmargin=*]
+  \item Il quoziente è approssimato all'intero più vicino allo zero (\textbf{troncamento}).
+  \item Il \textbf{resto} ha il \textbf{segno del dividendo} e il suo modulo è minore di quello del divisore.
+\end{itemize}
+
+\begin{integrazione}
+Esempio: $-7 \div 2$ dà quoziente $-3$ e resto $-1$, infatti $-7 = (-3)\cdot 2 + (-1)$.
+\end{integrazione}
+
+\subsubsection*{Estensione di campo}
+
+\textbf{Estendere il campo} significa rappresentare un numero su più cifre (più bit).
+
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Naturali}: si aggiungono \textbf{zeri all'inizio}.
+  \item \textbf{Interi}: non si può fare lo stesso; si \textbf{ripete il bit più significativo} (estensione di segno). In alternativa, per un numero negativo $x$ si può rappresentare il modulo $\overline{x}+1$ (dove $\overline{x}$ è il complemento bit a bit) con zeri in testa e poi cambiarne il segno, poiché $x = -(\overline{x}+1)$.
+\end{itemize}
+
+Se estendiamo numeri con meno bit possiamo \textbf{sommarli} a numeri più lunghi: si usano gli \textbf{operatori di conversione}.
+
+\begin{integrazione}
+Esempi di istruzioni di conversione (mnemonico Intel, tra parentesi l'equivalente AT\&T):
+\begin{itemize}[leftmargin=*]
+  \item \texttt{CBW} (\texttt{CBTW}): \texttt{AL} $\to$ \texttt{AX} con segno;
+  \item \texttt{CWD} (\texttt{CWTD}): \texttt{AX} $\to$ \texttt{DX:AX} con segno;
+  \item \texttt{CWDE} (\texttt{CWTL}): \texttt{AX} $\to$ \texttt{EAX} con segno;
+  \item \texttt{CDQ} (\texttt{CLTD}): \texttt{EAX} $\to$ \texttt{EDX:EAX} con segno (utile prima di \texttt{IDIVL});
+  \item \texttt{MOVZ}\emph{xy}: copia estendendo con zeri (naturali); \texttt{MOVS}\emph{xy}: copia estendendo il segno (interi), ad esempio \texttt{MOVZBL}, \texttt{MOVSWL}.
+\end{itemize}
+\end{integrazione}
+
+	\vspace{1.5cm}
+	\begin{center}
+		\rule{0.65\textwidth}{1pt} \\
+		\vspace{0.4cm}
+		\textcolor{titlecolor}{\LARGE \textbf{--- Fine Lezione 3 ---}} \\
+		\vspace{0.2cm}
+		\rule{0.65\textwidth}{1pt}
+	\end{center}
+	\newpage
+
+	\avviso{\textit{\textbf{Questa lezione, come le sue precedenti e successive, può contenere errori e/o imprecisioni. Per il bene di tutti, è buona norma far notare all'autore l'errore o l'imprecisione così da risolvere nel minor tempo possibile. I canali di comunicazione, per eventuali avvisi generali o di errori trovati negli appunti, sono in cima al file. Grazie per la collaborazione e Buono studio!}}}
+
+	\section*{Lezione 4 | 25 settembre 2026}
+	\subsection*{Traslazioni (shift) e rotazioni, Istruzioni logiche, Istruzioni di controllo, Istruzioni per l'esecuzione di sottoprogrammi, Altre istruzioni, Modalità utente e modalità sistema, Varie}
+
+\subsubsection*{Traslazioni (shift) e rotazioni}
+
+Le \textbf{traslazioni} spostano i bit di un operando di un certo numero di posizioni; il bit che esce dall'operando finisce nel flag \texttt{CF}. Il verso dello spostamento può essere a sinistra o a destra.
+
+\paragraph*{Traslazione a sinistra}
+
+\begin{itemize}[leftmargin=*]
+  \item \texttt{SHL} (\emph{shift logical left}): se non si specifica nulla trasla di \textbf{1} posizione, altrimenti trasla di un numero di posizioni pari a \texttt{source}. Entrano zeri da destra.
+  \item Permette la \textbf{moltiplicazione per $2^k$}: in pratica usare una \texttt{MUL} è sconveniente.
+  \item Non serve guardare \texttt{CF} a ogni passo, perché viene \textbf{sovrascritto} a ogni spostamento di una posizione (cioè $n$ volte): alla fine contiene solo l'ultimo bit uscito.
+  \item La stessa operazione si trova con il codice operativo \texttt{SAL} (\emph{shift arithmetic left}). Si usa \emph{logical} per i naturali e \emph{arithmetic} per gli interi, ma cambia poco in entrambi i casi.
+\end{itemize}
+
+\begin{integrazione}
+\texttt{SHL} e \texttt{SAL} sono in realtà la \emph{stessa} istruzione (stessa codifica macchina): la distinzione è solo di leggibilità. Il numero di posizioni può essere una costante o il registro \texttt{CL}:
+\begin{lstlisting}
+        SHLL  %EAX          # EAX <- EAX * 2
+        SHLL  $3, %EAX      # EAX <- EAX * 8
+        SHLL  %CL, %EAX     # EAX <- EAX * 2^CL
+\end{lstlisting}
+Il risultato è corretto solo se non c'è traboccamento: per i naturali basta che $\texttt{CF}$ non abbia perso bit significativi, per gli interi il segno non deve cambiare.
+\end{integrazione}
+
+\paragraph*{Traslazione a destra}
+
+Conviene per le \textbf{divisioni per $2^k$}, ma il quoziente ha un'\textbf{approssimazione diversa} rispetto a \texttt{DIV}/\texttt{IDIV}: l'approssimazione è sempre \textbf{verso sinistra} sulla retta dei numeri, cioè per difetto (verso $-\infty$).
+
+\begin{itemize}[leftmargin=*]
+  \item \texttt{SHR} (\emph{shift logical right}): vale quanto detto per la traslazione a sinistra, applicato a destra. Divide per $2^{\text{source}}$; entrano \textbf{zeri} da sinistra $\Rightarrow$ si usa \textbf{solo per i numeri naturali}.
+  \item \texttt{SAR} (\emph{shift arithmetic right}): divide l'\textbf{intero} ottenendo l'approssimazione per difetto del quoziente. Per mantenere il segno, da sinistra entra una copia del bit di segno.
+\end{itemize}
+
+\begin{nota}[Shift o DIV?]
+\texttt{DIV}/\texttt{IDIV} e shift danno lo \textbf{stesso risultato} se (e solo se) il dividendo non è negativo \textbf{oppure} il resto è nullo.
+\end{nota}
+
+\begin{integrazione}
+La differenza si vede solo con dividendi negativi e resto non nullo: $-7 \div 2$ con \texttt{IDIV} dà $-3$ (troncamento verso zero), mentre \texttt{SAR} di 1 posizione dà $-4$ (per difetto). Con $-8 \div 2$ i due metodi coincidono ($-4$).
+\end{integrazione}
+
+\paragraph*{Rotazioni}
+
+Le \textbf{rotazioni} \textbf{non buttano via bit}: il bit che esce da una parte \textbf{rientra dalla parte opposta} (e viene copiato anche in \texttt{CF}). Valgono allo stesso modo a destra e a sinistra (\texttt{ROL}, \texttt{ROR}).
+
+Nella \emph{rotate through carry} (\texttt{RCL}, \texttt{RCR}) è come se avessimo \textbf{un bit in più}: \texttt{CF} fa parte dell'anello di rotazione, quindi il bit che esce va in \texttt{CF} e il vecchio \texttt{CF} rientra dall'altra parte.
+
+\subsubsection*{Istruzioni logiche}
+
+Le istruzioni logiche operano \textbf{bit a bit} e \textbf{modificano i flag}.
+
+\begin{integrazione}
+Eccezione: \texttt{NOT} \textbf{non} modifica i flag. \texttt{AND}, \texttt{OR} e \texttt{XOR} azzerano \texttt{CF} e \texttt{OF} e aggiornano \texttt{SF} e \texttt{ZF} in base al risultato.
+\end{integrazione}
+
+\begin{nota}[Attenzione]
+Ricordiamoci che i singoli bit \textbf{valgono sempre qualcosa}: un'operazione logica su un operando può cambiarne il valore numerico.
+\end{nota}
+
+\paragraph*{NOT}
+
+Ha \textbf{solo l'operando destinatario} e calcola il \textbf{complemento} del destinatario (ne inverte i bit).
+
+\paragraph*{AND}
+
+Ha due operandi. Nel destinatario viene sostituito il risultato dell'\textbf{AND bit a bit} tra sorgente e destinatario. A cosa serve?
+
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Testare i bit} di un operando: si usa una \textbf{maschera}, cioè un operando che ha tutti 0 tranne il bit di interesse (che vale 1). Dopo l'\texttt{AND}, $\texttt{ZF}=1$ se il bit testato era 0.
+  \item \textbf{Azzerare un bit} di un registro: anche qui si usa una maschera, con 0 in corrispondenza del bit di interesse e 1 negli altri.
+  \item \textbf{Estensione di campo per operandi naturali}: ad esempio se volessi sommare \texttt{AL} ed \texttt{EBX}, operandi di lunghezza diversa (e quindi non sommabili): si fa l'\texttt{AND} di \texttt{EAX} con una maschera con gli 8 bit finali a 1, che azzera i 24 bit superiori.
+\end{itemize}
+
+\begin{integrazione}
+\begin{lstlisting}
+        # test del bit 3 di EAX (su una copia, perche' AND modifica la destinazione)
+        MOVL  %EAX, %EBX
+        ANDL  $0x00000008, %EBX    # maschera: solo il bit 3 a 1
+        JZ    bit_zero             # ZF=1 se il bit 3 era 0
+
+        # azzeramento del bit 3 di EAX
+        ANDL  $0xFFFFFFF7, %EAX
+
+        # estensione di AL su 32 bit (naturali), poi somma con EBX
+        ANDL  $0x000000FF, %EAX
+        ADDL  %EBX, %EAX
+\end{lstlisting}
+Per testare un bit senza modificare nessun operando esiste l'istruzione \texttt{TEST}, che calcola l'\texttt{AND} e aggiorna solo i flag.
+\end{integrazione}
+
+\paragraph*{OR}
+
+Ha due operandi. Nel destinatario viene sostituito il risultato dell'\textbf{OR bit a bit} tra sorgente e destinatario.
+
+\begin{integrazione}
+Si usa tipicamente per \textbf{forzare a 1} alcuni bit con una maschera che ha 1 in corrispondenza dei bit di interesse, ad esempio \texttt{ORL \$8, \%EAX} pone a 1 il bit 3.
+\end{integrazione}
+
+\paragraph*{XOR}
+
+Ha due operandi e la stessa meccanica di \texttt{AND} e \texttt{OR}, ma con l'operazione logica XOR: il risultato vale \textbf{1 se i bit sono diversi}, \textbf{0 se sono uguali}. Per cosa lo usiamo?
+
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Cambiare il valore di un bit} dentro un operando, ad esempio il bit più significativo (si usa una maschera con 1 sui bit da invertire):
+  \begin{itemize}
+    \item $A \oplus 0 = A$
+    \item $A \oplus 1 = \overline{A}$
+  \end{itemize}
+  \item \textbf{Azzerare i registri}: \texttt{XORL \%EAX, \%EAX} confronta il registro con se stesso, ottenendo 0 ovunque. È meglio di \texttt{MOV} perché non bisogna specificare alcuna costante e l'istruzione occupa poco spazio.
+\end{itemize}
+
+\begin{integrazione}
+La codifica di \texttt{XORL \%EAX, \%EAX} occupa \textbf{2 byte}, contro i 5 byte di \texttt{MOVL \$0, \%EAX} (nelle note: ``1 bit anziché 5 byte''). Attenzione che \texttt{XOR} modifica i flag (in questo caso $\texttt{ZF}=1$), mentre \texttt{MOV} no.
+\end{integrazione}
+
+\begin{nota}[All'esame]
+All'esame \textbf{non passano programmi corretti ma scritti male}: si evitano effetti collaterali, programmazione ``a spaghetti'' e simili.
+\end{nota}
+
+\subsubsection*{Istruzioni di controllo}
+
+\paragraph*{JMP}
+
+\texttt{JMP} ha \textbf{tantissimi formati}: solitamente si usa il primo tipo (vedere le dispense su GitHub). Consente di saltare ad un'altra parte del programma, ad esempio per realizzare cicli.
+
+\paragraph*{Salti condizionati (Jcc)}
+
+\texttt{J}\emph{cond} (\emph{jump if condition met}): si \textbf{testa una condizione}; se è vera si comporta come una \texttt{JMP}, altrimenti l'istruzione viene \textbf{ignorata completamente} e si prosegue in sequenza. Con questi salti si realizza il \textbf{branching} (implementazione di \texttt{if} ed \texttt{else}).
+
+\begin{integrazione}[Integrazione: esempio di if/else]
+\begin{lstlisting}
+        CMPL  b, %EAX          # confronto EAX con b (interi)
+        JLE   altrimenti       # se EAX <= b salta al ramo else
+        ...                    # ramo "then"
+        JMP   fine
+altrimenti:
+        ...                    # ramo "else"
+fine:
+\end{lstlisting}
+\end{integrazione}
+
+\subparagraph*{Condizioni sui singoli flag}
+
+Si usano dopo operazioni che variano i flag.
+
+\begin{center}
+\begin{tabular}{l l}
+\textbf{Istruzione} & \textbf{Salta se\ldots} \\ \hline
+\texttt{JZ}  & $\texttt{ZF}=1$ \\
+\texttt{JNZ} & $\texttt{ZF}=0$ \\
+\texttt{JC}  & $\texttt{CF}=1$ \\
+\texttt{JNC} & $\texttt{CF}=0$ \\
+\texttt{JS}, \texttt{JNS} & $\texttt{SF}=1$, $\texttt{SF}=0$ \\
+\texttt{JO}, \texttt{JNO} & $\texttt{OF}=1$, $\texttt{OF}=0$ \\
+\end{tabular}
+\end{center}
+
+\begin{nota}
+Usare \texttt{JS} è inutile se si lavora con i naturali (il bit più significativo è una cifra, non un segno).
+\end{nota}
+
+\subparagraph*{Confronto di naturali}
+
+Si usano \textbf{dopo una} \texttt{CMP} (e da nessun'altra parte, perché le altre istruzioni modificano i flag), che confronta \textbf{sorgente} e \textbf{destinatario}. Le condizioni si riferiscono al \textbf{destinatario} della \texttt{CMP} precedente.
+
+\begin{center}
+\begin{tabular}{l l l}
+\textbf{Istruzione} & \textbf{Salta se\ldots} & \textbf{Flag} \\ \hline
+\texttt{JE}  & uguali & $\texttt{ZF}=1$ \\
+\texttt{JNE} & diversi & $\texttt{ZF}=0$ \\
+\texttt{JA}  & \emph{above}: destinatario \textbf{strettamente maggiore} del sorgente & $\texttt{CF}=0$ e $\texttt{ZF}=0$ \\
+\texttt{JAE} & maggiore o uguale & $\texttt{CF}=0$ \\
+\texttt{JB}  & \emph{below}: destinatario \textbf{strettamente minore} del sorgente & $\texttt{CF}=1$ \\
+\texttt{JBE} & minore o uguale & $\texttt{CF}=1$ o $\texttt{ZF}=1$ \\
+\end{tabular}
+\end{center}
+
+\subparagraph*{Confronto di interi}
+
+Anche questi si trovano \textbf{solo dopo una} \texttt{CMP}.
+
+\begin{center}
+\begin{tabular}{l l l}
+\textbf{Istruzione} & \textbf{Salta se\ldots} & \textbf{Flag} \\ \hline
+\texttt{JE}  & come per i naturali & $\texttt{ZF}=1$ \\
+\texttt{JNE} & come per i naturali & $\texttt{ZF}=0$ \\
+\texttt{JG}  & \emph{greater}: destinatario \textbf{strettamente maggiore} del sorgente & $\texttt{ZF}=0$ e $\texttt{SF}=\texttt{OF}$ \\
+\texttt{JGE} & maggiore o uguale & $\texttt{SF}=\texttt{OF}$ \\
+\texttt{JL}  & \emph{less}: destinatario \textbf{strettamente minore} del sorgente & $\texttt{SF}\neq\texttt{OF}$ \\
+\texttt{JLE} & minore o uguale & $\texttt{ZF}=1$ o $\texttt{SF}\neq\texttt{OF}$ \\
+\end{tabular}
+\end{center}
+
+\begin{integrazione}[Integrazione: perché \texttt{SF} e \texttt{OF}]
+Per \texttt{JGE} (destinatario $\geq$ sorgente) ci sono due situazioni in cui $\texttt{SF}=\texttt{OF}$:
+\begin{itemize}[leftmargin=*]
+  \item $\texttt{OF}=0$ e $\texttt{SF}=0$: la differenza è rappresentabile e non negativa;
+  \item $\texttt{OF}=1$ e $\texttt{SF}=1$: la differenza \textbf{non è rappresentabile}, quindi il bit di segno ottenuto è sbagliato (invertito) e il risultato vero è non negativo.
+\end{itemize}
+Per questo, per gli interi, non basta guardare \texttt{SF}: bisogna confrontarlo con \texttt{OF}.
+\end{integrazione}
+
+\subsubsection*{Istruzioni per l'esecuzione di sottoprogrammi}
+
+Entrambe le istruzioni seguenti fanno riferimento alla \textbf{pila}.
+
+\paragraph*{CALL}
+
+\texttt{CALL} \textbf{salta ad un sottoprogramma}; ha gli stessi formati di \texttt{JMP}.
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Salva in pila} il valore corrente di \texttt{EIP}, cioè l'indirizzo dell'istruzione successiva alla \texttt{CALL};
+  \item \textbf{sostituisce} il valore di \texttt{EIP} con l'indirizzo della prima istruzione del sottoprogramma.
+\end{enumerate}
+
+\paragraph*{RET}
+
+\texttt{RET} \textbf{ritorna al programma chiamante}. Si trova in fondo a un sottoprogramma ed è analoga al \emph{return} dei linguaggi ad alto livello. Il suo formato è solo \texttt{RET}.
+\begin{enumerate}[leftmargin=*]
+  \item esegue una \texttt{POP} dalla pila di \textbf{4 byte};
+  \item \textbf{sostituisce} con questo valore il contenuto di \texttt{EIP}.
+\end{enumerate}
+
+Dopo la \texttt{RET} l'esecuzione prosegue con l'\textbf{istruzione di rientro}, cioè quella che segue la \texttt{CALL} nel programma chiamante.
+
+\begin{integrazione}[Integrazione: esempio]
+\begin{lstlisting}
+        CALL  sottoprog        # push dell'indirizzo di rientro, EIP <- sottoprog
+        ...                    # istruzione di rientro
+        ...
+sottoprog:
+        ...                    # corpo del sottoprogramma
+        RET                    # pop in EIP: si torna alla riga dopo la CALL
+\end{lstlisting}
+Dentro il sottoprogramma ogni \texttt{PUSH} deve avere la sua \texttt{POP}: se \texttt{ESP} non punta all'indirizzo di rientro quando si esegue \texttt{RET}, si carica in \texttt{EIP} un valore sbagliato.
+\end{integrazione}
+
+\subsubsection*{Altre istruzioni}
+
+\begin{itemize}[leftmargin=*]
+  \item \texttt{NOP}: non fa proprio nulla.
+  \item \texttt{HLT} (\emph{halt}): fa \textbf{terminare l'attività del processore}. Non è possibile usarla in modalità utente.
+\end{itemize}
+
+\subsubsection*{Modalità utente e modalità sistema}
+
+Il processore Intel ha \textbf{due modalità} di funzionamento:
+\begin{itemize}[leftmargin=*]
+  \item \textbf{utente};
+  \item \textbf{sistema}: contiene anche le istruzioni \textbf{privilegiate}.
+\end{itemize}
+
+\textbf{Istruzioni privilegiate:} \texttt{HLT}, \texttt{IN}, \texttt{OUT}.
+
+Se si usano \texttt{IN} e \texttt{OUT} in modalità utente viene sollevata una \textbf{eccezione}, che può ad esempio \textbf{inchiodare} il programma.
+
+Per usarle è necessario passare per \textbf{sottoprogrammi di sistema} (routine del sistema operativo): se potessimo usarle direttamente, potremmo indurre uno \textbf{stato di inconsistenza} nella macchina.
+
+\paragraph*{Meccanismo di interruzione}
+
+Il \textbf{meccanismo di interruzione} avviene quando si passa a un sottoprogramma \textbf{non definito da noi}: il processore salta a una routine di sistema e, al termine, il controllo torna al programma interrotto.
+
+\begin{integrazione}
+Le cause tipiche sono: le \emph{eccezioni} (come l'uso di un'istruzione privilegiata o una divisione non fattibile), le richieste dei dispositivi di I/O e le chiamate esplicite al sistema operativo (istruzione \texttt{INT}).
+\end{integrazione}
+
+\subsubsection*{Varie}
+
+\begin{itemize}[leftmargin=*]
+  \item \textbf{GAS} (\emph{GNU Assembler}): documentazione su \texttt{www.delorie.com}.
+  \item Venerdì prossimo: lezione con l'assistente di laboratorio.
+\end{itemize}
+
+	\vspace{1.5cm}
+	\begin{center}
+		\rule{0.65\textwidth}{1pt} \\
+		\vspace{0.4cm}
+		\textcolor{titlecolor}{\LARGE \textbf{--- Fine Lezione 4 ---}} \\
+		\vspace{0.2cm}
+		\rule{0.65\textwidth}{1pt}
+	\end{center}
+	\newpage
+
+	\avviso{\textit{\textbf{Questa lezione, come le sue precedenti e successive, può contenere errori e/o imprecisioni. Per il bene di tutti, è buona norma far notare all'autore l'errore o l'imprecisione così da risolvere nel minor tempo possibile. I canali di comunicazione, per eventuali avvisi generali o di errori trovati negli appunti, sono in cima al file. Grazie per la collaborazione e Buono studio!}}}
+
+	\section*{Lezione 5 | 29 settembre 2026}
+	\subsection*{Struttura di un programma assembler, Direttive, Costanti numeriche, Controlli di flusso, La programmazione a spaghetti, Stringhe, Gestione dei sottoprogrammi (ripresa), Gestione dell'I/O in assembler}
+
+\begin{nota}[Avviso]
+Da venerdì: esercitazioni del dr.\ Zippo.
+\end{nota}
+
+\subsubsection*{Struttura di un programma assembler}
+
+Un programma assembler è diviso in \textbf{2 sezioni}:
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Dati}: contiene gli indirizzi e i nomi simbolici delle variabili. Niente obbliga a metterla all'inizio del codice, \textbf{ma fare altrimenti sarebbe programmare male}.
+  \item \textbf{Codice}: contiene le istruzioni del programma.
+\end{itemize}
+
+\begin{integrazione}
+Nelle note la sezione codice era descritta come ``primitive che servono per assemblaggio e dichiarazioni delle variabili''. Le \emph{primitive} (o \emph{direttive}) sono comandi rivolti all'\textbf{assemblatore}, non al processore: non producono istruzioni eseguibili. Le dichiarazioni delle variabili stanno nella sezione dati.
+\end{integrazione}
+
+\paragraph*{Righe e direttive di struttura}
+
+Un'istruzione \textbf{occupa una riga} e termina con CR (a capo). Una riga contiene:
+\begin{itemize}[leftmargin=*]
+  \item un \textbf{nome} (etichetta), seguito da \texttt{:};
+  \item una \textbf{keyword} seguita dagli \textbf{operandi}.
+\end{itemize}
+
+\begin{center}
+\begin{tabular}{l p{10cm}}
+\textbf{Direttiva} & \textbf{Significato} \\ \hline
+\texttt{.global main} & dichiara il \textbf{sottoprogramma globale} \texttt{main}, che viene chiamato dall'ambiente \\
+\texttt{.data} & dà inizio alla \textbf{sezione dati} (l'insieme dei dati) \\
+\texttt{.text} & dà inizio alla porzione di \textbf{codice} \\
+\end{tabular}
+\end{center}
+
+\begin{itemize}[leftmargin=*]
+  \item Per motivi legati al \textbf{debugger} (breakpoint ed esecuzione) conviene che la \textbf{prima istruzione sia una} \texttt{NOP}.
+  \item L'assemblatore è \textbf{case-insensitive} per quanto riguarda le proprie \textbf{direttive}, ed è invece \textbf{case-sensitive} per i \textbf{nomi}.
+  \item \textbf{Bit più significativi $\to$ indirizzo più alto} (convenzione \emph{little endian}).
+  \item Posso dare \textbf{più alias allo stesso byte}, ma è alquanto sconveniente.
+\end{itemize}
+
+\paragraph*{Le due passate}
+
+L'assemblatore fa \textbf{due passate}: nella prima controlla il programma, nella seconda lo traduce. Per questo è possibile usare un salto verso un'istruzione \textbf{non ancora definita} (\emph{riferimento in avanti}).
+
+\begin{integrazione}
+Più precisamente: nella prima passata l'assemblatore costruisce la \emph{tabella dei simboli} (a ogni nome associa il suo indirizzo); nella seconda genera il codice macchina, usando la tabella per risolvere anche i nomi definiti più avanti.
+\end{integrazione}
+
+\begin{integrazione}[Integrazione: schema di programma]
+\begin{lstlisting}
+        .global main
+        .data
+a:      .word   5                # variabile scalare da 2 byte
+msg:    .asciz  "Ciao\n"
+        .set    lung, . - msg    # costante simbolica: lunghezza di msg
+
+        .text
+main:   NOP                      # prima istruzione: nop (per il debugger)
+        MOVW    a, %AX
+        ...
+        RET                      # ritorno all'ambiente
+\end{lstlisting}
+Il carattere \texttt{\#} introduce un commento fino a fine riga.
+\end{integrazione}
+
+\subsubsection*{Direttive}
+
+Una direttiva ha la forma \texttt{KEYWORD operandi} seguita da CR.
+
+\paragraph*{Dichiarazione di variabili}
+
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Variabile scalare}: \texttt{nome: .word} \emph{valore} (una \texttt{.word} vale \textbf{2 byte}).
+  \item \textbf{Variabile vettoriale}: \texttt{nomealtravariabile: .byte} \emph{valore1}\texttt{,} \emph{valore2} è un vettore con due componenti da 1 byte ciascuna.
+  \item Direttive analoghe: \texttt{.byte} (1 byte), \texttt{.word} (2 byte), \texttt{.long} (4 byte).
+\end{itemize}
+
+\begin{integrazione}
+Gli operandi di \texttt{.byte}, \texttt{.word}, \texttt{.long} sono i \emph{valori iniziali} (espressioni) delle componenti, non indirizzi come scritto nelle note originali.
+\end{integrazione}
+
+È possibile anche avere una variabile che si ottiene dalla \textbf{somma di un indirizzo e di un numero di celle di memoria} (da dispense del professore):
+\begin{lstlisting}
+var4:   .long   var3 + 2        # var4 contiene l'indirizzo var3 + 2
+\end{lstlisting}
+
+\paragraph*{.fill}
+
+\texttt{.fill} \emph{numero}\texttt{,} \emph{dim}\texttt{,} \emph{espressione}: riserva \emph{numero} elementi, ciascuno di \emph{dim} byte e di valore \emph{espressione}.
+\begin{itemize}[leftmargin=*]
+  \item \emph{dim} $=1$, $2$ o $4$ corrisponde a byte, word o long, a seconda del numero di byte.
+  \item Se non viene specificata la dimensione si assume 1 byte; se manca il valore si assume 0.
+\end{itemize}
+
+\begin{integrazione}
+Nelle note \emph{dim} era detta ``dimensione in bit'' con default 0. In GAS la dimensione è in \textbf{byte}; i default sono 1 per la dimensione e 0 per il valore. Esempio: \texttt{buffer: .fill 10, 1, 0} riserva 10 byte a zero.
+\end{integrazione}
+
+\paragraph*{Stringhe di caratteri}
+
+\begin{itemize}[leftmargin=*]
+  \item \texttt{.ascii}: permette di inserire un messaggio tra virgolette \texttt{" "}.
+  \item \texttt{.asciz}: come \texttt{.ascii}, ma \textbf{aggiunge un carattere nullo} (\texttt{0}) in fondo, come le stringhe del C.
+  \item I \textbf{caratteri speciali} sono gli stessi del C++ (\texttt{\textbackslash n}, \texttt{\textbackslash t}, \ldots).
+\end{itemize}
+
+\paragraph*{.include e .set}
+
+\begin{itemize}[leftmargin=*]
+  \item \texttt{.include}: prende come operando un \textbf{percorso} (path) e include un file sorgente nel file che stiamo scrivendo (utile ad esempio per includere sottoprogrammi).
+  \item \texttt{.set}: associa un \textbf{nome} a un'\textbf{espressione}, creando \textbf{costanti simboliche più leggibili}. Può essere usata anche per il \textbf{calcolo della memoria occupata}, come nell'esempio sopra con \texttt{lung}, dove \texttt{.} indica l'indirizzo corrente.
+\end{itemize}
+
+\begin{nota}
+Le costanti simboliche è bene metterle \textbf{dentro la sezione dati}.
+\end{nota}
+
+\subsubsection*{Costanti numeriche}
+
+\paragraph*{Naturali}
+
+I naturali \textbf{non hanno segno} e vengono \textbf{convertiti in base 2} (nelle note ``base 3'', è un refuso: in memoria i numeri sono sequenze di bit). Possiamo scriverli in base 2, 8, 10 o 16:
+
+\begin{center}
+\begin{tabular}{c l l}
+\textbf{Base} & \textbf{Prefisso} & \textbf{Esempio (valore 15)} \\ \hline
+2  & \texttt{0b} & \texttt{0b1111} \\
+8  & \texttt{0}  & \texttt{017} \\
+10 & nessuno     & \texttt{15} \\
+16 & \texttt{0x} & \texttt{0xF} \\
+\end{tabular}
+\end{center}
+
+In base 10 non deve esserci alcun prefisso: un numero che inizia con \texttt{0} è letto come ottale (a maggior ragione, lo zero stesso va bene in qualsiasi base).
+
+\begin{integrazione}
+I numeri \textbf{negativi} si scrivono con il segno meno (ad esempio \texttt{-5}) e sono memorizzati in complemento a 2.
+\end{integrazione}
+
+\paragraph*{Dimensione sbagliata}
+
+Che succede se la costante non ha la dimensione giusta?
+\begin{itemize}[leftmargin=*]
+  \item se è \textbf{più piccola}, viene \textbf{estesa} (ma l'assemblatore non lo segnala);
+  \item se è \textbf{più grande}, viene \textbf{troncata} (e, se siamo fortunati, l'assemblatore ci avvisa).
+\end{itemize}
+
+\begin{nota}[Attenzione]
+Non contare troppo sull'assemblatore per la scrittura di programmi corretti.
+\end{nota}
+
+\subsubsection*{Controlli di flusso}
+
+I controlli di flusso vengono implementati \textbf{attraverso le istruzioni} \texttt{JMP} (e i salti condizionati).
+
+\paragraph*{if / else}
+
+L'\texttt{if} e l'\texttt{else} si scrivono in maniera \textbf{invertita} rispetto all'ordine di esecuzione a cui siamo abituati in C++ (si usa ad esempio una \texttt{JB}): \textbf{prima il ramo else, poi il ramo then}.
+
+\begin{lstlisting}
+        MOVL  a, %EAX
+        CMPL  b, %EAX          # EAX - b
+        JB    then             # se a < b (naturali) salta al ramo then
+        ...                    # ramo else (si arriva qui se non si salta)
+        JMP   fine
+then:   ...                    # ramo then
+fine:
+\end{lstlisting}
+
+\paragraph*{Ciclo for}
+
+Un ciclo \texttt{for} sfrutta una \texttt{JMP} (per \textbf{reiterare} il ciclo) e una \texttt{JE} (per \textbf{terminarlo}).
+\begin{lstlisting}
+        MOVL  $0, %EBX
+ciclo:  CMPL  $10, %EBX
+        JE    fine             # esce quando EBX = 10
+        ...                    # corpo del ciclo
+        INCL  %EBX
+        JMP   ciclo
+fine:
+\end{lstlisting}
+
+\paragraph*{Ciclo do-while}
+
+Un \texttt{do-while} richiede una \texttt{CMP} e una \texttt{JB} (che riporta all'inizio del corpo finché la condizione vale).
+\begin{lstlisting}
+ripeti: ...                    # corpo del ciclo
+        CMPL  b, %EAX
+        JB    ripeti           # ripete finche' EAX < b (naturali)
+\end{lstlisting}
+
+\paragraph*{L'istruzione LOOP}
+
+\texttt{LOOP} \emph{etichetta}: \textbf{decrementa} \texttt{ECX} e \textbf{salta se} $\texttt{ECX}\neq 0$. È il modo migliore per rappresentare un ciclo \texttt{for}.
+
+\begin{lstlisting}
+        MOVL  $10, %ECX        # numero di iterazioni
+ciclo:  ...                    # corpo (ECX non va toccato)
+        LOOP  ciclo            # ECX <- ECX-1 ; se ECX != 0 salta
+\end{lstlisting}
+
+\begin{itemize}[leftmargin=*]
+  \item Se qualcuno modifica \texttt{ECX} dentro il ciclo, si scrivono istruzioni \textbf{incomprensibili}.
+  \item Per convenzione si usa \texttt{ECX} \textbf{solo se il ciclo è a scendere}. Se è a salire, \textbf{è necessario usare un altro registro}, ad esempio \texttt{EBX}.
+  \item \texttt{LOOP} non modifica i flag.
+\end{itemize}
+
+\begin{integrazione}
+Se \texttt{ECX} vale 0 all'ingresso, il primo decremento lo porta a $2^{32}-1$ e il ciclo viene eseguito circa 4 miliardi di volte: il controllo che \texttt{ECX} sia diverso da 0 va fatto prima.
+\end{integrazione}
+
+\paragraph*{LOOPE e LOOPNE}
+
+Esistono anche le versioni \textbf{condizionali}: \texttt{LOOPE} e \texttt{LOOPNE}. Hanno senso solo se usate \textbf{dopo una} \texttt{CMP} (o un'altra istruzione che aggiorna \texttt{ZF}). Si usano per cicli con un \textbf{numero massimo di iterazioni} da cui si può \textbf{uscire prima}.
+
+\begin{integrazione}
+Decrementano \texttt{ECX} e saltano se $\texttt{ECX}\neq 0$ \emph{e} $\texttt{ZF}=1$ (\texttt{LOOPE}) oppure $\texttt{ZF}=0$ (\texttt{LOOPNE}).
+\end{integrazione}
+
+Le istruzioni \texttt{LOOP} \textbf{non sono indispensabili}: lo stesso ciclo si può scrivere con \texttt{JMP} e salti condizionati.
+
+\subsubsection*{La programmazione a spaghetti}
+
+La programmazione a spaghetti è \textbf{da evitare}, perché \textbf{viola la verificabilità} dei programmi.
+
+\begin{integrazione}
+Succede ad esempio quando un ciclo interno interferisce con quello esterno (salti che entrano o escono a metà dei cicli, oppure stesso registro contatore): il ciclo più esterno perde il suo significato. Con \texttt{LOOP} annidate, il ciclo interno porta \texttt{ECX} a 0, quindi il contatore esterno va salvato con una \texttt{PUSH} prima del ciclo interno e ripristinato con una \texttt{POP} dopo, oppure si usa un altro registro.
+\end{integrazione}
+
+\subsubsection*{Stringhe}
+
+Le \textbf{stringhe sono vettori}: in assembler consentono di scrivere \textbf{cicli} e \textbf{accessi sequenziali in memoria} (ad esempio un puntatore che avanza di elemento in elemento). Per questi accessi esistono anche le istruzioni stringa citate nella lezione sul trasferimento dati.
+
+\subsubsection*{Gestione dei sottoprogrammi (ripresa)}
+
+\textbf{In assembler non esiste l'idea di variabile locale.}
+
+È necessario \textbf{stabilire e rispettare convenzioni} per il passaggio dei parametri. Ci sono 3 modi:
+\begin{enumerate}[leftmargin=*]
+  \item usare \textbf{locazioni di memoria condivise} (non ottimale);
+  \item sfruttare i \textbf{registri};
+  \item passare i parametri \textbf{attraverso la pila}: è \textbf{particolarmente sconsigliato} perché difficile da seguire e verificare: dimenticare anche una minima cosa sarebbe un problema.
+\end{enumerate}
+
+Chi scrive un sottoprogramma \textbf{deve specificare nei commenti} i \textbf{parametri di ingresso e di uscita} (il professore se lo aspetta, perché è il modo giusto di programmare).
+
+\begin{integrazione}[Integrazione: esempio di commento]
+\begin{lstlisting}
+# sottoprog: calcola il massimo di due naturali
+# ingresso:  EAX = primo numero, EBX = secondo numero
+# uscita:    EAX = massimo
+# registri modificati: nessuno oltre a EAX
+\end{lstlisting}
+\end{integrazione}
+
+\paragraph*{Effetti collaterali nei registri}
+
+Gli effetti collaterali sui registri \textbf{non devono assolutamente succedere}: all'esame ci si gioca dei punti.
+
+Conviene che i sottoprogrammi abbiano una \textbf{prefazione} fatta di \texttt{PUSH} e di \texttt{POP}, che permettono ai calcoli di usare i registri (che altrimenti verrebbero ``sporcati''). La pila va lasciata \textbf{in ordine}, altrimenti \textbf{segmentation fault}.
+
+\begin{nota}[Da verificare]
+Nelle note la frase specifica che le \texttt{PUSH} e le \texttt{POP} ``devono essere fatte dal chiamante'', ma la parola ``prefazione'' fa pensare a un'operazione all'inizio del sottoprogramma (quindi del chiamato). Qualunque sia la scelta, la convenzione deve essere \emph{una sola} e rispettata sempre, e ogni registro salvato deve essere ripristinato. Conviene controllare sulle slide quale delle due vale.
+\end{nota}
+
+\begin{integrazione}
+Il registro che contiene il risultato (di solito \texttt{EAX}, vedi sotto) è l'unica modifica ammessa e va dichiarata nei commenti.
+\end{integrazione}
+
+\begin{nota}[Il simbolo ???]
+Scrivere \texttt{???} nel codice è un trucco che \textbf{impedisce l'assemblazione finché non metto mano al codice}: si lascia al posto di una parte ancora da scrivere, e l'assemblatore dà errore finché non la sostituisco.
+\end{nota}
+
+\paragraph*{Convenzioni}
+
+\begin{itemize}[leftmargin=*]
+  \item Il registro \texttt{EAX}, al momento del ritorno, deve contenere un \textbf{codice} che dice se il risultato è corretto: \textbf{0 significa ok}, gli altri numeri rappresentano \textbf{codici di errore}. (Non è obbligatorio in vista dell'esame.)
+  \item \textbf{Pila} (cose che vanno assolutamente fatte):
+  \begin{enumerate}
+    \item si \textbf{dichiara una pila}, riservando memoria: lo deve fare \textbf{il programmatore}, ma nel nostro ambiente se ne occupa l'ambiente;
+    \item si \textbf{inizializza} \texttt{\%ESP} al valore \textbf{successivo al fondo della pila} (il primo indirizzo subito oltre la zona riservata); altrimenti contiene il valore lasciato dall'ultima persona che ci ha messo le mani.
+  \end{enumerate}
+\end{itemize}
+
+\textbf{Le cose aggressivamente ricorsive} non vanno bene in assembler.
+
+\subsubsection*{Gestione dell'I/O in assembler}
+
+Si sfruttano i \textbf{servizi del sistema DOS} attraverso una \textbf{libreria}. Tutto avviene ``a suon di codifiche ASCII''.
+
+\begin{center}
+\begin{tabular}{l c l}
+\textbf{Carattere} & \textbf{Codice} & \textbf{Effetto} \\ \hline
+Ritorno carrello (CR) & \texttt{0x0D} & il cursore ritorna all'inizio della riga \\
+Avanzamento linea (LF) & \texttt{0x0A} & il cursore avanza di una riga \\
+\end{tabular}
+\end{center}
+
+\begin{itemize}[leftmargin=*]
+  \item \textbf{In uscita} (stampa a video): escono le codifiche ASCII \textbf{dei singoli caratteri}, che vengono stampati uno dietro l'altro.
+  \item \textbf{In ingresso} vale la stessa cosa: arrivano i \textbf{singoli caratteri}, che dobbiamo \textbf{concatenare} noi.
+\end{itemize}
+
+\begin{integrazione}
+Per i numeri, la conversione è a carico del programmatore. Le cifre \texttt{'0'}--\texttt{'9'} hanno codici ASCII \texttt{0x30}--\texttt{0x39}: in ingresso si sottrae \texttt{0x30} a ogni carattere letto e si calcola $\text{valore} \leftarrow 10\cdot\text{valore} + \text{cifra}$; in uscita si ricavano le cifre una alla volta (con divisioni per 10) e si somma \texttt{0x30} a ciascuna prima di stamparla.
+\end{integrazione}
+
+	\vspace{1.5cm}
+	\begin{center}
+		\rule{0.65\textwidth}{1pt} \\
+		\vspace{0.4cm}
+		\textcolor{titlecolor}{\LARGE \textbf{--- Fine Lezione 5 ---}} \\
+		\vspace{0.2cm}
+		\rule{0.65\textwidth}{1pt}
+	\end{center}
+	\newpage
+
+	\avviso{\textit{\textbf{Questa lezione, come le sue precedenti e successive, può contenere errori e/o imprecisioni. Per il bene di tutti, è buona norma far notare all'autore l'errore o l'imprecisione così da risolvere nel minor tempo possibile. I canali di comunicazione, per eventuali avvisi generali o di errori trovati negli appunti, sono in cima al file. Grazie per la collaborazione e Buono studio!}}}
+
+	\section*{Lezione 6 | 30 settembre 2026}
+	\subsection*{La libreria \texttt{utility}: I/O di caratteri e stringhe, Input/output di numeri esadecimali, Input/output di numeri decimali, Manipolazione di stringhe, Efficienza della programmazione assembly}
+
+\subsubsection*{La libreria \texttt{utility}: I/O di caratteri e stringhe}
+
+Per permettere l'I/O di caratteri e stringhe è necessario includere il file \textbf{utility}:
+\begin{lstlisting}
+        .INCLUDE "./files/utility.s"
+\end{lstlisting}
+
+\begin{nota}
+Sono \textbf{sottoprogrammi}, perciò è necessario \textbf{chiamarli} (\texttt{CALL}).
+\end{nota}
+
+\begin{center}
+\begin{tabular}{l p{11cm}}
+\textbf{Sottoprogramma} & \textbf{Funzione} \\ \hline
+\texttt{inchar} & legge un carattere \textbf{senza fare l'eco} sul video e inserisce la sua codifica ASCII in \reg{AL}. \\
+\texttt{outchar} & \textbf{stampa a video} la codifica ASCII di un carattere. \\
+\texttt{newline} & va a capo: stampa il \textbf{ritorno carrello} e il \textbf{line feed} (vedi lezione del 29 settembre). \\
+\texttt{pausen} & \textbf{mette in pausa} il programma e stampa il \emph{checkpoint} (per il debug): ci permette di capire dove si inchioda il nostro programma. \\
+\texttt{inline} & permette l'inserimento di un'\textbf{intera riga} di caratteri da terminale (buffer di 80 caratteri) e fa l'\textbf{eco} sul video durante l'inserimento. Termina anche quando si preme invio. \\
+\texttt{outline} & come \texttt{inline}, ma per l'\textbf{output}. \\
+\texttt{outmess} & stampa un messaggio: \reg{EBX} deve contenere l'\textbf{indirizzo di memoria del buffer} e \reg{CX} il \textbf{numero di caratteri} da stampare a video. \\
+\end{tabular}
+\end{center}
+
+\begin{nota}
+\begin{itemize}[leftmargin=*]
+  \item \texttt{outchar} usa internamente dei registri; per questo è scritto con delle \texttt{PUSH} e delle \texttt{POP} che li salvano e li ripristinano, al fine di ``mantenere l'ordine'': il chiamante non vede registri modificati.
+  \item In realtà \texttt{inline} accetta \textbf{al massimo 78 caratteri} utili, perché nel buffer da 80 trovano posto anche il line feed e il ritorno carrello.
+\end{itemize}
+\end{nota}
+
+\begin{integrazione}[Integrazione: esempio]
+\begin{lstlisting}
+        CALL  inchar            # AL <- codice ASCII del carattere letto
+        CALL  outchar           # stampa il carattere (passato in AL)
+        CALL  newline           # va a capo
+
+        LEAL  msg, %EBX         # EBX = indirizzo del messaggio
+        MOVW  $lung, %CX        # CX  = numero di caratteri da stampare
+        CALL  outmess
+\end{lstlisting}
+Il fatto che \texttt{outchar} riceva il carattere in \reg{AL} è dedotto per simmetria con \texttt{inchar}; i registri richiesti da \texttt{inline} e \texttt{outline} non sono indicati negli appunti: vanno verificati nelle dispense.
+\end{integrazione}
+
+\subsubsection*{Input/output di numeri esadecimali}
+
+I sottoprogrammi hanno nomi diversi a seconda del \textbf{prefisso} e operano su numeri con una quantità diversa di byte:
+
+\begin{center}
+\begin{tabular}{l c c}
+\textbf{Input} & \textbf{Caratteri} & \textbf{Registro} \\ \hline
+\texttt{inbyte} & 2 & \reg{AL} \\
+\texttt{inword} & 4 & \reg{AX} \\
+\texttt{inlong} & 8 & \reg{EAX} \\
+\end{tabular}
+\end{center}
+
+Vale lo stesso per gli \textbf{output}, con prefisso \texttt{out} (\texttt{outbyte}, \texttt{outword}, \texttt{outlong}).
+
+\begin{nota}[Attenzione]
+È assolutamente necessario \textbf{riempire di 0 le cifre iniziali} se la codifica non le occupa tutte: ad esempio, per scrivere 3 in \texttt{inbyte} bisogna scrivere \texttt{03}.
+\end{nota}
+
+\subsubsection*{Input/output di numeri decimali}
+
+Anche qui i nomi dipendono dal \textbf{prefisso} e dalla dimensione:
+
+\begin{center}
+\begin{tabular}{l c c}
+\textbf{Input} & \textbf{Caratteri} & \textbf{Registro} \\ \hline
+\texttt{indecimal\_byte} & 3 & \reg{AL} \\
+\texttt{indecimal\_word} & 5 & \reg{AX} \\
+\texttt{indecimal\_long} & 10 & \reg{EAX} \\
+\end{tabular}
+\end{center}
+
+Vale lo stesso per gli \textbf{output}, con prefisso \texttt{outdecimal}.
+
+\begin{nota}[Attenzione]
+Anche qui bisogna \textbf{riempire di 0 le cifre iniziali} non usate: per scrivere 3 in \texttt{indecimal\_byte} si scrive \texttt{003}.
+\end{nota}
+
+\begin{integrazione}
+Negli appunti i caratteri del formato \texttt{long} erano 8 e l'esempio era \texttt{03}: sembra una copia della sezione esadecimale. Il massimo naturale a 32 bit, $2^{32}-1 = 4\,294\,967\,295$, ha \textbf{10 cifre decimali}, quindi 8 non basterebbero; allo stesso modo il byte ha 3 cifre (da \texttt{000} a \texttt{255}). Il numero esatto di caratteri è da verificare nelle dispense. Nelle note originali si parlava di ``bit'' da riempire: sono in realtà \emph{cifre}.
+\end{integrazione}
+
+\subsubsection*{Manipolazione di stringhe}
+
+\begin{nota}
+L'assembler non ha \textbf{né tipi di dati} né \textbf{strutture dati}, ma supporta comunque il concetto di \textbf{vettore} (che prende il nome di \emph{stringa}).
+\end{nota}
+
+\paragraph*{Il prefisso REP}
+
+\texttt{REP} è un \textbf{prefisso di ripetizione}: può essere usato \textbf{solo con le istruzioni stringa}. Funziona con \textbf{una singola istruzione}, non con un blocco di codice.
+
+\begin{integrazione}
+\texttt{REP} ripete l'istruzione stringa finché $\texttt{ECX}\neq 0$, decrementando \texttt{ECX} a ogni ripetizione: il numero di ripetizioni va quindi caricato in \texttt{ECX} prima.
+\end{integrazione}
+
+\paragraph*{Le istruzioni stringa}
+
+Le istruzioni stringa hanno un suffisso di lunghezza (\texttt{B}, \texttt{W}, \texttt{L}) e operano su un elemento da 1, 2 o 4 byte. I puntatori sono \reg{ESI} (sorgente) ed \reg{EDI} (destinazione).
+
+\begin{center}
+\begin{tabular}{l p{8.5cm} l}
+\textbf{Istruzione} & \textbf{Operazione} & \textbf{Puntatori aggiornati} \\ \hline
+\texttt{MOVS}\emph{suf} & copia l'elemento puntato da \texttt{ESI} nella locazione puntata da \texttt{EDI} & \texttt{ESI}, \texttt{EDI} \\
+\texttt{LODS}\emph{suf} & carica in \texttt{AL}/\texttt{AX}/\texttt{EAX} l'elemento puntato da \texttt{ESI} & \texttt{ESI} \\
+\texttt{STOS}\emph{suf} & scrive \texttt{AL}/\texttt{AX}/\texttt{EAX} nella locazione puntata da \texttt{EDI} & \texttt{EDI} \\
+\texttt{CMPS}\emph{suf} & \textbf{confronta due stringhe}: confronta gli elementi puntati da \texttt{ESI} ed \texttt{EDI}, aggiornando i flag & \texttt{ESI}, \texttt{EDI} \\
+\texttt{SCAS}\emph{suf} & confronta il contenuto di un registro (\texttt{AL}/\texttt{AX}/\texttt{EAX}) con la locazione di memoria indirizzata da \texttt{EDI}: serve a cercare un \textbf{valore noto dentro un vettore} & \texttt{EDI} \\
+\end{tabular}
+\end{center}
+
+\begin{itemize}[leftmargin=*]
+  \item Ogni istruzione incrementa i puntatori \textbf{di 1, 2 o 4}, a seconda del suffisso (cioè del registro usato).
+  \item \textbf{Non è necessario preoccuparsi dell'aggiornamento dei puntatori}: lo fa l'istruzione.
+  \item Le istruzioni stringa permettono inoltre di ``\textbf{spianare}'' un intero buffer di memoria (porre tutto a 0).
+  \item \texttt{LODS} \textbf{sovrascrive} il registro a ogni passo, quindi non va bene dopo \texttt{REP}: alla fine resterebbe solo l'ultimo elemento.
+\end{itemize}
+
+\begin{nota}[MOVL o MOVS?]
+Nelle note originali si scriveva ``\texttt{MOVL} è un'istruzione stringa'': l'istruzione stringa è \texttt{MOVS} con suffisso (\texttt{MOVSB}, \texttt{MOVSW}, \texttt{MOVSL}). \texttt{MOVL} è la normale \texttt{MOV} a 32 bit.
+\end{nota}
+
+\begin{integrazione}[Integrazione: esempi]
+\begin{lstlisting}
+        # copia di 10 long da vettA a vettB
+        CLD                     # DF = 0: avanti
+        LEAL  vettA, %ESI
+        LEAL  vettB, %EDI
+        MOVL  $10, %ECX
+        REP   MOVSL
+
+        # azzeramento di un buffer di 20 long (80 byte)
+        CLD
+        MOVL  $0, %EAX
+        LEAL  buffer, %EDI
+        MOVL  $20, %ECX
+        REP   STOSL
+\end{lstlisting}
+\end{integrazione}
+
+\paragraph*{La direction flag}
+
+La \textbf{direction flag} \texttt{DF} è un flag presente nel \textbf{registro dei flag}. Si manipola con:
+\begin{itemize}[leftmargin=*]
+  \item \texttt{STD} (\emph{set direction flag}): $\texttt{DF}=1$, i puntatori vengono \textbf{decrementati}, cioè si copia \textbf{a ritroso};
+  \item \texttt{CLD} (\emph{clear direction flag}): $\texttt{DF}=0$, i puntatori vengono incrementati, cioè si procede \textbf{in avanti}.
+\end{itemize}
+
+\textbf{Per cosa la usiamo:}
+\begin{itemize}[leftmargin=*]
+  \item \emph{compare} e \emph{scan};
+  \item \emph{copia}, nel caso di elementi \textbf{sovrapposti in memoria} (sorgente in \emph{overlapping} con destinatario): se non si tiene conto dell'orientamento di \texttt{DF}, avverrebbero \textbf{sovrascritture} di dati ancora da copiare.
+\end{itemize}
+
+\begin{integrazione}
+Per una copia con sovrapposizione: se la destinazione è a un indirizzo \emph{maggiore} della sorgente si copia a ritroso (\texttt{STD}, partendo dall'ultimo elemento); se è minore, in avanti (\texttt{CLD}).
+\end{integrazione}
+
+\paragraph*{REPE e REPNE}
+
+\texttt{CMPS} e \texttt{SCAS} possono essere usate dopo un'istruzione di ripetizione, \textbf{ma non \texttt{REP}}: servono \texttt{REPE} e \texttt{REPNE}.
+
+\textbf{Cosa fa \texttt{REPE}?}
+\begin{enumerate}[leftmargin=*]
+  \item se $\texttt{ECX}=0$ termina;
+  \item altrimenti \textbf{decrementa} \texttt{ECX};
+  \item esegue l'istruzione stringa \textbf{per intero};
+  \item torna alla condizione di testa (punto 1).
+\end{enumerate}
+
+\begin{integrazione}
+Il ciclo ha anche una seconda condizione di uscita, che dipende da \texttt{ZF} (aggiornato dopo ogni passo di \texttt{CMPS}/\texttt{SCAS}):
+\begin{itemize}[leftmargin=*]
+  \item \texttt{REPE} (\emph{repeat while equal}) continua finché $\texttt{ZF}=1$ e termina appena $\texttt{ZF}=0$;
+  \item \texttt{REPNE} (\emph{repeat while not equal}) continua finché $\texttt{ZF}=0$ e termina appena $\texttt{ZF}=1$.
+\end{itemize}
+Per questo, al termine, \texttt{ZF} dice \emph{perché} il ciclo è finito. Esempio di ricerca di un valore:
+\begin{lstlisting}
+        CLD
+        MOVB  $0x41, %AL        # valore cercato ('A')
+        LEAL  vett, %EDI
+        MOVL  $100, %ECX        # massimo numero di elementi da guardare
+        REPNE SCASB             # si ferma se AL = elemento (ZF=1) o ECX = 0
+        JE    trovato           # ZF=1: valore trovato
+\end{lstlisting}
+\end{integrazione}
+
+\paragraph*{Modalità sistema}
+
+Esistono le istruzioni \texttt{INS}\emph{suf} e \texttt{OUTS}\emph{suf}: \texttt{INS}\emph{suf} fa un trasferimento \textbf{da I/O a memoria}, \texttt{OUTS}\emph{suf} il contrario, da memoria a I/O.
+
+\begin{integrazione}
+Sono istruzioni di I/O, quindi \textbf{privilegiate} (vedi la lezione del 25 settembre): non si possono usare in modalità utente.
+\end{integrazione}
+
+\begin{nota}[All'esame]
+A meno che l'uso delle istruzioni stringa non venga richiesto esplicitamente, bisogna \textbf{valutare sempre se siano utili} nel nostro codice. \textbf{Rispettare sempre le specifiche.}
+\end{nota}
+
+\subsubsection*{Efficienza della programmazione assembly}
+
+L'assembler \textbf{non ottimizza il codice}: dobbiamo farlo noi.
+
+\textbf{Come si fa a inferire il tempo di esecuzione di un processo?} \textbf{Non è possibile.} Dipende da:
+\begin{itemize}[leftmargin=*]
+  \item i \textbf{dati};
+  \item lo \textbf{stato del sistema};
+  \item \textbf{chi usa il processore}: altri utenti, o il sistema operativo stesso, possono occupare la CPU.
+\end{itemize}
+
+\textbf{Un calcolatore non è una macchina fatta per eseguire in tempo prevedibile.}
+
+\begin{center}
+\begin{tabular}{l l}
+\textbf{Correttezza} & vincolo \\
+\textbf{Tempo di esecuzione} & funzione obiettivo \\
+\end{tabular}
+\end{center}
+
+Cioè: tra tutti i programmi \emph{corretti} si cerca quello più veloce.
+
+\paragraph*{Cosa impedisce di calcolare il tempo di esecuzione}
+
+\begin{itemize}[leftmargin=*]
+  \item Il \textbf{clock non va a velocità costante}.
+  \item Alcuni \textbf{meccanismi variano il normale ordine di svolgimento}:
+  \begin{itemize}
+    \item \textbf{cache} (memoria veloce tra processore e memoria principale);
+    \item \textbf{code di prefetch} (istruzioni lette in anticipo);
+    \item \textbf{esecuzione in pipeline}: parti del processore dedicate che lavorano a catena di montaggio;
+    \item l'esecuzione \textbf{non è sequenziale};
+    \item il processore \textbf{scommette} (\emph{branch prediction}): prevede l'esito dei salti condizionati.
+  \end{itemize}
+\end{itemize}
+
+\paragraph*{Lunghezza delle istruzioni e tempo di fetch}
+
+Il tempo di fetch dipende dal \textbf{numero di byte} occupati dall'istruzione, cioè dall'\textbf{opcode} e dal \textbf{posizionamento degli operandi in memoria}. Ecco perché è meglio \texttt{XORL \%EAX, \%EAX} di \texttt{MOVL \$0, \%EAX} (2 byte contro 5, vedi la lezione del 25 settembre).
+
+\paragraph*{Costo delle istruzioni}
+
+\begin{center}
+\begin{tabular}{l l}
+\textbf{Istruzioni} & \textbf{Costo (ordine di grandezza)} \\ \hline
+operative della ALU & 1 clock \\
+moltiplicazioni e divisioni & circa 10 clock \\
+trascendenti & circa 100 clock \\
+di controllo & molto costose \\
+\end{tabular}
+\end{center}
+
+\begin{integrazione}
+I salti sono costosi perché, se la previsione del processore è sbagliata, la pipeline va svuotata e riempita di nuovo.
+\end{integrazione}
+
+\paragraph*{Evitare moltiplicazioni e divisioni}
+
+Poiché moltiplicazioni e divisioni costano tanto, possono essere evitate:
+\begin{itemize}[leftmargin=*]
+  \item usando lo \textbf{shift} (moltiplicazioni e divisioni per $2^k$, vedi la lezione del 25 settembre);
+  \item sfruttando l'\textbf{uso improprio} (\emph{hijacking}) della \texttt{LEA}: poiché \texttt{LEA} calcola un indirizzo senza accedere alla memoria, può servire per fare somme e moltiplicazioni per 2, 4, 8.
+\end{itemize}
+
+\begin{integrazione}
+\begin{lstlisting}
+        LEAL  (%EAX,%EAX,4), %EBX     # EBX <- EAX + 4*EAX = 5*EAX
+        LEAL  3(%EAX,%EAX,2), %EBX    # EBX <- 3*EAX + 3
+\end{lstlisting}
+\end{integrazione}
+
+\begin{nota}[Curiosità]
+Cercare su Google \textbf{movfuscator}: un compilatore che traduce programmi C usando \emph{solo} istruzioni \texttt{MOV}.
+\end{nota}
+
+\vspace{1ex}
+\noindent In assembler scriviamo ``pezzi di codice piccini e indispensabili''.
+
+	\vspace{1.5cm}
+	\begin{center}
+		\rule{0.65\textwidth}{1pt} \\
+		\vspace{0.4cm}
+		\textcolor{titlecolor}{\LARGE \textbf{--- Fine Lezione 6 ---}} \\
+		\vspace{0.2cm}
+		\rule{0.65\textwidth}{1pt}
+	\end{center}
+	\newpage
+
+	\avviso{\textit{\textbf{Questa lezione, come le sue precedenti e successive, può contenere errori e/o imprecisioni. Per il bene di tutti, è buona norma far notare all'autore l'errore o l'imprecisione così da risolvere nel minor tempo possibile. I canali di comunicazione, per eventuali avvisi generali o di errori trovati negli appunti, sono in cima al file. Grazie per la collaborazione e Buono studio!}}}
+
+	\section*{Lezione 7 | 1 ottobre 2026}
+	\subsection*{Differenze tra processori a 32 e a 64 bit, Modifiche generali all'assembler, MOVABS, Moltiplicazioni, divisioni e altre istruzioni, Sistema fisico e modello, Definizione di rete logica, I limiti del modello, Le reti combinatorie, Reti combinatorie per numero di ingressi}
+
+\part{Assembler a 32 e a 64 bit}
+
+\subsubsection*{Differenze tra processori a 32 e a 64 bit}
+
+\begin{itemize}[leftmargin=*]
+  \item \textbf{32 bit}: tutti i registri sono a 32 bit.
+  \item \textbf{64 bit}: tutti i registri presentano il prefisso \texttt{R} (\texttt{RAX}, \texttt{RBX}, \ldots). Ci sono \textbf{8 registri in più}: da \texttt{R8} a \texttt{R15}.
+  \item Anche qui valgono i \textbf{suffissi}: permettono di gestire le parti più basse dei registri. Avere più registri comporta un \textbf{minore uso della pila}.
+\end{itemize}
+
+\begin{integrazione}[Integrazione: nomi dei registri a 64 bit]
+\begin{center}
+\begin{tabular}{c c c c}
+\textbf{64 bit} & \textbf{32 bit} & \textbf{16 bit} & \textbf{8 bit} \\ \hline
+\texttt{RAX} & \texttt{EAX} & \texttt{AX} & \texttt{AL} \\
+\texttt{RBX} & \texttt{EBX} & \texttt{BX} & \texttt{BL} \\
+\texttt{RCX} & \texttt{ECX} & \texttt{CX} & \texttt{CL} \\
+\texttt{RDX} & \texttt{EDX} & \texttt{DX} & \texttt{DL} \\
+\texttt{RSI} & \texttt{ESI} & \texttt{SI} & \texttt{SIL} \\
+\texttt{RDI} & \texttt{EDI} & \texttt{DI} & \texttt{DIL} \\
+\texttt{RBP} & \texttt{EBP} & \texttt{BP} & \texttt{BPL} \\
+\texttt{RSP} & \texttt{ESP} & \texttt{SP} & \texttt{SPL} \\
+\texttt{R8}--\texttt{R15} & \texttt{R8D}--\texttt{R15D} & \texttt{R8W}--\texttt{R15W} & \texttt{R8B}--\texttt{R15B} \\
+\end{tabular}
+\end{center}
+\end{integrazione}
+
+\paragraph*{Registri di stato}
+
+\begin{itemize}[leftmargin=*]
+  \item \texttt{RIP}: è come \texttt{EIP} nei 32 bit, ma a 64 bit;
+  \item \texttt{RFLAGS}: analogo a \texttt{EFLAGS}.
+\end{itemize}
+
+\paragraph*{Indirizzi in forma canonica}
+
+Sono indirizzabili \textbf{$2^{64}$ byte} in teoria; nella pratica se ne usano $2^{48}$ oppure $2^{57}$. I bit più significativi dell'indirizzo (quelli non usati) hanno lo \textbf{stesso valore dell'ultimo bit utilizzato} (il 48° oppure il 57°): questi si chiamano \textbf{indirizzi in forma canonica}.
+
+\begin{integrazione}
+È la stessa idea dell'estensione di segno: un indirizzo a 48 bit è esteso a 64 bit ripetendo il suo bit più significativo (il bit 47). Gli indirizzi non in forma canonica provocano un'eccezione.
+\end{integrazione}
+
+\subsubsection*{Modifiche generali all'assembler}
+
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Suffisso \texttt{Q}} (\emph{quad}): operandi a 64 bit, ad esempio \texttt{MOVQ}.
+  \item \textbf{Indirizzamenti di memoria}:
+  \begin{itemize}
+    \item scala: 1, 2, 4, 8;
+    \item base e indice: \textbf{64 bit};
+    \item displacement: continua a essere un numero a \textbf{32 bit} (\textbf{non esiste un displacement a 64 bit}).
+  \end{itemize}
+  \item \textbf{Non è possibile riferire operandi immediati a 64 bit}: non c'è posto nelle istruzioni. Lo stesso vale per il displacement.
+\end{itemize}
+
+\begin{integrazione}
+Altre differenze: \texttt{PUSH} e \texttt{POP} lavorano su 8 byte e usano \texttt{RSP}; \texttt{CALL} salva in pila un indirizzo di rientro a 8 byte; le istruzioni stringa usano \texttt{RSI} e \texttt{RDI}. Inoltre, \textbf{scrivere un registro a 32 bit azzera i 32 bit alti} del registro a 64 bit corrispondente (ad esempio \texttt{MOVL \$1, \%EAX} azzera la metà alta di \texttt{RAX}), mentre scrivere a 8 o 16 bit lascia invariati gli altri bit.
+\end{integrazione}
+
+\subsubsection*{MOVABS}
+
+\texttt{MOVABS} è un'istruzione che \textbf{consente di scrivere come operando sorgente o destinatario un numero a 64 bit}. Va bene sia con l'\textbf{indirizzamento immediato} sia con l'\textbf{indirizzamento con displacement} (con trasferimento a 8, 16 o 32 bit).
+
+Se usiamo solo \texttt{MOV}, l'assemblatore ``stampa un insulto'' (cioè dà errore) e si blocca.
+
+\begin{integrazione}[Integrazione: esempio]
+\begin{lstlisting}
+        MOVQ     $0x1122334455667788, %RAX    # ERRORE: immediato troppo grande
+        MOVABSQ  $0x1122334455667788, %RAX    # corretto
+\end{lstlisting}
+Nella forma con indirizzo a 64 bit (displacement) il dato passa sempre dall'accumulatore (\texttt{AL}, \texttt{AX}, \texttt{EAX} o \texttt{RAX}).
+\end{integrazione}
+
+\subsubsection*{Moltiplicazioni, divisioni e altre istruzioni}
+
+\begin{itemize}[leftmargin=*]
+  \item Si usa \texttt{RCX} al posto di \texttt{ECX} (ad esempio come contatore di \texttt{LOOP} e \texttt{REP}).
+  \item Nella divisione il dividendo è \texttt{RDX:RAX}, a \textbf{128 bit}.
+  \item Il \textbf{limite} nelle rotazioni e nelle traslazioni è \textbf{63}: del numero di posizioni si \textbf{buttano via i due bit più significativi}, cioè si tengono solo i 6 bit meno significativi.
+\end{itemize}
+
+\begin{integrazione}
+Il conteggio, di 8 bit (ad esempio in \texttt{CL}), viene ridotto modulo 64: a 32 bit si tengono 5 bit (modulo 32). Quindi \texttt{SHLQ \%CL, \%RAX} con $\texttt{CL}=65$ trasla di 1 posizione.
+\end{integrazione}
+
+\newpage
+\part{Hardware: le reti combinatorie}
+
+\begin{nota}
+Le dispense su questo argomento \textbf{vanno stampate}.
+\end{nota}
+
+\subsubsection*{Sistema fisico e modello}
+
+In un sistema fisico \textbf{vengono prese decisioni}. Il sistema fisico viene modellato attraverso un \textbf{modello astratto} che presenta una \textbf{variabile logica $W$} a cui associamo un valore tra 0 e 1 (un bit).
+
+\subsubsection*{Definizione di rete logica}
+
+Una \textbf{rete logica} è un \textbf{modello astratto} di un sistema fisico costituito da \textbf{dispositivi interconnessi}.
+
+\begin{itemize}[leftmargin=*]
+  \item Le informazioni sono \textbf{informazioni codificate} e rappresentano \textbf{fenomeni fisici distinti}.
+  \item A noi interessa la differenza tra \textbf{tensione alta} (1) e \textbf{tensione bassa} (0) (nel 95\% dei casi).
+  \item Non ci interessa l'\emph{interpretazione} delle variabili, ma le \textbf{meccaniche}.
+\end{itemize}
+
+\paragraph*{Come si caratterizza}
+
+Una rete logica si caratterizza attraverso:
+\begin{itemize}[leftmargin=*]
+  \item $N$ \textbf{variabili logiche di ingresso}: lo \textbf{stato di ingresso} all'istante $t$ è $X(t)=(x_1(t),\ldots,x_N(t))$;
+  \item $M$ \textbf{variabili logiche di uscita}: lo \textbf{stato di uscita} all'istante $t$ è $Z(t)=(z_1(t),\ldots,z_M(t))$.
+\end{itemize}
+
+\begin{integrazione}
+Nelle note originali le notazioni erano illeggibili (``$X * X$'', ``$Z * Z$''): le ho interpretate come $X(t)$ e $Z(t)$, cioè gli stati di ingresso e di uscita all'istante $t$.
+\end{integrazione}
+
+\paragraph*{Criteri di classificazione}
+
+\textbf{Dipendenza dallo stato di ingresso} (nelle note: ``stato di ingresso''):
+\begin{itemize}[leftmargin=*]
+  \item \textbf{combinatorie}: l'uscita dipende dallo stato di ingresso \textbf{attuale};
+  \item \textbf{sequenziali}: l'uscita dipende dalla \textbf{storia passata} degli stati di ingresso.
+\end{itemize}
+
+\textbf{Aggiornamento dello stato di uscita}:
+\begin{itemize}[leftmargin=*]
+  \item \textbf{asincrone}: l'aggiornamento delle uscite è operativo $\forall t$;
+  \item \textbf{sincronizzate}: l'aggiornamento avviene in determinati istanti, detti \textbf{istanti di sincronizzazione}. Hanno un \textbf{clock}.
+\end{itemize}
+
+Da questi criteri si ottengono tre classi:
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{reti combinatorie}: reti \textbf{asincrone e combinatorie};
+  \item \textbf{reti sequenziali asincrone};
+  \item \textbf{reti sequenziali sincronizzate}.
+\end{enumerate}
+
+\begin{integrazione}
+La quarta combinazione (combinatoria e sincronizzata) non viene considerata: una rete senza memoria non ha bisogno di un clock.
+\begin{center}
+\begin{tabular}{l c c}
+ & \textbf{Asincrona} & \textbf{Sincronizzata} \\ \hline
+\textbf{Combinatoria} & rete combinatoria & -- \\
+\textbf{Sequenziale} & sequenziale asincrona & sequenziale sincronizzata \\
+\end{tabular}
+\end{center}
+\end{integrazione}
+
+\subsubsection*{I limiti del modello}
+
+Un \textbf{modello} è un modo semplificato di descrivere ``qualcosa di complesso'': si trascura sempre qualcosa. Dobbiamo quindi \textbf{conoscere i limiti} del modello, per non dire cose assurde (cioè per non introdurre errori tramite la modellazione).
+
+\paragraph*{Transizione dei segnali}
+
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Settarsi}: transire a 1.
+  \item \textbf{Resettarsi}: transire a 0.
+\end{itemize}
+
+La grandezza fisica modellata dalla variabile logica sarà prima bassa e poi alta, passando per la \textbf{fascia di indeterminazione} durante la crescita (e può anche tornare indietro).
+
+Non si conosce l'\textbf{istante esatto in cui avviene un cambiamento}, ma si sa che avviene in un intervallo $\Delta t \ll \Delta T$. Non è un problema.
+
+\begin{integrazione}
+Qui $\Delta t$ è la durata della transizione e $\Delta T$ è il tempo che passa tra due cambiamenti successivi dello stato di ingresso: la transizione è molto più breve, quindi la possiamo trattare come istantanea.
+\end{integrazione}
+
+\paragraph*{Non contemporaneità}
+
+La \textbf{non contemporaneità} è un problema perché \textbf{non rappresenta la nostra interpretazione della rete}. Nel sistema reale la \textbf{contemporaneità fisica non esiste}: una variabile cambierà sempre prima di un'altra. Ci si aspetta che la rete reagisca in un modo o nell'altro, ma \textbf{non abbiamo controllo di ciò che accade ``nel mezzo''}.
+
+\begin{itemize}[leftmargin=*]
+  \item Nelle reti \textbf{sequenziali} diventa un problema \textbf{dal momento in cui succede in poi} (lo stato sbagliato può restare memorizzato).
+  \item Se la rete è \textbf{sincronizzata} (e ci si trova lontano dagli istanti in cui la rete ``si sveglia'') \textbf{non è assolutamente un problema}.
+\end{itemize}
+
+\begin{nota}[Regola]
+\textbf{Stati di ingresso consecutivi devono essere adiacenti}, cioè differire solo di un bit l'uno dall'altro.
+\end{nota}
+
+\begin{integrazione}
+Esempio: passando dall'ingresso \texttt{01} a \texttt{10} due bit cambiano ``insieme''; in realtà uno cambia prima dell'altro e la rete vede per un breve istante \texttt{00} oppure \texttt{11}, producendo un'uscita spuria. In una rete combinatoria è un transitorio innocuo se si aspetta che vada a regime; in una sequenziale può essere memorizzato.
+\end{integrazione}
+
+\subsubsection*{Le reti combinatorie}
+
+\begin{integrazione}[Caratterizzazione (mancante nelle note)]
+Una rete combinatoria ha $N$ ingressi e $M$ uscite e \textbf{non ha memoria}: lo stato di uscita all'istante $t$ dipende solo dallo stato di ingresso allo stesso istante,
+\[
+Z(t) = F\big(X(t)\big), \qquad F:\{0,1\}^N \to \{0,1\}^M .
+\]
+\end{integrazione}
+
+Ogni rete combinatoria è rappresentata da un \textbf{simbolo} e la usiamo come componente.
+
+\paragraph*{Tempo di accesso}
+
+Il \textbf{tempo di accesso} (o di attraversamento, o di risposta) è \textbf{piccolo ma non nullo} (ci sono effetti fisici che fanno perdere tempo). È scritto sulle ``scatole'' delle porte logiche e rappresenta un \textbf{tempo massimo}. Se non lo si attende, \textbf{succedono cose strane}.
+
+\begin{nota}[Regola]
+\textbf{Gli ingressi si cambiano quando la rete è andata a regime} e soprattutto \textbf{un bit alla volta}.
+\end{nota}
+
+\paragraph*{Descrizione di una rete combinatoria}
+
+La descrizione comprende:
+\begin{itemize}[leftmargin=*]
+  \item il \textbf{numero di ingressi};
+  \item il \textbf{numero di uscite};
+  \item una \textbf{descrizione funzionale}.
+\end{itemize}
+
+La si può dare in diversi modi:
+\begin{itemize}[leftmargin=*]
+  \item \textbf{a parole};
+  \item con \textbf{linguaggi} come \emph{Verilog};
+  \item con una \textbf{tabella di verità}: si elencano a sinistra tutti gli stati di ingresso, a destra lo stato di uscita $F(\text{IN}_1,\ldots,\text{IN}_K)$.
+\end{itemize}
+
+\subparagraph*{Il simbolo ``\texttt{-}'' (don't care)}
+
+Nelle uscite possiamo trovare anche ``\texttt{-}'': significa \textbf{non specificato}, cioè \emph{don't care}. Non significa che l'uscita sia nella fase di indeterminazione: significa che \textbf{non ci interessa se l'uscita è 0 o 1}.
+
+E allora perché le consideriamo? Perché sono libertà che possiamo sfruttare nella \textbf{sintesi}: potendo scegliere 0 o 1, si sceglie ciò che permette un \textbf{risparmio di porte}.
+
+\paragraph*{Descrizione e sintesi}
+
+\begin{itemize}[leftmargin=*]
+  \item La \textbf{descrizione} è il modo formale per specificare \textbf{cosa faccia} la rete (relazione ingresso--uscita).
+  \item La \textbf{sintesi} è il \textbf{progetto di realizzazione}: consiste nel \textbf{limitare il numero di porte}, perché ``costano, si rompono\ldots''.
+\end{itemize}
+
+Quindi dobbiamo fare \textbf{prima} la \textbf{descrizione} e \textbf{poi} la \textbf{sintesi}.
+
+\begin{integrazione}
+Nelle note questo passaggio era confuso: ho unito le frasi sui \emph{don't care} e sulla sintesi, intendendo che le uscite non specificate servono proprio a semplificare la sintesi.
+\end{integrazione}
+
+\paragraph*{Reti con più uscite}
+
+\begin{nota}[Importante]
+Non ha senso trattare reti combinatorie con più uscite, perché le si può pensare come un \textbf{insieme di reti combinatorie} che hanno tutti gli ingressi e \textbf{una sola uscita}. Trattiamo quindi \textbf{solo reti con una sola uscita}.
+\end{nota}
+
+\subsubsection*{Reti combinatorie per numero di ingressi}
+
+Con $n$ ingressi la tabella di verità ha $2^n$ righe, e il numero di reti diverse è $2^{2^n}$.
+
+\paragraph*{Zero ingressi (caso degenere)}
+
+Per generare \textbf{1} si attacca un filo all'\textbf{alimentazione}; altrimenti, per generare \textbf{0}, a \textbf{terra} (massa).
+
+\paragraph*{Un ingresso}
+
+Con $n=1$ ci sono $2^{2^1}=4$ reti:
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Invertitore} (NOT): ``il pallino'' sul simbolo significa \emph{inverti}.
+  \item \textbf{Elemento neutro} o \textbf{buffer}: serve a ``perdere tempo'' (introdurre un ritardo) o a \textbf{rigenerare i segnali elettrici}, nel caso in cui $x$ sia degradato da effetti indesiderati su un conduttore (ad esempio il \textbf{rumore}).
+  \item \textbf{Casi degeneri} (vedere dispense): $Z$ collegata all'alimentazione ($Z=1$) oppure a massa ($Z=0$). È un filo, non una rete.
+\end{itemize}
+
+\begin{nota}
+Quando una rete logica funziona, la tensione viene dall'\textbf{uscita} (della porta) e non dall'alimentazione. \emph{(Frase poco chiara nelle note: il senso è che la porta ``ricostruisce'' il segnale, come fa il buffer; verificare sulle dispense.)}
+\end{nota}
+
+\paragraph*{Due ingressi}
+
+Sono $2^{2^2}=\mathbf{16}$ \textbf{reti combinatorie diverse}; si marcano quelle con \textbf{nomi interessanti} (per vederle tutte, vedere le dispense).
+
+\begin{center}
+\begin{tabular}{c c | c c c c c c}
+$A$ & $B$ & AND & OR & NAND & NOR & XOR & XNOR \\ \hline
+0 & 0 & 0 & 0 & 1 & 1 & 0 & 1 \\
+0 & 1 & 0 & 1 & 1 & 0 & 1 & 0 \\
+1 & 0 & 0 & 1 & 1 & 0 & 1 & 0 \\
+1 & 1 & 1 & 1 & 0 & 0 & 0 & 1 \\
+\end{tabular}
+\end{center}
+
+\begin{integrazione}
+Delle 16 reti, 6 sono quelle sopra; le altre 10 sono: costante 0, costante 1, $A$, $B$, $\overline{A}$, $\overline{B}$, $A\overline{B}$, $\overline{A}B$, $A+\overline{B}$, $\overline{A}+B$. \texttt{XOR} vale 1 quando gli ingressi sono \emph{diversi}; \texttt{XNOR} è il suo complemento (vale 1 quando sono uguali).
+\end{integrazione}
+
+\begin{nota}
+Si scrive \textbf{XNOR}, \emph{non} NXOR.
+\end{nota}
+
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Qualunque cosa può essere fatta a forza di porte fatte così.}
+  \item È possibile \textbf{ampliare} \texttt{AND} e \texttt{OR} usando più ingressi: la \texttt{AND} a $N$ ingressi vale 1 se e solo se \emph{tutti} gli ingressi valgono 1; la \texttt{OR} vale 1 se \emph{almeno uno} vale 1.
+\end{itemize}
+
+\begin{integrazione}
+Un insieme di porte con cui si può realizzare qualunque rete combinatoria si dice \emph{completo}: ad esempio \{AND, OR, NOT\}. Anche la sola \texttt{NAND} (o la sola \texttt{NOR}) è completa.
+\end{integrazione}
+
+\begin{nota}[Consigli]
+Fare \textbf{sempre} la tabella di verità! Fare esercizi.
+\end{nota}
+
+	\vspace{1.5cm}
+	\begin{center}
+		\rule{0.65\textwidth}{1pt} \\
+		\vspace{0.4cm}
+		\textcolor{titlecolor}{\LARGE \textbf{--- Fine Lezione 7 ---}} \\
+		\vspace{0.2cm}
+		\rule{0.65\textwidth}{1pt}
+	\end{center}
+	\newpage
+
+	\avviso{\textit{\textbf{Questa lezione, come le sue precedenti e successive, può contenere errori e/o imprecisioni. Per il bene di tutti, è buona norma far notare all'autore l'errore o l'imprecisione così da risolvere nel minor tempo possibile. I canali di comunicazione, per eventuali avvisi generali o di errori trovati negli appunti, sono in cima al file. Grazie per la collaborazione e Buono studio!}}}
+
+	\section*{Lezione 8 | 2 ottobre 2026}
+	\subsection*{Il sottoprogramma \texttt{outline}, Compilazione ed esecuzione, Il debugger}
+
+\begin{nota}[All'esame]
+Le versioni \textbf{PDF delle esercitazioni} sono portabili all'esame: \textbf{solo quelle}, e solo se \textbf{non contengono esercizi svolti}.
+\end{nota}
+
+\subsubsection*{Il sottoprogramma \texttt{outline}}
+
+\texttt{outline} prende un \textbf{indirizzo $v$ in} \reg{EBX} e stampa i caratteri a partire da quell'indirizzo \textbf{finché non incontra un ritorno carrello} \texttt{"\textbackslash r"} (CR, codice \texttt{0x0D}). Useremo questo terminatore \textbf{per convenzione} e perché è lo stesso dell'esame.
+
+\begin{integrazione}
+Questo chiarisce le note della lezione del 30 settembre su \texttt{inline}/\texttt{outline}: il messaggio da stampare deve quindi \textbf{terminare con il carattere CR}, non con lo zero finale di \texttt{.asciz}.
+\begin{lstlisting}
+msg:    .ascii  "Ciao\r"
+
+        LEAL    msg, %EBX       # EBX = indirizzo del messaggio
+        CALL    outline         # stampa fino al ritorno carrello
+\end{lstlisting}
+\end{integrazione}
+
+\subsubsection*{Compilazione ed esecuzione}
+
+\begin{itemize}[leftmargin=*]
+  \item \textbf{File sorgente}: hanno estensione \texttt{.s} e contengono il codice.
+  \item \textbf{File eseguibili}: servono a \textbf{eseguire il codice assemblato}.
+\end{itemize}
+
+Per ottenere l'eseguibile si scrive:
+\begin{lstlisting}
+./assemble sorgente
+\end{lstlisting}
+
+\subsubsection*{Il debugger}
+
+Il \textbf{debugger} serve a \textbf{seguire e monitorare} il nostro programma, per vedere come funziona e per capire \textbf{perché non ha il comportamento che ci aspettiamo}, se qualcosa va storto. Permette di verificare lo \textbf{stato dei registri} e della \textbf{memoria}.
+
+Si chiama con:
+\begin{lstlisting}
+./debug.ps1 eseguibile
+\end{lstlisting}
+
+\paragraph*{Breakpoint}
+
+Bisogna \textbf{mettere dei breakpoint}: altrimenti il codice eseguirebbe tutto il programma senza fermarsi.
+
+\begin{integrazione}
+Si usa il comando \texttt{break} (abbreviato \texttt{b}), seguito da un'etichetta o da un indirizzo: ad esempio \texttt{break main}. Il programma parte con \texttt{run} (\texttt{r}) e si ferma al breakpoint. Per questo, come visto nella lezione del 29 settembre, conviene che la prima istruzione sia una \texttt{NOP}: ci si può fermare lì. Con \texttt{continue} (\texttt{c}) l'esecuzione riprende fino al breakpoint successivo.
+\end{integrazione}
+
+\paragraph*{Comandi principali}
+
+\begin{center}
+\begin{tabular}{l p{10cm}}
+\textbf{Comando} & \textbf{Effetto} \\ \hline
+\texttt{step} & fa passare all'\textbf{istruzione successiva} \\
+\texttt{info registers} & stampa lo \textbf{stato di tutti i registri} \\
+\texttt{info registers} \emph{nomi} & stampa \textbf{solo i registri indicati} (ad esempio \texttt{info registers ebx}) \\
+\texttt{x/NFU} \emph{indirizzo} & \textbf{esamina la memoria} (\emph{examine memory}) \\
+\end{tabular}
+\end{center}
+
+\begin{integrazione}
+I comandi sono quelli di GDB. Per programmi scritti in assembler, l'avanzamento \emph{istruzione per istruzione} si ottiene di solito con \texttt{stepi} (\texttt{si}), perché \texttt{step} ragiona per righe di un linguaggio ad alto livello; conviene provare quale dei due si comporta come atteso nell'ambiente dell'esercitazione.
+\end{integrazione}
+
+\paragraph*{Il comando \texttt{x}}
+
+\texttt{x} sta per \emph{examine memory}. Si scrive \texttt{x/NFU} seguito dall'indirizzo, dove:
+\begin{itemize}[leftmargin=*]
+  \item \textbf{N}: quanti elementi mostrare (un numero);
+  \item \textbf{F}: il \textbf{formato di interpretazione};
+  \item \textbf{U}: la \textbf{dimensione dell'elemento} (8, 16 o 32 bit).
+\end{itemize}
+
+\begin{integrazione}
+\begin{center}
+\begin{tabular}{c l @{\hspace{2cm}} c l}
+\multicolumn{2}{c}{\textbf{Formato (F)}} & \multicolumn{2}{c}{\textbf{Dimensione (U)}} \\ \hline
+\texttt{x} & esadecimale & \texttt{b} & byte (8 bit) \\
+\texttt{d} & decimale con segno & \texttt{h} & halfword (16 bit) \\
+\texttt{u} & decimale senza segno & \texttt{w} & word (32 bit) \\
+\texttt{t} & binario & \texttt{g} & giant (64 bit) \\
+\texttt{c} & carattere & & \\
+\texttt{s} & stringa & & \\
+\end{tabular}
+\end{center}
+\end{integrazione}
+
+\paragraph*{Esempio}
+
+Nell'esempio dell'esercitazione, \reg{EBX} contiene l'\textbf{indirizzo della prima locazione del messaggio}, e si usa $\texttt{NFU}=\texttt{1cb}$: cioè \textbf{1} elemento, formato \textbf{c} (carattere), dimensione \textbf{b} (byte).
+
+\begin{integrazione}[Integrazione: sessione tipo]
+\begin{lstlisting}
+./assemble esempio
+./debug.ps1 esempio
+(gdb) break main
+(gdb) run
+(gdb) stepi
+(gdb) info registers
+(gdb) info registers ebx
+(gdb) x/1cb $ebx          # primo carattere del messaggio
+(gdb) x/8cb $ebx          # primi 8 caratteri
+(gdb) x/s $ebx            # messaggio come stringa
+\end{lstlisting}
+Nei comandi di GDB i registri si scrivono con il prefisso \texttt{\$} (\texttt{\$ebx}), non con \texttt{\%}.
+\end{integrazione}
+
+	\vspace{1.5cm}
+	\begin{center}
+		\rule{0.65\textwidth}{1pt} \\
+		\vspace{0.4cm}
+		\textcolor{titlecolor}{\LARGE \textbf{--- Fine Lezione 8 ---}} \\
+		\vspace{0.2cm}
+		\rule{0.65\textwidth}{1pt}
+	\end{center}
+	\newpage
+
+\end{document}
