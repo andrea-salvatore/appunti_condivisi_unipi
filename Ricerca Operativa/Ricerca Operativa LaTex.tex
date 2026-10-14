@@ -3474,6 +3474,1562 @@
 	\avviso{\textit{\textbf{Questa lezione, come le sue precedenti e successive, può contenere errori e/o imprecisioni. Per il bene di tutti, è buona norma far notare all'autore l'errore o l'imprecisione così da risolvere nel minor tempo possibile. I canali di comunicazione, per eventuali avvisi generali o di errori trovati negli appunti, sono in cima al file. Grazie per la collaborazione e Buono studio!}}}
 	
 	\section*{Lezione 9 | 5 ottobre 2026}
-	\subsection*{}
+	\subsection*{L'algoritmo del Simplesso Primale (George Danztig)}
+	
+	Ipotizziamo di avere un poliedro in formato primale standard e una base $B$ che genera un vertice. Come abbiamo visto, la soluzione di base $\bar{x}$ si ottiene isolando la sottomatrice $A_B$ e calcolandone l'inversa: $\bar{x}_B = A_B^{-1} b_B$. Al contempo, il resto dei vincoli (quelli non di base) rispetta la disuguaglianza $b_N - A_N \bar{x} \geq 0$. 
+	
+	Da qui siamo in grado di costruire la soluzione duale complementare $\bar{y}$, sapendo che le variabili relative all'insieme non di base $N$ devono essere poste a zero. Avremo quindi:
+	\[
+	\bar{y} = \begin{pmatrix} \bar{y}_B \\ \bar{y}_N \end{pmatrix} = \begin{pmatrix} (A_B^T)^{-1} c \\ 0 \end{pmatrix}
+	\]
+	
+	\vspace{0.4cm}
+	\textbf{Quando e perché si utilizza l'Algoritmo del Simplesso?}\\
+	Il simplesso entra in gioco nel momento esatto in cui il Test di Ottimalità fallisce. Se la soluzione duale complementare $\bar{y}$ non è ammissibile (ovvero presenta almeno un valore negativo), significa che il vertice primale attuale non è l'ottimo. L'obiettivo diventa quindi \textbf{cambiare vertice}, spostandosi in modo intelligente verso uno migliore.
+	
+	Il simplesso ci permette di viaggiare sul perimetro del poliedro muovendoci \textbf{esclusivamente per vertici adiacenti}. 
+	Due vertici si dicono adiacenti se le loro basi ammissibili differiscono per \textbf{un solo indice}. 
+	Ad esempio, se un vertice è generato dalla base casuale $B = \{1, 2, 3\}$, il vertice adiacente potrebbe avere come base $B_{nuova} = \{1, 3, 4\}$ (l'indice $2$ è uscito dalla base, l'indice $4$ è entrato, mantenendo l'ammissibilità).
+	
+	A livello geometrico, il numero di vertici adiacenti a un dato vertice dipende dalla dimensione dello spazio in cui lavoriamo:
+	\begin{itemize}[label=\textcolor{titlecolor}{\Large\textbullet}, itemsep=2pt, leftmargin=1.5cm]
+		\item In $\mathbb{R}^2$, un vertice ha 2 vertici adiacenti.
+		\item In $\mathbb{R}^3$, un vertice ha 3 vertici adiacenti.
+		\item In $\mathbb{R}^{80}$, un vertice avrà 80 vertici adiacenti.
+	\end{itemize}
+	Generalizzando, in $\mathbb{R}^n$ (dove $n$ è il numero di variabili del problema primale), da ogni vertice partiranno esattamente $n$ spigoli verso altrettanti vertici adiacenti.
+	
+	\vspace{0.4cm}
+	\textbf{La Dinamica del Simplesso: Indice Uscente ($h$) e Indice Entrante ($k$)}\\
+	Essendo un cambio di base con la sostituzione di un solo elemento, l'algoritmo del simplesso primale si divide in due macro-fasi sequenziali:
+	\begin{enumerate}
+		\item Trovare l'indice che esce dalla base, che chiameremo \textbf{$h$}.
+		\item Trovare l'indice che entra nella base, che chiameremo \textbf{$k$}.
+	\end{enumerate}
+	
+	\vspace{0.3cm}
+	\textbf{1. La Scelta dell'Indice Uscente ($h$)}\\
+	Se tutte le componenti di $\bar{y}_B$ fossero $\geq 0$, sapremmo che in tutte le direzioni la funzione obiettivo "va giù" (o peggiora), confermando di essere all'ottimo. Ma poiché il test è fallito, esiste almeno un valore negativo. 
+	
+	L'indice uscente $h$ viene scelto identificando la variabile duale negativa. Se ce n'è più di una, la regola matematica impone di scegliere \textbf{il minimo indice di base associato a un valore negativo}:
+	\[
+	h = \min \{ i \in B \mid \bar{y}_i < 0 \}
+	\]
+	\textbf{Attenzione a non confondere il valore con l'indice.} Facciamo un esempio pratico. Ipotizziamo una soluzione duale complementare:
+	\[
+	\bar{y} = \begin{pmatrix} 0, & -1, & -3, & 0, & -4 \end{pmatrix}^T
+	\]
+	I valori negativi si trovano in posizione 2, 3 e 5. Nonostante il valore $-4$ sia numericamente il più piccolo, noi dobbiamo guardare \textit{l'indice di posizione}. Tra gli indici 2, 3 e 5, il più piccolo è il 2. Pertanto, l'indice uscente sarà $h = 2$.
+	
+	\begin{quote}
+		\textbf{Nota a margine (Anticipazione Lezione 6 Ottobre):} \\
+		\textit{Il motivo per cui non si sceglie il valore più negativo in assoluto, ma ci si affida rigidamente all'indice di posizione più piccolo, è dettato dalla \textbf{Regola Anticiclo di Bland}. Questa regola verrà affrontata in dettaglio nella prossima lezione ed è fondamentale per evitare che l'algoritmo entri in un loop infinito tra gli stessi vertici (fenomeno del ciclaggio).}
+	\end{quote}
+	
+	\vspace{0.4cm}
+	\textbf{L'Esplorazione della Semiretta e l'Andamento della Funzione Obiettivo}\\
+	Una volta individuato l'indice $h$ da abbandonare, dobbiamo muoverci lungo quello specifico spigolo del poliedro. Per farlo, definiamo una matrice delle direzioni, che chiameremo $W$. 
+	Nel simplesso primale, la matrice $W$ è data dall'inversa della sottomatrice di base \textbf{cambiata di segno} (opposta):
+	\[
+	W = -A_B^{-1}
+	\]
+	L'equazione della semiretta su cui ci andiamo a muovere per allontanarci dal vertice $\bar{x}$ è:
+	\[
+	x(\lambda) = \bar{x} + \lambda W_h
+	\]
+	Scrivere questa formula utilizzando $W_h$ (ad esempio, con $h=5$, $\lambda W_5$) significa matematicamente che stiamo abbandonando l'indice 5, ovvero ci stiamo allontanando dal vincolo associato a quell'indice per esplorare il poliedro in quella direzione, in funzione del passo $\lambda$.
+	
+	Ma come facciamo a sapere se, muovendoci lungo questa semiretta, il valore della nostra funzione obiettivo migliora? Dobbiamo valutare la funzione obiettivo $c^T x$ lungo la traiettoria:
+	\[
+	c^T x(\lambda) = c^T (\bar{x} + \lambda W_h) = c^T \bar{x} + \lambda (c^T W_h)
+	\]
+	In questa espressione:
+	\begin{itemize}[label=$\circ$, itemsep=2pt, leftmargin=1.5cm]
+		\item $c^T \bar{x}$ è il valore attuale che abbiamo sul vertice di partenza.
+		\item $c^T W_h$ rappresenta la \textit{variazione marginale} della funzione. È questo il termine che ci dice se, incrementando $\lambda$, la funzione obiettivo crescerà o meno.
+	\end{itemize}
+	
+	L'algoritmo del simplesso, pur essendo guidato dalla geometria, è puramente algebrico. Esso non esegue direttamente un "cambio di vertice", ma opera un \textbf{cambio di base}. Per questo motivo, una volta calcolato l'indice entrante $k$, è nostro dovere accertarci che la nuova base ottenuta sia strutturalmente ammissibile. Se la nuova base generata fosse inammissibile, significherebbe che siamo usciti dal poliedro e non ci troviamo su un vertice reale, fallendo il presupposto fondamentale dello spostamento per vertici adiacenti.
+	
+	\vspace{0.4cm}
+	\textbf{Sintesi dei Passaggi per Trovare l'Indice Uscente ($h$)}\\
+	Per riepilogare in modo schematico quanto detto finora, la procedura rigorosa per individuare l'indice che deve abbandonare la base si articola nei seguenti passaggi sequenziali:
+	
+	\begin{enumerate}
+		\item \textbf{Calcolo della Soluzione Duale:} Si determina la soluzione duale complementare associata alla base attuale, calcolando i valori di $\bar{y}_B$.
+		\item \textbf{Test di Ottimalità:} Si osservano i segni delle componenti ottenute. Se tutti i valori risultano $\geq 0$, l'algoritmo si ferma poiché il vertice attuale è già la soluzione ottima.
+		\item \textbf{Individuazione dei Valori Negativi:} Se il test di ottimalità fallisce, si isolano tutte le componenti di $\bar{y}_B$ che presentano un valore strettamente minore di zero.
+		\item \textbf{Applicazione della Regola di Bland (Scelta di $h$):} Tra tutti gli indici di base associati a tali valori negativi, si seleziona rigorosamente \textit{l'indice di posizione più piccolo} (ignorando quale sia il valore numerico più basso). Questo specifico indice prenderà il nome di $h$ e uscirà dalla base.
+	\end{enumerate}
+	
+	\vspace{0.6cm}
+	\textbf{2. La Scelta dell'Indice Entrante ($k$)}\\
+	Se l'indice uscente $h$ veniva individuato prelevando il più piccolo indice di $\bar{y}_B$ che conteneva un valore negativo (ricordando che, se non ne conteneva alcuno, significava che eravamo già all'ottimo del problema), il procedimento per trovare l'indice entrante $k$ ha una dinamica leggermente diversa e si basa sulla costruzione di una lista che chiameremo $\bar{\lambda}$ (lambda segnato).
+	
+	Per comporre questa lista, dobbiamo calcolare dei valori che chiameremo \textbf{rapporti}. Ogni rapporto verrà rappresentato con la lettera $r_i$, dove il pedice $i$ indica lo specifico indice non di base ($i \in N$) a cui si riferisce. La formula per calcolare ciascun rapporto è la seguente:
+	\[
+	r_i = \frac{b_i - A_i \bar{x}}{A_i W_h}
+	\]
+	dove:
+	\begin{itemize}[label=\textcolor{titlecolor}{\Large\textbullet}, itemsep=2pt, leftmargin=1.5cm]
+		\item $i$ rappresenta gli indici dell'insieme non di base $N$.
+		\item $h$ rappresenta l'indice uscente appena trovato.
+	\end{itemize}
+	
+	L'insieme dei risultati ottenuti da questa frazione andrà a formare la lista $\bar{\lambda}$. Per poter determinare chi entrerà nella base, dobbiamo imporre una condizione restrittiva fondamentale: all'interno di questa lista prenderemo in considerazione \textbf{esclusivamente i valori strettamente maggiori di zero} ($r_i > 0$).
+	
+	\vspace{0.4cm}
+	\textbf{Individuazione pratica di $k$:}\\
+	L'indice entrante $k$, ovvero colui che sostituirà l'indice uscente $h$ all'interno della nuova base $B$, si ottiene prelevando \textbf{l'indice più piccolo} che contiene un valore strettamente maggiore di zero all'interno dell'insieme $\bar{\lambda}$.
+	
+	Per chiarire questo meccanismo di selezione, ipotizziamo brevemente di aver calcolato i rapporti ordinati per indice e di aver ottenuto il seguente insieme $\bar{\lambda}$:
+	\[
+	\bar{\lambda} = (-1, \quad 2, \quad -4, \quad -5, \quad 3, \quad 2)
+	\]
+	Analizzando la lista, notiamo che i valori positivi si trovano in corrispondenza dell'indice 2 (che contiene il valore $2$), dell'indice 5 (che contiene il valore $3$) e dell'indice 6 (che contiene il valore $2$). 
+	
+	A questo punto, sappiamo che l'indice entrante sarà $\mathbf{k = 2}$, proprio perché l'indice 2 è il più piccolo a contenere (e quindi il primo della lista a mostrare) un valore positivo.
+	
+	\vspace{0.4cm}
+	\textbf{Disclaimer sull'Illimitatezza del Problema}\\
+	Attenzione a un dettaglio cruciale: se nella formula dei rapporti il denominatore risultasse minore o uguale a zero ($A_i W_h \leq 0$) per \textit{ogni} indice $i$ compreso nell'insieme non di base $N$, l'algoritmo deve interrompersi immediatamente. 
+	
+	Questo scenario indica che il valore della funzione obiettivo primale può crescere all'infinito ($+\infty$) lungo quella direzione senza mai violare i vincoli (il problema primale è illimitato). Di conseguenza, per le regole della dualità, questo certifica che il poliedro del problema duale associato è vuoto. 
+	Ecco spiegato il motivo esatto per cui, nella costruzione dell'insieme $\bar{\lambda}$, si devono prendere in considerazione \textbf{solo ed esclusivamente i rapporti con valore strettamente positivo}.
+	
+	\vspace{0.4cm}
+	\textbf{Sintesi dei Passaggi per Trovare l'Indice Entrante ($k$)}\\
+	Riepilogando brevemente la procedura per individuare il nuovo indice che andrà a comporre la base:
+	\begin{enumerate}
+		\item \textbf{Calcolo dei rapporti:} Per ogni indice non di base $i \in N$, si calcola il valore della frazione $r_i = \frac{b_i - A_i \bar{x}}{A_i W_h}$.
+		\item \textbf{Verifica di illimitatezza:} Se tutti i denominatori calcolati dovessero risultare $\leq 0$, l'algoritmo si ferma definitivamente (primale illimitato, duale vuoto).
+		\item \textbf{Selezione dei valori validi:} Si scartano i risultati nulli o negativi e si compone la lista $\bar{\lambda}$ inserendo unicamente i rapporti $r_i > 0$.
+		\item \textbf{Individuazione di $k$:} Si osserva la lista $\bar{\lambda}$ e si preleva \textit{l'indice più piccolo} del rapporto minore ottenuto. Se dovessero esserci più indici che contengono il valore del rapporto minore di tutta la lista, si preleva l'indice più piccolo tra questi.
+	\end{enumerate}
+	
+	\vspace{0.6cm}
+	\textbf{Esercizio Completo: Un'Iterazione del Simplesso Primale}\\
+	Per concludere la lezione, applichiamo l'intero algoritmo passo dopo passo su un nuovo modello matematico, seguendo esattamente le regole per l'indice uscente $h$ e l'indice entrante $k$.
+	
+	\textbf{1. Costruzione dei Modelli (Primale e Duale)}\\
+	Il problema primale di partenza è:
+	\[
+	\begin{cases}
+		\max \quad 2x_1 + 3x_2 \\[6pt]
+		4x_1 + 7x_2 \leq 22 \quad &\text{(Vincolo 1)} \\
+		6x_1 + 5x_2 \leq 23 \quad &\text{(Vincolo 2)} \\
+		-x_1 \leq 0 \quad &\text{(Vincolo 3)} \\
+		-x_2 \leq 0 \quad &\text{(Vincolo 4)}
+	\end{cases}
+	\]
+	Per poter applicare il test di ottimalità, gli affianchiamo il problema duale associato:
+	\[
+	\begin{cases}
+		\min \quad 22y_1 + 23y_2 + 0y_3 + 0y_4 \\[6pt]
+		4y_1 + 6y_2 - y_3 + 0y_4 = 2 \quad &\text{(Equazione colonna } x_1) \\
+		7y_1 + 5y_2 + 0y_3 - y_4 = 3 \quad &\text{(Equazione colonna } x_2) \\[6pt]
+		y_1, y_2, y_3, y_4 \geq 0
+	\end{cases}
+	\]
+	
+	\vspace{0.4cm}
+	\textbf{2. Prima Iterazione: Base Iniziale $B = \{3, 4\}$}\\
+	Il professore ci fornisce come punto di partenza la base $B = \{3, 4\}$. Risolvendo il sistema con questi vincoli attivati, otteniamo banalmente la soluzione primale nell'origine $\bar{x} = (0, 0)$, che rispetta tutti i vincoli ed è quindi ammissibile.
+	
+	\textit{Ricerca dell'indice uscente $h$:}\\
+	Calcoliamo la soluzione duale complementare $\bar{y}$. L'insieme non di base è $N = \{1, 2\}$, quindi poniamo subito a zero le rispettive variabili: $y_1 = 0, y_2 = 0$. Il sottosistema duale si riduce a:
+	\[
+	\begin{cases}
+		-y_3 = 2 \implies y_3 = -2 \\
+		-y_4 = 3 \implies y_4 = -3
+	\end{cases}
+	\]
+	Otteniamo $\bar{y} = (0, 0, -2, -3)^T$. La soluzione presenta valori negativi, dunque non siamo all'ottimo e dobbiamo attivare il simplesso. Gli indici con valore negativo sono il 3 e il 4; per la Regola di Bland (minimo indice), scegliamo come indice uscente $\mathbf{h = 3}$.
+	
+	\textit{Ricerca dell'indice entrante $k$:}\\
+	Calcoliamo la matrice delle direzioni $W = -A_B^{-1}$. La sottomatrice associata ai vincoli 3 e 4 è formata dai loro coefficienti tecnici:
+	\[
+	A_B = \begin{pmatrix} -1 & 0 \\ 0 & -1 \end{pmatrix} \implies A_B^{-1} = \begin{pmatrix} -1 & 0 \\ 0 & -1 \end{pmatrix} \implies W = -\begin{pmatrix} -1 & 0 \\ 0 & -1 \end{pmatrix} = \begin{pmatrix} 1 & 0 \\ 0 & 1 \end{pmatrix}
+	\]
+	Poiché l'indice uscente $h=3$ corrisponde alla \textit{prima} colonna della nostra base $B=\{3,4\}$, preleviamo esclusivamente la prima colonna della matrice $W$:
+	\[
+	W_3 = \begin{pmatrix} 1 \\ 0 \end{pmatrix}
+	\]
+	Ora calcoliamo i rapporti $r_i$ per gli indici non di base $i \in N = \{1, 2\}$, con la formula $r_i = \frac{b_i - A_i \bar{x}}{A_i W_3}$:
+	\begin{itemize}[label=$\circ$, itemsep=4pt, leftmargin=1.5cm]
+		\item \textbf{Per $i=1$:} Denominatore = $(4, 7) \cdot \begin{pmatrix} 1 \\ 0 \end{pmatrix} = 4$. Rapporto $\implies r_1 = \frac{22 - 0}{4} = \frac{22}{4} = 5.5$
+		\item \textbf{Per $i=2$:} Denominatore = $(6, 5) \cdot \begin{pmatrix} 1 \\ 0 \end{pmatrix} = 6$. Rapporto $\implies r_2 = \frac{23 - 0}{6} = \frac{23}{6} \approx 3.83$
+	\end{itemize}
+	Entrambi i rapporti sono $> 0$. Per trovare l'indice entrante $k$, dobbiamo prendere l'indice corrispondente al \textbf{rapporto numericamente più piccolo} (per non uscire dal poliedro). Poiché $\frac{23}{6} < \frac{22}{4}$, l'indice entrante è $\mathbf{k = 2}$.
+	
+	\vspace{0.4cm}
+	\textbf{3. Seconda Iterazione: Nuova Base $B = \{2, 4\}$}\\
+	L'indice 3 è uscito dalla base e il 2 vi è entrato. L'insieme non di base diventa $N = \{1, 3\}$.
+	
+	\textit{Aggiornamento di $\bar{x}$ e ricerca del nuovo indice uscente $h$:}\\
+	Mettendo a sistema i vincoli attivi della nuova base (vincoli 2 e 4):
+	\[
+	\begin{cases}
+		6x_1 + 5x_2 = 23 \\
+		-x_2 = 0 \implies x_2 = 0
+	\end{cases}
+	\implies 6x_1 = 23 \implies x_1 = \frac{23}{6}
+	\]
+	La nuova soluzione primale è $\bar{x} = \left(\frac{23}{6}, 0\right)$.
+	Calcoliamo la nuova $\bar{y}$ ponendo a zero l'insieme $N$ ($y_1 = 0, y_3 = 0$) nel sistema duale:
+	\[
+	\begin{cases}
+		6y_2 = 2 \implies \mathbf{y_2 = \frac{1}{3}} \\
+		5y_2 - y_4 = 3 \implies 5\left(\frac{1}{3}\right) - y_4 = 3 \implies -y_4 = 3 - \frac{5}{3} \implies \mathbf{y_4 = -\frac{4}{3}}
+	\end{cases}
+	\]
+	La nuova soluzione duale è $\bar{y} = (0, 1/3, 0, -4/3)^T$. 
+	Essendo ancora presente un valore negativo, il test di ottimalità fallisce di nuovo. L'unica componente negativa è $y_4$, quindi l'indice uscente è per forza $\mathbf{h = 4}$.
+	
+	\textit{Ricerca del nuovo indice entrante $k$:}\\
+	Costruiamo la sottomatrice $A_B$ con le righe 2 e 4 e ne ricaviamo la matrice $W$:
+	\[
+	A_B = \begin{pmatrix} 6 & 5 \\ 0 & -1 \end{pmatrix} \implies A_B^{-1} = \begin{pmatrix} 1/6 & 5/6 \\ 0 & -1 \end{pmatrix} \implies W = -A_B^{-1} = \begin{pmatrix} -1/6 & -5/6 \\ 0 & 1 \end{pmatrix}
+	\]
+	Poiché l'indice uscente $h=4$ corrisponde alla \textit{seconda} colonna della nostra base $B=\{2,4\}$, preleviamo la seconda colonna di $W$:
+	\[
+	W_4 = \begin{pmatrix} -5/6 \\ 1 \end{pmatrix}
+	\]
+	Calcoliamo i rapporti per $N = \{1, 3\}$ prestando massima attenzione all'algebra:
+	\begin{itemize}[label=$\circ$, itemsep=4pt, leftmargin=1.5cm]
+		\item \textbf{Per $i=1$:} \\ 
+		Numeratore = $22 - \left[4\left(\frac{23}{6}\right) + 7(0)\right] = 22 - \frac{92}{6} = \frac{132 - 92}{6} = \frac{40}{6}$ \\
+		Denominatore = $(4, 7) \cdot \begin{pmatrix} -5/6 \\ 1 \end{pmatrix} = -\frac{20}{6} + 7 = -\frac{20}{6} + \frac{42}{6} = \frac{22}{6}$ \\
+		$r_1 = \frac{40/6}{22/6} = \frac{40}{22} = \frac{20}{11} \approx 1.81$
+		
+		\item \textbf{Per $i=3$:} \\ 
+		Numeratore = $0 - \left[-1\left(\frac{23}{6}\right) + 0\right] = \frac{23}{6}$ \\
+		Denominatore = $(-1, 0) \cdot \begin{pmatrix} -5/6 \\ 1 \end{pmatrix} = \frac{5}{6}$ \\
+		$r_3 = \frac{23/6}{5/6} = \frac{23}{5} = 4.6$
+	\end{itemize}
+	Entrambi i denominatori sono validi ($>0$). Il rapporto numericamente più piccolo è $r_1$. Di conseguenza, il nuovo indice entrante sarà $\mathbf{k = 1}$. 
+	
+	Con questo calcolo si ottiene la nuova base $B = \{1, 2\}$, completando l'iterazione e chiudendo ufficialmente la lezione.
+	
+	\vspace{1.5cm}
+	\begin{center}
+		\rule{0.65\textwidth}{1pt} \\
+		\vspace{0.4cm}
+		\textcolor{titlecolor}{\LARGE \textbf{--- Fine Lezione 9 ---}} \\
+		\vspace{0.2cm}
+		\rule{0.65\textwidth}{1pt}
+	\end{center}
+	\newpage
+	
+	\avviso{\textit{\textbf{Questa lezione, come le sue precedenti e successive, può contenere errori e/o imprecisioni. Per il bene di tutti, è buona norma far notare all'autore l'errore o l'imprecisione così da risolvere nel minor tempo possibile. I canali di comunicazione, per eventuali avvisi generali o di errori trovati negli appunti, sono in cima al file. Grazie per la collaborazione e Buono studio!}}}
+	
+	\section*{Lezione 10 | 6 ottobre 2026}
+	\subsection*{L'algoritmo del Simplesso Duale e la Regola Anticiclo di Bland}
+	
+	\vspace{0.6cm}
+	\textbf{Esercizio: Avvio del Simplesso Primale}\\
+	Iniziamo la nuova lezione con un esercizio completo. Il professore ci fornisce un modello in formato primale standard e una base iniziale da cui partire.
+	
+	\textit{Nota dell'autore: Per garantire la coerenza matematica dell'esercizio e far quadrare i risultati dettati, ho corretto due piccoli refusi nei coefficienti del modello: il quinto vincolo è stato trascritto come $-2x_1 + x_2 \leq -8$ (necessario per ottenere la matrice $W$ corretta) e il termine noto del secondo vincolo è stato rettificato a $-18$ (per garantire l'ammissibilità del primale).}
+	
+	Il modello primale standard corretto è:
+	\[
+	\begin{cases}
+		\max \quad 6x_1 - x_2 \\[6pt]
+		8x_1 - x_2 \leq 40 \quad &\text{(Vincolo 1)} \\
+		-x_1 + 3x_2 \leq -18 \quad &\text{(Vincolo 2)} \\
+		-x_2 \leq 8 \quad &\text{(Vincolo 3)} \\
+		-2x_1 - x_2 \leq 4 \quad &\text{(Vincolo 4)} \\
+		-2x_1 + x_2 \leq -8 \quad &\text{(Vincolo 5)} \\
+		-x_1 \leq 0 \quad &\text{(Vincolo 6)} 
+	\end{cases}
+	\]
+	La base fornita è $B = \{4, 5\}$. L'insieme non di base è quindi $N = \{1, 2, 3, 6\}$.
+	
+	\vspace{0.4cm}
+	\textbf{Regola di Selezione dell'Algoritmo (Primale o Duale?)}\\
+	Prima di procedere, il professore formalizza una regola aurea per capire in quale casistica ci troviamo:
+	\begin{itemize}[label=\textcolor{titlecolor}{\Large\textbullet}, itemsep=2pt, leftmargin=1.5cm]
+		\item Se la soluzione primale $\bar{x}$ è ammissibile, ma la duale complementare $\bar{y}$ \textbf{non è ammissibile}, si procede con l'\textbf{Algoritmo del Simplesso Primale}.
+		\item Se la soluzione duale $\bar{y}$ è ammissibile, ma la primale complementare $\bar{x}$ \textbf{non è ammissibile}, si procederà con l'\textbf{Algoritmo del Simplesso Duale} (che vedremo in seguito).
+	\end{itemize}
+	
+	\vspace{0.4cm}
+	\textbf{1. Controllo di Ammissibilità Primale}\\
+	Mettiamo a sistema i vincoli attivi della base $B$:
+	\[
+	\begin{cases}
+		-2x_1 - x_2 = 4 \\
+		-2x_1 + x_2 = -8
+	\end{cases}
+	\]
+	Sommando le due equazioni otteniamo $-4x_1 = -4 \implies \mathbf{x_1 = 1}$. \\
+	Sostituendo $x_1$ nella seconda: $-2(1) + x_2 = -8 \implies x_2 = -8 + 2 \implies \mathbf{x_2 = -6}$.\\
+	La soluzione di base primale è $\bar{x} = (1, -6)$. 
+	
+	Verifichiamo se è ammissibile inserendola nei vincoli dell'insieme $N$:
+	\begin{itemize}[label=$\circ$, itemsep=2pt, leftmargin=1.5cm]
+		\item \textit{Vincolo 1:} $8(1) - (-6) = 14 \leq 40 \quad \text{(Vero)}$
+		\item \textit{Vincolo 2:} $-(1) + 3(-6) = -19 \leq -18 \quad \text{(Vero)}$
+		\item \textit{Vincolo 3:} $-(-6) = 6 \leq 8 \quad \text{(Vero)}$
+		\item \textit{Vincolo 6:} $-(1) = -1 \leq 0 \quad \text{(Vero)}$
+	\end{itemize}
+	Tutti i vincoli sono rispettati. La base primale \textbf{è ammissibile}.
+	
+	\vspace{0.4cm}
+	\textbf{2. Calcolo della Duale Complementare (Test di Ottimalità)}\\
+	Costruiamo il sottosistema per trovare $\bar{y}_B$, associato ai costi $c = (6, -1)^T$. Poiché $N = \{1, 2, 3, 6\}$, poniamo $y_1, y_2, y_3, y_6 = 0$. Il sistema per l'insieme di base $B=\{4,5\}$ richiede le righe trasposte della sottomatrice $A_B$:
+	\[
+	A_B = \begin{pmatrix} -2 & -1 \\ -2 & 1 \end{pmatrix} \implies A_B^T = \begin{pmatrix} -2 & -2 \\ -1 & 1 \end{pmatrix}
+	\]
+	Il sistema diventa:
+	\[
+	\begin{cases}
+		-2y_4 - 2y_5 = 6 \\
+		-y_4 + y_5 = -1 \implies y_5 = y_4 - 1
+	\end{cases}
+	\]
+	Sostituendo la seconda nella prima:
+	\[
+	-2y_4 - 2(y_4 - 1) = 6 \implies -4y_4 + 2 = 6 \implies -4y_4 = 4 \implies \mathbf{y_4 = -1}
+	\]
+	\[
+	y_5 = -1 - 1 \implies \mathbf{y_5 = -2}
+	\]
+	L'assegnamento duale totale è $\bar{y} = (0, 0, 0, -1, -2, 0)^T$. \\
+	Poiché la soluzione presenta valori negativi, la base duale \textbf{non è ammissibile}. Il test fallisce: non siamo all'ottimo e, in virtù della regola precedente, avviamo il \textbf{Simplesso Primale}.
+	
+	\vspace{0.4cm}
+	\textbf{3. Ricerca dell'Indice Uscente ($h$)}\\
+	Guardiamo i valori negativi di $\bar{y}_B$: si trovano negli indici 4 e 5. 
+	Per la regola del minimo indice (Bland), preleviamo quello di posizione più piccola. L'indice uscente è:
+	\[
+	\mathbf{h = 4}
+	\]
+	
+	\vspace{0.4cm}
+	\textbf{4. Ricerca dell'Indice Entrante ($k$)}\\
+	Calcoliamo la matrice delle direzioni $W = -A_B^{-1}$:
+	\[
+	A_B^{-1} = \frac{1}{(-2)(1) - (-1)(-2)} \begin{pmatrix} 1 & 1 \\ 2 & -2 \end{pmatrix} = \frac{1}{-4} \begin{pmatrix} 1 & 1 \\ 2 & -2 \end{pmatrix} = \begin{pmatrix} -1/4 & -1/4 \\ -1/2 & 1/2 \end{pmatrix}
+	\]
+	\[
+	W = -A_B^{-1} = \begin{pmatrix} 1/4 & 1/4 \\ 1/2 & -1/2 \end{pmatrix}
+	\]
+	L'indice uscente $h=4$ corrisponde alla \textbf{prima colonna} della nostra base $B=\{4,5\}$. Preleviamo quindi il vettore colonna $W_4 = \begin{pmatrix} 1/4 \\ 1/2 \end{pmatrix}$.
+	
+	Procediamo con il calcolo dei rapporti $r_i$ per l'insieme non di base $N = \{1, 2, 3, 6\}$:
+	\begin{itemize}[label=$\circ$, itemsep=4pt, leftmargin=1.5cm]
+		\item \textbf{Per $i=1$:} $A_1 = (8, -1)$.\\
+		Denom: $A_1 W_4 = 8(1/4) - 1(1/2) = 2 - 0.5 = 1.5 = 3/2$.\\
+		Num: $40 - (14) = 26$.\\
+		Rapporto: $\mathbf{r_1} = \frac{26}{3/2} = \frac{52}{3} \approx \textbf{17.33}$
+		
+		\item \textbf{Per $i=2$:} $A_2 = (-1, 3)$.\\
+		Denom: $A_2 W_4 = -1(1/4) + 3(1/2) = -1/4 + 6/4 = 5/4$.\\
+		Num: $-18 - (-19) = 1$.\\
+		Rapporto: $\mathbf{r_2} = \frac{1}{5/4} = \frac{4}{5} = \textbf{0.8}$
+		
+		\item \textbf{Per $i=3$:} $A_3 = (0, -1)$.\\
+		Denom: $A_3 W_4 = 0(1/4) - 1(1/2) = -1/2 \quad \text{\textcolor{red}{\textbf{(Negativo: Si scarta)}}}$.
+		
+		\item \textbf{Per $i=6$:} $A_6 = (-1, 0)$.\\
+		Denom: $A_6 W_4 = -1(1/4) + 0(1/2) = -1/4 \quad \text{\textcolor{red}{\textbf{(Negativo: Si scarta)}}}$.
+	\end{itemize}
+	
+	L'insieme dei rapporti validi è $\bar{\lambda} = \{17.33, \quad 0.8\}$. \\
+	Il rapporto numericamente più piccolo è quello corrispondente all'indice 2. Pertanto, l'indice entrante è:
+	\[
+	\mathbf{k = 2}
+	\]
+	L'iterazione si ferma qui. La nuova base con cui si procederebbe al calcolo successivo è $B_{nuova} = \{2, 5\}$.
+	
+	\vspace{0.6cm}
+	\textbf{La Regola Anticiclo di Bland}\\
+	A questo punto del corso è finalmente giunto il momento di formalizzare una regola cruciale per la tenuta matematica dell'algoritmo, già anticipata e applicata tacitamente nelle lezioni precedenti: la \textbf{Regola Anticiclo di Bland}.
+	
+	Questa regola è di importanza fondamentale perché garantisce concretamente che l'Algoritmo del Simplesso si concluda sempre in un \textbf{numero finito di passi}. Senza di essa, in presenza di soluzioni degeneri, l'algoritmo rischierebbe di entrare in un loop infinito (il cosiddetto "ciclaggio"), continuando a saltare ciclicamente tra le stesse basi senza mai progredire verso l'ottimo.
+	
+	\vspace{0.4cm}
+	\textbf{L'enunciato pratico della regola}\\
+	La regola di Bland interviene nel momento esatto in cui dobbiamo scegliere l'indice uscente $h$ dal vettore della soluzione duale complementare $\bar{y}$.
+	Se all'interno di $\bar{y}$ sono presenti \textit{parecchi valori negativi}, la regola impone di scegliere in modo rigido e inderogabile \textbf{il primo indice} che contiene un valore negativo.
+	
+	Operativamente, questo significa che si deve scorrere il vettore $\bar{y}$ partendo dal primo indice in assoluto ($y_1$) e procedendo in ordine crescente. Il primo valore negativo che si incontra determinerà l'indice uscente. In altre parole, si sceglie sempre l'indice numericamente più piccolo tra i candidati disponibili.
+	
+	\vspace{0.4cm}
+	\textbf{Applicazione all'esercizio precedente}\\
+	Questa spiegazione teorica chiarisce definitivamente le scelte operative fatte in precedenza. Nell'ultimo esercizio avevamo ottenuto la seguente soluzione duale:
+	\[
+	\bar{y} = \begin{pmatrix} 0, & 0, & 0, & \mathbf{-1}, & -2, & 0 \end{pmatrix}^T
+	\]
+	Come possiamo notare, i valori negativi si trovavano in corrispondenza dell'indice 4 e dell'indice 5. Muovendoci all'interno del vettore $\bar{y}$ a partire dal primo fino all'ultimo indice, il primo valore negativo che abbiamo incontrato lungo il percorso è stato il $-1$, situato esattamente all'indice 4. 
+	
+	Il motivo per cui è stato scelto come indice uscente $h = 4$ (ignorando del tutto il fatto che il valore $-2$ fosse più negativo) è dettato puramente e semplicemente dalla rigida applicazione della Regola di Bland.
+	
+	\vspace{0.6cm}
+	\textbf{Introduzione all'Algoritmo del Simplesso Duale}\\
+	Arrivati a questo punto, il professore introduce ufficialmente l'argomento del \textbf{Simplesso Duale}. Per inquadrare esattamente quando e perché si utilizza questo nuovo strumento, ci fornisce uno specchietto riepilogativo (in parte già anticipato) che classifica le quattro casistiche fondamentali incrociando l'ammissibilità della soluzione primale $\bar{x}$ e della sua duale complementare $\bar{y}$:
+	
+	\begin{itemize}[label=\textcolor{titlecolor}{\Large\textbullet}, itemsep=6pt, leftmargin=1.5cm]
+		\item \textbf{$\bar{x}$ ammissibile e $\bar{y}$ ammissibile:} Abbiamo raggiunto l'obiettivo. Come già sappiamo, il Teorema della Dualità Forte ci assicura che ci troviamo all'\textbf{Ottimo}.
+		
+		\item \textbf{$\bar{x}$ ammissibile e $\bar{y}$ non ammissibile:} Ci troviamo in un vertice valido del primale, ma il test di ottimalità fallisce. Dobbiamo cambiare vertice esplorando il poliedro originario tramite l'\textbf{Algoritmo del Simplesso Primale}.
+		
+		\item \textbf{$\bar{x}$ non ammissibile e $\bar{y}$ non ammissibile:} Questa è la casistica peggiore. È una base totalmente errata da cui non possiamo avviare alcuna esplorazione (una casistica che il professore etichetta in maniera molto colorita come "una soluzione di m****"). La base va semplicemente scartata.
+		
+		\item \textbf{$\bar{x}$ non ammissibile e $\bar{y}$ ammissibile:} È lo scenario che dà il via a questo nuovo capitolo. Avendo un vertice valido nel duale ma un assegnamento primale che vìola i vincoli, dobbiamo obbligatoriamente procedere utilizzando l'\textbf{Algoritmo del Simplesso Duale}.
+	\end{itemize}
+	
+	\vspace{0.6cm}
+	\textbf{L'Algoritmo del Simplesso Duale: Principi Fondamentali}\\
+	Partiamo col definire la differenza procedurale più importante rispetto a quanto visto finora: all'interno del Simplesso Duale, l'ordine delle operazioni si inverte. \textbf{Si cerca prima l'indice entrante $k$, e soltanto dopo l'indice uscente $h$}.
+	
+	Essendo nel contesto del simplesso duale, sappiamo che il modello di partenza su cui operiamo è in formato duale standard:
+	\[
+	\begin{cases}
+		\min \quad b^T y \\[6pt]
+		A^T y = c \\
+		y \geq 0
+	\end{cases}
+	\]
+	
+	\vspace{0.4cm}
+	\textbf{La Logica dell'Algoritmo}\\
+	Come anticipato, la differenza sostanziale tra il simplesso primale e quello duale risiede nel modo in cui gestiscono l'ammissibilità durante le iterazioni:
+	\begin{itemize}[label=\textcolor{titlecolor}{\Large\textbullet}, itemsep=2pt, leftmargin=1.5cm]
+		\item Ad ogni passo, l'algoritmo \textbf{mantiene rigorosamente ammissibile la soluzione duale} $\bar{y}$.
+		\item L'obiettivo dell'iterazione è \textbf{controllare e correggere l'ammissibilità della soluzione primale} $\bar{x}$.
+	\end{itemize}
+	Il motivo di questa strategia è lampante: nel momento in cui, passo dopo passo, la soluzione di base primale $\bar{x}$ diventerà finalmente ammissibile (rispettando tutti i suoi vincoli), sapendo che la duale lo è già, il teorema della dualità forte ci garantirà di aver trovato la \textbf{coppia di soluzioni ottime}.
+	
+	\vspace{0.4cm}
+	\textbf{1. La Scelta dell'Indice Entrante ($k$)}\\
+	Mentre nel simplesso primale cercavamo un componente negativo nel vettore $\bar{y}$, qui stiamo facendo un controllo di ottimalità basato sull'ammissibilità del primale. 
+	Di conseguenza, l'indice entrante $k$ (che fa parte degli indici non di base, $k \in N$) si individua prelevando semplicemente \textbf{il primo indice di riga della matrice $A$ che non viene rispettato} dalla soluzione primale attuale. In altre parole, si cerca il primo vincolo primale violato. Questo è l'esatto analogo logico della ricerca del valore negativo nel simplesso primale.
+	
+	\vspace{0.4cm}
+	\textbf{2. La Scelta dell'Indice Uscente ($h$) tramite i Rapporti}\\
+	Una volta trovato l'indice entrante $k$, dobbiamo capire chi uscirà dalla base. Anche nel simplesso duale ricorriamo ai prodotti scalari e al calcolo dei rapporti, ma con formule e regole di selezione capovolte.
+	
+	La lista dei rapporti $r_i$ viene costruita valutando gli indici che attualmente si trovano in base ($i \in B$). La formula per calcolarli è:
+	\[
+	r_i = \frac{-\bar{y}_i}{A_k W_i}
+	\]
+	Dove:
+	\begin{itemize}[label=$\circ$, itemsep=2pt, leftmargin=1.5cm]
+		\item $-\bar{y}_i$ è la componente della soluzione duale cambiata di segno.
+		\item $A_k$ rappresenta la riga corrispondente al vincolo violato (l'indice $k$).
+		\item $W_i$ rappresenta la colonna $i$-esima della matrice delle direzioni $W$ (con $W \in \mathbb{R}^{n \times m}$). Il denominatore è quindi il prodotto vettoriale tra la riga $A_k$ e la colonna $W_i$.
+	\end{itemize}
+	
+	\textbf{Regola di selezione dei rapporti e Illimitatezza:}\\
+	Nel simplesso primale scartavamo i rapporti negativi, prestando attenzione a quando tutti i denominatori erano $\leq 0$ (che indicava un problema che tendeva a $+\infty$). 
+	Qui avviene \textbf{esattamente il contrario}:
+	\begin{itemize}
+		\item Si prendono in considerazione \textbf{solo ed esclusivamente i rapporti scalari negativi} ($r_i < 0$), scartando categoricamente quelli positivi.
+		\item Se durante il calcolo si scopre che \textbf{tutti gli scalari (i denominatori) sono positivi}, l'algoritmo si ferma. Questo indica che la funzione obiettivo del problema duale va verso $-\infty$ (il che si verifica geometricamente quando una delle componenti di $\bar{y}_B$ è pari a zero).
+	\end{itemize}
+	
+	Se esistono invece rapporti validi (negativi), si analizzerà la lista calcolata e il prescelto per uscire dalla base diventerà ufficialmente l'indice \textbf{$h$}.
+	
+	\vspace{0.6cm}
+	\textbf{Disclaimer Fondamentale: La Vera Applicazione della Regola di Bland}\\
+	Per evitare di fare confusione durante l'esecuzione degli algoritmi, è essenziale chiarire un dettaglio tecnico fondamentale su \textit{quando} e \textit{come} interviene esattamente la Regola Anticiclo di Bland nei due simplessi. 
+	
+	L'applicazione della regola cambia drasticamente se ci troviamo nel primo step (ricerca diretta del candidato) o nel secondo step (ricerca tramite i rapporti) dell'iterazione.
+	
+	\vspace{0.3cm}
+	\textbf{1. Il Primo Step: Bland come Criterio Primario}\\
+	Nel primo passaggio di entrambi gli algoritmi, la Regola di Bland determina direttamente la scelta finale.
+	\begin{itemize}[label=\textcolor{titlecolor}{\Large\textbullet}, itemsep=2pt, leftmargin=1.5cm]
+		\item \textbf{Nel Simplesso Primale (ricerca di $h$):} Tra tutti gli indici che presentano un valore negativo nella soluzione duale $\bar{y}_B$, si seleziona banalmente l'indice più piccolo.
+		\item \textbf{Nel Simplesso Duale (ricerca di $k$):} Tra tutti gli indici di riga che corrispondono a un vincolo primale non rispettato, si seleziona banalmente l'indice più piccolo.
+	\end{itemize}
+	
+	\vspace{0.3cm}
+	\textbf{2. Il Secondo Step (I Rapporti): Bland come Criterio di Spareggio}\\
+	Quando si passa al calcolo dei rapporti (che servono a trovare l'indice entrante nel primale e l'indice uscente nel duale), il criterio di scelta principale \textbf{non è Bland}, ma il valore numerico del rapporto. In questa fase, la Regola di Bland si applica \textbf{solo ed esclusivamente in caso di parità} (ovvero se ci sono due o più indici che restituiscono esattamente lo stesso rapporto vincente).
+	
+	\begin{itemize}[label=\textcolor{titlecolor}{\Large\textbullet}, itemsep=4pt, leftmargin=1.5cm]
+		\item \textbf{Nel Simplesso Primale (ricerca di $k$ tramite rapporti $> 0$):} 
+		Tra tutti i rapporti strettamente positivi, si deve scegliere il rapporto numericamente \textit{più piccolo} (cioè il valore maggiore di zero che più si avvicina a zero). \\
+		\textit{Intervento di Bland:} Se e solo se ci sono più indici che presentano lo stesso identico valore numerico minimo, si applica Bland e si sceglie l'indice più piccolo tra quelli in parità.
+		
+		\item \textbf{Nel Simplesso Duale (ricerca di $h$ tramite rapporti $< 0$):} 
+		Tra tutti i rapporti strettamente negativi (scartando quelli $\geq 0$), si deve scegliere il rapporto numericamente \textit{più grande} (cioè il valore negativo che più si avvicina a zero, ad esempio $-0.5$ vince su $-3$). \\
+		\textit{Intervento di Bland:} Anche qui, se e solo se ci sono più indici che presentano lo stesso identico valore numerico massimo (più vicino a zero), si applica Bland scegliendo l'indice più piccolo tra i candidati in pareggio.
+	\end{itemize}
+	
+	\vspace{0.1cm}
+	\begin{quote}
+		\textit{\textbf{Nota dell'autore:} Questo chiarimento si è reso strettamente necessario perché io stesso ho riscontrato non poche difficoltà nel comprendere l'esatta meccanica di questa regola. A lezione si è parlato molto della Regola di Bland, ma spesso in termini generali, tralasciando di specificare in quali esatti frangenti essa fungesse da criterio primario e in quali fungesse da semplice "spareggio" nei calcoli dei rapporti. Questa precisazione fuga definitivamente ogni dubbio operativo su entrambi i simplessi.}
+	\end{quote}
+	
+	\vspace{0.6cm}
+	\textbf{Esercizio Pratico: Algoritmo del Simplesso Duale}\\
+	Il professore ci propone un nuovo esercizio partendo direttamente da un modello in formato duale standard. 
+	
+	\textbf{1. Costruzione dei Modelli (Duale e Primale)}\\
+	Il problema duale fornito è:
+	\[
+	\textbf{Duale (D)} \implies
+	\begin{cases}
+		\min \quad 2y_3 + 7y_4 + 5y_5 \\[6pt]
+		-3y_1 - y_3 - y_4 + y_5 - y_6 = -5 \quad &\text{(Vincolo riga 1)} \\
+		y_1 + y_2 + y_3 + 2y_4 = 6 \quad &\text{(Vincolo riga 2)} \\[6pt]
+		y_1, y_2, y_3, y_4, y_5, y_6 \geq 0
+	\end{cases}
+	\]
+	
+	Ricaviamo il suo Primale complementare trasponendo la matrice e scambiando vettori dei costi e termini noti. Poiché ci sono 6 variabili duali, avremo 6 vincoli primali; avendo 2 equazioni duali, avremo 2 variabili decisionali primali ($x_1, x_2$).
+	\[
+	\textbf{Primale (P)} \implies
+	\begin{cases}
+		\max \quad -5x_1 + 6x_2 \\[6pt]
+		-3x_1 + x_2 \leq 0 \quad &\text{(Vincolo 1)} \\
+		x_2 \leq 0 \quad &\text{(Vincolo 2)} \\
+		-x_1 + x_2 \leq 2 \quad &\text{(Vincolo 3)} \\
+		-x_1 + 2x_2 \leq 7 \quad &\text{(Vincolo 4)} \\
+		x_1 \leq 5 \quad &\text{(Vincolo 5)} \\
+		-x_1 \leq 0 \quad &\text{(Vincolo 6)}
+	\end{cases}
+	\]
+	
+	\vspace{0.4cm}
+	\textbf{2. Prima Iterazione: Base $B = \{4, 6\}$}\\
+	Il professore ci fornisce la base iniziale $B = \{4, 6\}$. Le variabili non di base sono $N = \{1, 2, 3, 5\}$ e vengono poste a zero.
+	
+	\textit{Calcolo della Soluzione Duale ($\bar{y}$):}\\
+	Estraiamo il sottosistema per $y_4$ e $y_6$:
+	\[
+	\begin{cases}
+		-y_4 - y_6 = -5 \\
+		2y_4 = 6 \implies \mathbf{y_4 = 3}
+	\end{cases}
+	\]
+	Sostituendo $y_4$ nella prima: $-3 - y_6 = -5 \implies -y_6 = -2 \implies \mathbf{y_6 = 2}$.\\
+	Otteniamo $\bar{y} = (0, 0, 0, 3, 0, 2)^T$. Poiché tutti i valori sono $\geq 0$, \textbf{la base duale è ammissibile}.
+	
+	\textit{Calcolo della Soluzione Primale Complementare ($\bar{x}$) e Ammissibilità:}\\
+	Estraiamo i vincoli primali 4 e 6 forzandoli all'uguaglianza:
+	\[
+	\begin{cases}
+		-x_1 + 2x_2 = 7 \quad &\text{(Vincolo 4)} \\
+		-x_1 = 0 \implies \mathbf{x_1 = 0} \quad &\text{(Vincolo 6)}
+	\end{cases}
+	\]
+	Sostituendo $x_1$: $0 + 2x_2 = 7 \implies \mathbf{x_2 = 7/2}$.\\
+	Otteniamo $\bar{x} = (0, 7/2)$. Controlliamo ora l'ammissibilità inserendo il punto nei vincoli non di base:
+	\begin{itemize}[label=$\circ$, itemsep=2pt, leftmargin=1.5cm]
+		\item \textit{Vincolo 1:} $-3(0) + 7/2 = 3.5 \not\leq 0 \quad \text{\textcolor{red}{\textbf{(Violato)}}}$
+		\item \textit{Vincolo 2:} $7/2 = 3.5 \not\leq 0 \quad \text{\textcolor{red}{\textbf{(Violato)}}}$
+		\item \textit{Vincolo 3:} $-0 + 7/2 = 3.5 \not\leq 2 \quad \text{\textcolor{red}{\textbf{(Violato)}}}$
+		\item \textit{Vincolo 5:} $0 \leq 5 \quad \text{\textcolor{green!60!black}{(Rispettato)}}$
+	\end{itemize}
+	
+	Scegliamo l'indice entrante: $\mathbf{k = 1}$.
+	
+	\textit{Ricerca dell'indice uscente ($h$):}\\
+	Calcoliamo la matrice $W = -A_B^{-1}$ prendendo i coefficienti dei vincoli 4 e 6:
+	\[
+	A_B = \begin{pmatrix} -1 & 2 \\ -1 & 0 \end{pmatrix} \implies A_B^{-1} = \frac{1}{2} \begin{pmatrix} 0 & -2 \\ 1 & -1 \end{pmatrix} = \begin{pmatrix} 0 & -1 \\ 1/2 & -1/2 \end{pmatrix}
+	\]
+	\[
+	W = \begin{pmatrix} 0 & 1 \\ -1/2 & 1/2 \end{pmatrix}
+	\]
+	Le colonne di $W$ corrispondono agli indici di base $i=4$ e $i=6$. La riga del vincolo entrante è $A_1 = (-3, 1)$. Calcoliamo i denominatori $A_1 W_i$:
+	\begin{itemize}[label=$\circ$, itemsep=2pt, leftmargin=1.5cm]
+		\item Denominatore per $i=4$: $A_1 W_4 = (-3, 1) \cdot \begin{pmatrix} 0 \\ -1/2 \end{pmatrix} = -1/2$
+		\item Denominatore per $i=6$: $A_1 W_6 = (-3, 1) \cdot \begin{pmatrix} 1 \\ 1/2 \end{pmatrix} = -3 + 1/2 = -5/2$
+	\end{itemize}
+	Calcoliamo i rapporti con la formula $r_i = \frac{-\bar{y}_i}{A_k W_i}$:
+	\[
+	r_4 = \frac{-3}{-1/2} = \mathbf{6} \qquad \qquad r_6 = \frac{-2}{-5/2} = \frac{4}{5} = \mathbf{0.8}
+	\]
+	Essendo $4/5$ il rapporto valido più vicino a zero (minimo positivo necessario per preservare l'ammissibilità duale), scegliamo come indice uscente: $\mathbf{h = 6}$.
+	La nuova base è $B = \{1, 4\}$.
+	
+	\vspace{0.6cm}
+	\separatore
+	\vspace{0.4cm}
+	
+	\textbf{3. Seconda Iterazione: Base $B = \{1, 4\}$}\\
+	L'indice 1 è entrato, il 6 è uscito. Completiamo l'iterazione.
+	
+	\textit{Calcolo della nuova $\bar{y}$ e $\bar{x}$:}\\
+	Risolviamo il sottosistema primale con i vincoli 1 e 4 all'uguaglianza:
+	\[
+	\begin{cases}
+		-3x_1 + x_2 = 0 \implies x_2 = 3x_1 \\
+		-x_1 + 2x_2 = 7
+	\end{cases}
+	\]
+	Sostituendo la prima nella seconda: $-x_1 + 2(3x_1) = 7 \implies 5x_1 = 7 \implies \mathbf{x_1 = 7/5}$.\\
+	Troviamo $x_2$: $x_2 = 3(7/5) \implies \mathbf{x_2 = 21/5}$.\\
+	Otteniamo la soluzione complementare primale confermata dai tuoi appunti: $\bar{x} = (7/5, 21/5)$.
+	
+	Calcoliamo il nuovo sottosistema duale per l'insieme $B=\{1, 4\}$:
+	\[
+	\begin{cases}
+		-3y_1 - y_4 = -5 \implies 3y_1 + y_4 = 5 \\
+		y_1 + 2y_4 = 6 \implies y_1 = 6 - 2y_4
+	\end{cases}
+	\]
+	Sostituiamo $y_1$ nella prima equazione:
+	\[
+	3(6 - 2y_4) + y_4 = 5 \implies 18 - 6y_4 + y_4 = 5 \implies -5y_4 = -13 \implies \mathbf{y_4 = 13/5}
+	\]
+	Ricaviamo $y_1$:
+	\[
+	y_1 = 6 - 2\left(\frac{13}{5}\right) = \frac{30}{5} - \frac{26}{5} \implies \mathbf{y_1 = 4/5}
+	\]
+	
+	\textit{Ammissibilità di $\bar{x}$ e ricerca del nuovo indice entrante $k$:}\\
+	Verifichiamo $\bar{x} = (7/5, 21/5)$ nei vincoli non di base $N = \{2, 3, 5, 6\}$:
+	\begin{itemize}[label=$\circ$, itemsep=2pt, leftmargin=1.5cm]
+		\item \textit{Vincolo 2:} $21/5 \not\leq 0 \quad \text{\textcolor{red}{\textbf{(Violato)}}}$
+		\item \textit{Vincolo 3:} $-7/5 + 21/5 = 14/5 \not\leq 2 \quad \text{\textcolor{red}{\textbf{(Violato)}}}$
+		\item \textit{Vincolo 5:} $7/5 \leq 5 \quad \text{\textcolor{green!60!black}{(Rispettato)}}$
+		\item \textit{Vincolo 6:} $-7/5 \leq 0 \quad \text{\textcolor{green!60!black}{(Rispettato)}}$
+	\end{itemize}
+	Per la regola di Bland, tra i vincoli violati (2 e 3) prendiamo il più piccolo. Il nuovo indice entrante è $\mathbf{k = 2}$. (Da qui si procederebbe calcolando la nuova $W$ per trovare l'indice uscente, ma l'esercizio termina qui).
+	
+	\vspace{0.6cm}
+	\separatore
+	\vspace{0.4cm}
+	
+	\textbf{Domande Teoriche per l'Esame Orale}\\
+	Per chiudere la lezione, il professore ha posto una preziosissima serie di domande a raffica ("botta e risposta") che si presenteranno matematicamente all'orale. È fondamentale memorizzarle con chiarezza:
+	
+	\begin{itemize}[label=\textcolor{titlecolor}{\Large\textbullet}, itemsep=6pt, leftmargin=1.5cm]
+		\item \textbf{Quanti prodotti scalari fa il Simplesso Duale a ogni passo?} \\
+		Ne fa esattamente \textbf{$n$} (dove $n$ corrisponde alla cardinalità dell'insieme di base $B$).
+		
+		\item \textbf{Quanti prodotti scalari fa il Simplesso Primale a ogni passo?} \\
+		Ne fa esattamente \textbf{$m - n$} (dove $m - n$ corrisponde alla cardinalità dell'insieme non di base $N$).
+		
+		\item \textbf{Quanti rapporti calcola il Simplesso Duale?} \\
+		Ne calcola \textbf{al più $n$} (poiché i rapporti si calcolano sugli indici in base, ma si scartano quelli non pertinenti).
+		
+		\item \textbf{Quanti rapporti calcola il Simplesso Primale?} \\
+		Ne calcola \textbf{al più $m - n$} (calcolati sugli indici non di base, escludendo i denominatori non validi).
+		
+		\item \textbf{Cosa succede se un prodotto scalare è pari a zero?} \\
+		Semplicemente \textbf{lo si esclude} dal calcolo dei rapporti (il denominatore non può mai essere nullo).
+		
+		\item \textbf{Cosa succede se il numeratore del rapporto è pari a zero?} \\
+		Significa che ci troviamo di fronte a una situazione \textbf{degenere} (il valore dell'obiettivo non cambierà nel passo successivo).
+	\end{itemize}
+	
+	\vspace{1.5cm}
+	\begin{center}
+		\rule{0.65\textwidth}{1pt} \\
+		\vspace{0.4cm}
+		\textcolor{titlecolor}{\LARGE \textbf{--- Fine Lezione 10 ---}} \\
+		\vspace{0.2cm}
+		\rule{0.65\textwidth}{1pt}
+	\end{center}
+	\newpage
+	
+	\avviso{\textit{\textbf{Questa lezione, come le sue precedenti e successive, può contenere errori e/o imprecisioni. Per il bene di tutti, è buona norma far notare all'autore l'errore o l'imprecisione così da risolvere nel minor tempo possibile. I canali di comunicazione, per eventuali avvisi generali o di errori trovati negli appunti, sono in cima al file. Grazie per la collaborazione e Buono studio!}}}
+	
+	\section*{Lezione 11 | 7 ottobre 2026}
+	\subsection*{Il Problema Ausiliario e brevissima introduzione alla PLI}
+	
+	Il problema ausiliario nasce per rispondere a una domanda fondamentale: \textbf{il poliedro del nostro problema è vuoto?} E, matematicamente parlando, come facciamo a controllarlo?
+	
+	Ipotizziamo di avere un poliedro descritto dal seguente sistema (che, seppur espresso con le variabili $x$, rappresenta un problema in formato duale standard basato su uguaglianze):
+	
+	$$\begin{cases} 3x_1 + 4x_2 + x_3 + 5x_4 = 9 \\ 2x_1 + 3x_2 + 4x_3 + x_4 = 8 \\ x_1, x_2, x_3, x_4 \geq 0 \end{cases}$$
+	Per verificare se ammette soluzioni, si costruisce un nuovo modello chiamato \textbf{Problema Ausiliario} in formato primale standard. La regola generale per costruirlo è:
+	
+	$$\min \sum_{i=1}^{m} \epsilon_i$$
+	soggetto a:
+	
+	$$\begin{cases} Ax + I\epsilon = b \\ x, \epsilon \geq 0 \end{cases}$$
+	Applicando questa regola al nostro modello di partenza, introduciamo tante variabili ausiliarie $\epsilon$ quante sono le equazioni (in questo caso due), ottenendo:
+	
+	$$\min \quad \epsilon_1 + \epsilon_2$$
+	soggetto a:
+	
+	$$\begin{cases} 3x_1 + 4x_2 + x_3 + 5x_4 + \epsilon_1 = 9 \\ 2x_1 + 3x_2 + 4x_3 + x_4 + \epsilon_2 = 8 \\ x_1, x_2, x_3, x_4, \epsilon_1, \epsilon_2 \geq 0 \end{cases}$$
+	\vspace{0.4cm}
+	\textbf{Le Proprietà del Problema Ausiliario}\\
+	Il problema ausiliario possiede una caratteristica straordinaria: \textbf{non è mai vuoto}.
+	Esiste sempre una base ammissibile di partenza formata esclusivamente dagli indici delle variabili ausiliarie $\epsilon$. Scegliendo come matrice di base la matrice identità $I$, la corrispondente soluzione di base assegna banalmente zero a tutte le $x$ e il valore dei termini noti $b$ alle $\epsilon$ (nel nostro caso $\epsilon_1 = 9, \epsilon_2 = 8$), con un valore della funzione obiettivo $c = 9+8 = 17 \geq 0$.
+	
+	A partire da questa base ammissibile, possiamo applicare il \textbf{Simplesso Duale} per risolvere il problema.
+	La condizione di verifica è immediata:
+	\begin{itemize}[label=\textcolor{titlecolor}{\Large\textbullet}, itemsep=2pt, leftmargin=1.5cm]
+		\item Se il valore \textbf{ottimo} del problema ausiliario \textbf{è pari a zero} ($\min \sum \epsilon = 0$), significa che le variabili ausiliarie si sono azzerate, il sistema originale regge da solo e il poliedro di partenza \textbf{non è vuoto}.
+		\item Se il valore \textbf{ottimo} del problema ausiliario è \textbf{strettamente maggiore di zero}, significa che le equazioni originali non possono essere soddisfatte simultaneamente e il poliedro di partenza \textbf{è vuoto} (non ha soluzioni ammissibili).
+	\end{itemize}
+	
+	\vspace{0.6cm}
+	\separatore
+	\vspace{0.4cm}
+	
+	\textbf{Esercizio: Il Duale del Problema Ausiliario}\\
+	Per risolvere operativamente il problema ausiliario, il professore costruisce il suo problema duale (associato alle variabili $Z$), che presenta i termini noti originari $b$ come coefficienti della funzione obiettivo:
+	
+	$$\begin{cases} \max \quad 9Z_1 + 8Z_2 \\ 3Z_1 + 2Z_2 \leq 0 \quad &\text{(Vincolo 1, associato a } x_1) \\ 4Z_1 + 3Z_2 \leq 0 \quad &\text{(Vincolo 2, associato a } x_2) \\ Z_1 + Z_2 \leq 0 \quad &\text{(Vincolo 3, associato a } x_3) \\ 5Z_1 + Z_2 \leq 0 \quad &\text{(Vincolo 4, associato a } x_4) \\ Z_1 \leq 1 \quad &\text{(Vincolo 5, associato a } \epsilon_1) \\ Z_2 \leq 1 \quad &\text{(Vincolo 6, associato a } \epsilon_2) \end{cases}$$
+	\vspace{0.3cm}
+	\textbf{1. Prima Iterazione: Base $B = \{5, 6\}$}\\
+	Si parte dalla base formata dai vincoli 5 e 6 (che corrisponde esattamente alla base delle $\epsilon$ nel primale).
+	Mettendo i due vincoli all'uguaglianza, otteniamo immediatamente $\bar{Z} = (1, 1)$.
+	
+	Verifichiamo l'ammissibilità di questa soluzione controllando il primo vincolo non di base:
+	\begin{itemize}[label=$\circ$, itemsep=2pt, leftmargin=1.5cm]
+		\item \textit{Vincolo 1:} $3(1) + 2(1) = 5 \not\leq 0 \implies \text{\textbf{Violato}}$.
+	\end{itemize}
+	Essendo il primo vincolo violato incontrato, la regola di Bland decreta che \textbf{l'indice entrante è $k = 1$}.
+	
+	Calcoliamo la matrice $W = -A_B^{-1}$:
+	
+	$$A_B = \begin{pmatrix} 1 & 0 \\ 0 & 1 \end{pmatrix} \implies W = -\begin{pmatrix} 1 & 0 \\ 0 & 1 \end{pmatrix} = \begin{pmatrix} -1 & 0 \\ 0 & -1 \end{pmatrix}$$
+	I valori della duale complementare per questa base corrispondono ai termini noti dell'ausiliario: $\bar{y}_B = (\bar{y}_5, \bar{y}_6) = (9, 8)$.
+	Calcoliamo i rapporti per $A_k = A_1 = (3, 2)$:
+	\begin{itemize}[label=$\circ$, itemsep=2pt, leftmargin=1.5cm]
+		\item \textbf{Rapporto per l'indice 5:} $W_5 = \begin{pmatrix} -1 \\ 0 \end{pmatrix} \implies A_1 W_5 = -3 \implies r_5 = \frac{-\bar{y}_5}{A_1 W_5} = \frac{-9}{-3} = \mathbf{3}$
+		\item \textbf{Rapporto per l'indice 6:} $W_6 = \begin{pmatrix} 0 \\ -1 \end{pmatrix} \implies A_1 W_6 = -2 \implies r_6 = \frac{-\bar{y}_6}{A_1 W_6} = \frac{-8}{-2} = \mathbf{4}$
+	\end{itemize}
+	Tra i due rapporti (che in questa dinamica duale-primale prendiamo positivi), il più piccolo è $3$. Pertanto, \textbf{l'indice uscente è $h = 5$}. La nuova base è $\mathbf{B = \{1, 6\}}$.
+	
+	\vspace{0.4cm}
+	\textbf{2. Seconda Iterazione: Base $B = \{1, 6\}$ (Approfondimento sul Sottosistema)}\\
+	A questo punto, il professore costruisce alla lavagna il sottosistema del problema ausiliario, ricavando in modo diretto i valori $x_1 = 3$ e $\epsilon_2 = 2$. Per fugare ogni dubbio su questo passaggio ed evitare che sembri una deduzione arbitraria, è necessario fare un chiarimento strutturale su come i due modelli dialoghino tra loro.
+	
+	\textit{Spiegazione del passaggio:} La motivazione è puramente algebrica. Avere la base $B=\{1, 6\}$ nel problema duale (quello delle variabili $Z$), significa che nel problema ausiliario complementare le uniche variabili che possono assumere un valore diverso da zero sono esclusivamente quelle relative all'indice 1 (ovvero $x_1$) e all'indice 6 (ovvero $\epsilon_2$). Tutte le restanti variabili non di base ($x_2, x_3, x_4$ e $\epsilon_1$) vanno poste rigorosamente a zero.
+	Riprendendo i vincoli originali del problema ausiliario:
+	
+	$$\begin{cases} 3x_1 + 4(0) + 0 + 5(0) + \mathbf{0} = 9 \implies \mathbf{3x_1 = 9 \implies x_1 = 3} \\ 2x_1 + 3(0) + 0 + 0 + \epsilon_2 = 8 \implies 2(3) + \epsilon_2 = 8 \implies 6 + \epsilon_2 = 8 \implies \mathbf{\epsilon_2 = 2} \end{cases}$$
+	Ecco svelata l'origine algebrica di questi risultati! Otteniamo così $\bar{x} = 3$ e $\bar{\epsilon} = (0, 2)$. La funzione obiettivo ausiliaria vale $c = \sum \epsilon = 2$. Poiché $2 \neq 0$, \textbf{non siamo ancora all'ottimo} (il problema originario non è ancora certificato come non vuoto).
+	
+	Continuiamo il simplesso trovando la nuova $\bar{Z}$ per $B=\{1, 6\}$ forzando le equazioni:
+	
+	$$\begin{cases} 3Z_1 + 2Z_2 = 0 \quad &\text{(Vincolo 1)} \\ Z_2 = 1 \quad &\text{(Vincolo 6)} \end{cases}$$
+	Sostituendo $Z_2$: $3Z_1 + 2(1) = 0 \implies 3Z_1 = -2 \implies \mathbf{Z_1 = -2/3}$.
+	La soluzione è $\bar{Z} = (-2/3, 1)$.
+	
+	Verifichiamo l'ammissibilità partendo dal vincolo 2:
+	\begin{itemize}[label=$\circ$, itemsep=2pt, leftmargin=1.5cm]
+		\item \textit{Vincolo 2:} $4(-2/3) + 3(1) = -8/3 + 3 = 1/3 \not\leq 0 \implies \text{\textbf{Violato}}$.
+	\end{itemize}
+	Essendo il primo violato, \textbf{l'indice entrante è $k = 2$}.
+	
+	Calcoliamo la nuova $W$:
+	
+	$$A_B = \begin{pmatrix} 3 & 2 \\ 0 & 1 \end{pmatrix} \implies A_B^{-1} = \begin{pmatrix} 1/3 & -2/3 \\ 0 & 1 \end{pmatrix} \implies W = -A_B^{-1} = \begin{pmatrix} -1/3 & 2/3 \\ 0 & -1 \end{pmatrix}$$
+	Calcoliamo i rapporti per $A_k = A_2 = (4, 3)$, utilizzando le variabili duali appena calcolate $\bar{y}_B = (\bar{y}_1, \bar{y}_6) = (3, 2)$:
+	\begin{itemize}[label=$\circ$, itemsep=2pt, leftmargin=1.5cm]
+		\item \textbf{Rapporto per l'indice 1:} $W_1 = \begin{pmatrix} -1/3 \\ 0 \end{pmatrix} \implies A_2 W_1 = 4(-1/3) + 3(0) = -4/3$. \\
+		$r_1 = \frac{-\bar{y}_1}{A_2 W_1} = \frac{-3}{-4/3} = \frac{9}{4}$
+		
+		\item \textbf{Rapporto per l'indice 6:} $W_6 = \begin{pmatrix} 2/3 \\ -1 \end{pmatrix} \implies A_2 W_6 = 4(2/3) + 3(-1) = 8/3 - 3 = -1/3$. \\
+		$r_6 = \frac{-\bar{y}_6}{A_2 W_6} = \frac{-2}{-1/3} = \mathbf{6}$
+	\end{itemize}
+	Confrontando $9/4$ (pari a $2.25$) e $6$, il valore più piccolo è $9/4$. Pertanto, come preannunciato, \textbf{l'indice uscente è $h = 1$}. L'iterazione si conclude qui fornendoci la nuova base $B = \{2, 6\}$.
+	
+	\vspace{0.6cm}
+	\textbf{Introduzione alla Programmazione Lineare Intera (PLI)}\\
+	Abbandoniamo per un momento la struttura classica per introdurre una nuova e fondamentale branca della Ricerca Operativa: la \textbf{Programmazione Lineare Intera (PLI)}. Il primo problema classico che si affronta in questo ambito è il celebre \textbf{Problema dello Zaino} (o del caricamento ottimo).
+	
+	Per comprenderlo, immaginiamo un caso reale. Abbiamo a disposizione un insieme di oggetti, ciascuno caratterizzato da un valore (profitto) e da un peso (ingombro).
+	Definiamo:
+	\begin{itemize}[label=\textcolor{titlecolor}{\Large\textbullet}, itemsep=2pt, leftmargin=1.5cm]
+		\item Un insieme dei valori $V = \{5, 7, 9, 10, 12\}$.
+		\item Un insieme dei pesi $p = \{8, 9, 11, 13, 15\}$, dove ogni peso corrisponde allo stesso indice del valore (es. l'oggetto 3 ha valore 9 e peso 11).
+		\item Una capienza massima dello zaino, che chiameremo $P$.
+	\end{itemize}
+	
+	Esistono due varianti principali di questo problema:
+	\begin{enumerate}
+		\item \textbf{Problema dello Zaino Binario (0-1):} Posso decidere solo se prendere o non prendere un determinato oggetto. Al massimo ne posso inserire un'unità per tipo. Questo rende il bene indivisibile.
+		\item \textbf{Problema dello Zaino Intero:} Posso inserire più di un'unità per ogni tipologia di oggetto disponibile.
+	\end{enumerate}
+	
+	\vspace{0.4cm}
+	\textbf{I Modelli Matematici}\\
+	Il modello del \textbf{Zaino Binario} si scrive come:
+	\[
+	\begin{cases}
+		\max \quad V^T x \\
+		p^T x \leq P \\
+		x \in \{0, 1\}^n \quad \text{(oppure } 0 \leq x_i \leq 1 \text{ nel caso del problema rilassato)}
+	\end{cases}
+	\]
+	Il modello dello \textbf{Zaino Intero} si scrive come:
+	\[
+	\begin{cases}
+		\max \quad V^T x \\
+		p^T x \leq P \\
+		x \in \mathbb{Z}_+^n \quad \text{(dove } \mathbb{Z}_+ \text{ filtra le } x \text{ a sole componenti intere positive o nulle)}
+	\end{cases}
+	\]
+	Il professore ci tiene a fare una precisazione teorica importantissima: il valore della funzione obiettivo del \textbf{problema rilassato} (dove le $x$ possono assumere valori frazionari continui) sarà \textbf{sempre maggiore o uguale} al valore del \textbf{problema intero}. Togliendo il vincolo rigido dell'indivisibilità, il modello matematico ha infatti più "libertà" di ottimizzare lo spazio, riempiendo lo zaino fino all'ultimo millimetro con frazioni di oggetti.
+	
+	\vspace{0.6cm}
+	\separatore
+	\vspace{0.4cm}
+	
+	\textbf{Esercizio Pratico: Il Problema Rilassato}\\
+	Impostiamo un esercizio con i dati numerici forniti, fissando la capienza dello zaino a $P = 29$, lavorando in un'ottica di rilassamento continuo (dove le $x \geq 0$ possono essere frazionarie).
+	\[
+	\textbf{Primale (P)} \implies
+	\begin{cases}
+		\max \quad 5x_1 + 7x_2 + 9x_3 + 10x_4 + 12x_5 \\[6pt]
+		8x_1 + 9x_2 + 11x_3 + 13x_4 + 15x_5 \leq 29 \\[6pt]
+		x_1, x_2, x_3, x_4, x_5 \geq 0
+	\end{cases}
+	\]
+	L'obiettivo è banalmente trovare la miglior combinazione basata sul \textbf{rapporto saturazione-valore}: come faccio a saturare al massimo lo zaino ottenendo il miglior valore possibile? Pur sembrando simile alla normale PL, nella PLI affronteremo casistiche molto più concrete e realistiche.
+	
+	\textit{Nota di ammissibilità:} Il professore ci fa subito notare che il poliedro di un problema dello zaino \textbf{non è mai vuoto}. La dimostrazione è banale: se scegliamo di non mettere nulla nello zaino, la soluzione $\bar{x} = (0,0,0,0,0)$ darà un peso totale di $0$. Poiché $0 \leq 29$, la soluzione base nulla è sempre e in ogni caso ammissibile.
+	
+	\vspace{0.4cm}
+	\textbf{Costruzione del Duale e Soluzione}\\
+	Avendo un solo vincolo nel primale, il problema duale avrà una sola variabile decisionale ($y_1$) ma ben 5 vincoli. Trasponiamo i coefficienti:
+	\[
+	\textbf{Duale (D)} \implies
+	\begin{cases}
+		\min \quad 29y_1 \\[6pt]
+		8y_1 \geq 5 \quad &\text{(Vincolo colonna } x_1) \\
+		9y_1 \geq 7 \quad &\text{(Vincolo colonna } x_2) \\
+		11y_1 \geq 9 \quad &\text{(Vincolo colonna } x_3) \\
+		13y_1 \geq 10 \quad &\text{(Vincolo colonna } x_4) \\
+		15y_1 \geq 12 \quad &\text{(Vincolo colonna } x_5) \\[6pt]
+		y_1 \geq 0
+	\end{cases}
+	\]
+	
+	\textbf{Il trucco della risoluzione tramite le variabili di scarto:}\\
+	Invece di procedere con l'ingombrante calcolo matriciale, il professore ci fa usare la logica. I vincoli sono disuguaglianze $\geq$. Se noi immaginassimo di trasformarle in uguaglianze inserendo delle variabili di surplus (o scarto) a sinistra, otterremmo equazioni del tipo $8y_1 - s_1 = 5$. 
+	
+	Se forziamo gli scarti a zero per trovare il limite minimo imposto da ogni singola equazione (come se "togliessimo" l'eccesso), ogni vincolo ci impone un limite inferiore per $y_1$:
+	\begin{itemize}[label=$\circ$, itemsep=2pt, leftmargin=1.5cm]
+		\item $8y_1 = 5 \implies y_1 = 5/8 = 0.625$
+		\item $9y_1 = 7 \implies y_1 = 7/9 \approx 0.777$
+		\item $11y_1 = 9 \implies \mathbf{y_1 = 9/11 \approx 0.818}$
+		\item $13y_1 = 10 \implies y_1 = 10/13 \approx 0.769$
+		\item $15y_1 = 12 \implies y_1 = 12/15 = 0.800$
+	\end{itemize}
+	
+	Affinché \textit{tutti} i vincoli del duale siano rispettati simultaneamente (essendo un sistema $\geq$), la variabile $y_1$ deve necessariamente essere \textbf{il valore più grande} tra tutti quelli calcolati (perché se scegliessimo un valore più piccolo, i vincoli più stringenti verrebbero violati).
+	Di conseguenza, la soluzione ottima del duale è:
+	\[
+	\bar{y}_1 = \frac{9}{11}
+	\]
+	Per calcolare il valore ottimo della funzione obiettivo, basta moltiplicare questo valore per il termine noto $b$ (ovvero la capienza dello zaino, 29):
+	\[
+	\text{Ottimo} = 29 \cdot \bar{y}_1 = 29 \cdot \left(\frac{9}{11}\right) = \mathbf{\frac{261}{11}} \approx 23.72
+	\]
+	Abbiamo così trovato l'ottimo in modo estremamente rapido, dimostrando l'eleganza del modello duale nel selezionare l'oggetto con il miglior rapporto valore/peso (che si è rivelato essere il terzo oggetto, con rapporto $9/11$).
+	
+	\vspace{0.6cm}
+	\textbf{L'Algoritmo dei Rendimenti}\\
+	A chiusura della lezione, il professore introduce lo strumento principale per risolvere il problema dello zaino rilassato: l'\textbf{Algoritmo dei Rendimenti} (noto anche come approccio "greedy" o ingordo). 
+	
+	Per capire cos'è un rendimento, dobbiamo affidarci al buon senso prima ancora che alla matematica. Avendo a disposizione un insieme di valori $V$ e un insieme di pesi $p$, come capiamo quale oggetto conviene inserire per primo nello zaino? 
+	La logica ci suggerisce che l'oggetto "perfetto" è quello che \textit{pesa pochissimo ma vale tantissimo}. In altre parole, vogliamo massimizzare il valore ottenuto per ogni singolo chilo di spazio occupato. 
+	
+	Questa efficienza si calcola matematicamente con la formula del rendimento $R_i$ per ogni oggetto $i$:
+	\[
+	R_i = \frac{V_i}{p_i}
+	\]
+	Più questo rapporto è alto, maggiore sarà il profitto che quell'oggetto ci garantisce per ogni unità di spazio consumata. L'algoritmo consiste semplicemente nel calcolare tutti i rendimenti e ordinare gli oggetti dal migliore al peggiore, dando priorità assoluta di inserimento a quello con il rendimento massimo.
+	
+	\vspace{0.4cm}
+	\textbf{Esercizio Pratico sui Rendimenti}\\
+	Ipotizziamo di avere un problema dello zaino con una capienza massima $P = 37$ e i seguenti insiemi:
+	\begin{itemize}[label=\textcolor{titlecolor}{\Large\textbullet}, itemsep=2pt, leftmargin=1.5cm]
+		\item $V = \{4, 7, 11, 13\}$
+		\item $p = \{6, 9, 15, 18\}$
+	\end{itemize}
+	
+	Calcoliamo i rendimenti per ciascun oggetto applicando la formula $R_i = V_i / p_i$:
+	\begin{itemize}[label=$\circ$, itemsep=4pt, leftmargin=1.5cm]
+		\item \textbf{Oggetto 1:} $R_1 = \frac{4}{6} = \frac{2}{3} \approx 0.666$
+		\item \textbf{Oggetto 2:} $R_2 = \frac{7}{9} \approx \mathbf{0.777} \quad \text{\textcolor{green!60!black}{\textbf{(Rendimento Massimo)}}}$
+		\item \textbf{Oggetto 3:} $R_3 = \frac{11}{15} \approx 0.733$
+		\item \textbf{Oggetto 4:} $R_4 = \frac{13}{18} \approx 0.722$
+	\end{itemize}
+	
+	Confrontando i risultati, notiamo che l'oggetto 2 ha il rendimento strettamente superiore. Essendo nel caso di un problema interamente rilassato (in cui possiamo prendere quante unità vogliamo e possiamo frazionare gli oggetti all'infinito), la strategia ottima prevede di saturare completamente la capienza dello zaino utilizzando esclusivamente l'oggetto con il rendimento migliore.
+	
+	Calcoliamo il valore ottimo moltiplicando lo spazio a disposizione per il rendimento dell'oggetto scelto:
+	\[
+	\text{Valore Ottimo} = 37 \times R_2 = 37 \times \left(\frac{7}{9}\right) = \mathbf{\frac{259}{9}} \approx 28.77
+	\]
+	
+	\vspace{0.4cm}
+	\textbf{Nota Fondamentale sul Frazionamento e lo Spazio Residuo}\\
+	È di fondamentale importanza fare una precisazione che anticipa esattamente il cuore delle prossime lezioni. 
+	Nel calcolo appena svolto, si è moltiplicato il rendimento $0.777$ per $37$. Questa scelta non è casuale, ma è dovuta al fatto che \textbf{37 rappresenta la capacità residua dello zaino in quell'esatto momento} (essendo all'inizio della procedura, lo zaino è infatti completamente vuoto).
+	
+	Tuttavia, nella realtà algoritmica (soprattutto in presenza di limiti sulle quantità, ad esempio non potendo superare un certo numero di unità per oggetto), la procedura non riempie lo zaino in un colpo solo, ma procede rigorosamente per passi successivi:
+	\begin{enumerate}
+		\item Si prende l'oggetto con il rendimento migliore e se ne inseriscono unità intere finché lo zaino lo permette.
+		\item Si aggiorna la \textbf{capacità residua} (sottraendo lo spazio appena occupato).
+		\item Si passa al secondo oggetto per rendimento, riempiendo lo spazio rimasto.
+		\item Si procede in questo modo fino a quando l'ennesima unità di un oggetto "sbatte" contro il limite di capienza. A quel punto, e solo a quel punto, si è costretti a \textbf{frazionare} quell'ultimo oggetto per tappare esattamente il buco rimasto.
+	\end{enumerate}
+	
+	Il valore che si ottiene in questa fase finale deriverà \textbf{sempre e solo dalla moltiplicazione tra lo spazio residuo del momento e il rendimento dello specifico oggetto che si sta frazionando}. In questo esempio basilare, essendoci libertà totale sulle quantità fin dall'inizio, il "primo" oggetto è stato anche l'ultimo, e lo spazio residuo coincideva con l'intera capienza originaria $P=37$. È tuttavia cruciale interiorizzare che quel 37 rappresenta dinamicamente lo "spazio ancora a disposizione" e non una costante fissa del problema: comprendere a fondo questo principio significa aver assimilato perfettamente la logica iterativa dell'algoritmo.
+	
+	\vspace{1.5cm}
+	\begin{center}
+		\rule{0.65\textwidth}{1pt} \\
+		\vspace{0.4cm}
+		\textcolor{titlecolor}{\LARGE \textbf{--- Fine Lezione 11 ---}} \\
+		\vspace{0.2cm}
+		\rule{0.65\textwidth}{1pt}
+	\end{center}
+	\newpage
+	
+	\avviso{\textit{\textbf{Questa lezione, come le sue precedenti e successive, può contenere errori e/o imprecisioni. Per il bene di tutti, è buona norma far notare all'autore l'errore o l'imprecisione così da risolvere nel minor tempo possibile. I canali di comunicazione, per eventuali avvisi generali o di errori trovati negli appunti, sono in cima al file. Grazie per la collaborazione e Buono studio!}}}
+	
+	\section*{Lezione 12 | 12 ottobre 2026}
+	\subsection*{PLI}
+	
+	\vspace{0.4cm}
+	\textbf{Il Cuore della PLI: I Vincoli di Interezza}\\
+	Entriamo ora nel vivo della Programmazione Lineare Intera (PLI). 
+	Se analizziamo un modello matematico strutturato in questo modo:
+	
+	$$\begin{cases} \max \quad c^T x \\ Ax \leq b \\ x \in \mathbb{Z}^n_+ \end{cases}$$
+	notiamo subito che stiamo rappresentando un normalissimo problema di Programmazione Lineare (PL), a cui è stato però imposto un vincolo aggiuntivo e fondamentale: le variabili $x$ devono appartenere all'insieme dei numeri interi non negativi ($\mathbb{Z}^n_+$).
+	
+	Questa singola condizione finale stravolge completamente l'intero paradigma geometrico del problema. Significa che, all'interno del poliedro generato dal sistema $Ax \leq b$ (che può assumere qualsiasi forma), la vera \textbf{regione ammissibile di PLI} non è più l'intera area continua, ma \textbf{esclusivamente l'insieme dei punti a coordinate intere e positive} che cadono al suo interno. Di conseguenza, un'infinità di soluzioni continue, che nella normale PL sarebbero state perfettamente valide, vengono ora categoricamente scartate.
+	
+	\vspace{0.4cm}
+	\textbf{Rappresentazione Grafica della PLI}\\
+	Per visualizzare concretamente questo concetto, tracciamo un piano cartesiano concentrato nel primo quadrante (essendo $x_1, x_2 \geq 0$) e disegniamo un poliedro continuo $P$ puramente casuale. All'interno di questa regione ombreggiata, isoliamo solo ed esclusivamente i puntini che possiedono coordinate intere.
+	
+	\begin{figure}[H]
+		\centering
+		\begin{tikzpicture}[scale=1.2]
+			% Assi
+			\draw[->, thick] (-0.5, 0) -- (9, 0) node[right] {$x_1$};
+			\draw[->, thick] (0, -0.5) -- (0, 7) node[above] {$x_2$};
+			
+			% Poliedro continuo P (Area azzurra)
+			\fill[blue!10] (1, 6) -- (5, 5) -- (8, 2) -- (7, 0) -- (0, 0) -- (0, 5) -- cycle;
+			
+			% Bordi del poliedro
+			\draw[thick, blue] (1, 6) -- (5, 5) -- (8, 2) -- (7, 0);
+			\draw[thick, blue] (0, 5) -- (1, 6);
+			\draw[thick, blue] (7, 0) -- (0, 0) -- (0, 5);
+			
+			\node[blue, font=\bfseries] at (3.5, 3.5) {Poliedro $P$ (Continuo)};
+			
+			% Reticolo di punti interi ammissibili
+			\foreach \x in {0,1,2,3,4,5,6,7,8} {
+				\foreach \y in {0,1,2,3,4,5,6} {
+					% Condizioni per rientrare nel poliedro casuale
+					\pgfmathparse{
+						(\x<=8 && \y<=6 && \y<=(-0.25*\x + 6.25) && \y<=(-1*\x + 10) && \y<=(-2*\x + 14) ) ? 1 : 0
+					}
+					\ifnum\pgfmathresult=1
+					\fill[black] (\x, \y) circle (2pt);
+					\fi
+				}
+			}
+		\end{tikzpicture}
+		\caption{La regione ammissibile in PLI corrisponde unicamente ai punti interi (i puntini neri) contenuti nel poliedro $P$.}
+	\end{figure}
+	
+	Matematicamente, questa drastica scrematura si traduce affermando che la nuova regione ammissibile è data dall'intersezione tra il poliedro $P$ e l'insieme dei numeri interi:
+	
+	$$\mathcal{S} = P \cap \mathbb{Z}^n_+$$
+	\textit{Nota: Da questo momento in poi, indicheremo la regione ammissibile intera con la lettera calligrafica $\mathcal{S}$ (quella che alla lavagna appare come una "S" maiuscola con le grazie perpendicolari alle estremità).}
+	
+	\vspace{0.4cm}
+	\textbf{Perché la PLI è più complessa della PL?}\\
+	Assumiamo che il poliedro sia limitato (e un problema reale ben formulato in PLI lo è sempre). Poiché la regione $\mathcal{S}$ è formata da un numero finito e discreto di punti, \textbf{i classici vertici geometrici perdono la loro centralità}. È infatti rarissimo che un vertice del poliedro continuo $P$ cada esattamente su coordinate perfette e intere (nel qual caso saremmo incredibilmente fortunati e avremmo già l'ottimo in mano).
+	
+	A fronte di ciò, qual è la strategia per trovare l'ottimo intero? 
+	Un errore teorico gravissimo è pensare di risolvere il problema in continuo (trovando il vertice ottimo con i decimali) per poi semplicemente "arrotondare per difetto". L'arrotondamento è estremamente pericoloso: potrebbe restituire un punto che si trova al di fuori del poliedro (soluzione inammissibile) o, peggio, un punto sub-ottimo, facendoci ignorare una soluzione intera molto più profittevole che risiede da un'altra parte.
+	
+	Graficamente, per trovare il vero ottimo di PLI, dobbiamo immaginare il vettore della funzione obiettivo che si sposta parallelamente a se stesso verso l'esterno del poliedro. Il vero ottimo intero (ad esempio un ipotetico punto $(7,6) \in \mathcal{S}$) sarà l'assoluto "ultimo puntino intero" che questa retta sfiora prima di abbandonare definitivamente la regione ammissibile. 
+	
+	\begin{figure}[H]
+		\centering
+		\begin{tikzpicture}[scale=1.2]
+			% Assi
+			\draw[->, thick] (-0.5, 0) -- (9, 0) node[right] {$x_1$};
+			\draw[->, thick] (0, -0.5) -- (0, 7) node[above] {$x_2$};
+			
+			\fill[blue!10] (1, 6) -- (5, 5) -- (8, 2) -- (7, 0) -- (0, 0) -- (0, 5) -- cycle;
+			\draw[thick, blue] (1, 6) -- (5, 5) -- (8, 2) -- (7, 0) -- (0, 0) -- (0, 5) -- cycle;
+			
+			% Reticolo di punti
+			\foreach \x in {0,1,2,3,4,5,6,7,8} {
+				\foreach \y in {0,1,2,3,4,5,6} {
+					\pgfmathparse{ (\x<=8 && \y<=6 && \y<=(-0.25*\x + 6.25) && \y<=(-1*\x + 10) && \y<=(-2*\x + 14) ) ? 1 : 0 }
+					\ifnum\pgfmathresult=1 \fill[black] (\x, \y) circle (2pt); \fi
+				}
+			}
+			
+			% Punto ottimo continuo vs intero (Esempio)
+			\fill[red] (8, 2) circle (3pt) node[right, font=\footnotesize] {Vertice Continuo (Es. 8.2, 2.4)};
+			\fill[green!60!black] (7, 2) circle (3pt) node[below left, font=\bfseries] {Ottimo Intero $\mathcal{S}$};
+			
+			% Retta Funzione Obiettivo
+			\draw[dashed, thick, green!60!black] (4, -1) -- (9, 4) node[above] {Max $c^T x$};
+		\end{tikzpicture}
+		\caption{La funzione obiettivo si spinge verso il massimo e si ferma non appena tocca l'ultimo punto intero ammissibile, che spesso non coincide con il vertice geometrico continuo.}
+	\end{figure}
+	
+	\vspace{0.6cm}
+	\separatore
+	\vspace{0.4cm}
+	
+	\textbf{Le Valutazioni: Rilassato Continuo e GAP}\\
+	Per studiare matematicamente queste dinamiche, introduciamo due concetti pilastro della Ricerca Operativa.
+	
+	\textbf{1. Il Rilassato Continuo e la Valutazione Superiore ($v_S$)}\\
+	Dato un problema di PLI, se decidiamo di \textbf{ignorare temporaneamente i vincoli di interezza} (permettendo alle variabili di assumere valori continui e frazionari), stiamo calcolando il cosiddetto \textbf{Rilassato Continuo}. 
+	Il valore ottimo che otteniamo risolvendo l'intero poliedro in continuo viene definito \textbf{Valutazione Superiore ($v_S$)}. 
+	
+	Essendo il problema di partenza un problema di Massimo, avere una Valutazione Superiore significa possedere una \textbf{stima rigorosa per eccesso}. Abbiamo la certezza assoluta che in PLI non potremo mai ottenere un valore superiore a $v_S$. Se il rilassato continuo ci restituisce $1153.8$, sappiamo matematicamente che l'ottimo intero non potrà mai eccedere quel limite.
+	
+	\textbf{2. La Valutazione Inferiore ($v_I$)}\\
+	Oltre a $v_S$, necessitiamo di una base di partenza sicura. Se calcoliamo la funzione obiettivo $c^T \bar{x}$ per una qualsiasi soluzione $\bar{x} \in \mathcal{S}$ che sappiamo essere ammissibile per la PLI (anche trovata empiricamente), otteniamo quella che si definisce \textbf{Valutazione Inferiore ($v_I$)}. Questa è la nostra stima per difetto: l'ottimo reale non sarà mai peggiore di questo valore.
+	
+	Possiamo quindi incorniciare il vero valore ottimo del nostro problema in questa ferrea disuguaglianza:
+	
+	$$v_I \leq \text{Ottimo PLI} \leq \text{Ottimo PL} = v_S$$
+	Rappresentando questi tre valori su un asse orizzontale, visualizziamo immediatamente lo scenario:
+	
+	\begin{figure}[H]
+		\centering
+		\begin{tikzpicture}
+			% Linea base
+			\draw[thick] (0,0) -- (10,0);
+			
+			% Tacche
+			\draw[thick] (1,-0.2) -- (1,0.2);
+			\draw[thick, color=myred] (5,-0.2) -- (5,0.2);
+			\draw[thick] (9,-0.2) -- (9,0.2);
+			
+			% Etichette
+			\node[below] at (1,-0.3) {Valutazione Inferiore ($v_I$)};
+			\node[below, color=myred, font=\bfseries] at (5,-0.3) {Ottimo PLI};
+			\node[below] at (9,-0.3) {Valutazione Superiore ($v_S$)};
+			
+			% Parentesi graffa Gap
+			\draw[thick, decorate, decoration={brace, amplitude=10pt, raise=15pt}] (1,0.2) -- (9,0.2) node[midway, above=25pt, font=\bfseries] {GAP};
+		\end{tikzpicture}
+		\caption{L'ottimo di PLI giace sempre nell'intervallo tra la valutazione inferiore (soluzione intera nota) e la valutazione superiore (rilassato continuo).}
+	\end{figure}
+	
+	\textbf{Interpretazione del GAP}\\
+	Questo grafico è la bussola per orientarsi nella PLI. La distanza che intercorre tra $v_I$ e $v_S$ prende il nome di \textbf{GAP}. 
+	Come dobbiamo manipolare e leggere questi dati? 
+	\begin{itemize}[label=\textcolor{titlecolor}{\Large\textbullet}, itemsep=2pt, leftmargin=1.5cm]
+		\item Se durante i calcoli la nostra valutazione inferiore diventa \textbf{strettamente uguale} alla valutazione superiore ($v_I = v_S$), l'algoritmo si ferma istantaneamente: \textbf{abbiamo trovato l'ottimo}.
+		\item In generale, più il GAP è piccolo, più siamo vicini alla risoluzione esatta del problema.
+	\end{itemize}
+	L'ottimo della PLI va stanato progressivamente. Nelle prossime lezioni studieremo algoritmi specifici di "riduzione del gap" (come l'introduzione dei celebri \textbf{Tagli di Gomory}), che servono letteralmente a tagliare via pezzi di poliedro continuo per abbassare la $v_S$ fino a farla collidere con l'ottimo intero.
+	
+	\vspace{0.4cm}
+	\textbf{Il Caso dei Problemi di Minimo}\\
+	Tutta la teoria appena esposta è stata declinata per i problemi di Massimo ($\max$). Ma cosa succede se affrontiamo un problema di Minimo ($\min$)? 
+	Nella sostanza logica non cambia assolutamente nulla, ma \textbf{si invertono le definizioni delle valutazioni}:
+	\begin{itemize}[label=\textcolor{titlecolor}{\Large\textbullet}, itemsep=2pt, leftmargin=1.5cm]
+		\item Il Rilassato Continuo (l'ottimo della PL) non fornisce più un tetto massimo, ma diventa il "pavimento", ovvero la \textbf{Valutazione Inferiore ($v_I$)}. Non potremo mai spendere meno dell'ottimo continuo.
+		\item Qualsiasi soluzione ammissibile intera ci fornisce invece un tetto di spesa noto, diventando la \textbf{Valutazione Superiore ($v_S$)}.
+	\end{itemize}
+	Infine, un'ultima regola d'oro che vale universalmente: se, risolvendo il problema Rilassato Continuo con la normale PL, il vertice ottimo geometrico dovesse \textbf{già possedere coordinate perfettamente intere} ($x \in \mathbb{Z}^n_+$), allora non c'è nient'altro da calcolare. Quell'ottimo continuo è automaticamente e indiscutibilmente anche l'\textbf{ottimo della PLI}.
+	
+	\vspace{0.4cm}
+	\textbf{L'Involucro Convesso delle Soluzioni Intere ($conv(\mathcal{S})$)}\\
+	Per comprendere profondamente come la Programmazione Lineare Intera (PLI) si differenzi dalla Programmazione Lineare (PL) continua, dobbiamo compiere un ulteriore passo geometrico e introdurre il concetto di \textbf{Combinazione Convessa dell'insieme $\mathcal{S}$} (o involucro convesso), che indicheremo con $conv(\mathcal{S})$.
+	
+	Così come nella PL standard la combinazione convessa dell'insieme dei vertici $V$ definiva geometricamente l'intero poliedro (teorema di Weyl), in questo contesto il $conv(\mathcal{S})$ rappresenta \textbf{il più piccolo poliedro continuo possibile che contiene tutte le soluzioni a componenti intere e positive} (ovvero tutti i puntini del nostro insieme $\mathcal{S}$). 
+	Per visualizzarlo, immaginate di tendere un elastico attorno all'insieme dei puntini interi: l'elastico si tenderà appoggiandosi sui "puntini più esterni", creando un nuovo poligono racchiuso all'interno del poliedro originario $P$.
+	
+	\vspace{0.4cm}
+	\textbf{Rappresentazione Grafica del $conv(\mathcal{S})$}\\
+	Per illustrare questa dinamica, riprendiamo il grafico precedente. Questa volta, per rendere il concetto cristallino alla lavagna, i punti a coordinate intere (l'insieme $\mathcal{S}$) sono stati distanziati dai bordi del poliedro originale $P$. 
+	Utilizziamo il colore azzurro per il poliedro continuo $P$ (definito dai vincoli iniziali $Ax \leq b$) e il colore verde per evidenziare il nuovo poliedro $conv(\mathcal{S})$.
+	
+	\begin{figure}[H]
+		\centering
+		\begin{tikzpicture}[scale=1.2]
+			% Assi
+			\draw[->, thick] (-0.5, 0) -- (9, 0) node[right] {$x_1$};
+			\draw[->, thick] (0, -0.5) -- (0, 7) node[above] {$x_2$};
+			
+			% Poliedro P originale (Area azzurra molto trasparente)
+			\fill[blue!10] (0.5, 6) -- (5, 6.5) -- (8.5, 3) -- (7.5, 0.5) -- (0.5, 0.5) -- cycle;
+			\draw[thick, blue] (0.5, 6) -- (5, 6.5) -- (8.5, 3) -- (7.5, 0.5) -- (0.5, 0.5) -- cycle;
+			\node[blue, font=\bfseries] at (7.5, 5.5) {Poliedro $P$};
+			
+			% Combinazione Convessa di S (Area verde)
+			% Vertici del conv(S): (1,1), (7,1), (8,2), (5,5), (1,5)
+			\fill[green!30, opacity=0.8] (1, 1) -- (7, 1) -- (8, 2) -- (5, 5) -- (1, 5) -- cycle;
+			\draw[thick, green!60!black] (1, 1) -- (7, 1) -- (8, 2) -- (5, 5) -- (1, 5) -- cycle;
+			\node[green!40!black, font=\bfseries] at (3.5, 3.5) {$conv(\mathcal{S})$};
+			
+			% Reticolo di punti interi ammissibili S
+			\foreach \x in {1,2,3,4,5,6,7,8} {
+				\foreach \y in {1,2,3,4,5} {
+					% Disegno il punto solo se cade nel conv(S)
+					\pgfmathparse{
+						(\x>=1 && \y>=1 && \y<=5 && \y<=(-1*\x + 10) && \y<=(1.5*\x - 0.5) ) ? 1 : 0
+					}
+					\ifnum\pgfmathresult=1
+					\fill[black] (\x, \y) circle (2pt);
+					\fi
+				}
+			}
+		\end{tikzpicture}
+		\caption{Il poligono verde rappresenta il $conv(\mathcal{S})$, ovvero il più piccolo poliedro che racchiude tutte le soluzioni intere di $P$.}
+	\end{figure}
+	
+	Osservando il grafico, salta subito all'occhio una caratteristica: all'interno del $conv(\mathcal{S})$ ci sono ampi spazi vuoti tra un puntino e l'altro. Questi spazi contengono soluzioni con valori decimali che non appartengono a $\mathcal{S}$. È un'osservazione correttissima: il $conv(\mathcal{S})$ racchiude tutti i punti interi, ma include inevitabilmente anche gli infiniti punti continui che si trovano in mezzo a essi, esattamente come nella PL la combinazione convessa dei vertici racchiudeva tutto lo spazio interno. Tuttavia, il $conv(\mathcal{S})$ rimane il \textit{guscio più piccolo e aderente possibile}.
+	
+	\vspace{0.4cm}
+	\textbf{La Catena delle Disuguaglianze Geometriche}\\
+	Questa gerarchia geometrica, in cui l'insieme dei punti interi è contenuto nel poliedro verde, il quale a sua volta è contenuto nel poliedro azzurro ($\mathcal{S} \subset conv(\mathcal{S}) \subset P$), ci permette di stabilire una ferrea regola algebrica sui valori ottimi. 
+	
+	Se cerchiamo il Massimo di una funzione obiettivo $c^T x$, l'ampiezza dello spazio di ricerca influenza direttamente il risultato che possiamo ottenere. Più lo spazio è grande, maggiori sono le probabilità di spingersi oltre e trovare un valore superiore. Pertanto, possiamo scrivere:
+	\[
+	\max \{ c^T x \mid x \in \mathcal{S} \} \leq \max \{ c^T x \mid x \in conv(\mathcal{S}) \} \leq \max \{ c^T x \mid x \in P \}
+	\]
+	Spieghiamolo in modo rigoroso:
+	\begin{enumerate}
+		\item Il termine di sinistra è il problema di PLI puro (si cercano solo le coordinate dei puntini).
+		\item Il termine centrale cerca il massimo su tutta l'area verde (inclusi i decimali tra i puntini).
+		\item Il termine di destra è il problema Rilassato Continuo sull'area azzurra (che, essendo l'area più estesa, restituirà il valore $v_S$ più alto in assoluto).
+	\end{enumerate}
+	
+	\vspace{0.4cm}
+	\textbf{Il Teorema Fondamentale della PLI e il Paradosso Risolutivo}\\
+	Questa catena di disuguaglianze ci porta direttamente al momento di svolta teorico della lezione. Esiste un teorema che afferma: \textit{Se i dati del problema sono interi, il valore ottimo del problema su $\mathcal{S}$ coincide esattamente con il valore ottimo del problema sul suo involucro convesso.}
+	In termini matematici:
+	\[
+	\max \{ c^T x \mid x \in \mathcal{S} \} = \max \{ c^T x \mid x \in conv(\mathcal{S}) \}
+	\]
+	Perché accade questo? Ricordiamo il Teorema Fondamentale della PL: in un poliedro convesso limitato, l'ottimo si trova sempre su un vertice. Se osserviamo il grafico, per definizione, \textbf{i vertici del poligono verde $conv(\mathcal{S})$ sono esclusivamente dei punti a coordinate intere}. Quindi, risolvendo il problema in continuo sull'area verde, la funzione obiettivo si fermerà necessariamente su un vertice del poliedro verde, restituendoci una soluzione perfettamente intera!
+	
+	A questo punto sorge spontaneo un paradosso, ed è fondamentale prestare la massima attenzione per comprenderlo: se l'ottimo del problema $conv(\mathcal{S})$ è perfettamente uguale all'ottimo del problema originario di PLI, stiamo forse dicendo che un problema di PLI può essere risolto come un banale problema di PL continua? 
+	
+	La risposta è \textbf{teoricamente sì, ma all'atto pratico assolutamente no}.
+	
+	\textit{Il motivo della discrepanza pratica: La Matrice Invisibile}\\
+	Nella normale PL, attraverso il Teorema di Weyl, avevamo una corrispondenza perfetta: avevamo i vertici geometrici e, contemporaneamente, conoscevamo la matrice dei vincoli algebrici (le equazioni delle rette) che definivano esternamente l'involucro di quei vertici. 
+	Nel caso del $conv(\mathcal{S})$, invece, noi conosciamo i vincoli del poliedro azzurro $P$, ma \textbf{non conosciamo assolutamente la matrice dei vincoli che disegnano i lati del poliedro verde}. 
+	
+	I punti a componenti intere sono intrappolati e nascosti all'interno del poliedro $P$. Trovare le equazioni esatte di tutte le rette che formano il perimetro verde (le cosiddette faccette del $conv(\mathcal{S})$) richiede uno sforzo computazionale infinitamente superiore rispetto a risolvere il problema originario. Noi non possediamo la rappresentazione algebrica di quel poligono più piccolo.
+	
+	Ecco svelato il motivo per cui non possiamo semplicemente usare il $conv(\mathcal{S})$ per risolvere i problemi! Siamo forzatamente costretti a partire dall'unico sistema che conosciamo matematicamente (il poliedro $P$), utilizzandolo come Rilassato Continuo per trovare la nostra stima superiore ($v_S$). Da lì, dovremo usare algoritmi appositi per tentare di avvicinarci, passo dopo passo, alla forma di quel poliedro verde nascosto.
+	
+	\vspace{0.4cm}
+	\textbf{Il Problema dello Zaino: Intero vs Binario e le Valutazioni}\\
+	Riprendiamo il Problema dello Zaino (Knapsack Problem) per formalizzare le due varianti principali alla luce dei concetti appena acquisiti su valutazioni (Inferiore e Superiore) e rilassamenti continui.
+	
+	\vspace{0.3cm}
+	\textbf{1. Il Problema dello Zaino Intero}\\
+	Il modello matematico si presenta in questa forma:
+	\[
+	\begin{cases}
+		\max \quad V^T x \\
+		p^T x \leq P \\
+		x \in \mathbb{Z}^n_+
+	\end{cases}
+	\]
+	La logica decisionale alla base di questo modello risponde alla domanda: \textit{"Prendo o non prendo questa risorsa? E se la prendo, in quali quantità?"}. La variabile $x$ può infatti assumere qualsiasi valore intero e positivo (es. 0, 1, 2, 3...).
+	
+	Per questo problema, la catena delle disuguaglianze che intrappola l'ottimo intero è:
+	\[
+	V^T \tilde{x} \leq \text{Ottimo Zaino Intero (PLI)} \leq \text{Ottimo Rilassato (PL)}
+	\]
+	Dove:
+	\begin{itemize}[label=\textcolor{titlecolor}{\Large\textbullet}, itemsep=2pt, leftmargin=1.5cm]
+		\item $V^T \tilde{x}$ rappresenta la \textbf{Valutazione Inferiore ($v_I$)}, ottenuta valutando la funzione obiettivo in un punto $\tilde{x}$ (X tilde) che sappiamo essere ammissibile per la PLI.
+		\item L'\textbf{Ottimo Rilassato (PL)} rappresenta la \textbf{Valutazione Superiore ($v_S$)}. Si calcola risolvendo lo stesso identico modello, ma sostituendo il rigido vincolo di interezza $x \in \mathbb{Z}^n_+$ con il più permissivo vincolo continuo $x \geq 0$.
+	\end{itemize}
+	
+	\vspace{0.4cm}
+	\textbf{2. Il Problema dello Zaino Binario (0-1)}\\
+	Il modello matematico cambia per quanto riguarda il dominio restrittivo delle variabili:
+	\[
+	\begin{cases}
+		\max \quad V^T x \\
+		p^T x \leq P \\
+		x \in \{0, 1\}^n
+	\end{cases}
+	\]
+	Qui la logica decisionale è drastica e bidimensionale. Risponde a una domanda secca: \textit{"Prendo o non prendo questa risorsa?"}. Non ci sono vie di mezzo o quantità multiple ammesse (il bene è indivisibile e unico).
+	
+	Anche in questo caso, vale rigorosamente la regola delle valutazioni:
+	\[
+	V^T \tilde{x} \leq \text{Ottimo Zaino Binario (PLI)} \leq \text{Ottimo Rilassato (PL)}
+	\]
+	La differenza fondamentale rispetto al caso precedente risiede in come si costruisce il \textbf{Rilassato Continuo} associato. Per calcolare la Valutazione Superiore ($v_S$) dello zaino binario, il vincolo di appartenenza viene trasformato allentando i margini discreti, diventando:
+	\[
+	0 \leq x_i \leq 1 \quad \forall i
+	\]
+	Cosa significa concettualmente? Mentre nello zaino binario puro la variabile $x$ può assumere \textit{solo ed esclusivamente} i valori estremi $0$ oppure $1$, nel corrispondente problema di Programmazione Lineare (rilassato continuo) la $x$ è libera di assumere \textit{un qualsiasi valore reale compreso tra 0 e 1} (ad esempio $0.34$, $0.5$, $0.8$). Questo permette all'algoritmo di inserire "frazioni di oggetto" per saturare lo zaino fino all'ultimo millimetro disponibile, fornendoci matematicamente la perfetta stima per eccesso $v_S$.
+	
+	\vspace{0.4cm}
+	\textbf{Il Calcolo delle Valutazioni tramite l'Algoritmo dei Rendimenti}\\
+	Riprendiamo l'Algoritmo dei Rendimenti, ricordando la formula fondamentale per valutare l'efficienza di un oggetto:
+	\[
+	R_i = \frac{V_i}{p_i}
+	\]
+	Questa frazione ci indica il valore generato per ogni singola unità di peso occupata. A seconda che stiamo cercando la Valutazione Superiore ($v_S$) o la Valutazione Inferiore ($v_I$), l'utilizzo di questi rendimenti cambia drasticamente.
+	
+	\vspace{0.3cm}
+	\textbf{1. Valutazione Superiore ($v_S$) - Il Rilassato Continuo}\\
+	Nel problema continuo, abbiamo la massima flessibilità. L'algoritmo procede così:
+	\begin{itemize}[label=\textcolor{titlecolor}{\Large\textbullet}, itemsep=2pt, leftmargin=1.5cm]
+		\item Si ordinano i beni in senso decrescente (dal rendimento maggiore al minore).
+		\item Si inseriscono i beni per intero finché c'è spazio sufficiente.
+		\item Quando lo spazio residuo non permette di inserire interamente il bene successivo, \textbf{lo si fraziona}. Si preleva esattamente la porzione necessaria a riempire lo zaino fino all'orlo (saturazione totale).
+	\end{itemize}
+	
+	\vspace{0.3cm}
+	\textbf{2. Valutazione Inferiore ($v_I$) - L'Euristica Greedy}\\
+	Per trovare una soluzione ammissibile intera, potremmo banalmente porre $\bar{x} = (0,0,\dots,0)$, ma questo genererebbe un GAP enorme e totalmente inutile ai fini computazionali. Usiamo quindi un approccio "Greedy" (ingordo) che rispetta il vincolo di interezza:
+	\begin{itemize}[label=\textcolor{titlecolor}{\Large\textbullet}, itemsep=2pt, leftmargin=1.5cm]
+		\item Si ordinano i beni per rendimento decrescente.
+		\item Si inseriscono i beni per intero finché lo spazio lo permette.
+		\item Se il bene in esame \textbf{non entra} nello spazio residuo, \textbf{non lo si fraziona, ma lo si scarta} ponendo la sua variabile a zero.
+		\item Si passa al bene successivo nella lista per vedere se, essendo magari più piccolo, riesce a incastrarsi nello spazio avanzato.
+	\end{itemize}
+	
+	\vspace{0.6cm}
+	\separatore
+	\vspace{0.4cm}
+	
+	\textbf{Esercizio Pratico: Valutazioni nello Zaino Binario}\\
+	Il professore propone il seguente modello di Zaino Binario per consolidare i concetti:
+	\[
+	\begin{cases}
+		\max \quad 10x_1 + 19x_2 + 23x_3 + 22x_4 \\[6pt]
+		10x_1 + 2x_2 + 11x_3 + 8x_4 \leq 13 \\[6pt]
+		x_i \in \{0, 1\} \quad \forall i=1,\dots,4
+	\end{cases}
+	\]
+	
+	\textbf{Passo 1: Calcolo dei Rendimenti}\\
+	Calcoliamo il rapporto $V_i / p_i$ per ciascun oggetto:
+	\begin{itemize}[label=$\circ$, itemsep=2pt, leftmargin=1.5cm]
+		\item $R_1 = 10 / 10 = \mathbf{1}$
+		\item $R_2 = 19 / 2 = \mathbf{9.5} \quad \text{\textcolor{green!60!black}{\textbf{(1° Posto)}}}$
+		\item $R_3 = 23 / 11 \approx \mathbf{2.09} \quad \text{\textcolor{orange}{\textbf{(3° Posto)}}}$
+		\item $R_4 = 22 / 8 = \mathbf{2.75} \quad \text{\textcolor{blue}{\textbf{(2° Posto)}}}$
+	\end{itemize}
+	L'ordine di esplorazione sarà quindi: \textbf{Oggetto 2, Oggetto 4, Oggetto 3, Oggetto 1}.
+	
+	\vspace{0.4cm}
+	\textbf{Passo 2: Calcolo della Valutazione Superiore ($v_S$)}\\
+	Utilizziamo la variabile $S$ per tracciare lo Spazio Residuo dello zaino (capienza iniziale $P=13$).
+	\begin{enumerate}
+		\item \textbf{Oggetto 2:} Pesa 2. Entra? Sì. \\
+		$S_1 = 13 - 2 = 11$. Valore accumulato: $19$. ($x_2 = 1$)
+		\item \textbf{Oggetto 4:} Pesa 8. Entra in 11? Sì. \\
+		$S_2 = 11 - 8 = 3$. Valore accumulato: $19 + 22 = 41$. ($x_4 = 1$)
+		\item \textbf{Oggetto 3:} Pesa 11. Entra in 3? No, strariperebbe. \\
+		Essendo nel Rilassato Continuo, \textbf{lo frazioniamo}. Inseriamo una frazione pari a $\frac{\text{Spazio Residuo}}{\text{Peso Oggetto}} = \frac{3}{11}$. \\
+		$S_3 = 3 - 3 = 0$ (Saturazione totale).
+	\end{enumerate}
+	
+	La soluzione di base del rilassato è $\bar{x} = \left(0, 1, \frac{3}{11}, 1\right)$.
+	Calcoliamo il valore della funzione obiettivo $v_S$:
+	\[
+	v_S = 19(1) + 22(1) + 23\left(\frac{3}{11}\right) = 41 + \frac{69}{11} \approx 41 + 6.27 = \mathbf{47.27}
+	\]
+	A questo punto, il professore svela un trucco magistrale: \textbf{come ragiona uno studente preparato?}\\
+	Sappiamo che il vero ottimo di PLI dovrà essere formato da variabili intere ($0$ o $1$) moltiplicate per coefficienti di valore interi ($10, 19, 23, 22$). Questo significa che la funzione obiettivo in PLI restituirà \textbf{sempre e solo un numero intero}. 
+	Se il limite massimo assoluto matematico è $47.27$, e sappiamo che il valore dovrà essere per forza intero, è lapalissiano che non potremo mai raggiungere né 47.27 né 48. Il massimo valore intero teoricamente raggiungibile è 47.
+	Possiamo quindi arrotondare \textit{per difetto} la valutazione superiore:
+	\[
+	\mathbf{v_S = \lfloor 47.27 \rfloor = 47}
+	\]
+	
+	\vspace{0.4cm}
+	\textbf{Passo 3: Calcolo della Valutazione Inferiore ($v_I$)}\\
+	Ripartiamo da capo ($S=13$) applicando l'algoritmo Greedy (senza frazionare):
+	\begin{enumerate}
+		\item \textbf{Oggetto 2:} Entra. $S = 11$. Valore = $19$. ($x_2 = 1$)
+		\item \textbf{Oggetto 4:} Entra. $S = 3$. Valore = $41$. ($x_4 = 1$)
+		\item \textbf{Oggetto 3:} Pesa 11. Entra in 3? \textbf{No. Lo scartiamo.} ($x_3 = 0$)
+		\item \textbf{Oggetto 1:} Pesa 10. Entra in 3? \textbf{No. Lo scartiamo.} ($x_1 = 0$)
+	\end{enumerate}
+	La soluzione intera ammissibile trovata è $\tilde{x} = (0, 1, 0, 1)$.
+	La nostra Valutazione Inferiore è data dalla somma dei valori degli oggetti effettivamente inseriti:
+	\[
+	\mathbf{v_I = 19 + 22 = 41}
+	\]
+	
+	\vspace{0.4cm}
+	\textbf{Rappresentazione del GAP}\\
+	Il professore traccia nuovamente la linea dei valori per questo specifico esercizio. Abbiamo individuato con certezza il recinto all'interno del quale si nasconde l'ottimo esatto del problema di PLI:
+	
+	\begin{figure}[H]
+		\centering
+		\begin{tikzpicture}
+			% Linea base
+			\draw[thick] (0,0) -- (10,0);
+			
+			% Tacche
+			\draw[thick] (1,-0.2) -- (1,0.2);
+			\draw[thick] (9,-0.2) -- (9,0.2);
+			
+			% Etichette
+			\node[below] at (1,-0.3) {Valutazione Inferiore};
+			\node[below, font=\bfseries] at (1,-0.8) {$v_I = 41$};
+			
+			\node[below] at (9,-0.3) {Valutazione Superiore};
+			\node[below, font=\bfseries] at (9,-0.8) {$v_S = 47$};
+			
+			% Parentesi graffa Gap
+			\draw[thick, decorate, decoration={brace, amplitude=10pt, raise=10pt}] (1,0.2) -- (9,0.2) node[midway, above=20pt, font=\bfseries] {GAP};
+		\end{tikzpicture}
+	\end{figure}
+	
+	Il divario (GAP) tra la nostra soluzione euristica ammissibile e il tetto massimo matematico è pari a $6$ (da $41$ a $47$). Il vero ottimo dello zaino binario si trova esattamente in questo intervallo. Nelle prossime lezioni scopriremo le tecniche matematiche necessarie per chiudere questo gap.
+	
+	\vspace{1.5cm}
+	\begin{center}
+		\rule{0.65\textwidth}{1pt} \\
+		\vspace{0.4cm}
+		\textcolor{titlecolor}{\LARGE \textbf{--- Fine Lezione 12 ---}} \\
+		\vspace{0.2cm}
+		\rule{0.65\textwidth}{1pt}
+	\end{center}
+	\newpage
+	
+	\avviso{\textit{\textbf{Questa lezione, come le sue precedenti e successive, può contenere errori e/o imprecisioni. Per il bene di tutti, è buona norma far notare all'autore l'errore o l'imprecisione così da risolvere nel minor tempo possibile. I canali di comunicazione, per eventuali avvisi generali o di errori trovati negli appunti, sono in cima al file. Grazie per la collaborazione e Buono studio!}}}
+	
+	\section*{Lezione 13 | 13 ottobre 2026}
+	\subsection*{L'Assenza di Dualità nella PLI e i Vincoli di Segno, Teorema dell'Unimodularità}
+	
+	\vspace{0.1cm}
+	Il professore apre la nuova lezione con un'affermazione categorica: \textbf{nella Programmazione Lineare Intera (PLI) non esiste la teoria della dualità}. Non possiamo associare un problema duale a un problema intero e sperare che valgano i teoremi di scarto complementare o dualità forte. Questo è uno dei motivi per cui la PLI richiede un approccio risolutivo completamente diverso.
+	
+	Riprendiamo il formato standard di massimizzazione:
+	\[
+	\begin{cases}
+		\max \quad c^T x \\
+		Ax \leq b \\
+		x \in \mathbb{Z}^n_+
+	\end{cases}
+	\]
+	
+	\textbf{Chiarimento sul simbolo $\mathbb{Z}^n_+$: cosa succede se togliamo il "$+$"?}\\
+	L'insieme $\mathbb{Z}$ rappresenta tutti i numeri interi (positivi, negativi e lo zero: $\dots, -2, -1, 0, 1, 2, \dots$). 
+	L'esponente $n$ indica semplicemente che stiamo lavorando in $n$ dimensioni (quindi con $n$ variabili $x_1, x_2, \dots, x_n$).
+	Il pedice "$+$" è un filtro fondamentale: impone che le variabili intere debbano essere \textbf{esclusivamente positive o nulle} ($x \geq 0$). 
+	
+	Se in un modello rimuovessimo quel "$+$", scrivendo solo $x \in \mathbb{Z}^n$, staremmo dicendo al modello che le variabili decisionali possono assumere anche \textbf{valori interi negativi} (es. $x_1 = -5$). Graficamente, questo significa che la regione ammissibile non sarebbe più confinata al primo quadrante del piano cartesiano, ma si espanderebbe in tutti i quadranti. Nei problemi reali (come lo zaino, dove non ha senso inserire "quantità negative" di un oggetto), rimuovere il "$+$" renderebbe il modello fisicamente privo di senso.
+	
+	\vspace{0.4cm}
+	\textbf{Il Paradosso della Complessità: PL vs PLI}\\
+	C'è un inganno psicologico quando si studia la Ricerca Operativa. A prima vista, la Programmazione Lineare (PL) sembra estremamente più astratta e difficile, perché è calata in contesti puramente matematici e richiede una profonda comprensione algebrica per capire "dove ci si trova" nel poliedro. Al contrario, la PLI ci presenta problemi della vita reale (caricare uno zaino, assegnare turni di lavoro) che la mente umana intuisce in due secondi.
+	
+	Eppure, \textbf{computazionalmente è l'esatto contrario}. La PL è "facile" per un computer (risolvibile in tempo polinomiale), mentre la PLI è mostruosamente difficile (appartiene alla classe dei problemi \textit{NP-Ardui}). L'obiettivo del Rilassato Continuo è proprio questo: ottenere un modello computazionalmente facile da risolvere per la macchina, \textbf{togliendo i vincoli "scomodi"} (i vincoli di interezza). Questa rimozione ci fornisce la nostra Valutazione Superiore ($v_S$).
+	
+	\vspace{0.4cm}
+	\textbf{L'Importanza di una Buona Valutazione Inferiore ($v_I$)}\\
+	Il professore traccia nuovamente la linea del GAP, ipotizzando di aver trovato tramite euristica (soluzione ammissibile) una $v_I = 196$ e tramite rilassamento continuo una $v_S = 199$.
+	
+	\begin{figure}[H]
+		\centering
+		\begin{tikzpicture}
+			\draw[thick] (0,0) -- (10,0);
+			\draw[thick] (2,-0.2) -- (2,0.2);
+			\draw[thick] (8,-0.2) -- (8,0.2);
+			\node[below] at (2,-0.3) {Valutazione Inferiore ($v_I$)};
+			\node[below, font=\bfseries] at (2,-0.8) {196};
+			\node[below] at (8,-0.3) {Valutazione Superiore ($v_S$)};
+			\node[below, font=\bfseries] at (8,-0.8) {199};
+			\node[above, color=myred, font=\bfseries] at (5, 0.5) {Ottimo PLI ?};
+		\end{tikzpicture}
+	\end{figure}
+	
+	L'ottimo ideale lo avremmo se $v_I = v_S$, ma in questo caso c'è un gap di 3 unità. Perché è cruciale che $v_I$ sia generata da una \textbf{buona} soluzione $\tilde{x} \in \mathcal{S}$? 
+	Se noi non riuscissimo ad applicare algoritmi complessi per trovare l'ottimo perfetto di PLI (che sappiamo essere $\leq 199$), dovremmo accontentarci del miglior risultato pratico in nostro possesso. Quel risultato è proprio la $v_I = 196$. 
+	
+	Se avessimo scelto stupidamente di usare lo "zaino vuoto" $\tilde{x} = (0,0)$ per calcolare la $v_I$, avremmo ottenuto $v_I = 0$. Il GAP sarebbe stato tra $0$ e $199$, rendendo la valutazione inferiore completamente inutile ai fini operativi. Avere una $v_I = 196$ ci garantisce invece che, nella peggiore delle ipotesi, abbiamo una strategia concreta che ci porta vicinissimi all'ottimo matematico.
+	
+	\vspace{0.6cm}
+	\separatore
+	\vspace{0.4cm}
+	
+	\textbf{I Problemi di Minimo nella PLI}\\
+	Se affrontiamo un problema di \textbf{Minimo} in PLI:
+	\[
+	\begin{cases}
+		\min \quad c^T x \\
+		Ax \geq b \\
+		x \in \mathbb{Z}^n_+
+	\end{cases}
+	\]
+	Le logiche si invertono rispetto ai problemi di massimo:
+	\begin{itemize}[label=\textcolor{titlecolor}{\Large\textbullet}, itemsep=2pt, leftmargin=1.5cm]
+		\item \textbf{Valutazione Inferiore ($v_I$):} Diventa il Rilassato Continuo. Togliendo i vincoli di interezza espandiamo il poliedro, permettendo al computer di trovare un "costo" ancora più basso (anche se con frazioni).
+		\item \textbf{Valutazione Superiore ($v_S$):} Diventa la soluzione ammissibile (\textit{Greedy}). Un punto intero valido $\tilde{x}$ ci darà un costo noto, che sarà il nostro "tetto massimo di spesa".
+	\end{itemize}
+	La disuguaglianza diventa quindi:
+	\[
+	v_I \text{ (Rilassato Continuo PL)} \leq \text{Ottimo PLI} \leq v_S \text{ (Euristica Ammissibile)}
+	\]
+	
+	\vspace{0.4cm}
+	\textbf{Il Teorema dell'Unimodularità}\\
+	Arriviamo a una delle definizioni più eleganti di tutto il corso: la \textbf{Matrice Unimodulare}.
+	\begin{quote}
+		\textit{Una matrice $A \in \mathbb{R}^{m \times n}$ (con $m \geq n$) di rango massimo si dice totalmente unimodulare se i determinanti di \textbf{tutte} le sue sottomatrici quadrate di rango massimo valgono esclusivamente $+1, \text{ oppure } -1$.}
+	\end{quote}
+	
+	Qual è il senso pratico di questa proprietà? Ripensiamo alla formula dei vertici: $\bar{x}_B = A_B^{-1} b_B$. 
+	Per le regole dell'algebra lineare (Regola di Cramer), per calcolare l'inversa $A_B^{-1}$ si deve dividere per il determinante di $A_B$. Se $A$ è unimodulare, sappiamo per certo che il determinante di $A_B$ sarà sempre $+1$ o $-1$. 
+	
+	Dividere i termini noti $b$ (che sono interi) per $1$ o $-1$ garantisce in modo assoluto che \textbf{tutti i componenti del vertice $\bar{x}$ saranno numeri interi}.
+	Se i vertici del poliedro sono già a componenti intere, calcolare il Rilassato Continuo in PL ci porterà automaticamente su uno di questi vertici interi. Di conseguenza, il Rilassato Continuo restituirà direttamente la soluzione ottima del problema di PLI, senza alcuno sforzo aggiuntivo!
+	
+	\vspace{0.3cm}
+	\textbf{Il Problema dell'Assegnamento}\\
+	Un'applicazione diretta di questo teorema è il \textbf{Problema dell'Assegnamento}. Il professore enuncia che \textit{la matrice dei vincoli del problema dell'assegnamento è unimodulare}. 
+	
+	Per questo motivo, non c'è bisogno di fare distinzione tra assegnamento di beni divisibili (Continuo/Cooperativo) e indivisibili (Intero/Non Cooperativo). Il simplesso PL sceglierà sempre i vertici.
+	Immaginiamo le soluzioni di un problema $3 \times 3$ fornite alla lavagna, tutte con Valore Ottimo $= 8$:
+	\begin{itemize}[label=$\circ$, itemsep=2pt, leftmargin=1.5cm]
+		\item $\bar{x}_1 = (1/2, 1/2, 0, \quad 1/2, 1/2, 0, \quad 0, 0, 1)$ \hfill \textit{Frazionaria, NON è un vertice.}
+		\item $\mathbf{\bar{x}_2 = (1, 0, 0, \quad 0, 1, 0, \quad 0, 0, 1)}$ \hfill \textbf{Intera, È un vertice (Assegnamento Puro).}
+		\item $\bar{x}_3 = (16/17, 1/17, 0, \quad 1/17, 16/17, 0, \quad 0, 0, 1)$ \hfill \textit{Frazionaria, NON è un vertice.}
+		\item $\mathbf{\bar{x}_4 = (0, 1, 0, \quad 1, 0, 0, \quad 0, 0, 1)}$ \hfill \textbf{Intera, È un vertice (Assegnamento Puro).}
+	\end{itemize}
+	Risolvendolo in PL, il simplesso scarterà le soluzioni miste ($\bar{x}_1, \bar{x}_3$) e cadrà inevitabilmente su $\bar{x}_2$ o $\bar{x}_4$, risolvendo il problema intero.
+	
+	\vspace{0.6cm}
+	\separatore
+	\vspace{0.4cm}
+	
+	\textbf{La Parte Intera Inferiore (Floor)}\\
+	Nei problemi di Massimizzazione in PLI con dati interi:
+	\begin{itemize}[label=\textcolor{titlecolor}{\Large\textbullet}, itemsep=2pt, leftmargin=1.5cm]
+		\item \textbf{Per la $v_S$:} La Valutazione Superiore è data dal troncamento del risultato continuo. \\
+		$v_S = \lfloor \text{Ottimo Rilassato} \rfloor$. (Se il PL dà 47.9, la $v_S$ intera è 47).
+		\item \textbf{Per la $v_I$:} In alcuni contesti (come i rendimenti), arrotondare per difetto le variabili della soluzione continua $\tilde{x}$ produce una soluzione ammissibile per lo zaino. La formula $v_I = c^T \lfloor \tilde{x} \rfloor$ significa "applica il floor (tronca i decimali) a ciascun componente del vettore $\tilde{x}$, e calcolaci la funzione obiettivo".
+	\end{itemize}
+	Quelle parentesi fatte a "L" ($\lfloor x \rfloor$) sono un operatore matematico universale chiamato \textbf{Floor} (in italiano \textit{Parte Intera Inferiore}).
+	Il suo significato è banalissimo: "tronca i decimali e prendi il numero intero immediatamente precedente". Ad esempio: $\lfloor 47.9 \rfloor = 47$, oppure $\lfloor 12.1 \rfloor = 12$.
+	
+	\vspace{0.6cm}
+	\separatore
+	\vspace{0.4cm}
+	
+	\vspace{0.4cm}
+	\textbf{Esercizio Finale: Zaino Binario e Zaino Intero a Confronto}\\
+	Applichiamo tutta la teoria appena vista a un esercizio completo, calcolando le valutazioni per entrambe le varianti del Problema dello Zaino (Binario e Intero), utilizzando gli stessi insiemi di oggetti ma con due capienze differenti.
+	
+	\textbf{Dati Comuni:}
+	\begin{itemize}[label=$\circ$, itemsep=2pt, leftmargin=1.5cm]
+		\item Valori $V = \{19, 20, 13, 15\}$
+		\item Pesi $p = \{3, 6, 4, 5\}$
+	\end{itemize}
+	
+	\textbf{Passo Preliminare: Calcolo dei Rendimenti ($R_i = V_i / p_i$)}\\
+	I rendimenti dipendono solo dall'oggetto, quindi valgono per entrambi i problemi:
+	\begin{itemize}[label=$\circ$, itemsep=2pt, leftmargin=1.5cm]
+		\item $R_1 = 19 / 3 \approx \mathbf{6.33} \quad \text{\textcolor{green!60!black}{\textbf{(1° Posto)}} \quad (Oggetto 1)}$
+		\item $R_2 = 20 / 6 \approx \mathbf{3.33} \quad \text{\textcolor{blue}{\textbf{(2° Posto)}} \quad (Oggetto 2)}$
+		\item $R_3 = 13 / 4 = \mathbf{3.25} \quad \text{\textcolor{orange}{\textbf{(3° Posto)}} \quad (Oggetto 3)}$
+		\item $R_4 = 15 / 5 = \mathbf{3.00} \quad \text{\textbf{(4° Posto)} \quad (Oggetto 4)}$
+	\end{itemize}
+	
+	\vspace{0.6cm}
+	\separatore
+	\vspace{0.4cm}
+	
+	\textbf{PARTE 1: Il Problema dello Zaino Binario (Capienza $P = 8$)}\\
+	Ricordiamo il vincolo: $x_i \in \{0, 1\}$. Si prende al massimo un'unità per oggetto.
+	
+	\textbf{1. Valutazione Superiore ($v_S$) - Con Frazionamento:}\\
+	Spazio iniziale $S = 8$.
+	\begin{enumerate}
+		\item \textbf{Oggetto 1:} Entra intero. $x_1=1$. \\
+		$S = 8 - 3 = 5$. Valore accumulato = $19$.
+		\item \textbf{Oggetto 2:} Pesa 6. Non entra interamente nello spazio residuo di 5. \\
+		Essendo nel Rilassato Continuo, \textbf{lo frazioniamo}: $x_2 = \frac{5}{6} \approx 0.833$. \\
+		$S = 5 - 5 = 0$ (Saturazione totale).
+	\end{enumerate}
+	Calcoliamo il valore continuo: 
+	$v_{S_{cont}} = 19(1) + 20\left(\frac{5}{6}\right) = 19 + \frac{100}{6} = 19 + 16.66 = \mathbf{35.66}$.\\
+	Applicando il \textit{floor} (poiché l'ottimo di PLI sarà intero): $v_S = \lfloor 35.66 \rfloor = \mathbf{35}$.
+	
+	\textbf{2. Valutazione Inferiore ($v_I$) - Greedy (Senza Frazionare):}\\
+	Spazio iniziale $S = 8$.
+	\begin{enumerate}
+		\item \textbf{Oggetto 1:} Entra intero ($x_1=1$). $S = 5$. Valore = $19$.
+		\item \textbf{Oggetto 2:} Pesa 6. Non entra in 5. \textbf{Lo scartiamo} ($x_2=0$).
+		\item \textbf{Oggetto 3:} Pesa 4. Entra in 5 ($x_3=1$). \\
+		$S = 5 - 4 = 1$. Valore accumulato = $19 + 13 = 32$.
+		\item \textbf{Oggetto 4:} Pesa 5. Non entra in 1. \textbf{Lo scartiamo} ($x_4=0$).
+	\end{enumerate}
+	La soluzione intera ammissibile è $\tilde{x} = (1, 0, 1, 0)$. \\
+	La Valutazione Inferiore è $v_I = 19 + 13 = \mathbf{32}$.
+	
+	Il GAP per lo zaino binario è racchiuso nell'intervallo tra \textbf{32} ($v_I$) e \textbf{35} ($v_S$).
+	
+	\vspace{0.6cm}
+	\separatore
+	\vspace{0.4cm}
+	
+	\textbf{PARTE 2: Il Problema dello Zaino Intero (Capienza $P = 27$)}\\
+	Ricordiamo il vincolo: $x_i \in \mathbb{Z}^n_+$. Si possono prendere quantità multiple dello stesso oggetto.
+	
+	\textbf{1. Valutazione Superiore ($v_S$) - Il Rilassato Continuo:}\\
+	In questo caso, il rilassamento continuo impone solo $x_i \geq 0$. La strategia ottima per massimizzare il valore consiste nel saturare \textit{tutto} lo zaino riempiendolo esclusivamente con l'oggetto di massimo rendimento (l'Oggetto 1, che pesa 3 e vale 19).
+	
+	Calcoliamo quante unità dell'Oggetto 1 entrano in una capienza di 27:
+	\[
+	x_1 = \frac{P}{p_1} = \frac{27}{3} = \mathbf{9}
+	\]
+	L'oggetto satura perfettamente lo zaino. Calcoliamo il valore:
+	\[
+	v_{S_{cont}} = 19 \times 9 = \mathbf{171}
+	\]
+	Poiché il risultato è già privo di decimali, $v_S = \mathbf{171}$. 
+	
+	\textbf{2. Valutazione Inferiore ($v_I$) - Greedy Intero:}\\
+	L'algoritmo Greedy per lo zaino intero prende la parte intera del rapporto di saturazione per l'oggetto di massimo rendimento:
+	\[
+	\text{Unità massime di Oggetto 1} = \left\lfloor \frac{27}{3} \right\rfloor = 9
+	\]
+	Prendendo 9 unità dell'Oggetto 1, lo spazio si esaurisce ($S = 0$). \\
+	La soluzione intera ammissibile è $\tilde{x} = (9, 0, 0, 0)$. \\
+	La Valutazione Inferiore è $v_I = 19 \times 9 = \mathbf{171}$.
+	
+	\vspace{0.4cm}
+	\textbf{Conclusione Straordinaria: Il GAP Nullo}\\
+	Osservando le valutazioni dello Zaino Intero notiamo qualcosa di meraviglioso:
+	\[
+	v_I = 171 \quad \text{e} \quad v_S = 171
+	\]
+	Essendo la Valutazione Inferiore strettamente uguale alla Valutazione Superiore, il GAP è esattamente pari a zero. Come anticipato dalla teoria, questo accade perché il vertice ottimo geometrico trovato dal rilassato continuo possedeva \textbf{già coordinate perfettamente intere} ($x_1 = 9$). 
+	Non dobbiamo calcolare nient'altro: 171 è l'assoluto e indiscutibile Ottimo di PLI.
+	
+	\vspace{1.5cm}
+	\begin{center}
+		\rule{0.65\textwidth}{1pt} \\
+		\vspace{0.4cm}
+		\textcolor{titlecolor}{\LARGE \textbf{--- Fine Lezione 13 ---}} \\
+		\vspace{0.2cm}
+		\rule{0.65\textwidth}{1pt}
+	\end{center}
+	\newpage
+	
+	\avviso{\textit{\textbf{Questa lezione, come le sue precedenti e successive, può contenere errori e/o imprecisioni. Per il bene di tutti, è buona norma far notare all'autore l'errore o l'imprecisione così da risolvere nel minor tempo possibile. I canali di comunicazione, per eventuali avvisi generali o di errori trovati negli appunti, sono in cima al file. Grazie per la collaborazione e Buono studio!}}}
+	
+	\section*{Lezione 14 | 14 ottobre 2026}
+	\subsection*{Piani di taglio: il Taglio di Gomory}
 	
 \end{document}
