@@ -3963,7 +3963,7 @@
 	
 	\vspace{0.1cm}
 	\begin{quote}
-		\textit{\textbf{Nota dell'autore:} Questo chiarimento si è reso strettamente necessario perché io stesso ho riscontrato non poche difficoltà nel comprendere l'esatta meccanica di questa regola. A lezione si è parlato molto della Regola di Bland, ma spesso in termini generali, tralasciando di specificare in quali esatti frangenti essa fungesse da criterio primario e in quali fungesse da semplice "spareggio" nei calcoli dei rapporti. Questa precisazione fuga definitivamente ogni dubbio operativo su entrambi i simplessi.}
+		\textit{\textbf{Nota dell'autore:} Questo si è reso strettamente necessario perché io stesso ho riscontrato non poche difficoltà nel comprendere l'esatta meccanica di questa regola. A lezione si è parlato molto della Regola di Bland, ma spesso in termini generali, tralasciando di specificare in quali esatti frangenti essa fungesse da criterio primario e in quali fungesse da semplice "spareggio" nei calcoli dei rapporti. Questa precisazione fuga definitivamente ogni dubbio operativo su entrambi i simplessi.}
 	\end{quote}
 	
 	\vspace{0.6cm}
@@ -5031,5 +5031,1032 @@
 	
 	\section*{Lezione 14 | 14 ottobre 2026}
 	\subsection*{Piani di taglio: il Taglio di Gomory}
+	
+	L'obiettivo primario di questa nuova fase del corso è rispondere a una domanda fondamentale: come facciamo ad avvicinarci all'ottimo intero quando la Programmazione Lineare (PL) ci restituisce un vertice frazionario? 
+	La risposta risiede negli \textbf{algoritmi di riduzione del GAP}, e il più celebre tra questi è senza dubbio il metodo basato sui \textbf{Tagli di Gomory}. 
+	
+	Per capire a cosa serve un "taglio", dobbiamo ritornare al concetto di GAP. Sappiamo che la Valutazione Superiore ($v_S$, data dal rilassato continuo) e la Valutazione Inferiore ($v_I$, data da una soluzione intera ammissibile) sono distanti tra loro. L'obiettivo del piano di taglio è letteralmente quello di \textbf{affettare via pezzi del poliedro continuo} per ridurre questa distanza, abbassando la $v_S$ iterazione dopo iterazione, finché questa non collassa esattamente sul valore dell'ottimo intero.
+	
+	\vspace{0.4cm}
+	\textbf{L'Intuizione Grafica: Il Poliedro e il Taglio}\\
+	Il professore ci ha illustrato questo meccanismo con due grafici molto intuitivi. 
+	Nel primo grafico, osserviamo un poliedro casuale $P$. Al suo interno, i puntini neri rappresentano l'insieme $\mathcal{S}$ (le soluzioni a componenti intere). Risolvendo il problema con la normale PL (Rilassato Continuo), il Simplesso si ferma sul vertice geometrico più alto spinto dalla funzione obiettivo. Questo vertice (cerchiato in rosso) rappresenta l'ottimo continuo, ma non è un puntino nero! L'ottimo intero, invece, è tipicamente il puntino nero più vicino a quel vertice, all'interno della combinazione convessa di $\mathcal{S}$.
+	
+	\begin{figure}[H]
+		\centering
+		\begin{tikzpicture}[scale=1.2]
+			% Assi
+			\draw[->, thick] (-0.5, 0) -- (8, 0) node[right] {$x_1$};
+			\draw[->, thick] (0, -0.5) -- (0, 6) node[above] {$x_2$};
+			
+			% Poliedro P
+			\fill[blue!10] (1, 1) -- (6, 1.5) -- (7, 4) -- (4, 5) -- (1, 4) -- cycle;
+			\draw[thick, blue] (1, 1) -- (6, 1.5) -- (7, 4) -- (4, 5) -- (1, 4) -- cycle;
+			
+			% Punti interi S
+			\foreach \x in {1,2,3,4,5,6} {
+				\foreach \y in {1,2,3,4} {
+					\pgfmathparse{ (\y>=1 && \y<=4 && \y<=(-0.33*\x + 6.33) && \y<=(1.5*\x - 0.5)) ? 1 : 0 }
+					\ifnum\pgfmathresult=1 \fill[black] (\x, \y) circle (2pt); \fi
+				}
+			}
+			
+			% Ottimo continuo (Cerchio rosso)
+			\draw[red, thick] (4, 5) circle (4pt);
+			\node[red, above right, font=\footnotesize] at (4, 5) {Ottimo Continuo ($v_S$)};
+			
+			% Ottimo intero reale
+			\fill[green!60!black] (4, 4) circle (3pt);
+			\node[green!60!black, below, font=\footnotesize] at (4, 4) {Ottimo PLI};
+		\end{tikzpicture}
+		\caption{Il vertice ottimo del rilassato continuo (cerchiato in rosso) si trova al di fuori dell'insieme dei punti interi ammissibili.}
+	\end{figure}
+	
+	Come facciamo a dire al Simplesso di ignorare quel vertice rosso e cercare altrove? \textbf{Lo tagliamo via.}
+	Aggiungiamo un nuovo vincolo matematico (una retta) che attraversa il poliedro separando di netto il vertice frazionario dal resto delle soluzioni ammissibili. 
+	Nel secondo grafico, questa retta (tracciata in viola) entra in azione: "manda a quel paese" il vecchio vertice continuo e crea un nuovo poliedro più piccolo.
+	
+	\begin{figure}[H]
+		\centering
+		\begin{tikzpicture}[scale=1.2]
+			% Assi
+			\draw[->, thick] (-0.5, 0) -- (8, 0) node[right] {$x_1$};
+			\draw[->, thick] (0, -0.5) -- (0, 6) node[above] {$x_2$};
+			
+			% Poliedro originale tratteggiato
+			\draw[dashed, blue!50] (1, 1) -- (6, 1.5) -- (7, 4) -- (4, 5) -- (1, 4) -- cycle;
+			
+			% Nuovo poliedro tagliato
+			\fill[blue!10] (1, 1) -- (6, 1.5) -- (7, 4) -- (5.5, 4.5) -- (2.5, 4.5) -- (1, 4) -- cycle;
+			\draw[thick, blue] (1, 1) -- (6, 1.5) -- (7, 4) -- (5.5, 4.5) -- (2.5, 4.5) -- (1, 4) -- cycle;
+			
+			% Piano di Taglio (Retta Viola)
+			\draw[thick, violet] (1.5, 4.5) -- (6.5, 4.5) node[right] {Piano di Taglio};
+			
+			% Vecchio Ottimo continuo tagliato fuori
+			\draw[red, thick] (4, 5) circle (4pt);
+			\draw[red, thick] (3.8, 4.8) -- (4.2, 5.2);
+			\draw[red, thick] (3.8, 5.2) -- (4.2, 4.8);
+			
+			% Punti interi S (Intatti)
+			\foreach \x in {1,2,3,4,5,6} {
+				\foreach \y in {1,2,3,4} {
+					\pgfmathparse{ (\y>=1 && \y<=4 && \y<=(-0.33*\x + 6.33) && \y<=(1.5*\x - 0.5)) ? 1 : 0 }
+					\ifnum\pgfmathresult=1 \fill[black] (\x, \y) circle (2pt); \fi
+				}
+			}
+		\end{tikzpicture}
+		\caption{Il piano di taglio (viola) affetta il poliedro eliminando l'ottimo continuo frazionario, ma preservando rigorosamente tutti i punti interi.}
+	\end{figure}
+	
+	Il Simplesso, costretto a risolvere questo \textbf{nuovo Rilassato Continuo più piccolo}, troverà un nuovo vertice (magari sull'intersezione della retta viola). Se questo nuovo vertice sarà intero, avremo finito. Se sarà ancora frazionario, applicheremo un secondo taglio, poi un terzo, finché la valutazione superiore non coinciderà con l'ottimo di PLI.
+	
+	\vspace{0.6cm}
+	\separatore
+	\vspace{0.4cm}
+	
+	\textbf{Definizione Matematica: Disuguaglianza Valida e Piano di Taglio}\\
+	Per formalizzare questo processo, dobbiamo tradurlo in algebra lineare. 
+	Aggiungere un taglio significa aggiungere al modello un nuovo vincolo nella forma:
+	\[
+	\gamma^T x \leq \gamma_0
+	\]
+	Dove $\gamma \in \mathbb{R}^n$ rappresenta il vettore dei coefficienti del taglio e $\gamma_0$ il suo termine noto. 
+	Questo nuovo vincolo deve rispettare due regole ferree, che portano a due definizioni distinte:
+	
+	\textbf{1. La Disuguaglianza Valida}\\
+	Si dice che $\gamma^T x \leq \gamma_0$ è una \textbf{disuguaglianza valida} per l'insieme $\mathcal{S}$ se:
+	\[
+	\gamma^T x \leq \gamma_0 \quad \forall x \in \mathcal{S}
+	\]
+	\textit{Cosa significa concretamente?} Significa che il taglio \textbf{non deve mai e poi mai tagliare via una soluzione intera ammissibile}. Tutti i puntini neri del nostro grafico devono continuare a rispettare questo vincolo e rimanere all'interno del poliedro. Questa è la regola d'oro: se il taglio eliminasse anche solo uno dei punti della combinazione convessa di $\mathcal{S}$, rischieremmo di tagliare via il vero ottimo di PLI, rovinando l'intero problema.
+	
+	\textbf{2. Il Piano di Taglio (Cutting Plane)}\\
+	Una disuguaglianza valida non basta. Potremmo inventare mille disuguaglianze valide (es. $x_1 \geq -1000$), ma se non tagliano nulla, sono inutili. 
+	Affinché una disuguaglianza valida diventi ufficialmente un \textbf{Piano di Taglio}, deve avere l'obiettivo specifico di separare la soluzione ottima continua dal resto del poliedro. 
+	
+	Matematicamente, chiamando $\bar{x}_{PL}$ la soluzione ottima trovata dal rilassato continuo, un piano di taglio è definito come una disuguaglianza valida tale per cui:
+	\[
+	\gamma^T \bar{x}_{PL} < \gamma_0
+	\]
+	Questa formula dice una cosa semplicissima: il nostro attuale vertice frazionario \textbf{viola il nuovo vincolo}. 
+	
+	\vspace{0.4cm}
+	\textbf{Il Risultato Finale: La Riduzione del GAP}\\
+	Aggiungendo il vincolo $\gamma^T x \leq \gamma_0$ al nostro sistema iniziale $Ax \leq b$, costringiamo l'algoritmo del Simplesso a ricalcolare l'ottimo su uno spazio più ristretto. 
+	
+	Il nuovo Rilassato Continuo sarà geometricamente più piccolo del precedente. Di conseguenza, il nuovo vertice ottimo si troverà "più in basso" rispetto al vertice frazionario che abbiamo appena eliminato. Questo produce una \textbf{Valutazione Superiore ($v_S$) più bassa}, riducendo fisicamente il GAP che la separa dalla Valutazione Inferiore ($v_I$) e avvicinandoci progressivamente (e inesorabilmente) alla vera soluzione ottima della Programmazione Lineare Intera.
+	
+	\vspace{0.6cm}
+	\textbf{La Costruzione del Taglio: L'Approccio Algebrico}\\
+	Nelle lezioni precedenti abbiamo compreso \textit{perché} serve un piano di taglio (per separare l'ottimo frazionario continuo dall'ottimo intero). Ora la domanda fondamentale diventa: \textbf{come si trova matematicamente questo taglio?} Come facciamo a calcolare l'equazione esatta di quella retta viola che affetta il poliedro?
+	
+	Per capirlo, partiamo da un normale problema di Programmazione Lineare (il nostro Rilassato Continuo) in forma standard: $Ax = b$ con $x \geq 0$.
+	Supponiamo di aver applicato il Simplesso e di aver raggiunto la base ottima $B$. A questo punto, possiamo riordinare le colonne della nostra matrice dei vincoli $A$ dividendo le variabili di base da quelle non di base. 
+	Otteniamo una matrice partizionata in due grandi blocchi, separati idealmente da una linea verticale:
+	\[
+	A = \big[ A_B \mid A_N \big]
+	\]
+	Dove:
+	\begin{itemize}[label=\textcolor{titlecolor}{\Large\textbullet}, itemsep=2pt, leftmargin=1.5cm]
+		\item $A_B$ è la matrice di base (quadrata di dimensioni $n \times n$).
+		\item $A_N$ è la matrice delle componenti non di base (di dimensioni $(n-m)$, dove $n$ è il numero totale di variabili).
+	\end{itemize}
+	
+	A questo punto, sfruttando l'algebra lineare del Simplesso, costruiamo una nuova matrice che chiameremo $\tilde{A}$ (A tilde). Questa matrice si ottiene moltiplicando l'inversa della matrice di base per la matrice non di base:
+	\[
+	\tilde{A} = A_B^{-1} A_N
+	\]
+	La matrice $\tilde{A}$ ha dimensioni $m \times (n-m)$ e i suoi singoli elementi verranno indicati con $\tilde{a}_{ij}$.
+	
+	\vspace{0.4cm}
+	\textbf{La Ricerca della Riga Generatrice ($r$)}\\
+	Guardiamo ora la nostra soluzione ottima del Rilassato Continuo, che chiameremo $\bar{x}$.
+	Se tutte le componenti di $\bar{x}$ fossero numeri interi, avremmo già finito (saremmo all'ottimo di PLI). Poiché non lo sono, esisterà \textbf{almeno un indice} della base la cui variabile assume un valore frazionario (ad esempio $\bar{x}_3 = 4.7$). 
+	Chiameremo questo specifico indice \textbf{$r$}. La riga $r$-esima del nostro sistema sarà la riga "generatrice" da cui nascerà il nostro taglio.
+	
+	\vspace{0.6cm}
+	\separatore
+	\vspace{0.4cm}
+	
+	\textbf{Strumento Matematico: La Parte Frazionaria}\\
+	Prima di enunciare il teorema del taglio, è imperativo padroneggiare un operatore matematico fondamentale: la \textbf{Parte Frazionaria}, indicata racchiudendo il numero tra parentesi graffe $\{a\}$.
+	
+	La definizione rigorosa della parte frazionaria di un numero $a \in \mathbb{R}$ è:
+	\[
+	\{a\} = a - \lfloor a \rfloor
+	\]
+	Ovvero: il numero stesso \textit{meno} la sua parte intera inferiore (il \textit{floor}, cioè l'intero più grande che sia minore o uguale ad $a$).
+	Una regola d'oro da stampare in mente è che \textbf{la parte frazionaria è sempre un numero strettamente positivo o nullo, e strettamente minore di 1} ($0 \leq \{a\} < 1$).
+	
+	Facciamo degli esempi esaustivi per chiarire ogni singola casistica possibile:
+	\begin{enumerate}
+		\item \textbf{Numeri Interi:} Se $a = 5$, la sua parte intera è $5$. \\
+		$\{5\} = 5 - 5 = \mathbf{0}$. \textit{(La parte frazionaria di qualsiasi numero intero è sempre e solo zero).}
+		
+		\item \textbf{Numeri Decimali Positivi:} Se $a = 4.7$, la sua parte intera inferiore è $4$. \\
+		$\{4.7\} = 4.7 - 4 = \mathbf{0.7}$.
+		
+		\item \textbf{Frazioni:} Se $a = \frac{11}{3}$ (che equivale a $3.666...$), la sua parte intera è $3$. \\
+		$\left\{\frac{11}{3}\right\} = \frac{11}{3} - 3 = \frac{11}{3} - \frac{9}{3} = \mathbf{\frac{2}{3}}$.
+		
+		\item \textbf{Numeri Irrazionali (Sotto Radice):} Prendiamo $\sqrt{2}$, che vale circa $1.414...$ La sua parte intera inferiore è $1$. \\
+		$\{\sqrt{2}\} = \mathbf{\sqrt{2} - 1}$ (che vale circa $0.414$). Si lascia scritto in forma esatta.
+		
+		\item \textbf{Numeri Negativi (Attenzione Massima!):} Questo è l'errore più comune. Calcoliamo $\{-2.4\}$. \\
+		Qual è l'intero \textit{minore o uguale} a $-2.4$? Non è $-2$ (che è maggiore!), ma è \textbf{$-3$}. 
+		Applicando la formula: $\{-2.4\} = -2.4 - (-3) = -2.4 + 3 = \mathbf{0.6}$. \\
+		\textit{(Come vedete, anche per i numeri negativi la parte frazionaria restituita è sempre positiva!).}
+	\end{enumerate}
+	
+	\vspace{0.6cm}
+	\separatore
+	\vspace{0.4cm}
+	
+	\textbf{Il Teorema del Taglio Frazionario di Gomory}\\
+	Ora che possediamo tutti gli strumenti, possiamo enunciare il teorema che genera matematicamente il taglio. 
+	Data la riga $r$ (quella corrispondente alla variabile di base con valore non intero), il \textbf{Taglio di Gomory} si costruisce con la seguente disuguaglianza:
+	
+	\[
+	\sum_{j \in N} \{\tilde{a}_{rj}\} x_j \geq \{\bar{x}_r\}
+	\]
+	
+	Analizziamo i componenti di questa formula, che è di un'eleganza straordinaria:
+	\begin{itemize}[label=\textcolor{titlecolor}{\Large\textbullet}, itemsep=2pt, leftmargin=1.5cm]
+		\item $\sum_{j \in N}$: La sommatoria si sviluppa \textbf{solo sulle variabili non di base} ($j \in N$).
+		\item $\{\tilde{a}_{rj}\}$: È la parte frazionaria del coefficiente che si trova nella matrice $\tilde{A}$, esattamente alla riga $r$ e colonna $j$.
+		\item $x_j$: È la variabile decisionale (non di base) associata.
+		\item $\{\bar{x}_r\}$: È la parte frazionaria del valore attuale della nostra variabile di base (il nostro "termine noto" del taglio).
+	\end{itemize}
+	
+	\textbf{Perché questa formula rappresenta effettivamente un Piano di Taglio?}\\
+	La dimostrazione del suo funzionamento è affascinante. Ricordiamo le due condizioni affinché un vincolo sia un piano di taglio: non deve escludere l'ottimo intero, ma \textit{deve tagliare fuori l'ottimo continuo}.
+	
+	Verifichiamo la seconda condizione. Al nostro attuale ottimo del Rilassato Continuo, quanto valgono le variabili non di base ($x_j$ con $j \in N$)? Per le regole del Simplesso, le variabili non di base \textbf{valgono zero}. 
+	Se sostituiamo $x_j = 0$ nel lato sinistro della disuguaglianza di Gomory, l'intera sommatoria si azzera. La disuguaglianza diventa quindi:
+	\[
+	0 \geq \{\bar{x}_r\}
+	\]
+	Ma all'inizio avevamo scelto l'indice $r$ proprio perché $\bar{x}_r$ era frazionario! Di conseguenza, $\{\bar{x}_r\}$ è un numero strettamente positivo (es. $0.7$). 
+	La disuguaglianza si riduce a $0 \geq 0.7$, che è un'affermazione \textbf{matematicamente falsa}.
+	
+	Avendo generato una falsità, significa che il punto di ottimo continuo \textbf{non rispetta questo nuovo vincolo}. Lo abbiamo appena tagliato fuori dal poliedro! Al contempo, il teorema di Gomory (la cui dimostrazione algebrica completa richiederebbe interi capitoli) ci garantisce che qualsiasi soluzione a coordinate intere rispetterà sempre questa disuguaglianza. Abbiamo così costruito la perfetta "retta viola" di taglio.
+	
+	\vspace{0.6cm}
+	\textbf{Esercizio 1: Il Taglio di Gomory in un Problema di Massimo}\\
+	Applichiamo la teoria del taglio di Gomory a un problema pratico di massimizzazione. Il modello matematico di partenza è:
+	\[
+	\begin{cases}
+		\max \quad 8x_1 + 6x_2 \\[6pt]
+		12x_1 + 6x_2 \leq 55 \quad &\text{(Vincolo 1)} \\
+		6x_1 + 8x_2 \leq 65 \quad &\text{(Vincolo 2)} \\[6pt]
+		x_1, x_2 \in \mathbb{Z}^+
+	\end{cases}
+	\]
+	
+	\textbf{Passo 1: Risoluzione del Rilassato Continuo (Senza Computer)}\\
+	All'esame non avremo il computer, quindi per trovare l'ottimo continuo dobbiamo calcolare manualmente le intersezioni delle rette. I vertici principali si trovano ponendo a zero a turno le variabili o intersecando i due vincoli di base:
+	\begin{itemize}[label=\textcolor{titlecolor}{\Large\textbullet}, itemsep=2pt, leftmargin=1.5cm]
+		\item Intersezione Vincolo 1 con asse $x_1$ ($x_2 = 0$): $12x_1 = 55 \implies x_1 = 55/12 \implies (55/12, 0)$
+		\item Intersezione Vincolo 2 con asse $x_2$ ($x_1 = 0$): $8x_2 = 65 \implies x_2 = 65/8 \implies (0, 65/8)$
+		\item Origine: $(0,0)$
+		\item Intersezione tra Vincolo 1 e Vincolo 2: Risolvendo il sistema si ottiene il vertice $(5/6, 15/2)$.
+	\end{itemize}
+	Sostituendo questi punti nella funzione obiettivo, scopriamo che il valore massimo si ottiene proprio nell'intersezione dei due vincoli. La soluzione ottima di Programmazione Lineare (Rilassato Continuo) è quindi $\bar{x} = (5/6, 15/2)$. Poiché presenta valori frazionari, il problema intero necessita di un taglio.
+	
+	\vspace{0.4cm}
+	\textbf{Approfondimento: Come si calcola l'intersezione tra due rette}\\
+	All'esame non avremo a disposizione un computer per tracciare grafici perfetti o trovare i vertici in automatico. Sapere come si calcola manualmente l'intersezione tra due o più rette (ovvero i vincoli del nostro problema) è una competenza imprescindibile. 
+	
+	\textit{Il concetto geometrico:}\\
+	Ogni vincolo di un problema di Programmazione Lineare (ad esempio $12x_1 + 6x_2 \leq 55$) rappresenta una regione di spazio divisa da una retta di confine (l'equazione $12x_1 + 6x_2 = 55$). L'intersezione tra due di queste rette di confine determina esattamente un vertice del nostro poliedro. 
+	
+	\textit{Il metodo di risoluzione (Sostituzione):}\\
+	Per trovare il punto in cui due rette si incrociano, dobbiamo obbligarle a essere "vere contemporaneamente". Matematicamente, questo significa metterle a \textbf{sistema}.
+	Prendiamo i due vincoli del nostro esercizio e li forziamo all'uguaglianza:
+	\[
+	\begin{cases}
+		12x_1 + 6x_2 = 55 \quad &\text{(Retta 1)} \\
+		6x_1 + 8x_2 = 65 \quad &\text{(Retta 2)}
+	\end{cases}
+	\]
+	
+	Il metodo più universale e semplice è quello della \textbf{sostituzione}. Si procede in tre passi:
+	\begin{enumerate}
+		\item \textbf{Isolare una variabile:} Scegliamo un'equazione e "isoliamo" una delle due variabili (lasciandola da sola a sinistra dell'uguale). Scegliamo, ad esempio, di isolare $x_1$ nella seconda equazione:
+		\[
+		6x_1 = 65 - 8x_2 \implies x_1 = \frac{65 - 8x_2}{6}
+		\]
+		
+		\item \textbf{Sostituire nell'altra equazione:} Ora che abbiamo un'"espressione" per $x_1$, la inseriamo (sostituiamo) al posto di $x_1$ \textit{nella prima equazione}:
+		\[
+		12\left( \frac{65 - 8x_2}{6} \right) + 6x_2 = 55
+		\]
+		Semplifichiamo il $12$ con il $6$ (che diventa $2$):
+		\[
+		2(65 - 8x_2) + 6x_2 = 55
+		\]
+		Svolgiamo i calcoli per trovare $x_2$:
+		\[
+		130 - 16x_2 + 6x_2 = 55 \implies -10x_2 = 55 - 130 \implies -10x_2 = -75 \implies \mathbf{x_2 = \frac{75}{10} = \frac{15}{2}}
+		\]
+		
+		\item \textbf{Ricavare l'altra coordinata:} Trovato il valore esatto di $x_2$, lo sostituiamo nell'espressione isolata al Passo 1 per trovare $x_1$:
+		\[
+		x_1 = \frac{65 - 8\left(\frac{15}{2}\right)}{6} = \frac{65 - 4(15)}{6} = \frac{65 - 60}{6} = \mathbf{\frac{5}{6}}
+		\]
+	\end{enumerate}
+	
+	Ecco dimostrato algebricamente come si ottiene il vertice di intersezione $\bar{x} = \left(\frac{5}{6}, \frac{15}{2}\right)$. Questo procedimento è universale e va applicato ogni qualvolta sia necessario calcolare manualmente i vertici del Rilassato Continuo partendo dai vincoli del modello.
+	
+	\vspace{0.4cm}
+	\textbf{Passo 2: Forma Standard e Variabili di Scarto}\\
+	Per applicare l'algebra di Gomory, dobbiamo portare i vincoli in forma di uguaglianza inserendo le variabili di scarto $x_3$ e $x_4$:
+	\[
+	\begin{cases}
+		12x_1 + 6x_2 + x_3 = 55 \\
+		6x_1 + 8x_2 + x_4 = 65
+	\end{cases}
+	\]
+	
+	\textbf{Calcolo della Soluzione Ottima Estesa ($\bar{x}$):}\\
+	Nel passo precedente abbiamo dimostrato che il vertice ottimo continuo si trova esattamente alle coordinate $x_1 = 5/6$ e $x_2 = 15/2$. 
+	Tuttavia, per applicare le formule matriciali del Simplesso e di Gomory, necessitiamo della \textbf{soluzione estesa completa}, ovvero dobbiamo scoprire quanto valgono esattamente le variabili di scarto $x_3$ e $x_4$ in quello specifico punto del piano.
+	
+	Come procediamo matematicamente? È sufficiente sostituire le coordinate $x_1$ e $x_2$ appena trovate all'interno del nostro sistema standardizzato e isolare le variabili incognite. Vediamo i calcoli nel dettaglio:
+	
+	\textit{Calcolo di $x_3$ (dal primo vincolo):}
+	Sostituendo nell'equazione $12x_1 + 6x_2 + x_3 = 55$ otteniamo:
+	\[
+	12\left(\frac{5}{6}\right) + 6\left(\frac{15}{2}\right) + x_3 = 55
+	\]
+	Semplificando le frazioni ($12/6 = 2$ e $6/2 = 3$):
+	\[
+	2(5) + 3(15) + x_3 = 55
+	\]
+	\[
+	10 + 45 + x_3 = 55 \implies 55 + x_3 = 55 \implies \mathbf{x_3 = 0}
+	\]
+	
+	\textit{Calcolo di $x_4$ (dal secondo vincolo):}
+	Sostituendo nell'equazione $6x_1 + 8x_2 + x_4 = 65$ otteniamo:
+	\[
+	6\left(\frac{5}{6}\right) + 8\left(\frac{15}{2}\right) + x_4 = 65
+	\]
+	Semplificando le frazioni ($6/6 = 1$ e $8/2 = 4$):
+	\[
+	1(5) + 4(15) + x_4 = 65
+	\]
+	\[
+	5 + 60 + x_4 = 65 \implies 65 + x_4 = 65 \implies \mathbf{x_4 = 0}
+	\]
+	
+	Assemblando i quattro valori calcolati, otteniamo la soluzione ottima estesa del nostro problema primale:
+	\[
+	\bar{x} = \left( \frac{5}{6}, \frac{15}{2}, 0, 0 \right)
+	\]
+	
+	\textbf{Interpretazione Geometrica:}\\
+	Perché abbiamo ottenuto due zeri perfetti? Questo risultato non è casuale, ma racchiude l'essenza stessa della Ricerca Operativa. Ricordate cosa rappresentano le variabili di scarto? Rappresentano lo "spazio non utilizzato" rispetto a un limite. 
+	Aver ottenuto $x_3 = 0$ e $x_4 = 0$ significa che in quel preciso punto \textbf{entrambi i vincoli sono saturi} (il vertice si trova esattamente sull'intersezione delle due rette di confine). 
+	
+	Di conseguenza, per le regole del Simplesso, le variabili nulle $x_3$ e $x_4$ rappresentano le nostre variabili \textbf{non di base}, mentre le variabili a valori positivi $x_1$ e $x_2$ andranno a formare la nostra \textbf{base ottima}.
+	
+	\vspace{0.4cm}
+	\textbf{Passo 3: Costruzione della Matrice $\tilde{A}$}\\
+	Le variabili di base sono $x_1$ e $x_2$ (che formano il vertice), mentre $x_3$ e $x_4$ sono fuori base. 
+	Estraiamo la sottomatrice di base $A_B$:
+	\[
+	A_B = \begin{pmatrix} 12 & 6 \\ 6 & 8 \end{pmatrix}
+	\]
+	Calcoliamo l'inversa $A_B^{-1}$ (scambiando gli elementi sulla diagonale principale, cambiando di segno gli altri, e dividendo per il determinante che è $12 \cdot 8 - 6 \cdot 6 = 96 - 36 = 60$):
+	\[
+	A_B^{-1} = \frac{1}{60} \begin{pmatrix} 8 & -6 \\ -6 & 12 \end{pmatrix} = \begin{pmatrix} 8/60 & -6/60 \\ -6/60 & 12/60 \end{pmatrix} = \begin{pmatrix} 2/15 & -1/10 \\ -1/10 & 1/5 \end{pmatrix}
+	\]
+	Estraiamo la matrice non di base $A_N$, che è formata dai coefficienti di $x_3$ e $x_4$. Essendo variabili di scarto, $A_N$ è banalmente la matrice identità:
+	\[
+	A_N = \begin{pmatrix} 1 & 0 \\ 0 & 1 \end{pmatrix}
+	\]
+	Calcoliamo la matrice $\tilde{A} = A_B^{-1} A_N$. Poiché moltiplicare per la matrice identità lascia tutto invariato, ecco svelato il motivo per cui \textbf{$\tilde{A}$ è perfettamente uguale ad $A_B^{-1}$}:
+	\[
+	\tilde{A} = \begin{pmatrix} 2/15 & -1/10 \\ -1/10 & 1/5 \end{pmatrix}
+	\]
+	
+	\vspace{0.4cm}
+	\textbf{Passo 4: Il Taglio di Gomory}\\
+	Scegliamo la prima riga della base, corrispondente alla variabile $x_1 = 5/6$.
+	Applichiamo la formula del taglio calcolando rigorosamente le parti frazionarie:
+	\[
+	\{\tilde{a}_{11}\} x_3 + \{\tilde{a}_{12}\} x_4 \geq \{\bar{x}_1\}
+	\]
+	Calcoliamo i singoli componenti:
+	\begin{itemize}[label=$\circ$, itemsep=2pt, leftmargin=1.5cm]
+		\item Parte frazionaria del termine noto: $\{5/6\} = \mathbf{5/6}$
+		\item Parte frazionaria del coefficiente di $x_3$: $\{2/15\} = \mathbf{2/15}$
+		\item Parte frazionaria del coefficiente di $x_4$ (Attenzione al negativo!): \\ 
+		$\{-1/10\} = -1/10 - \lfloor -1/10 \rfloor = -1/10 - (-1) = -1/10 + 1 = \mathbf{9/10}$
+	\end{itemize}
+	Assembliamo il vincolo:
+	\[
+	\frac{2}{15} x_3 + \frac{9}{10} x_4 \geq \frac{5}{6}
+	\]
+	Per eliminare i denominatori, calcoliamo il minimo comune multiplo (che è $30$) e moltiplichiamo tutta l'equazione per 30:
+	\[
+	30 \left( \frac{2}{15} \right) x_3 + 30 \left( \frac{9}{10} \right) x_4 \geq 30 \left( \frac{5}{6} \right) \implies \mathbf{4x_3 + 27x_4 \geq 25}
+	\]
+	Abbiamo matematicamente dimostrato e ottenuto il corretto taglio di Gomory!
+	
+	\vspace{0.4cm}
+	\textbf{Passo 5: Calcolo delle Valutazioni ($v_S$ e $v_I$)}\\
+	Calcoliamo la \textbf{Valutazione Superiore ($v_S$)} sostituendo l'ottimo continuo nella funzione obiettivo:
+	\[
+	v_{S_{cont}} = 8\left(\frac{5}{6}\right) + 6\left(\frac{15}{2}\right) = \frac{40}{6} + 45 = \frac{20}{3} + 45 = \frac{20 + 135}{3} = \frac{155}{3} \approx 51.66
+	\]
+	Essendo un problema di Massimo con dati interi, tronchiamo i decimali: $v_S = \lfloor 51.66 \rfloor = \mathbf{51}$.
+	
+	Per la \textbf{Valutazione Inferiore ($v_I$)}, prendiamo una soluzione intera ammissibile. Se proviamo il punto $\tilde{x} = (0, 7)$:
+	\[
+	v_I = 8(0) + 6(7) = \mathbf{42}
+	\]
+	Il GAP attuale, prima di applicare operativamente il taglio nel Simplesso, risiede tra 42 e 51.
+	
+	\vspace{0.6cm}
+	\separatore
+	\vspace{0.4cm}
+	
+	\textbf{Esercizio 2: Il Taglio di Gomory in un Problema di Minimo}\\
+	Svolgiamo ora un esercizio analogo in un contesto di Minimizzazione, affrontando autonomamente tutti i calcoli.
+	\[
+	\begin{cases}
+		\min \quad 5x_1 + 14x_2 \\[6pt]
+		16x_1 + 13x_2 \geq 62 \quad &\text{(Vincolo 1)} \\
+		6x_1 + 15x_2 \geq 52 \quad &\text{(Vincolo 2)} \\[6pt]
+		x_1, x_2 \in \mathbb{Z}^+
+	\end{cases}
+	\]
+	
+	\textbf{Passo 1: Risoluzione del Rilassato Continuo}\\
+	Calcoliamo l'intersezione tra i due vincoli mettendoli a sistema. 
+	Moltiplichiamo il Vincolo 1 per 6 e il Vincolo 2 per 16:
+	\[
+	\begin{cases}
+		96x_1 + 78x_2 = 372 \\
+		96x_1 + 240x_2 = 832
+	\end{cases}
+	\]
+	Sottraendo la prima equazione dalla seconda: 
+	\[
+	162x_2 = 460 \implies x_2 = \frac{460}{162} = \frac{230}{81} \approx 2.84
+	\]
+	Sostituendo $x_2$ nel primo vincolo:
+	\[
+	16x_1 + 13\left(\frac{230}{81}\right) = 62 \implies 16x_1 = 62 - \frac{2990}{81} = \frac{5022 - 2990}{81} = \frac{2032}{81} \implies x_1 = \frac{127}{81} \approx 1.57
+	\]
+	La soluzione ottima continua è $\bar{x} = \left(\frac{127}{81}, \frac{230}{81}\right)$. Essendo frazionaria, procediamo col taglio.
+	
+	\vspace{0.4cm}
+	\textbf{Passo 2: Variabili di Surplus e Matrice $\tilde{A}$}\\
+	Essendo disuguaglianze $\geq$, portiamo in forma standard inserendo le \textbf{variabili di surplus} $x_3$ e $x_4$ (che vanno sottratte, non sommate):
+	\[
+	\begin{cases}
+		16x_1 + 13x_2 - x_3 = 62 \\
+		6x_1 + 15x_2 - x_4 = 52
+	\end{cases}
+	\]
+	Estraiamo la sottomatrice di base $A_B$ e ne calcoliamo l'inversa (Determinante = $16 \cdot 15 - 13 \cdot 6 = 162$):
+	\[
+	A_B = \begin{pmatrix} 16 & 13 \\ 6 & 15 \end{pmatrix} \implies A_B^{-1} = \frac{1}{162} \begin{pmatrix} 15 & -13 \\ -6 & 16 \end{pmatrix} = \begin{pmatrix} 15/162 & -13/162 \\ -6/162 & 16/162 \end{pmatrix} = \begin{pmatrix} 5/54 & -13/162 \\ -1/27 & 8/81 \end{pmatrix}
+	\]
+	In questo caso, la matrice delle variabili non di base $A_N$ ha i coefficienti negativi:
+	\[
+	A_N = \begin{pmatrix} -1 & 0 \\ 0 & -1 \end{pmatrix}
+	\]
+	Moltiplicando $A_B^{-1}$ per $A_N$ (che è l'identità cambiata di segno), la matrice $\tilde{A}$ sarà uguale all'inversa con \textbf{tutti i segni invertiti}:
+	\[
+	\tilde{A} = \begin{pmatrix} -5/54 & 13/162 \\ 1/27 & -8/81 \end{pmatrix}
+	\]
+	
+	\vspace{0.4cm}
+	\textbf{Passo 3: Il Taglio di Gomory}\\
+	Selezioniamo la prima riga, associata a $x_1 = 127/81$.
+	Calcoliamo le parti frazionarie:
+	\begin{itemize}[label=$\circ$, itemsep=2pt, leftmargin=1.5cm]
+		\item Termine noto: $\{127/81\} = 127/81 - 1 = \mathbf{46/81}$
+		\item Coeff. $x_3$ (Negativo): $\{-5/54\} = -5/54 - (-1) = -5/54 + 54/54 = \mathbf{49/54}$
+		\item Coeff. $x_4$: $\{13/162\} = \mathbf{13/162}$
+	\end{itemize}
+	Assembliamo il vincolo di taglio:
+	\[
+	\frac{49}{54} x_3 + \frac{13}{162} x_4 \geq \frac{46}{81}
+	\]
+	Moltiplichiamo tutto per il minimo comune multiplo (162):
+	\[
+	162 \left( \frac{49}{54} \right) x_3 + 13 x_4 \geq 162 \left( \frac{46}{81} \right) \implies 3(49)x_3 + 13x_4 \geq 2(46) \implies \mathbf{147x_3 + 13x_4 \geq 92}
+	\]
+	
+	\vspace{0.4cm}
+	\textbf{Passo 4: Valutazioni per il Problema di Minimo}\\
+	Calcoliamo l'ottimo Rilassato Continuo:
+	\[
+	v_{I_{cont}} = 5\left(\frac{127}{81}\right) + 14\left(\frac{230}{81}\right) = \frac{635 + 3220}{81} = \frac{3855}{81} = \frac{1285}{27} \approx 47.59
+	\]
+	\textbf{Attenzione!} Essendo un problema di Minimo, le logiche si capovolgono: il rilassato continuo fornisce la Valutazione Inferiore ($v_I$). Inoltre, sapendo che l'ottimo deve essere intero, dobbiamo arrotondare \textbf{per eccesso} (Ceiling, o limite superiore), perché non potremo mai spendere meno di 47.59.
+	\[
+	v_I = \lceil 47.59 \rceil = \mathbf{48}
+	\]
+	Per la Valutazione Superiore ($v_S$), cerchiamo una soluzione intera ammissibile limitrofa al vertice continuo $(1.57, 2.84)$. Proviamo il punto intero arrotondato per eccesso $\tilde{x} = (2, 3)$.
+	Verifichiamo i vincoli: $16(2) + 13(3) = 71 \geq 62$ (Vero) e $6(2) + 15(3) = 57 \geq 52$ (Vero).
+	Calcoliamo il valore:
+	\[
+	v_S = 5(2) + 14(3) = 10 + 42 = \mathbf{52}
+	\]
+	Il GAP attuale per questo problema di minimo è racchiuso tra 48 ($v_I$) e 52 ($v_S$).
+	
+	\vspace{1.5cm}
+	\begin{center}
+		\rule{0.65\textwidth}{1pt} \\
+		\vspace{0.4cm}
+		\textcolor{titlecolor}{\LARGE \textbf{--- Fine Lezione 14 ---}} \\
+		\vspace{0.2cm}
+		\rule{0.65\textwidth}{1pt}
+	\end{center}
+	\newpage
+	
+	\avviso{\textit{\textbf{Questa lezione, come le sue precedenti e successive, può contenere errori e/o imprecisioni. Per il bene di tutti, è buona norma far notare all'autore l'errore o l'imprecisione così da risolvere nel minor tempo possibile. I canali di comunicazione, per eventuali avvisi generali o di errori trovati negli appunti, sono in cima al file. Grazie per la collaborazione e Buono studio!}}}
+	
+	\section*{Lezione 15 | 15 ottobre 2026}
+	\subsection*{Ripresa del Taglio di Gomory e introduzione al T.S.P (problema del Commesso Viaggiatore)}
+	
+	\vspace{0.6cm}
+	\textbf{Ripasso e Approfondimento sul Taglio di Gomory}\\
+	Il professore inizia la lezione con un rapido ripasso geometrico e algebrico del Taglio di Gomory, riprendendo l'algoritmo di riduzione del GAP sia per i problemi di Massimo che per i problemi di Minimo.
+	
+	\textbf{1. La Visione Geometrica: Massimo e Minimo}\\
+	Iniziamo con una fondamentale distinzione geometrica su come agisce il rilassato continuo nei due scenari.
+	
+	\textit{Nel Problema di Massimo:}\\
+	La Valutazione Superiore ($v_S$) è data dal vertice ottimo continuo. Essendo un problema di massimo, il Simplesso cerca di spingere la funzione obiettivo verso "l'alto" (o verso l'esterno del poliedro). L'ottimo continuo sarà quindi il punto geometricamente "più alto" e lontano dall'origine ammissibile, mentre l'ottimo intero reale si troverà tipicamente "più in basso", compresso all'interno del poliedro.
+	
+	\begin{figure}[H]
+		\centering
+		\begin{tikzpicture}[scale=1]
+			% Assi
+			\draw[->, thick] (-0.5, 0) -- (6, 0) node[right] {$x_1$};
+			\draw[->, thick] (0, -0.5) -- (0, 5) node[above] {$x_2$};
+			
+			% Poliedro casuale
+			\fill[blue!10] (0, 0) -- (4, 0) -- (5, 2) -- (3, 4) -- (0, 3) -- cycle;
+			\draw[thick, blue] (0, 0) -- (4, 0) -- (5, 2) -- (3, 4) -- (0, 3) -- cycle;
+			
+			% Punti interi
+			\foreach \x in {0,1,2,3,4} {
+				\foreach \y in {0,1,2,3} {
+					\pgfmathparse{ (\y<=3 && \y<=(-2*\x + 10) && \y<=(0.5*\x + 3)) ? 1 : 0 }
+					\ifnum\pgfmathresult=1 \fill[black] (\x, \y) circle (2pt); \fi
+				}
+			}
+			% Ottimo continuo Max
+			\draw[red, thick] (3, 4) circle (4pt);
+			\node[red, above, font=\footnotesize] at (3, 4) {$v_S$ (Ottimo PL)};
+			
+			% Ottimo intero
+			\fill[green!60!black] (3, 3) circle (3pt);
+			\node[green!60!black, below left, font=\footnotesize] at (3, 3) {Ottimo PLI};
+		\end{tikzpicture}
+		\caption{Problema di Massimo: l'ottimo continuo è un limite superiore (sovrastima).}
+	\end{figure}
+	
+	\textit{Nel Problema di Minimo:}\\
+	Le logiche si invertono. Il Simplesso cerca di minimizzare i costi, "schiacciando" la funzione obiettivo verso l'origine (se i vincoli sono del tipo $\geq$). Il Rilassato Continuo fornirà la Valutazione Inferiore ($v_I$), trovando un vertice che è geometricamente "più in basso" dell'ottimo intero reale.
+	
+	\begin{figure}[H]
+		\centering
+		\begin{tikzpicture}[scale=1]
+			% Assi
+			\draw[->, thick] (-0.5, 0) -- (6, 0) node[right] {$x_1$};
+			\draw[->, thick] (0, -0.5) -- (0, 5) node[above] {$x_2$};
+			
+			% Poliedro casuale (minimo)
+			\fill[blue!10] (1, 5) -- (1.5, 2.5) -- (4, 1) -- (6, 0.5) -- (6, 5) -- cycle;
+			\draw[thick, blue] (1, 5) -- (1.5, 2.5) -- (4, 1) -- (6, 0.5) -- cycle;
+			
+			% Punti interi
+			\foreach \x in {2,3,4,5} {
+				\foreach \y in {1,2,3,4} {
+					\pgfmathparse{ (\y>=1 && \y>=(-0.6*\x + 3.4)) ? 1 : 0 }
+					\ifnum\pgfmathresult=1 \fill[black] (\x, \y) circle (2pt); \fi
+				}
+			}
+			% Ottimo continuo Min
+			\draw[red, thick] (1.5, 2.5) circle (4pt);
+			\node[red, below left, font=\footnotesize] at (1.5, 2.5) {$v_I$ (Ottimo PL)};
+			
+			% Ottimo intero
+			\fill[green!60!black] (2, 3) circle (3pt);
+			\node[green!60!black, above right, font=\footnotesize] at (2, 3) {Ottimo PLI};
+		\end{tikzpicture}
+		\caption{Problema di Minimo: l'ottimo continuo è un limite inferiore (sottostima).}
+	\end{figure}
+	
+	\vspace{0.4cm}
+	\textbf{2. Ripasso Veloce: Costruzione del Taglio (Massimo)}\\
+	Il professore richiama velocemente il modello della lezione precedente:
+	\[
+	\begin{cases}
+		12x_1 + 6x_2 + x_3 = 55 \\
+		6x_1 + 8x_2 + x_4 = 65
+	\end{cases}
+	\]
+	L'ottimo primale esteso è $\bar{x} = \left(\frac{5}{6}, \frac{15}{2}, 0, 0\right)$. 
+	
+	Da qui, sappiamo che si calcola la sottomatrice di base $A_B$, se ne ricava l'inversa $A_B^{-1}$ e la si moltiplica per $A_N$ per ottenere $\tilde{A}$. Il taglio generato dalla riga $r$ sarà sempre:
+	\[
+	\sum_{j \in N} \{\tilde{a}_{rj}\} x_j \geq \{\bar{x}_r\}
+	\]
+	
+	\vspace{0.6cm}
+	\separatore
+	\vspace{0.4cm}
+	
+	\vspace{0.4cm}
+	\textbf{Esercizio: Il Taglio di Gomory nel Problema di Minimo}\\
+	Ora affrontiamo nel dettaglio l'esercizio conclusivo della lezione: un problema di Minimo in cui sviscereremo ogni singolo passaggio matematico.
+	
+	Il modello di partenza è:
+	\[
+	\begin{cases}
+		\min \quad 5x_1 + 14x_2 \\[6pt]
+		16x_1 + 13x_2 \geq 62 \quad &\text{(Vincolo 1)} \\
+		6x_1 + 15x_2 \geq 52 \quad &\text{(Vincolo 2)} \\[6pt]
+		x_1, x_2 \in \mathbb{Z}^+
+	\end{cases}
+	\]
+	
+	\textbf{Passo 1: Forma Primale Standard e Variabili di Surplus}\\
+	Attenzione alla regola dei segni per le variabili di compensazione:
+	\begin{itemize}[label=\textcolor{titlecolor}{\Large\textbullet}, itemsep=2pt, leftmargin=1.5cm]
+		\item Nei vincoli $\leq$ (tipici del Massimo), si \textbf{aggiungono} variabili positive di \textbf{Scarto} (Slack) per colmare lo spazio vuoto: $+x_3$.
+		\item Nei vincoli $\geq$ (tipici del Minimo), si \textbf{sottraggono} variabili positive di \textbf{Surplus} (Eccesso) per togliere la quantità eccedente: $-x_3$.
+	\end{itemize}
+	Il nostro sistema standardizzato diventa quindi:
+	\[
+	\begin{cases}
+		16x_1 + 13x_2 - x_3 = 62 \\
+		6x_1 + 15x_2 - x_4 = 52
+	\end{cases}
+	\]
+	
+	\textbf{Passo 2: Ricerca del Vero Ottimo Continuo e Soluzione Estesa}\\
+	Un errore comune, quando si risolve un poliedro senza tracciarlo accuratamente, è dare per scontato che l'ottimo si trovi sempre all'intersezione esatta tra i due vincoli principali. Se calcolassimo l'intersezione tra il Vincolo 1 e il Vincolo 2, otterremmo il punto $\left(\frac{127}{81}, \frac{230}{81}\right)$. Sostituendo questo vertice nella funzione obiettivo $\min 5x_1 + 14x_2$, otterremmo un costo pari a circa $47.59$. 
+	
+	Tuttavia, proviamo a valutare un altro vertice del poliedro: l'intersezione tra il \textbf{Vincolo 2} e l'asse delle ascisse ($x_2 = 0$). 
+	Mettiamo a sistema il Vincolo 2 forzato all'uguaglianza e imponiamo $x_2 = 0$:
+	\[
+	\begin{cases}
+		6x_1 + 15(0) - x_4 = 52 \\
+		x_4 = 0 \quad \text{(Essendo sulla retta del Vincolo 2, il suo surplus è zero)}
+	\end{cases}
+	\implies 6x_1 = 52 \implies x_1 = \frac{52}{6} = \mathbf{\frac{26}{3}} \approx 8.66
+	\]
+	Sostituendo il vertice $(26/3, 0)$ nella funzione obiettivo otteniamo:
+	\[
+	5\left(\frac{26}{3}\right) + 14(0) = \frac{130}{3} \approx 43.33
+	\]
+	Poiché $43.33 < 47.59$, questo nuovo punto rappresenta il \textbf{vero minimo assoluto} del problema continuo!
+	
+	Ora che abbiamo individuato il vertice corretto $(26/3, 0)$, dobbiamo completare la soluzione trovando il valore della variabile di surplus $x_3$ associata al primo vincolo. Sostituiamo $x_1 = 26/3$ e $x_2 = 0$ nell'equazione del Vincolo 1:
+	\[
+	16\left(\frac{26}{3}\right) + 13(0) - x_3 = 62 \implies \frac{416}{3} - x_3 = 62 \implies x_3 = \frac{416}{3} - 62 = \frac{416 - 186}{3} = \mathbf{\frac{230}{3}}
+	\]
+	La vera soluzione estesa del nostro rilassato continuo è, pertanto, $\bar{x} = \left( \frac{26}{3}, 0, \frac{230}{3}, 0 \right)$. 
+	Poiché $x_1$ e $x_3$ assumono valori strettamente positivi, esse formano le variabili della nostra matrice di base.
+	
+	\vspace{0.4cm}
+	\textbf{Passo 3: Calcolo delle Matrici $A_B$, $A_N$ e $\tilde{A}$}\\
+	Estraiamo i coefficienti delle variabili di base ($x_1$ e $x_3$):
+	\[
+	A_B = \begin{pmatrix} 16 & -1 \\ 6 & 0 \end{pmatrix}
+	\]
+	Calcoliamo l'inversa $A_B^{-1}$ (Determinante = $16(0) - (-1)(6) = 6$):
+	\[
+	A_B^{-1} = \frac{1}{6} \begin{pmatrix} 0 & 1 \\ -6 & 16 \end{pmatrix} = \begin{pmatrix} 0 & 1/6 \\ -1 & 16/6 \end{pmatrix} = \begin{pmatrix} 0 & 1/6 \\ -1 & 8/3 \end{pmatrix}
+	\]
+	Estraiamo i coefficienti delle variabili non di base ($x_2$ e $x_4$):
+	\[
+	A_N = \begin{pmatrix} 13 & 0 \\ 15 & -1 \end{pmatrix}
+	\]
+	In questo caso, siccome $A_N$ non è la matrice identità, dobbiamo \textbf{eseguire la moltiplicazione} righe per colonne per trovare $\tilde{A}$:
+	\[
+	\tilde{A} = A_B^{-1} \cdot A_N = \begin{pmatrix} 0 & 1/6 \\ -1 & 8/3 \end{pmatrix} \cdot \begin{pmatrix} 13 & 0 \\ 15 & -1 \end{pmatrix}
+	\]
+	Calcoliamo elemento per elemento:
+	\begin{itemize}[label=$\circ$, itemsep=2pt, leftmargin=1.5cm]
+		\item Riga 1, Colonna 1 ($\tilde{a}_{11}$): $0(13) + (1/6)(15) = 15/6 = \mathbf{5/2}$
+		\item Riga 1, Colonna 2 ($\tilde{a}_{12}$): $0(0) + (1/6)(-1) = \mathbf{-1/6}$
+		\item Riga 2, Colonna 1 ($\tilde{a}_{21}$): $-1(13) + (8/3)(15) = -13 + 40 = \mathbf{27}$
+		\item Riga 2, Colonna 2 ($\tilde{a}_{22}$): $-1(0) + (8/3)(-1) = \mathbf{-8/3}$
+	\end{itemize}
+	Abbiamo trovato la matrice $\tilde{A}$:
+	\[
+	\tilde{A} = \begin{pmatrix} 5/2 & -1/6 \\ 27 & -8/3 \end{pmatrix}
+	\]
+	
+	\vspace{0.4cm}
+	\textbf{Passo 4: Il Taglio di Gomory (Spiegazione Dettagliata)}\\
+	Scegliamo la riga generatrice. Poiché la nostra variabile di base non intera era $x_1 = 26/3$, e $x_1$ corrisponde alla prima riga della nostra base, usiamo l'indice $r=1$.
+	Applichiamo la formula di Gomory per le variabili non di base ($x_2$ e $x_4$):
+	\[
+	\{\tilde{a}_{11}\} x_2 + \{\tilde{a}_{12}\} x_4 \geq \{\bar{x}_1\}
+	\]
+	Calcoliamo rigorosamente le parti frazionarie:
+	\begin{itemize}[label=$\circ$, itemsep=4pt, leftmargin=1.5cm]
+		\item \textbf{Termine noto:} $\bar{x}_1 = 26/3 = 8.666\dots$ \\
+		La sua parte intera è $8$. La parte frazionaria è $\{26/3\} = 26/3 - 8 = 26/3 - 24/3 = \mathbf{2/3}$.
+		
+		\item \textbf{Coeff. di $x_2$:} $\tilde{a}_{11} = 5/2 = 2.5$. \\
+		La sua parte intera è $2$. La parte frazionaria è $\{5/2\} = 5/2 - 2 = 5/2 - 4/2 = \mathbf{1/2}$. \\
+		\textit{(Nota matematica: applicando il corretto calcolo matriciale righe per colonne, questo valore risulta inequivocabilmente pari a 1/2. Qualsiasi altro valore rappresenta un potenziale errore di calcolo algebrico).}
+		
+		\item \textbf{Coeff. di $x_4$ (Negativo!):} $\tilde{a}_{12} = -1/6 \approx -0.166\dots$ \\
+		L'intero immediatamente \textit{più piccolo} di $-0.16$ è $-1$. \\
+		La parte frazionaria è $\{-1/6\} = -1/6 - (-1) = -1/6 + 6/6 = \mathbf{5/6}$.
+	\end{itemize}
+	
+	Assembliamo la disuguaglianza con i valori corretti:
+	\[
+	\frac{1}{2} x_2 + \frac{5}{6} x_4 \geq \frac{2}{3}
+	\]
+	Per eliminare i denominatori, troviamo il minimo comune multiplo (che è $6$) e moltiplichiamo l'intera disequazione:
+	\[
+	6 \left( \frac{1}{2} x_2 \right) + 6 \left( \frac{5}{6} x_4 \right) \geq 6 \left( \frac{2}{3} \right)
+	\]
+	\[
+	\mathbf{3x_2 + 5x_4 \geq 4}
+	\]
+	Questo è il vincolo di taglio matematicamente esatto.
+	
+	\begin{quote}
+		\textbf{Nota sul vincolo finale:} Attraverso i passaggi algebrici rigorosi si ottiene il coefficiente 3 per la variabile $x_2$. Se in altri contesti o dimostrazioni grafiche si dovesse riscontrare un coefficiente pari a 15 (es. $15x_2 + 5x_4 \geq 4$), si tratta verosimilmente di un mero errore di trascrizione alla lavagna durante il calcolo del prodotto matriciale $A_B^{-1} \cdot A_N$. Il procedimento logico sopra mostrato rappresenta l'applicazione impeccabile e universale dell'Algoritmo di Gomory.
+	\end{quote}
+	
+	\vspace{0.6cm}
+	\textbf{Quanti Piani di Taglio possiamo generare?}\\
+	A questo punto della lezione, il professore pone una domanda cruciale alla platea: una volta trovato l'ottimo del Rilassato Continuo, \textit{quanti piani di taglio di Gomory possiamo effettivamente costruire in una singola iterazione?}
+	
+	La risposta è tanto concisa quanto perentoria: \textbf{"Solo da quelle righe la cui variabile di base ha una parte frazionaria non nulla"}.
+	
+	Ma cosa significa esattamente questa affermazione? E perché non possiamo generare un taglio da qualsiasi riga della nostra matrice?
+	Per comprenderlo a fondo, dobbiamo riprendere in mano la formula del taglio di Gomory appena studiata:
+	\[
+	\sum_{j \in N} \{\tilde{a}_{rj}\} x_j \geq \{\bar{x}_r\}
+	\]
+	Affinché questo nuovo vincolo si comporti come un vero "taglio", sappiamo che deve tagliare fuori (ovvero rendere inammissibile) l'attuale vertice continuo. Nel vertice continuo, per definizione, tutte le variabili non di base $x_j$ (che si trovano nella sommatoria a sinistra) valgono esattamente zero. La parte sinistra dell'equazione, quindi, si azzera sempre. Rimane la disuguaglianza:
+	\[
+	0 \geq \{\bar{x}_r\}
+	\]
+	Ora, supponiamo di scegliere una riga $r$ la cui variabile di base associata $\bar{x}_r$ sia \textbf{già un numero perfettamente intero} (ad esempio $\bar{x}_r = 7$). Quanto vale la sua parte frazionaria? Esattamente zero ($\{7\} = 0$). 
+	Sostituendo questo valore nella nostra disuguaglianza finale, otterremmo:
+	\[
+	0 \geq 0
+	\]
+	Questa espressione è un'ovvietà matematica (un'identità sempre vera). Aggiungere al nostro modello un vincolo che si riduce a "$0 \geq 0$" non taglia via assolutamente nulla dal poliedro. È un vincolo fantasma, totalmente ridondante e inutile ai fini della riduzione del GAP. 
+	
+	Per far sì che il vincolo generi una falsità (es. $0 \geq 0.5$) e "scarti" il vertice continuo, abbiamo \textit{assolutamente bisogno} che il termine noto $\{\bar{x}_r\}$ sia un numero strettamente maggiore di zero. E questo si verifica unicamente se la variabile di partenza possiede dei decimali.
+	
+	\vspace{0.4cm}
+	\textbf{Esempio Chiarificatore}\\
+	Immaginiamo di aver risolto un Rilassato Continuo e di aver ottenuto la seguente soluzione di base ottima (formata da tre variabili):
+	\begin{itemize}[label=\textcolor{titlecolor}{\Large\textbullet}, itemsep=2pt, leftmargin=1.5cm]
+		\item \textbf{Riga 1:} $x_1 = 4.7 \implies$ Parte frazionaria = $0.7 \neq 0$. \\
+		\textbf{Taglio Valido:} Genererà una disuguaglianza utile (tipo $0 \geq 0.7$, falsa).
+		
+		\item \textbf{Riga 2:} $x_2 = 5 \implies$ Parte frazionaria = $0$. \\
+		\textbf{Nessun Taglio:} La riga è già intera. Genererebbe $0 \geq 0$. La ignoriamo categoricamente.
+		
+		\item \textbf{Riga 3:} $x_3 = 2.1 \implies$ Parte frazionaria = $0.1 \neq 0$. \\
+		\textbf{Taglio Valido:} Genererà una disuguaglianza utile (tipo $0 \geq 0.1$, falsa).
+	\end{itemize}
+	
+	In questo specifico scenario, pur avendo tre variabili in base, possiamo generare al massimo \textbf{due} piani di taglio distinti (uno dalla riga 1 e uno dalla riga 3). 
+	L'algoritmo di Gomory ci impone quindi di "scansionare" la soluzione continua: possiamo estrarre un taglio per ogni singola variabile che presenta la virgola, scartando a priori tutte quelle che si sono già assestate su valori interi.
+	
+	\vspace{0.6cm}
+	\textbf{Il Problema del Commesso Viaggiatore (TSP)}\\
+	Iniziamo un nuovo, fondamentale capitolo della Programmazione Lineare Intera affrontando uno dei problemi più celebri e studiati dell'intera Ricerca Operativa: il \textbf{Problema del Commesso Viaggiatore} (noto internazionalmente come TSP, \textit{Traveling Salesman Problem}).
+	
+	Il problema si può formulare in modo molto pratico: dato un insieme di città e conoscendo il costo del viaggio per spostarsi da una città all'altra, qual è il percorso più economico (o più breve) che un commesso viaggiatore deve compiere per visitare \textit{tutte} le città esattamente una volta, per poi fare ritorno alla città di partenza?
+	
+	\vspace{0.4cm}
+	\textbf{I Fondamenti Geometrici e il Ciclo Hamiltoniano}\\
+	Per schematizzare il problema, il professore ha disegnato alla lavagna un grafo a forma di pentagono. 
+	I vertici del pentagono (numerati da 1 a 5 in senso orario) rappresentano le nostre città, o i nostri "nodi". Le linee che collegano questi nodi prendono il nome di \textbf{archi}.
+	
+	\begin{figure}[H]
+		\centering
+		\begin{tikzpicture}[scale=1.2]
+			% Definizione dei Nodi (Pentagono Regolare)
+			\node[draw, circle, fill=blue!10, thick] (1) at (90:2) {1};
+			\node[draw, circle, fill=blue!10, thick] (2) at (18:2) {2};
+			\node[draw, circle, fill=blue!10, thick] (3) at (306:2) {3};
+			\node[draw, circle, fill=blue!10, thick] (4) at (234:2) {4};
+			\node[draw, circle, fill=blue!10, thick] (5) at (162:2) {5};
+			
+			% Disegno degli Archi Perimetrali
+			\draw[thick] (1) -- (2);
+			\draw[thick] (2) -- (3);
+			\draw[thick] (3) -- (4);
+			\draw[thick] (4) -- (5);
+			\draw[thick] (5) -- (1);
+			
+			% Disegno delle Diagonali Interne
+			\draw[thick, dashed, gray] (1) -- (3);
+			\draw[thick, dashed, gray] (1) -- (4);
+			\draw[thick, dashed, gray] (2) -- (4);
+			\draw[thick, dashed, gray] (2) -- (5);
+			\draw[thick, dashed, gray] (3) -- (5);
+		\end{tikzpicture}
+		\caption{Rappresentazione di un grafo completo a 5 nodi (città). Le linee continue e tratteggiate rappresentano tutti i possibili archi di collegamento.}
+	\end{figure}
+	
+	Matematicamente, il costo per percorrere un arco dal nodo $i$ al nodo $j$ viene indicato con la variabile $c_{ij}$ (dove $i, j \in \{1, 2, 3, 4, 5\}$). 
+	
+	\textit{La questione della simmetria:}\\
+	In questo specifico esempio, il problema è \textbf{Asimmetrico}. Cosa significa? Significa che il costo per andare dalla città 1 alla città 2 \textit{non è uguale} al costo per fare il percorso inverso dalla città 2 alla città 1. (Immaginate una strada in discesa all'andata, che costa poca benzina, ma in ripida salita al ritorno!).
+	Matematicamente si scrive:
+	\[
+	c_{ij} \neq c_{ji}
+	\]
+	
+	Ma cosa cerchiamo esattamente su questo grafo? Stiamo cercando il \textbf{Ciclo Hamiltoniano più breve}. 
+	Per definizione, un \textit{Ciclo Hamiltoniano} è un percorso chiuso orientato che possiede tre caratteristiche inviolabili:
+	\begin{enumerate}
+		\item Parte da un nodo specifico.
+		\item Visita \textbf{tutti} gli altri nodi del grafo \textbf{esattamente una volta} (senza mai passare due volte per lo stesso punto).
+		\item Termina ritornando al nodo esatto da cui era partito.
+	\end{enumerate}
+	
+	\vspace{0.4cm}
+	\textbf{La Matrice dei Costi}\\
+	Come rappresentiamo i costi di tutti questi archi? Utilizziamo una matrice quadrata $5 \times 5$. 
+	Le righe rappresentano il nodo di partenza (l'origine $i$), mentre le colonne rappresentano il nodo di arrivo (la destinazione $j$).
+	
+	Un dettaglio fondamentale: la \textbf{diagonale principale è sbarrata}. Questo perché non ha alcun senso logico (o ha costo infinito) viaggiare dal nodo 1 al nodo 1 stesso: il commesso viaggiatore deve obbligatoriamente muoversi. Inoltre, come accennato dal professore, se nella realtà una specifica strada fosse chiusa o impercorribile, basterebbe inserire un costo esageratamente alto (es. 99999) in quella specifica cella: l'algoritmo matematico tenderà a ignorarla e a non sceglierla mai.
+	
+	Costruiamo la tabella con i dati forniti a lezione:
+	
+	\begin{table}[H]
+		\centering
+		\renewcommand{\arraystretch}{1.5}
+		\begin{tabular}{|c|c|c|c|c|c|}
+			\hline
+			\textbf{$i \setminus j$} & \textbf{1} & \textbf{2} & \textbf{3} & \textbf{4} & \textbf{5} \\ \hline
+			\textbf{1} & \textbf{/} & 8 & 9 & 16 & 14 \\ \hline
+			\textbf{2} & 7 & \textbf{/} & 11 & 12 & 15 \\ \hline
+			\textbf{3} & 9 & 10 & \textbf{/} & 11 & 9 \\ \hline
+			\textbf{4} & 8 & 9 & 11 & \textbf{/} & 12 \\ \hline
+			\textbf{5} & 7 & 10 & 12 & 13 & \textbf{/} \\ \hline
+		\end{tabular}
+		\caption{Matrice asimmetrica dei costi per un grafo a 5 nodi.}
+	\end{table}
+	
+	\vspace{0.4cm}
+	\textbf{Esempio di Ciclo Hamiltoniano}\\
+	Per chiarire il concetto, il professore costruisce un secondo grafo proponendoci un percorso specifico:
+	\[
+	\text{Nodo } 1 \rightarrow \text{Nodo } 4 \rightarrow \text{Nodo } 3 \rightarrow \text{Nodo } 2 \rightarrow \text{Nodo } 5 \rightarrow \text{Nodo } 1
+	\]
+	Questo percorso è un ciclo Hamiltoniano? \textbf{Assolutamente sì.} Rispetta tutte le regole: parte e arriva in 1, e ha toccato i nodi 2, 3, 4 e 5 una sola volta.
+	
+	\begin{figure}[H]
+		\centering
+		\begin{tikzpicture}[scale=1]
+			% Nodi a forma di pentagono
+			\node[draw, circle, fill=blue!10, thick] (1) at (90:2) {1};
+			\node[draw, circle, fill=blue!10, thick] (2) at (18:2) {2};
+			\node[draw, circle, fill=blue!10, thick] (3) at (306:2) {3};
+			\node[draw, circle, fill=blue!10, thick] (4) at (234:2) {4};
+			\node[draw, circle, fill=blue!10, thick] (5) at (162:2) {5};
+			
+			% Frecce orientate del ciclo Hamiltoniano (1->4->3->2->5->1)
+			\draw[->, thick, red, >=stealth] (1) -- (4);
+			\draw[->, thick, red, >=stealth] (4) -- (3);
+			\draw[->, thick, red, >=stealth] (3) -- (2);
+			\draw[->, thick, red, >=stealth] (2) -- (5);
+			\draw[->, thick, red, >=stealth] (5) -- (1);
+		\end{tikzpicture}
+		\caption{Rappresentazione del Ciclo Hamiltoniano $1 \rightarrow 4 \rightarrow 3 \rightarrow 2 \rightarrow 5 \rightarrow 1$.}
+	\end{figure}
+	
+	Come facciamo a sapere il costo totale (la funzione obiettivo) di questo ciclo? Semplice: incrociamo le coordinate riga-colonna per ogni spostamento e sommiamo i valori prelevati dalla matrice.
+	\begin{itemize}[label=$\circ$, itemsep=2pt, leftmargin=1.5cm]
+		\item Costo da 1 a 4 ($c_{14}$): \textbf{16} (Riga 1, Colonna 4)
+		\item Costo da 4 a 3 ($c_{43}$): \textbf{11} (Riga 4, Colonna 3)
+		\item Costo da 3 a 2 ($c_{32}$): \textbf{10} (Riga 3, Colonna 2)
+		\item Costo da 2 a 5 ($c_{25}$): \textbf{15} (Riga 2, Colonna 5)
+		\item Costo da 5 a 1 ($c_{51}$): \textbf{7} (Riga 5, Colonna 1)
+	\end{itemize}
+	\[
+	\text{Costo Totale} = 16 + 11 + 10 + 15 + 7 = \mathbf{59}
+	\]
+	
+	\vspace{0.4cm}
+	\textbf{Nota Teorica per l'Esame Orale}\\
+	A chiusura di questa introduzione, il professore pone una domanda teorica fondamentale, ottima per un esame orale: \textit{"Dato un grafo orientato di $n$ nodi, quanti possibili cicli Hamiltoniani esistono in totale?"}
+	
+	La tua deduzione sugli appunti è perfettamente corretta: se partiamo da un nodo qualsiasi, per la seconda tappa abbiamo a disposizione $(n-1)$ nodi tra cui scegliere. Per la terza tappa ce ne rimangono $(n-2)$, per la quarta $(n-3)$ e così via, fino a esaurimento (il ritorno al punto di partenza è un percorso obbligato univoco). 
+	Questa moltiplicazione a scalare $(n-1) \times (n-2) \times \dots \times 1$ si indica con il fattoriale:
+	\[
+	\text{Numero di Cicli Hamiltoniani in un grafo asimmetrico} = \mathbf{(n-1)!}
+	\]
+	Nel nostro caso con 5 nodi, il numero di percorsi possibili è $(5-1)! = 4! = 4 \times 3 \times 2 \times 1 = 24$. Il nostro obiettivo algoritmico sarà trovare quello che costa meno tra questi 24 possibili senza doverli calcolare tutti a mano!
+	
+	\vspace{0.4cm}
+	\textbf{Le Variabili Decisionali del TSP}\\
+	Per tradurre il Problema del Commesso Viaggiatore in un modello matematico, dobbiamo definire le nostre variabili decisionali. Utilizzeremo la variabile $x_{ij}$ per indicare lo spostamento dal nodo $i$ al nodo $j$.
+	
+	Nel contesto del TSP, la variabile $x_{ij}$ può assumere \textbf{esclusivamente i valori 0 oppure 1} ($x_{ij} \in \{0, 1\}$).
+	Il motivo logico e fisico di questa restrizione è inoppugnabile: un viaggio è un'azione fisicamente indivisibile. Il commesso viaggiatore \textit{o percorre} interamente la strada da una città all'altra (e allora poniamo $x_{ij} = 1$), \textit{oppure non la percorre} affatto (e allora poniamo $x_{ij} = 0$). Non ha alcun senso matematico, né reale, percorrere "metà" di un arco o frazioni di esso. Siamo quindi di fronte a un problema puramente binario.
+	
+	Riprendendo la matrice $5 \times 5$ dell'esempio precedente e il nostro ciclo Hamiltoniano ($1 \rightarrow 4 \rightarrow 3 \rightarrow 2 \rightarrow 5 \rightarrow 1$), possiamo rappresentare la soluzione ottima $\bar{x}$ come un lungo vettore di 25 componenti (leggendo la matrice riga per riga). 
+	Avremo un $1$ solo in corrispondenza degli archi effettivamente attraversati:
+	\[
+	\bar{x} = (0,0,0,1,0, \quad 0,0,0,0,1, \quad 0,1,0,0,0, \quad 0,0,1,0,0, \quad 1,0,0,0,0)
+	\]
+	Il professore ci fornisce una regola d'oro per verificare la correttezza di questo vettore. In un problema con $N$ nodi (in questo caso $N=5$), il vettore della soluzione avrà una dimensione totale di $N^2$ elementi ($5 \times 5 = 25$). Di questi elementi:
+	\begin{itemize}[label=\textcolor{titlecolor}{\Large\textbullet}, itemsep=2pt, leftmargin=1.5cm]
+		\item Il \textbf{numero di 1} presenti sarà \textbf{sempre pari a $N$}. Questo perché si compiono esattamente $N$ viaggi per chiudere il ciclo toccando ogni città una volta.
+		\item Il \textbf{numero di 0} presenti sarà \textbf{sempre pari a $N^2 - N$} (nel nostro caso $25 - 5 = 20$). Rappresentano banalmente tutte le strade a nostra disposizione che abbiamo deciso di scartare.
+	\end{itemize}
+	
+	\vspace{0.4cm}
+	\textbf{Il Modello Matematico del TSP (Formulazione di Base)}\\
+	Possiamo ora scrivere il modello matematico che governa questa dinamica:
+	\[
+	\begin{cases}
+		\min \quad \sum_{i=1}^N \sum_{j=1}^N c_{ij} x_{ij} \\[10pt]
+		\sum_{j=1}^N x_{ij} = 1 \quad \forall i = 1, \dots, N \quad &\text{(Vincolo di Uscita)} \\[10pt]
+		\sum_{i=1}^N x_{ij} = 1 \quad \forall j = 1, \dots, N \quad &\text{(Vincolo di Entrata)} \\[10pt]
+		x_{ij} \in \{0, 1\} \quad \forall i,j
+	\end{cases}
+	\]
+	
+	Spieghiamo l'eleganza di queste equazioni:
+	\begin{enumerate}
+		\item \textbf{La Funzione Obiettivo:} Vogliamo minimizzare la somma dei costi ($c_{ij}$) di tutti gli archi che abbiamo effettivamente deciso di percorrere ($x_{ij}=1$).
+		\item \textbf{Il Primo Vincolo (Sommatoria su $j$):} Fissato un nodo di partenza $i$, la somma di tutte le sue frecce in uscita deve fare esattamente $1$. In sintesi: \textit{"Da ogni singola città devo uscire una e una sola volta"}.
+		\item \textbf{Il Secondo Vincolo (Sommatoria su $i$):} Fissato un nodo di arrivo $j$, la somma di tutte le sue frecce in entrata deve fare esattamente $1$. In sintesi: \textit{"In ogni singola città devo entrare una e una sola volta"}.
+		\item \textbf{Vincolo di Interezza:} Lo spostamento è una decisione secca, o $0$ o $1$ (e mai valori intermedi).
+	\end{enumerate}
+	
+	\vspace{0.4cm}
+	\textbf{L'Equivalenza Sorprendente: TSP e Assegnamento}\\
+	Osservando attentamente questo modello, il professore lancia una provocazione: \textit{"Ma quindi è vero o falso che i cicli Hamiltoniani sono tutti degli assegnamenti?"}
+	
+	La risposta è \textbf{assolutamente VERO}.
+	Il modello appena scritto è letteralmente identico al Problema dell'Assegnamento studiato nella Programmazione Lineare! Ricordate? Il problema di assegnamento (che matematicamente è un problema di produzione orientato a trovare il costo minimo) cercava il modo più economico per assegnare in modo univoco $N$ lavoratori a $N$ macchinari. 
+	Qui avviene la stessa identica e precisa cosa: stiamo cercando di \textbf{assegnare ogni nodo di partenza a un singolo nodo di arrivo}, minimizzando il costo del viaggio.
+	
+	Per dimostrarlo visivamente, il professore costruisce un Grafo Bipartito. Vengono create due colonne ben distanziate: a sinistra i nodi visti come "Partenze", a destra gli stessi nodi visti come "Arrivi". 
+	Disegnando il ciclo Hamiltoniano precedente ($1 \rightarrow 4 \rightarrow 3 \rightarrow 2 \rightarrow 5 \rightarrow 1$), si ottiene questo schema:
+	
+	\begin{figure}[H]
+		\centering
+		\begin{tikzpicture}[scale=1.2]
+			% Colonna Sinistra (Partenze)
+			\node[above, font=\bfseries] at (0, 1) {Partenze ($i$)};
+			\foreach \i in {1,...,5} {
+				\node[draw, circle, fill=blue!10, thick] (L\i) at (0, -\i) {\i};
+			}
+			
+			% Colonna Destra (Arrivi) - Molto distanziata come richiesto
+			\node[above, font=\bfseries] at (6, 1) {Arrivi ($j$)};
+			\foreach \i in {1,...,5} {
+				\node[draw, circle, fill=green!10, thick] (R\i) at (6, -\i) {\i};
+			}
+			
+			% Frecce dell'assegnamento
+			\draw[->, thick, red, >=stealth] (L1) -- (R4);
+			\draw[->, thick, red, >=stealth] (L2) -- (R5);
+			\draw[->, thick, red, >=stealth] (L3) -- (R2);
+			\draw[->, thick, red, >=stealth] (L4) -- (R3);
+			\draw[->, thick, red, >=stealth] (L5) -- (R1);
+		\end{tikzpicture}
+		\caption{Il Ciclo Hamiltoniano visto come un perfetto Problema di Assegnamento: da ogni nodo di sinistra parte una sola freccia, e in ogni nodo di destra ne entra una sola.}
+	\end{figure}
+	
+	\vspace{0.6cm}
+	\separatore
+	\vspace{0.4cm}
+	
+	\textbf{L'Insidia del Modello Base: I Cicli Disgiunti (Subtours)}\\
+	A questo punto arriva il colpo di scena. Il professore disegna alla lavagna un nuovo caso, questa volta con 6 città (da 1 a 6). 
+	Crea le due colonne distanziate e disegna i seguenti collegamenti:
+	\begin{itemize}[label=$\circ$, itemsep=2pt, leftmargin=1.5cm]
+		\item $1 \rightarrow 2$, \quad $2 \rightarrow 3$, \quad $3 \rightarrow 1$
+		\item $4 \rightarrow 5$, \quad $5 \rightarrow 6$, \quad $6 \rightarrow 4$
+	\end{itemize}
+	
+	\begin{figure}[H]
+		\centering
+		\begin{tikzpicture}[scale=1.2]
+			% Colonna Sinistra (Partenze)
+			\node[above, font=\bfseries] at (0, 1) {Partenze ($i$)};
+			\foreach \i in {1,...,6} {
+				\node[draw, circle, fill=blue!10, thick] (L\i) at (0, -\i) {\i};
+			}
+			
+			% Colonna Destra (Arrivi)
+			\node[above, font=\bfseries] at (6, 1) {Arrivi ($j$)};
+			\foreach \i in {1,...,6} {
+				\node[draw, circle, fill=green!10, thick] (R\i) at (6, -\i) {\i};
+			}
+			
+			% Ciclo 1 (Arancione)
+			\draw[->, thick, orange, >=stealth] (L1) -- (R2);
+			\draw[->, thick, orange, >=stealth] (L2) -- (R3);
+			\draw[->, thick, orange, >=stealth] (L3) -- (R1);
+			
+			% Ciclo 2 (Viola)
+			\draw[->, thick, violet, >=stealth] (L4) -- (R5);
+			\draw[->, thick, violet, >=stealth] (L5) -- (R6);
+			\draw[->, thick, violet, >=stealth] (L6) -- (R4);
+		\end{tikzpicture}
+		\caption{Un Assegnamento perfetto che forma due cicli disgiunti, violando la regola del TSP.}
+	\end{figure}
+	
+	Guardiamo attentamente questo grafico. Rispetta i vincoli matematici scritti nel modello precedente? \textbf{Sì!} Da ogni nodo di sinistra esce esattamente una freccia, e in ogni nodo di destra ne entra esattamente una. Il computer considererebbe questa soluzione perfettamente ammissibile per un problema di assegnamento.
+	
+	Ma è un Ciclo Hamiltoniano? \textbf{Assolutamente NO.} 
+	Il commesso viaggiatore partirebbe da 1, andrebbe in 2, poi in 3, e tornerebbe in 1... \textit{senza mai aver visitato le città 4, 5 e 6!} In realtà, si sono formati due mini-cicli separati (i cosiddetti \textbf{Subtours} o cicli disgiunti). Per definizione, il commesso viaggiatore deve visitare \textit{tutte} le città in un \textit{unico} viaggio continuo prima di tornare a casa.
+	
+	\vspace{0.4cm}
+	\textbf{I Vincoli di Eliminazione dei Subtours (SEC)}\\
+	Il nostro modello base è incompleto: permette la creazione di isole isolate. Dobbiamo aggiungere un vincolo fondamentale che impedisca fisicamente la formazione di questi cicli disgiunti. 
+	
+	L'idea geniale è questa: prendiamo un qualsiasi sottoinsieme di città (chiamiamolo $S$). Ad esempio, $S$ potrebbe essere l'insieme delle città $\{1, 2, 3\}$. Affinché il viaggio formi un unico grande anello, il commesso viaggiatore \textbf{deve per forza uscire} da questo gruppo di città per visitare le altre, per poi farvi ritorno in seguito. Non può rimanere intrappolato in $S$.
+	
+	Matematicamente, questo obbligo di "fuga" si traduce affermando che ci deve essere \textit{almeno un arco} che parte dalle città del gruppo $S$ e arriva a una città che si trova al di fuori di esso.
+	La formula si scrive così:
+	\[
+	\sum_{i \in S} \sum_{j \notin S} x_{ij} \geq 1 \quad \forall S \subset N, \ S \neq \emptyset
+	\]
+	\textit{Cosa ci dice questa formula?}
+	Per \textbf{ogni possibile sottoinsieme} di nodi $S$ (che non sia vuoto e che non contenga tutte le città), la somma degli archi che partono da un nodo $i$ all'interno di $S$ e arrivano a un nodo $j$ al di fuori di $S$, deve essere \textbf{maggiore o uguale a 1}. 
+	Ciò significa che il percorso è obbligato a "tagliare il confine" del sottoinsieme, garantendo che tutti i nodi della rete rimangano connessi in un'unica, ininterrotta sequenza: il vero Ciclo Hamiltoniano.
+	
+	\vspace{1.5cm}
+	\begin{center}
+		\rule{0.65\textwidth}{1pt} \\
+		\vspace{0.4cm}
+		\textcolor{titlecolor}{\LARGE \textbf{--- Fine Lezione 15 ---}} \\
+		\vspace{0.2cm}
+		\rule{0.65\textwidth}{1pt}
+	\end{center}
+	\newpage
+	
+	\avviso{\textit{\textbf{Questa lezione, come le sue precedenti e successive, può contenere errori e/o imprecisioni. Per il bene di tutti, è buona norma far notare all'autore l'errore o l'imprecisione così da risolvere nel minor tempo possibile. I canali di comunicazione, per eventuali avvisi generali o di errori trovati negli appunti, sono in cima al file. Grazie per la collaborazione e Buono studio!}}}
+	
+	\section*{Lezione 16 | 19 ottobre 2026}
+	\subsection*{}
 	
 \end{document}
