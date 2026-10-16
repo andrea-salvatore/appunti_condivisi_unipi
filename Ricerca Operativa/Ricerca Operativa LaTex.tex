@@ -5903,12 +5903,19 @@
 	\textbf{Nota Teorica per l'Esame Orale}\\
 	A chiusura di questa introduzione, il professore pone una domanda teorica fondamentale, ottima per un esame orale: \textit{"Dato un grafo orientato di $n$ nodi, quanti possibili cicli Hamiltoniani esistono in totale?"}
 	
-	La tua deduzione sugli appunti è perfettamente corretta: se partiamo da un nodo qualsiasi, per la seconda tappa abbiamo a disposizione $(n-1)$ nodi tra cui scegliere. Per la terza tappa ce ne rimangono $(n-2)$, per la quarta $(n-3)$ e così via, fino a esaurimento (il ritorno al punto di partenza è un percorso obbligato univoco). 
-	Questa moltiplicazione a scalare $(n-1) \times (n-2) \times \dots \times 1$ si indica con il fattoriale:
+	La tua deduzione sugli appunti centra perfettamente il fulcro del problema. Partendo da un nodo di origine fissato, per la seconda tappa abbiamo a disposizione $(n-1)$ città tra cui scegliere. Per la terza tappa ce ne rimangono $(n-2)$, per la quarta $(n-3)$ e così via, fino a esaurimento (il ritorno al punto di partenza è un percorso obbligato). 
+	Questa moltiplicazione a scalare $(n-1) \times (n-2) \times \dots \times 1$ si indica con il fattoriale. La risposta formalmente e computazionalmente più corretta è quindi:
 	\[
 	\text{Numero di Cicli Hamiltoniani in un grafo asimmetrico} = \mathbf{(n-1)!}
 	\]
-	Nel nostro caso con 5 nodi, il numero di percorsi possibili è $(5-1)! = 4! = 4 \times 3 \times 2 \times 1 = 24$. Il nostro obiettivo algoritmico sarà trovare quello che costa meno tra questi 24 possibili senza doverli calcolare tutti a mano!
+	Nel nostro caso con 5 nodi, il numero di percorsi unici possibili è $(5-1)! = 4! = 4 \times 3 \times 2 \times 1 = 24$. Il nostro obiettivo algoritmico sarà trovare quello che costa meno tra questi 24 possibili senza doverli calcolare tutti a mano.
+	
+	\textit{La Risposta Alternativa: $n!$}\\
+	Il professore ci confida un dettaglio importante: all'orale accetta come corretta anche la risposta sommaria \textbf{$n!$}. Ma qual è la differenza logica tra $(n-1)!$ e $n!$?
+	Se rispondiamo $n!$, stiamo implicitamente trattando il nodo di partenza come una variabile mobile anziché come un punto di riferimento fisso. Stiamo calcolando \textit{tutte le possibili permutazioni in cui si possono ordinare $n$ città}. 
+	
+	Tuttavia, un ciclo Hamiltoniano è un percorso chiuso: il ciclo $1 \rightarrow 2 \rightarrow 3 \rightarrow 4 \rightarrow 5 \rightarrow 1$ è \textbf{fisicamente e matematicamente identico} al ciclo $2 \rightarrow 3 \rightarrow 4 \rightarrow 5 \rightarrow 1 \rightarrow 2$. L'itinerario è lo stesso, le strade percorse sono le stesse, il costo totale è lo stesso; abbiamo solo iniziato a leggere il cerchio da una "fermata" diversa. 
+	Usare $n!$ calcolerà questo stesso itinerario $n$ volte (una volta per ogni diversa città di partenza), gonfiando artificialmente il numero di cicli da valutare. Per questo motivo, computazionalmente parlando, è decisamente superiore e più raffinato rispondere $(n-1)!$, poiché esclude nativamente queste copie ridondanti ancorando il ciclo a un nodo di partenza fisso.
 	
 	\vspace{0.4cm}
 	\textbf{Le Variabili Decisionali del TSP}\\
