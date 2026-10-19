@@ -5160,7 +5160,7 @@
 	Dove:
 	\begin{itemize}[label=\textcolor{titlecolor}{\Large\textbullet}, itemsep=2pt, leftmargin=1.5cm]
 		\item $A_B$ è la matrice di base (quadrata di dimensioni $n \times n$).
-		\item $A_N$ è la matrice delle componenti non di base (di dimensioni $(n-m)$, dove $n$ è il numero totale di variabili).
+		\item $A_N$ è la matrice delle componenti non di base (di dimensioni $(m-n)$, dove $n$ è il numero totale di variabili).
 	\end{itemize}
 	
 	A questo punto, sfruttando l'algebra lineare del Simplesso, costruiamo una nuova matrice che chiameremo $\tilde{A}$ (A tilde). Questa matrice si ottiene moltiplicando l'inversa della matrice di base per la matrice non di base:
@@ -6064,6 +6064,410 @@
 	\avviso{\textit{\textbf{Questa lezione, come le sue precedenti e successive, può contenere errori e/o imprecisioni. Per il bene di tutti, è buona norma far notare all'autore l'errore o l'imprecisione così da risolvere nel minor tempo possibile. I canali di comunicazione, per eventuali avvisi generali o di errori trovati negli appunti, sono in cima al file. Grazie per la collaborazione e Buono studio!}}}
 	
 	\section*{Lezione 16 | 19 ottobre 2026}
+	\subsection*{Algoritmo delle Toppe e TSP Simmetrico}
+	
+	\vspace{0.4cm}
+	\textbf{Il Modello Completo del TSP Asimmetrico}\\
+	La lezione si apre con un rapido riepilogo del modello matematico che definisce il Problema del Commesso Viaggiatore (TSP) nella sua variante \textbf{asimmetrica} (dove il costo per andare da $i$ a $j$ può essere diverso da quello per tornare da $j$ a $i$). 
+	
+	Il modello si presenta in questa forma canonica:
+	\[
+	\begin{cases}
+		\min \quad \sum_{i=1}^N \sum_{j=1}^N c_{ij} x_{ij} \\[10pt]
+		\sum_{j=1}^N x_{ij} = 1 \quad \forall i = 1, \dots, N \quad &\text{(Da ogni nodo si esce esattamente una volta)} \\[10pt]
+		\sum_{i=1}^N x_{ij} = 1 \quad \forall j = 1, \dots, N \quad &\text{(In ogni nodo si entra esattamente una volta)} \\[10pt]
+		\sum_{i \in S} \sum_{j \notin S} x_{ij} \geq 1 \quad \forall S \subset N, \ S \neq \emptyset \quad &\text{(Vincoli per l'eliminazione dei Subtours - SEC)} \\[10pt]
+		x_{ij} \in \{0, 1\} \quad \forall i,j \quad &\text{(Variabili binarie)}
+	\end{cases}
+	\]
+	
+	\vspace{0.4cm}
+	\textbf{Cicli Hamiltoniani e Assegnamenti: Relazione Inclusiva}\\
+	Abbiamo stabilito in precedenza che ogni ciclo Hamiltoniano, rispettando i vincoli di entrata e uscita univoca per ogni nodo, è di fatto un assegnamento perfetto. Ma attenzione alla logica inversa: \textbf{non è assolutamente vero che ogni assegnamento sia un ciclo Hamiltoniano}. 
+	
+	Per scolpire questo concetto nella mente, il professore disegna un semplice \textbf{Diagramma di Eulero-Venn}.
+	Traccia un grande cerchio blu che rappresenta l'universo di \textit{"Tutti i possibili Assegnamenti"} (ovvero tutte le soluzioni che rispettano i primi due vincoli del modello). All'interno di questo grande insieme, disegna un cerchio più piccolo verde, che rappresenta i \textit{"Cicli Hamiltoniani"}.
+	
+	\begin{figure}[H]
+		\centering
+		\begin{tikzpicture}
+			% Insieme Grande: Assegnamenti
+			\draw[thick, blue, fill=blue!10] (0,0) ellipse (4cm and 2.5cm);
+			\node[blue, font=\bfseries, align=center] at (0, 1.8) {Insieme di Tutti gli Assegnamenti\\(Soluzioni ammissibili del Rilassato)};
+			
+			% Insieme Piccolo: Cicli Hamiltoniani
+			\draw[thick, green!60!black, fill=green!20] (0,-0.5) ellipse (2cm and 1.2cm);
+			\node[green!40!black, font=\bfseries, align=center] at (0, -0.5) {Cicli Hamiltoniani\\(Nessun Subtour)};
+		\end{tikzpicture}
+		\caption{I cicli Hamiltoniani sono un \textit{sottoinsieme} degli assegnamenti. Un punto nell'area azzurra rappresenta un assegnamento valido che però forma cicli disgiunti.}
+	\end{figure}
+	
+	Il grafico dimostra visivamente l'asimmetria logica: se pesco una soluzione dall'insieme verde, sono certo che sia anche nell'insieme azzurro. Ma se pesco una soluzione a caso dall'insieme azzurro, potrebbe benissimo trovarsi al di fuori del cerchio verde.
+	
+	\vspace{0.4cm}
+	\textbf{Quanti sono i Vincoli SEC (Subtour Elimination Constraints)?}\\
+	Per capire perché un assegnamento può non essere un ciclo Hamiltoniano, il professore disegna nuovamente un caso di cicli disgiunti.
+	Immaginiamo 6 nodi, con i seguenti collegamenti che formano due mini-cicli (subtours) chiusi:
+	\[
+	1 \rightarrow 3 \rightarrow 2 \rightarrow 1 \quad \text{e} \quad 4 \rightarrow 5 \rightarrow 6 \rightarrow 4
+	\]
+	Per rompere questa situazione, dobbiamo usare i vincoli SEC (il terzo vincolo del modello). In questo specifico caso, se definiamo l'insieme $S = \{1, 2, 3\}$, il suo insieme complementare (i nodi rimanenti) sarà $S^C = \{4, 5, 6\}$. Il vincolo SEC applicato a $S$ ci dice che deve esistere \textit{almeno un arco} che parte dai nodi $1,2,3$ e arriva nei nodi $4,5,6$.
+	
+	\begin{figure}[H]
+		\centering
+		\begin{tikzpicture}[scale=1]
+			% Subtour 1
+			\node[draw, circle, fill=blue!10, thick] (1) at (0, 2) {1};
+			\node[draw, circle, fill=blue!10, thick] (2) at (-1.5, 0) {2};
+			\node[draw, circle, fill=blue!10, thick] (3) at (1.5, 0) {3};
+			\draw[->, thick, orange, >=stealth] (1) -- (3);
+			\draw[->, thick, orange, >=stealth] (3) -- (2);
+			\draw[->, thick, orange, >=stealth] (2) -- (1);
+			\draw[dashed, blue, thick] (0, 0.7) ellipse (2.5cm and 2cm);
+			\node[blue, font=\bfseries] at (-2, 2.5) {Insieme $S$};
+			
+			% Subtour 2
+			\node[draw, circle, fill=green!10, thick] (4) at (6, 2) {4};
+			\node[draw, circle, fill=green!10, thick] (5) at (4.5, 0) {5};
+			\node[draw, circle, fill=green!10, thick] (6) at (7.5, 0) {6};
+			\draw[->, thick, violet, >=stealth] (4) -- (5);
+			\draw[->, thick, violet, >=stealth] (5) -- (6);
+			\draw[->, thick, violet, >=stealth] (6) -- (4);
+			\draw[dashed, green!60!black, thick] (6, 0.7) ellipse (2.5cm and 2cm);
+			\node[green!60!black, font=\bfseries] at (8, 2.5) {Insieme $S^C$};
+		\end{tikzpicture}
+		\caption{Due cicli disgiunti. Il vincolo SEC impone la creazione di un "ponte" tra l'insieme $S$ e l'insieme $S^C$.}
+	\end{figure}
+	
+	Ma quanti di questi vincoli SEC esistono in un problema con $N$ nodi?
+	Dobbiamo contare tutti i possibili sottoinsiemi $S$ che possiamo formare con $N$ elementi. La matematica discreta ci insegna che un insieme di $N$ elementi ha $2^N$ possibili sottoinsiemi (incluso l'insieme vuoto e l'insieme che contiene tutti gli elementi).
+	Tuttavia, ai fini del nostro vincolo:
+	\begin{itemize}[label=$\circ$, itemsep=2pt, leftmargin=1.5cm]
+		\item Dobbiamo escludere l'insieme vuoto $\emptyset$ (non ha senso uscire dal nulla).
+		\item Dobbiamo escludere l'insieme totale $N$ (non ha senso uscire da tutto, perché non c'è un "fuori").
+	\end{itemize}
+	Siamo quindi a $2^N - 2$. Ma possiamo affinare ulteriormente il calcolo! Se l'insieme $S$ è formato da \textbf{un solo nodo} (es. $S=\{1\}$), il vincolo SEC ci dice che "bisogna uscire dal nodo 1". Ma questa informazione è già garantita dal primissimo vincolo del modello (quello degli assegnamenti). Pertanto, i vincoli SEC applicati a insiemi di singolo nodo sono ridondanti e si possono escludere. Poiché ci sono $N$ nodi singoli, dobbiamo sottrarre $N$.
+	
+	Ragionando allo stesso modo in modo speculare, anche l'insieme formato da $N-1$ nodi è ridondante (se usciamo da $N-1$ nodi, stiamo implicitamente entrando nell'unico nodo escluso, che è già garantito dal secondo vincolo). Sottraiamo quindi altri $N$ insiemi.
+	Il numero totale di vincoli SEC necessari è quindi:
+	\[
+	\text{Numero di Vincoli SEC} = \mathbf{2^N - 2 - 2N}
+	\]
+	Questo numero cresce in modo spaventoso. Per $N=10$, ci sono $1002$ vincoli. Per $N=20$, ci sono più di un milione di vincoli. È impossibile fornirli tutti al computer in partenza!
+	
+	\vspace{0.4cm}
+	\textbf{Il Rilassato Continuo del TSP e le Valutazioni}\\
+	Essendo il TSP un problema di \textbf{Minimo}, sappiamo che rimuovere dei vincoli ci restituisce una \textbf{Valutazione Inferiore ($v_I$)}. 
+	Quali vincoli togliamo per creare il nostro Rilassato Continuo? Togliamo proprio la montagna ingestibile dei vincoli SEC (e rilassiamo le $x$ tra $0$ e $1$). 
+	
+	Il problema si trasforma in un banale Problema di Assegnamento. Lo risolviamo facilmente e otteniamo una $v_I$.
+	A questo punto si aprono due scenari:
+	\begin{enumerate}
+		\item La soluzione trovata è un unico, grande Ciclo Hamiltoniano. Vittoria! \textbf{Siamo all'Ottimo Perfetto.} La nostra $v_I$ diventa la soluzione del problema.
+		\item La soluzione trovata è spezzata in più cicli disgiunti (Subtours). La nostra $v_I$ è solo un punto di partenza. Dobbiamo trovare una Valutazione Superiore ($v_S$) costruendo a mano una soluzione ammissibile.
+	\end{enumerate}
+	
+	\vspace{0.6cm}
+	\separatore
+	\vspace{0.4cm}
+	
+	\textbf{L'Algoritmo delle Toppe (Patching Heuristic)}\\
+	Come costruiamo una Valutazione Superiore ($v_S$) partendo da cicli disgiunti? Il professore introduce un metodo geniale e molto intuitivo: l'\textbf{Algoritmo delle Toppe}.
+	L'idea è letteralmente quella di "strappare" due archi dai due cicli separati e "cucirli" insieme scambiandoli, creando una toppa che unisce i due circuiti in un unico anello.
+	
+	Riprendiamo un esempio con 6 nodi divisi in due subtours:
+	\begin{itemize}[label=$\circ$, itemsep=2pt, leftmargin=1.5cm]
+		\item Subtour 1: $1 \rightarrow 2 \rightarrow 3 \rightarrow 1$
+		\item Subtour 2: $4 \rightarrow 5 \rightarrow 6 \rightarrow 4$
+	\end{itemize}
+	
+	\textbf{Fase 1: Taglio (Rimozione degli Archi)}\\
+	Scegliamo un arco dal primo ciclo, ad esempio l'arco $(3 \rightarrow 1)$ e un arco dal secondo ciclo, ad esempio $(6 \rightarrow 4)$. Li \textbf{cancelliamo}.
+	Adesso i due cicli sono aperti:
+	\begin{itemize}[label=$\circ$, itemsep=2pt, leftmargin=1.5cm]
+		\item Il nodo 3 non ha più un'uscita. Il nodo 1 non ha più un'entrata.
+		\item Il nodo 6 non ha più un'uscita. Il nodo 4 non ha più un'entrata.
+	\end{itemize}
+	
+	\textbf{Fase 2: Cucitura (Inserimento dei nuovi Archi)}\\
+	Per unire i due percorsi, prendiamo le uscite rimaste "orfane" e le colleghiamo alle entrate "orfane" del ciclo opposto (incrociandole):
+	\begin{itemize}[label=$\circ$, itemsep=2pt, leftmargin=1.5cm]
+		\item L'uscita del nodo 3 la colleghiamo all'entrata del nodo 4: Creiamo il nuovo arco $\mathbf{3 \rightarrow 4}$.
+		\item L'uscita del nodo 6 la colleghiamo all'entrata del nodo 1: Creiamo il nuovo arco $\mathbf{6 \rightarrow 1}$.
+	\end{itemize}
+	
+	\begin{figure}[H]
+		\centering
+		\begin{tikzpicture}[scale=1]
+			% Nodi
+			\node[draw, circle, fill=blue!10, thick] (1) at (0, 2) {1};
+			\node[draw, circle, fill=blue!10, thick] (2) at (-1.5, 0) {2};
+			\node[draw, circle, fill=blue!10, thick] (3) at (1.5, 0) {3};
+			\node[draw, circle, fill=green!10, thick] (4) at (6, 2) {4};
+			\node[draw, circle, fill=green!10, thick] (5) at (4.5, 0) {5};
+			\node[draw, circle, fill=green!10, thick] (6) at (7.5, 0) {6};
+			
+			% Archi mantenuti
+			\draw[->, thick, black, >=stealth] (1) -- (2);
+			\draw[->, thick, black, >=stealth] (2) -- (3);
+			\draw[->, thick, black, >=stealth] (4) -- (5);
+			\draw[->, thick, black, >=stealth] (5) -- (6);
+			
+			% Archi rimossi (Tratteggiati)
+			\draw[->, thick, gray, dashed, >=stealth] (3) -- (1) node[midway, left] {Eliminato};
+			\draw[->, thick, gray, dashed, >=stealth] (6) -- (4) node[midway, right] {Eliminato};
+			
+			% Nuovi Archi "Toppa" (Rossi)
+			\draw[->, thick, red, >=stealth] (3) to[bend left=15] node[midway, below] {Nuovo (Toppa)} (4);
+			\draw[->, thick, red, >=stealth] (6) to[bend right=15] node[midway, above] {Nuovo (Toppa)} (1);
+		\end{tikzpicture}
+		\caption{L'algoritmo delle Toppe spezza i due cicli e li ricuce insieme incrociando i percorsi.}
+	\end{figure}
+	
+	Seguiamo il nuovo percorso tracciato per verificare se è Hamiltoniano:
+	\[
+	\mathbf{1 \rightarrow 2 \rightarrow 3 \xrightarrow{\text{Toppa}} 4 \rightarrow 5 \rightarrow 6 \xrightarrow{\text{Toppa}} 1}
+	\]
+	Abbiamo visitato tutti i nodi una sola volta in un unico grande anello! 
+	
+	Per visualizzare con assoluta chiarezza il risultato finale, possiamo "distendere" i nodi appena collegati riorganizzandoli geometricamente in modo circolare. Manteniamo il colore blu per i nodi del primo subtour e verde per quelli del secondo, evidenziando come le due toppe abbiano fuso i due insiemi:
+	
+	\begin{figure}[H]
+		\centering
+		\begin{tikzpicture}[scale=1.5]
+			% Nodi disposti a esagono regolare per evidenziare il ciclo unico
+			% Gruppo 1 (Sinistra, originariamente blu)
+			\node[draw, circle, fill=blue!10, thick] (1) at (90:2) {1};
+			\node[draw, circle, fill=blue!10, thick] (2) at (150:2) {2};
+			\node[draw, circle, fill=blue!10, thick] (3) at (210:2) {3};
+			
+			% Gruppo 2 (Destra, originariamente verde)
+			\node[draw, circle, fill=green!10, thick] (4) at (270:2) {4};
+			\node[draw, circle, fill=green!10, thick] (5) at (330:2) {5};
+			\node[draw, circle, fill=green!10, thick] (6) at (30:2) {6};
+			
+			% Archi originali mantenuti (neri)
+			\draw[->, thick, black, >=stealth] (1) -- (2);
+			\draw[->, thick, black, >=stealth] (2) -- (3);
+			\draw[->, thick, black, >=stealth] (4) -- (5);
+			\draw[->, thick, black, >=stealth] (5) -- (6);
+			
+			% Archi Toppa (rossi) che chiudono l'anello
+			\draw[->, thick, red, >=stealth] (3) -- (4) node[midway, left=2pt, font=\footnotesize] {Toppa};
+			\draw[->, thick, red, >=stealth] (6) -- (1) node[midway, right=2pt, font=\footnotesize] {Toppa};
+		\end{tikzpicture}
+		\caption{Ridisegnando i nodi in forma esagonale, emerge chiaramente come l'algoritmo abbia trasformato i due subtour disgiunti in un unico, ininterrotto Ciclo Hamiltoniano.}
+	\end{figure}
+	
+	Calcolando il costo di questo nuovo percorso ammissibile (sommando i $c_{ij}$ degli archi utilizzati, incluse le due toppe), otterremo la nostra \textbf{Valutazione Superiore ($v_S$)}.
+	
+	In sintesi, la formula generale dell'algoritmo è: scelti gli archi $(i \rightarrow j)$ e $(k \rightarrow l)$ da rimuovere, si introducono i nuovi archi incrociati $(i \rightarrow l)$ e $(k \rightarrow j)$. Semplice, elegante e incredibilmente efficace per stabilire un limite superiore per il nostro GAP.
+	
+	\vspace{0.6cm}
+	\textbf{Il TSP Simmetrico: Formulazione e Modello Matematico}\\
+	Entriamo ora nel vivo di una variante specifica e comunissima del Problema del Commesso Viaggiatore: il \textbf{TSP Simmetrico}. 
+	Si definisce "simmetrico" quando il costo per percorrere la strada dal nodo $i$ al nodo $j$ è \textbf{perfettamente identico} al costo per tornare indietro dal nodo $j$ al nodo $i$ ($c_{ij} = c_{ji}$). Immaginate una rete di autostrade in pianura: la distanza e il carburante consumato sono gli stessi indipendentemente dal senso di marcia.
+	
+	Questa simmetria cambia drasticamente il modello matematico. Non avendo più bisogno di distinguere tra "andata" e "ritorno", possiamo considerare ogni collegamento come un \textbf{singolo arco non orientato}. Il modello matematico diventa il seguente:
+	\[
+	\begin{cases}
+		\min \quad \sum_{i < j} c_{ij} x_{ij} \\[10pt]
+		\sum_{h < i} x_{hi} + \sum_{i < k} x_{ik} = 2 \quad \forall i \in N \\[10pt]
+		x_{ij} \in \{0, 1\} \quad \forall i < j
+	\end{cases}
+	\]
+	
+	\textit{Spiegazione del Vincolo di Grado:}\\
+	Soffermiamoci sul vincolo centrale, che è il cuore del TSP simmetrico. Esso impone che per ogni nodo $i$, la somma degli archi ad esso collegati sia \textbf{esattamente uguale a 2}. 
+	Perché proprio 2? Se immaginate un qualsiasi anello chiuso (un ciclo), per ogni città in cui passate dovete necessariamente usare una strada per "entrare" e una strada per "uscire". Avendo rimosso il concetto di direzione, diciamo semplicemente che \textbf{ogni nodo deve avere grado 2} (ovvero esattamente due strade collegate).
+	
+	Le due sommatorie ($\sum_{h < i}$ e $\sum_{i < k}$) servono solo a un fine puramente algebrico: siccome definiamo la variabile $x$ solo per indici crescenti (es. scriviamo $x_{12}$ ma non $x_{21}$, per non contare la strada due volte), per trovare tutte le strade collegate al nodo 3 dobbiamo sommare quelle che "vengono prima" ($x_{13}, x_{23}$) e quelle che "vengono dopo" ($x_{34}, x_{35}$).
+	
+	\vspace{0.4cm}
+	\textbf{La Matrice Triangolare Superiore}\\
+	Come si rappresentano i costi in un TSP simmetrico? Non ci serve più una tabella intera, perché metà dei dati sarebbe un inutile doppione. 
+	Utilizziamo una matrice \textbf{Triangolare Superiore}. Le celle vuote (o sbarrate) indicano che il valore è già presente nella cella speculare, oppure che siamo sulla diagonale principale (dove lo spostamento da un nodo a se stesso è impossibile).
+	
+	Ecco i costi dell'esercizio proposti a lezione (da 1 a 5 nodi):
+	
+	\begin{table}[H]
+		\centering
+		\renewcommand{\arraystretch}{1.5}
+		\begin{tabular}{|c|c|c|c|c|}
+			\hline
+			\textbf{$i \setminus j$} & \textbf{2} & \textbf{3} & \textbf{4} & \textbf{5} \\ \hline
+			\textbf{1} & 26 & 28 & 31 & 24 \\ \hline
+			\textbf{2} & \textbf{/} & 27 & 32 & 19 \\ \hline
+			\textbf{3} & \textbf{/} & \textbf{/} & 18 & 16 \\ \hline
+			\textbf{4} & \textbf{/} & \textbf{/} & \textbf{/} & 20 \\ \hline
+		\end{tabular}
+		\caption{Matrice dei costi simmetrica (triangolare superiore). Le celle vuote sono omesse per evitare ridondanze.}
+	\end{table}
+	
+	\vspace{0.4cm}
+	\textbf{Valutazione Superiore ($v_S$): Algoritmo del Nodo Più Vicino}\\
+	Trattandosi di un problema di Minimo, qualsiasi percorso ammissibile (un ciclo di 5 nodi completo e chiuso) ci fornirà un tetto massimo di spesa: la \textbf{Valutazione Superiore ($v_S$)}. Più il percorso è intelligente, più questa spesa sarà bassa e vicina all'ottimo.
+	
+	Il professore ci illustra un'euristica celebre: l'\textbf{Algoritmo del Nodo Più Vicino (Nearest Neighbor)}.
+	La logica è quella che adotterebbe chiunque nella vita reale: "Parto da una città e vado verso quella che costa meno; da lì, guardo le città non ancora visitate e vado in quella che costa meno, e così via, finché non torno a casa".
+	
+	Svolgiamolo passo dopo passo partendo dal \textbf{Nodo 1}:
+	\begin{enumerate}
+		\item \textbf{Da 1:} Guardo i costi (verso 2 costa 26, verso 3 costa 28, verso 4 costa 31, verso 5 costa 24). Il minore è 24. \textbf{Vado al Nodo 5. (Costo = 24)}
+		\item \textbf{Da 5:} Città disponibili: 2, 3, 4. Guardo i costi (verso 2 costa 19, verso 3 costa 16, verso 4 costa 20). Il minore è 16. \textbf{Vado al Nodo 3. (Costo = 16)}
+		\item \textbf{Da 3:} Città disponibili: 2, 4. Guardo i costi (verso 2 costa 27, verso 4 costa 18). Il minore è 18. \textbf{Vado al Nodo 4. (Costo = 18)}
+		\item \textbf{Da 4:} Città rimaste: solo la 2. Il costo dell'arco (2,4) è 32. \textbf{Vado al Nodo 2. (Costo = 32)}
+		\item \textbf{Da 2:} Devo chiudere il ciclo tornando alla 1. Il costo dell'arco (1,2) è 26. \textbf{Torno al Nodo 1. (Costo = 26)}
+	\end{enumerate}
+	
+	\begin{figure}[H]
+		\centering
+		\begin{tikzpicture}[scale=1.2]
+			\node[draw, circle, fill=blue!10, thick] (1) at (90:2) {1};
+			\node[draw, circle, fill=blue!10, thick] (2) at (18:2) {2};
+			\node[draw, circle, fill=blue!10, thick] (3) at (306:2) {3};
+			\node[draw, circle, fill=blue!10, thick] (4) at (234:2) {4};
+			\node[draw, circle, fill=blue!10, thick] (5) at (162:2) {5};
+			
+			\draw[thick, red, >=stealth, ->] (1) -- (5) node[midway, above left] {24};
+			\draw[thick, red, >=stealth, ->] (5) -- (3) node[midway, left] {16};
+			\draw[thick, red, >=stealth, ->] (3) -- (4) node[midway, below] {18};
+			\draw[thick, red, >=stealth, ->] (4) -- (2) node[midway, right] {32};
+			\draw[thick, red, >=stealth, ->] (2) -- (1) node[midway, above right] {26};
+		\end{tikzpicture}
+		\caption{Percorso trovato dall'algoritmo del Nodo Più Vicino ($1 \to 5 \to 3 \to 4 \to 2 \to 1$).}
+	\end{figure}
+	
+	Il costo totale di questo ciclo ammissibile è: $24 + 16 + 18 + 32 + 26 = \mathbf{116}$.
+	La nostra Valutazione Superiore è quindi $\mathbf{v_S = 116}$.
+	
+	\vspace{0.6cm}
+	\separatore
+	\vspace{0.4cm}
+	
+	\textbf{Valutazione Inferiore ($v_I$): L'Invenzione del 1-Albero (1-Tree)}\\
+	Come calcoliamo invece la Valutazione Inferiore? Dobbiamo rilassare (eliminare) alcuni vincoli del problema per permettere all'algoritmo di trovare una soluzione ancora più economica, anche se matematicamente "sbagliata" (che non sia un ciclo perfetto).
+	
+	Nel TSP simmetrico, il Rilassato Continuo si calcola costruendo un \textbf{$1$-albero di costo minimo}.
+	Cos'è un 1-albero? È una struttura grafica ottenuta applicando queste tre ferree regole:
+	\begin{enumerate}
+		\item \textbf{Isolamento:} Si sceglie un nodo "speciale" (es. il Nodo 1) e lo si mette temporaneamente da parte, ignorandolo.
+		\item \textbf{Albero di Copertura:} Sui restanti $N-1$ nodi, si calcola l'Albero Ricoprente di Costo Minimo (Minimum Spanning Tree, algoritmo di Kruskal), collegandoli tutti senza formare cicli.
+		\item \textbf{Ricongiungimento:} Si prende il Nodo 1 (messo da parte) e lo si collega all'Albero usando \textbf{esattamente i suoi due archi meno costosi}.
+	\end{enumerate}
+	Perché questo calcolo rappresenta un rilassamento? Perché garantisce che il Nodo 1 abbia grado 2 (come richiede il TSP), ma non garantisce che anche gli altri nodi abbiano grado 2! Magari alcuni avranno grado 3 e altri grado 1, non formando un ciclo ammissibile. Questo risparmio strutturale produrrà la nostra spesa minima garantita ($v_I$).
+	
+	\textbf{Esecuzione Pratica del 1-Albero:}\\
+	Costruiamo il 1-albero (mettendo da parte il Nodo 1). Lavoriamo sui nodi {2, 3, 4, 5}.
+	Tra questi, scegliamo gli archi più economici in assoluto senza formare cicli chiusi:
+	\begin{itemize}[label=$\circ$, itemsep=2pt, leftmargin=1.5cm]
+		\item L'arco più economico è $(3,5)$ che costa 16. (Lo prendiamo)
+		\item Il secondo più economico è $(3,4)$ che costa 18. (Lo prendiamo)
+		\item Il terzo è $(2,5)$ che costa 19. (Lo prendiamo)
+	\end{itemize}
+	Tutti i 4 nodi sono ora collegati in un albero! Il costo dell'albero è $16 + 18 + 19 = 53$.
+	\textit{(Attenzione: per la rigorosità matematica dell'algoritmo di Kruskal, l'albero ottimale è proprio questo. Qualsiasi altra connessione sarebbe più costosa!).}
+	
+	Ora, riprendiamo il Nodo 1. Quali sono i suoi \textbf{due} archi meno costosi in assoluto? Guardando la prima riga della tabella, i costi sono 26, 28, 31, 24. I due minori sono chiaramente \textbf{24 (verso 5)} e \textbf{26 (verso 2)}. Li colleghiamo.
+	
+	\begin{figure}[H]
+		\centering
+		\begin{tikzpicture}[scale=1.2]
+			% Nodo speciale in alto
+			\node[draw, circle, fill=orange!20, thick] (1) at (0, 2) {1};
+			% Altri nodi
+			\node[draw, circle, fill=blue!10, thick] (2) at (-2, 0) {2};
+			\node[draw, circle, fill=blue!10, thick] (5) at (0, 0.5) {5};
+			\node[draw, circle, fill=blue!10, thick] (3) at (2, 0) {3};
+			\node[draw, circle, fill=blue!10, thick] (4) at (2, -1.5) {4};
+			
+			% Archi dell'Albero di copertura (Nero)
+			\draw[thick, black] (2) -- (5) node[midway, above] {19};
+			\draw[thick, black] (5) -- (3) node[midway, above] {16};
+			\draw[thick, black] (3) -- (4) node[midway, right] {18};
+			
+			% I due archi di ricongiungimento (Rosso)
+			\draw[thick, red, dashed] (1) -- (5) node[midway, left] {24};
+			\draw[thick, red, dashed] (1) -- (2) node[midway, above left] {26};
+		\end{tikzpicture}
+		\caption{Rappresentazione del 1-Albero. Notate come il nodo 5 abbia grado 3 e il nodo 4 abbia grado 1: non è un ciclo Hamiltoniano, ma fornisce il limite inferiore di costo.}
+	\end{figure}
+	Il costo totale del 1-albero (e quindi della nostra $v_I$) è: $53 \text{ (Albero)} + 24 + 26 = \mathbf{103}$.
+	Il nostro GAP per questo problema è confinato tra \textbf{103} ($v_I$) e \textbf{116} ($v_S$).
+	
+	\vspace{0.4cm}
+	\textbf{L'Idea Avanzata: Il 3-Albero (3-Tree)}\\
+	Il professore conclude la lezione con un'intuizione strategica formidabile: chi ci obbliga a mettere da parte per forza il nodo 1? 
+	Le regole per calcolare un limite inferiore valgono per \textbf{qualsiasi nodo} decidiamo di isolare. Se isoliamo il Nodo 3, creeremo un \textbf{3-Albero}.
+	
+	Eseguiamolo:
+	\begin{enumerate}
+		\item \textbf{Isoliamo il Nodo 3.} Lavoriamo sui nodi {1, 2, 4, 5}.
+		\item \textbf{Albero di Copertura su {1,2,4,5}:} Gli archi disponibili sono (2,5)[19], (4,5)[20], (1,5)[24], (1,2)[26], (1,4)[31], (2,4)[32]. 
+		Seguendo Kruskal (dal più economico a salire, senza fare cicli): prendiamo $(2,5)$ a 19, $(4,5)$ a 20 e $(1,5)$ a 24. Abbiamo collegato tutti i 4 nodi. Costo dell'albero: $19 + 20 + 24 = 63$.
+		\item \textbf{Ricongiungiamo il Nodo 3:} I suoi due archi più economici (dalla tabella, colonna/riga 3) sono verso 5 (costo 16) e verso 4 (costo 18).
+	\end{enumerate}
+	
+	\begin{figure}[H]
+		\centering
+		\begin{tikzpicture}[scale=1.2]
+			% Nodo speciale 3
+			\node[draw, circle, fill=orange!20, thick] (3) at (2, 0) {3};
+			% Altri nodi
+			\node[draw, circle, fill=blue!10, thick] (1) at (0, 2) {1};
+			\node[draw, circle, fill=blue!10, thick] (5) at (0, 0.5) {5};
+			\node[draw, circle, fill=blue!10, thick] (2) at (-2, 0) {2};
+			\node[draw, circle, fill=blue!10, thick] (4) at (2, -1.5) {4};
+			
+			% Archi dell'Albero di copertura (Nero)
+			\draw[thick, black] (2) -- (5) node[midway, above] {19};
+			\draw[thick, black] (4) -- (5) node[midway, below] {20};
+			\draw[thick, black] (1) -- (5) node[midway, right] {24};
+			
+			% I due archi di ricongiungimento (Rosso)
+			\draw[thick, red, dashed] (3) -- (5) node[midway, above] {16};
+			\draw[thick, red, dashed] (3) -- (4) node[midway, right] {18};
+		\end{tikzpicture}
+		\caption{Rappresentazione del 3-Albero.}
+	\end{figure}
+	
+	Il costo totale del 3-Albero è: $63 \text{ (Albero)} + 16 + 18 = \mathbf{97}$.
+	
+	\textbf{Il Significato Operativo dei $k$-Alberi:}\\
+	Abbiamo ottenuto una $v_I = 103$ usando il 1-Albero, e una $v_I = 97$ usando il 3-Albero. Quale scegliamo? 
+	Ricordiamo che nei problemi di Minimo, cerchiamo il rilassamento che ci restituisce la Valutazione Inferiore \textbf{più alta possibile}, perché è quella che "stringe" di più il GAP avvicinandosi all'ottimo reale dal basso. 
+	In questo caso, il 1-Albero ($103$) è un limite inferiore migliore e più stringente rispetto al 3-Albero ($97$). Il software matematico calcolerà internamente tutti i possibili $k$-Alberi e sceglierà automaticamente quello con il valore massimo, ottenendo il rilassamento continuo perfetto per il TSP simmetrico!
+	
+	\vspace{0.6cm}
+	\separatore
+	\vspace{0.4cm}
+	
+	\textbf{Disclaimer Terminologico per l'Esame Orale: Rilassamento e Valutazione Inferiore nel TSP}\\
+	A fini di massima precisione teorica, è utile fare una precisazione sul termine \textit{"rilassato continuo"} usato in questa lezione. Nella Programmazione Lineare Intera classica, il rilassato continuo consiste strettamente nell'eliminare i vincoli di interezza (permettendo alle variabili di assumere valori frazionari).
+	
+	Tuttavia, per trovare la Valutazione Inferiore nel TSP, noi operiamo un \textbf{rilassamento per eliminazione di vincoli specifici}, mantenendo intatta la natura intera o binaria delle variabili:
+	\begin{itemize}[label=\textcolor{titlecolor}{\Large\textbullet}, itemsep=2pt, leftmargin=1.5cm]
+		\item \textbf{Nel TSP Asimmetrico:} Il rilassamento si ottiene togliendo i vincoli che evitano la disgiunzione (i vincoli SEC). Il problema risultante è un puro Problema di Assegnamento, che spesso e volentieri restituisce come soluzione rilassata due o più cicli disgiunti.
+		\item \textbf{Nel TSP Simmetrico:} Il rilassamento si ottiene eliminando i vincoli di grado sui nodi, generando il problema che definiamo come \textit{"$k$-albero di costo minimo"}.
+	\end{itemize}
+	
+	\begin{quote}
+		\textbf{Conclusione per l'orale:} Pertanto, sebbene a lezione si possa colloquialmente utilizzare il termine "rilassato continuo" per indicare il problema che ci fornisce la Valutazione Inferiore, a livello puramente teorico è più corretto parlare di \textit{problema derivato dall'eliminazione di vincoli}.
+	\end{quote}
+	
+	\vspace{1.5cm}
+	\begin{center}
+		\rule{0.65\textwidth}{1pt} \\
+		\vspace{0.4cm}
+		\textcolor{titlecolor}{\LARGE \textbf{--- Fine Lezione 16 ---}} \\
+		\vspace{0.2cm}
+		\rule{0.65\textwidth}{1pt}
+	\end{center}
+	\newpage
+	
+	\avviso{\textit{\textbf{Questa lezione, come le sue precedenti e successive, può contenere errori e/o imprecisioni. Per il bene di tutti, è buona norma far notare all'autore l'errore o l'imprecisione così da risolvere nel minor tempo possibile. I canali di comunicazione, per eventuali avvisi generali o di errori trovati negli appunti, sono in cima al file. Grazie per la collaborazione e Buono studio!}}}
+	
+	\section*{Lezione 17 | 20 ottobre 2026}
 	\subsection*{}
 	
 \end{document}
