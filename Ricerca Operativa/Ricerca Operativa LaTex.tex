@@ -75,6 +75,8 @@
 \renewcommand{\headrulewidth}{0.4pt}
 \renewcommand{\footrulewidth}{0pt}
 
+\usepackage{multirow}
+
 % --- TITOLO DEL DOCUMENTO RAFFINATO ---
 \makeatletter
 \renewcommand{\@maketitle}{%
@@ -1422,6 +1424,159 @@
 		\item Ci troviamo nel \textbf{Caso 2} se, calcolando i prodotti tra la Funzione Obiettivo e le direzioni, esiste anche solo un risultato strettamente positivo ($c^T e_j > 0$).
 		\item Siamo nel \textbf{Caso 3} quando non ricadiamo nei due scenari precedenti. In questa situazione, per trovare la soluzione ottima è sufficiente calcolare i prodotti $c^T v_i$ per tutti i vertici dell'insieme $V$ e selezionare il valore massimo.
 	\end{itemize}
+	
+	\vspace{0.8cm}
+	\begin{quote}
+		\textbf{Disclaimer sulle Esercitazioni:} \textit{Gli esercizi seguenti sono stati svolti a casa dallo studente come lavoro di consolidamento. Sebbene i modelli matematici e le procedure MATLAB seguano rigorosamente la teoria spiegata a lezione, le soluzioni non sono state ancora sottoposte a correzione ufficiale da parte del professore e potrebbero contenere imperfezioni calcolistiche. Si consiglia di analizzare il procedimento logico più che il singolo decimale.}
+	\end{quote}
+	\vspace{0.4cm}
+	
+	\subsection*{Esercitazioni Assegnate (24 settembre 2026)}
+	
+	\textbf{Esercizio 1: Ottimizzazione della Produzione di Marmo}\\
+	\textit{Testo:} Un'industria di lavorazione del marmo ha due stabilimenti dove produce lastre di marmo di tre diverse qualità: bassa, media e alta. Per contratto, l'industria deve fornire a una ditta esterna almeno 40, 30 e 50 tonnellate di marmo di bassa, media e alta qualità rispettivamente. Determinare il piano di produzione che minimizzi i costi giornalieri.
+	
+	\begin{table}[H]
+		\centering
+		\renewcommand{\arraystretch}{1.3}
+		\begin{tabular}{|c|c|c|c|c|}
+			\hline
+			\multirow{2}{*}{\textbf{Stabilimento}} & \multirow{2}{*}{\textbf{Costo Giorn. (€)}} & \multicolumn{3}{c|}{\textbf{Produzione (ton/giorno)}} \\ \cline{3-5} 
+			& & \textbf{Bassa} & \textbf{Media} & \textbf{Alta} \\ \hline
+			\textbf{1} & 300 & 5 & 3 & 2 \\ \hline
+			\textbf{2} & 400 & 1 & 2 & 4 \\ \hline
+		\end{tabular}
+		\caption{Dati di produzione e costi per i due stabilimenti.}
+	\end{table}
+	
+	\textbf{Modello Matematico}\\
+	Definiamo $x_1$ e $x_2$ come i giorni di attivazione rispettivamente dello Stabilimento 1 e dello Stabilimento 2. Per utilizzare \texttt{linprog} in MATLAB, i vincoli di "maggiore o uguale" ($\geq$) richiesti dalla fornitura minima e dalla non negatività, devono essere convertiti in "minore o uguale" ($\leq$) moltiplicandoli per $-1$.
+	\[
+	\begin{cases}
+		\min \quad 300x_1 + 400x_2 \\[6pt]
+		-5x_1 - x_2 \leq -40 \quad &\text{(Vincolo Bassa Qualità)} \\
+		-3x_1 - 2x_2 \leq -30 \quad &\text{(Vincolo Media Qualità)} \\
+		-2x_1 - 4x_2 \leq -50 \quad &\text{(Vincolo Alta Qualità)} \\
+		-x_1 \leq 0 \quad &\text{(Non negatività $x_1$)} \\
+		-x_2 \leq 0 \quad &\text{(Non negatività $x_2$)}
+	\end{cases}
+	\]
+	
+	\textbf{Implementazione MATLAB e Soluzione}\\
+	Costruiamo la matrice dei coefficienti $A$, il vettore dei termini noti $b$ e il vettore dei costi $c$:
+	\begin{itemize}[label=$\circ$, itemsep=2pt, leftmargin=1.5cm]
+		\item \texttt{A = [-5 -1; -3 -2; -2 -4; -1 0; 0 -1];}
+		\item \texttt{b = [-40; -30; -50; 0; 0];}
+		\item \texttt{c = [300 400];}
+	\end{itemize}
+	Richiamiamo il solutore per la Programmazione Lineare passando le matrici appena create e lasciando vuoti (con parentesi quadre \texttt{[]}) i campi per le uguaglianze e i bound (poiché la non negatività è già in $A$):
+	\[
+	\texttt{[x, fval] = linprog(c, A, b, [], [], [], [])}
+	\]
+	L'output fornisce la soluzione ottima continua:
+	\[
+	\bar{x}_1 = 6.1111 \text{ giorni}, \quad \bar{x}_2 = 9.4444 \text{ giorni} \implies \text{Costo Minimo Ottimo } (z) = \mathbf{5611.11 €}
+	\]
+	
+	\vspace{0.6cm}
+	\hrule
+	\vspace{0.4cm}
+	
+	\textbf{Esercizio 2: Problema di Assegnamento}\\
+	\textit{Testo:} Si consideri il problema di trovare l'assegnamento di costo minimo i cui costi operativi sono indicati nella seguente tabella.
+	
+	\begin{table}[H]
+		\centering
+		\renewcommand{\arraystretch}{1.3}
+		\begin{tabular}{|c|c|c|c|}
+			\hline
+			\textbf{Pers. $\setminus$ Lav.} & \textbf{1} & \textbf{2} & \textbf{3} \\ \hline
+			\textbf{1} & 47 & 14 & 42 \\ \hline
+			\textbf{2} & 36 & 18 & 43 \\ \hline
+			\textbf{3} & 39 & 29 & 38 \\ \hline
+		\end{tabular}
+		\caption{Matrice dei costi di assegnamento $3 \times 3$.}
+	\end{table}
+	
+	\textbf{Modello Matematico (Formato Standard per MATLAB)}\\
+	Siano $x_{ij} \in \{0,1\}$ le variabili di assegnamento (Persona $i$ fa Lavoro $j$).
+	Per utilizzare \texttt{linprog}, dobbiamo trasformare i classici vincoli di uguaglianza dell'assegnamento ($\sum x_{ij} = 1$) in coppie di disequazioni ($\leq 1$ e $\geq 1$, con quest'ultima girata in $\leq -1$). Aggiungiamo infine i vincoli di non negatività $-x_{ij} \leq 0$.
+	\[
+	\begin{cases}
+		\min \quad 47x_{11} + 14x_{12} + 42x_{13} + 36x_{21} + 18x_{22} + 43x_{23} + 39x_{31} + 29x_{32} + 38x_{33} \\[6pt]
+		x_{11} + x_{12} + x_{13} \leq 1 \\
+		-x_{11} - x_{12} - x_{13} \leq -1 \\
+		\dots \quad \text{(ripetuto per ogni riga e ogni colonna)} \\[6pt]
+		-x_{ij} \leq 0 \quad \forall i,j
+	\end{cases}
+	\]
+	
+	\textbf{Implementazione MATLAB e Soluzione}\\
+	Trattandosi di $9$ variabili, la matrice $A$ avrà $9$ colonne. Il numero di righe sarà enorme: avremo 12 righe per forzare le 6 uguaglianze di assegnamento, più 9 righe per formare la matrice identità negativa che assicura $x_{ij} \geq 0$.
+	A titolo di esempio, la primissima riga di $A$ (relativa a $x_{11}+x_{12}+x_{13} \leq 1$) sarà:
+	\texttt{[1 1 1 0 0 0 0 0 0]}. La seconda (versione negativa) sarà \texttt{[-1 -1 -1 0 0 0 0 0 0]}.
+	Il vettore $b$ sarà una sequenza alternata \texttt{[1; -1; 1; -1; ...]} per i vincoli logici, seguita da nove zeri \texttt{0} per la non negatività.
+	Il vettore $c$ conterrà in riga tutti i costi: \texttt{c = [47 14 42 36 18 43 39 29 38];}.
+	
+	Mandando in esecuzione \texttt{linprog}, otteniamo il vettore binario perfetto:
+	\[
+	\bar{x} = (0, 1, 0, \quad 1, 0, 0, \quad 0, 0, 1)
+	\]
+	Ciò significa che la Persona 1 fa il Lavoro 2, la Persona 2 fa il Lavoro 1, la Persona 3 fa il Lavoro 3.
+	Il costo ottimo è $14 + 36 + 38 = \mathbf{88}$.
+	
+	\textbf{Variazione sul Modello:}\\
+	\textit{Cosa cambia se la Persona 3 si rifiuta di svolgere il Lavoro 2?}
+	Dal punto di vista logico, significa imporre un vincolo strutturale: $x_{32} = 0$. 
+	In MATLAB si traduce nell'aggiungere due righe alla matrice $A$ (rappresentanti $x_{32} \leq 0$ e $-x_{32} \leq 0$) e due zeri al vettore $b$. 
+	Tuttavia, osservando la soluzione ottima appena trovata, notiamo che l'assegnamento $x_{32}$ era \textbf{già a zero} di default! Pertanto, aggiungere questo vincolo restrittivo non cambierà assolutamente l'equilibrio del modello: la soluzione ottima e il costo (88) rimarranno identici.
+	
+	\vspace{0.6cm}
+	\hrule
+	\vspace{0.4cm}
+	
+	\textbf{Esercizio 3: Problema di Trasporto (Pianificazione Studio)}\\
+	\textit{Testo:} Uno studente vuole massimizzare le ore di studio settimanali per tre esami (A, B, C) nel rispetto degli impegni giornalieri e dei minimi settimanali per materia. Gli asterischi indicano in quali giorni è possibile studiare quale materia.
+	
+	\begin{table}[H]
+		\centering
+		\renewcommand{\arraystretch}{1.3}
+		\begin{tabular}{|c|c|c|c|c|c|c|}
+			\hline
+			& \textbf{Lun} & \textbf{Mar} & \textbf{Mer} & \textbf{Gio} & \textbf{Ven} & \textbf{Ore Min. Sett.} \\ \hline
+			\textbf{Esame A} & * & & * & * & & 6 \\ \hline
+			\textbf{Esame B} & & * & & * & * & 5 \\ \hline
+			\textbf{Esame C} & * & * & * & & * & 4 \\ \hline
+			\textbf{Ore Max Giorn.} & 5 & 6 & 4 & 7 & 5 & \\ \hline
+		\end{tabular}
+		\caption{Matrice di disponibilità oraria e vincoli di studio.}
+	\end{table}
+	
+	\textbf{Modello Matematico}\\
+	Avremo 10 variabili decisionali $x_{ij}$, esistenti solo in corrispondenza degli asterischi in tabella, che indicano le ore dedicate alla materia $i$ nel giorno $j$. L'obiettivo è massimizzare la somma totale.
+	Avendo a disposizione MATLAB (che minimizza di default), convertiamo il problema di Massimo in uno di Minimo invertendo il segno della Funzione Obiettivo. Anche i vincoli di minimo di ore per materia ($\geq$) vengono ribaltati in ($\leq$) moltiplicando per $-1$.
+	
+	\[
+	\begin{cases}
+		\max \sum x_{ij} \implies \min -x_{A,Lu} - \dots - x_{C,Ve} \quad &\text{(per le 10 var.)} \\[6pt]
+		-x_{A,Lu} - x_{A,Me} - x_{A,Gi} \leq -6 &\text{(Min. sett. Esame A)} \\
+		-x_{B,Ma} - x_{B,Gi} - x_{B,Ve} \leq -5 &\text{(Min. sett. Esame B)} \\
+		-x_{C,Lu} - x_{C,Ma} - x_{C,Me} - x_{C,Ve} \leq -4 &\text{(Min. sett. Esame C)} \\[6pt]
+		x_{A,Lu} + x_{C,Lu} \leq 5 &\text{(Max giorn. Lunedì)} \\
+		x_{B,Ma} + x_{C,Ma} \leq 6 &\text{(Max giorn. Martedì)} \\
+		x_{A,Me} + x_{C,Me} \leq 4 &\text{(Max giorn. Mercoledì)} \\
+		x_{A,Gi} + x_{B,Gi} \leq 7 &\text{(Max giorn. Giovedì)} \\
+		x_{B,Ve} + x_{C,Ve} \leq 5 &\text{(Max giorn. Venerdì)} \\[6pt]
+		-x_{ij} \leq 0 \quad \forall i,j &\text{(Non negatività)}
+	\end{cases}
+	\]
+	
+	\textbf{Implementazione MATLAB e Soluzione}\\
+	Il vettore dei costi $c$ sarà un vettore riga di dieci $-1$: \texttt{c = [-1 -1 -1 -1 -1 -1 -1 -1 -1 -1];}.
+	La matrice $A$ è composta da: 3 righe (per i minimi di materia con coefficienti -1), 5 righe (per i massimi giornalieri con coefficienti 1) e 10 righe per la non negatività (identità negativa).
+	Il vettore $b$ sarà: \texttt{b = [-6; -5; -4; 5; 6; 4; 7; 5; 0; ... (dieci zeri)]}.
+	
+	Mandando in esecuzione il \texttt{linprog}, la saturazione massima possibile risulta essere $\mathbf{27}$ ore complessive (coincidente con la somma totale di tutte le ore giornaliere disponibili $5+6+4+7+5$). La ripartizione delle ore, che rispetta rigorosamente i vincoli settimanali, viene fornita dal vettore $\bar{x}$ (la cui visualizzazione dipende dall'ordine in cui si inseriscono le variabili in matrice).
 	
 	\vspace{1.5cm}
 	\begin{center}
@@ -6468,6 +6623,703 @@
 	\avviso{\textit{\textbf{Questa lezione, come le sue precedenti e successive, può contenere errori e/o imprecisioni. Per il bene di tutti, è buona norma far notare all'autore l'errore o l'imprecisione così da risolvere nel minor tempo possibile. I canali di comunicazione, per eventuali avvisi generali o di errori trovati negli appunti, sono in cima al file. Grazie per la collaborazione e Buono studio!}}}
 	
 	\section*{Lezione 17 | 20 ottobre 2026}
-	\subsection*{}
+	\subsection*{Algoritmo del Branch and Bound}
+	
+	\vspace{0.6cm}
+	\textbf{Il Metodo Branch and Bound: L'Algoritmo Sovrano della PLI}\\
+	Entriamo ora nel cuore pulsante della Programmazione Lineare Intera (PLI). Fino a questo momento abbiamo imparato a calcolare delle valutazioni inferiori (limiti minimi di costo) e delle valutazioni superiori (soluzioni reali). Ma come facciamo a chiudere sistematicamente il GAP tra questi due valori e trovare con certezza matematica l'ottimo globale? 
+	
+	La risposta risiede nell'algoritmo più importante e utilizzato dell'intera disciplina: il \textbf{Branch and Bound} (letteralmente \textit{Ramifica e Limita}).
+	
+	Partiamo dal nostro modello di base: stiamo affrontando un problema di Minimo ($\min c^T x$), soggetto a un set di vincoli $Ax \leq b$, con variabili strettamente binarie $x \in \{0, 1\}$.
+	Ripassiamo velocemente i due pilastri su cui si basa l'algoritmo:
+	\begin{itemize}[label=\textcolor{titlecolor}{\Large\textbullet}, itemsep=2pt, leftmargin=1.5cm]
+		\item \textbf{Valutazione Superiore ($v_S$):} È data da una \textit{qualsiasi soluzione ammissibile} del problema. Nel contesto del TSP, affinché una soluzione sia ammissibile, deve obbligatoriamente essere un \textbf{Ciclo Hamiltoniano} valido. Non importa quanto costi: purché sia un ciclo chiuso che tocca tutti i nodi, ci fornisce un tetto massimo di spesa.
+		\item \textbf{Valutazione Inferiore ($v_I$ - Il Rilassato):} Come discusso in precedenza, nella PLI classica il rilassato continuo si ottiene togliendo i vincoli di interezza (permettendo $0 \leq x \leq 1$). Nel TSP, invece, manteniamo i vincoli binari, ma \textbf{togliamo i vincoli di grado e di disgiunzione (SEC)}. Sappiamo che in un ciclo Hamiltoniano ogni nodo deve avere grado 2 (un ingresso e un'uscita). Togliendo questa restrizione, il computer calcola soluzioni più economiche (come il 1-albero) che ci forniscono il nostro limite inferiore.
+	\end{itemize}
+	
+	\vspace{0.4cm}
+	\textbf{La Struttura ad Albero di Enumerazione Binaria}\\
+	L'algoritmo procede costruendo un \textbf{albero di enumerazione binaria}. 
+	Questa particolare struttura ha come radice il problema ($P$) e come figli della radice, i vari sottoproblemi ottenuti istanziando le variabili che compongono ($P$). Il resto dell'albero poi continua ad essere generato seguendo questa regola fino ad arrivare alle foglie. Queste ultime rappresentano i sottoproblemi la cui regione ammissibile è vuota o costituita solo da un elemento.
+	
+	Come si ramifica? Si sceglie una variabile decisionale, ovvero un arco del nostro grafo (prendiamo ad esempio l'arco che collega il nodo 1 al nodo 2, indicato come $x_{12}$). 
+	
+	\begin{quote}
+		\textbf{Nota cruciale sulla nomenclatura dei nodi (TSP vs Zaino):}
+		A differenza del problema dello Zaino Binario (dove la variabile su cui ramificare viene calcolata dinamicamente in base a quale risulta frazionata nel rilassato), nel TSP la sequenza degli archi su cui costruire l'albero di enumerazione \textbf{ci viene fornita direttamente dal professore} nei testi d'esame (es. "eseguire il B\&B su $x_{12}$, poi $x_{23}$", ecc.). 
+		Di conseguenza, i nodi fisici dell'albero grafico non si chiameranno genericamente "$P_1$" o "$P_2$", ma prenderanno \textbf{il nome della variabile su cui stiamo ramificando a quel livello}. Il nodo radice conterrà $x_{12}$, e i suoi due figli diretti conterranno entrambi la variabile successiva dettata dal testo (es. $x_{23}$). I sottoproblemi logici generati sui rami verranno invece indicati con la notazione $P_{ij}$.
+	\end{quote}
+	
+	Ipotizzando di partire dalla variabile $x_{12}$, si divide il problema in due scenari mutualmente esclusivi, generando due "figli" o sottoproblemi:
+	\begin{enumerate}
+		\item \textbf{Ramo Sinistro (Esclusione):} Forziamo $x_{12} = 0$. Imponiamo categoricamente che l'arco dal nodo 1 al nodo 2 \textbf{NON debba essere preso}. Il sottoproblema calcolerà il suo 1-albero senza poter usare quella strada.
+		\item \textbf{Ramo Destro (Inclusione):} Forziamo $x_{12} = 1$. Imponiamo categoricamente che l'arco dal nodo 1 al nodo 2 \textbf{DEVE essere preso} e farà obbligatoriamente parte della soluzione.
+	\end{enumerate}
+	
+	\vspace{0.4cm}
+	\textbf{Le Tre Regole di Taglio (Il Bound)}\\
+	Esplorare tutte le combinazioni possibili di archi richiederebbe secoli. La potenza del Branch and Bound sta nel "Bound": ovvero l'insieme di tutte quelle tecniche che ci permettono di ottenere una valutazione superiore e una valutazione inferiore, per poi tagliare (\textit{pruning}) interi rami dell'albero, dimostrando matematicamente che non contengono la soluzione ottima. 
+	
+	\textit{Attenzione alla differenza tra Minimo e Massimo:}
+	Questa dinamica cambia radicalmente in base alla natura del problema:
+	\begin{itemize}[label=$\circ$, itemsep=2pt, leftmargin=1.5cm]
+		\item \textbf{Nei problemi di Minimo (es. TSP):} La Valutazione Inferiore ($v_I$) consiste nell'eliminazione di uno o più vincoli (il rilassato); mentre la Valutazione Superiore ($v_S$) sarà semplicemente la ricerca di una soluzione ammissibile.
+		\item \textbf{Nei problemi di Massimo (es. Zaino):} Si inverte tutto. La Valutazione Superiore diventa il rilassato continuo (senza vincoli di interezza), mentre la Valutazione Inferiore diventa la soluzione ammissibile trovata.
+	\end{itemize}
+	
+	Lavorando sul nostro TSP (Minimo), sia $v_S$ la Valutazione Superiore dell'intero problema (il miglior ciclo noto finora). Calcolando la Valutazione Inferiore $v_I$ di un nuovo sottoproblema appena generato, applichiamo tre regole fondamentali:
+	
+	\textbf{1. Taglio per Inammissibilità (Il problema è vuoto)}\\
+	Se calcolando il 1-albero con le restrizioni imposte ci accorgiamo che non esiste alcuna soluzione (ad esempio, abbiamo forzato troppi archi a zero e il grafo si è scollegato, oppure abbiamo forzato troppi uni violando i gradi), il sottoproblema è inammissibile. Il ramo viene tagliato.
+	
+	\textbf{2. Taglio per Valutazione (Bound)}\\
+	Se calcoliamo la $v_I$ del sottoproblema e scopriamo che $\mathbf{v_I \geq v_S}$, tagliamo immediatamente il ramo. 
+	Noi stiamo cercando il minimo assoluto. Se sappiamo di avere già in tasca un ciclo ammissibile che costa $100$ ($v_S = 100$), e un nuovo sottoproblema parte con un limite di $105$, significa che nella migliore delle ipotesi da quel ramo uscirà una soluzione che costa 105. È del tutto inutile continuare a esplorare.
+	
+	\textbf{3. Taglio per Ottimalità (L'Aggiornamento del GAP)}\\
+	Se la $\mathbf{v_I < v_S}$, ma ci accorgiamo che \textbf{la soluzione ottenuta è ammissibile} (ovvero forma un perfetto Ciclo Hamiltoniano), facciamo due cose: \textbf{aggiorniamo la $v_S$ globale e poi TAGLIAMO il ramo.}
+	Perché tagliamo se la soluzione è buona? Scendere nell'albero significa aggiungere vincoli. L'aggiunta di vincoli può solo \textit{peggiorare} (alzare) il costo, mai migliorarlo. Se in un nodo abbiamo trovato un ciclo perfetto che costa 90 (vecchia $v_S = 100$), in quel ramo abbiamo toccato il fondo ottimo. Incassiamo la vittoria, abbassiamo il "soffitto" del GAP a 90, e chiudiamo il ramo.
+	
+	\vspace{0.6cm}
+	\separatore
+	\vspace{0.4cm}
+	
+	\textbf{Esempio Pratico Visivo: L'Evoluzione dell'Albero}\\
+	Simuliamo un'esecuzione dell'algoritmo. Supponiamo di aver trovato un ciclo iniziale tramite euristica con $v_S = 100$.
+	
+	\textbf{Passo 1: Il Nodo Radice}\\
+	Calcoliamo il 1-albero sul problema originale senza imporre vincoli. Troviamo una $v_I = 80$. Non è un ciclo Hamiltoniano. Dobbiamo ramificare sulla prima variabile stabilita (es. $x_{12}$).
+	
+	\begin{figure}[H]
+		\centering
+		\begin{tikzpicture}[
+			every node/.style={align=center},
+			blob/.style={draw, circle, thick, fill=blue!10, minimum size=1cm, inner sep=0pt}
+			]
+			\node[blob, label=below:{\footnotesize $v_I = 80$\\\footnotesize Non Ammissibile}] (root) {$x_{12}$};
+		\end{tikzpicture}
+		\caption{Stato Iniziale. $v_S$ Globale = 100. Il GAP è [80, 100]. Il nodo radice prende il nome della variabile su cui stiamo per decidere.}
+	\end{figure}
+	
+	\textbf{Passo 2: Prima Ramificazione}\\
+	Generiamo il sottoproblema sinistro ($P_{11}$, $x_{12}=0$) e il sottoproblema destro ($P_{12}$, $x_{12}=1$). Assumiamo che la prossima variabile da valutare sia $x_{34}$. I nuovi nodi figli prenderanno questo nome.
+	\begin{itemize}[label=$\circ$, itemsep=2pt, leftmargin=1.5cm]
+		\item \textbf{Problema $P_{11}$ ($x_{12}=0$):} $v_I = 85$. Non è un ciclo. Ramo aperto.
+		\item \textbf{Problema $P_{12}$ ($x_{12}=1$):} $v_I = 105$. ($105 \geq 100 \implies$ \textbf{Regola 2: TAGLIO}).
+	\end{itemize}
+	
+	\begin{figure}[H]
+		\centering
+		\begin{tikzpicture}[
+			level distance=2.2cm, 
+			sibling distance=5cm,
+			edge from parent/.style={draw, thick, ->, >=stealth},
+			every node/.style={align=center},
+			blob/.style={draw, circle, thick, minimum size=1cm, inner sep=0pt}
+			]
+			
+			\node[blob, fill=blue!10, label=above:{\footnotesize $v_I = 80$}] (root) {$x_{12}$}
+			child {node[blob, fill=blue!10, label=below:{\footnotesize Prob. $P_{11}$\\\footnotesize $v_I = 85$}] (p1) {$x_{34}$}
+				edge from parent node[left, font=\footnotesize, xshift=-0.2cm] {$x_{12}=0$}
+			}
+			child {node[blob, fill=red!20, label=below:{\footnotesize Prob. $P_{12}$\\\footnotesize $v_I = 105$\\\footnotesize TAGLIATO}] (p2) {$x_{34}$}
+				edge from parent node[right, font=\footnotesize, xshift=0.2cm] {$x_{12}=1$}
+			};
+		\end{tikzpicture}
+		\caption{Primo step. Il problema $P_{12}$ viene potato.}
+	\end{figure}
+	
+	\textbf{Passo 3: Seconda Ramificazione e Aggiornamento}\\
+	Torniamo al ramo aperto $P_{11}$ e ramifichiamo su $x_{34}$, generando i problemi $P_{21}$ e $P_{22}$.
+	\begin{itemize}[label=$\circ$, itemsep=2pt, leftmargin=1.5cm]
+		\item \textbf{Problema $P_{21}$ ($x_{34}=0$):} Il grafo si scollega. (\textbf{Regola 1: INAMMISSIBILITÀ}).
+		\item \textbf{Problema $P_{22}$ ($x_{34}=1$):} $v_I = 90$. \textbf{È un Ciclo Hamiltoniano!} 
+	\end{itemize}
+	Abbiamo trovato un ciclo vero che costa 90. Aggiorniamo la $v_S$ globale a $90$. Dopodiché applichiamo la \textbf{Regola 3 (Ottimalità)} e chiudiamo il ramo.
+	
+	\begin{figure}[H]
+		\centering
+		\begin{tikzpicture}[
+			level distance=2.5cm, 
+			level 1/.style={sibling distance=6cm},
+			level 2/.style={sibling distance=3.5cm},
+			edge from parent/.style={draw, thick, ->, >=stealth},
+			every node/.style={align=center},
+			blob/.style={draw, circle, thick, minimum size=1cm, inner sep=0pt}
+			]
+			
+			\node[blob, fill=blue!10] (root) {$x_{12}$}
+			child {node[blob, fill=blue!10, label=left:{\footnotesize $v_I = 85$}] (p1) {$x_{34}$}
+				child {node[blob, fill=red!20, label=below:{\footnotesize $P_{21}$\\\footnotesize INAMMISS.\\\footnotesize TAGLIO}] (p3) {Fine}
+					edge from parent node[left, font=\footnotesize, xshift=-0.2cm] {$x_{34}=0$}
+				}
+				child {node[blob, fill=green!20, label=below:{\footnotesize $P_{22}$\\\footnotesize $\mathbf{v_I = 90}$\\\footnotesize \textbf{CICLO}\\\footnotesize TAGLIO}] (p4) {Fine}
+					edge from parent node[right, font=\footnotesize, xshift=0.2cm] {$x_{34}=1$}
+				}
+				edge from parent node[left, font=\footnotesize, xshift=-0.2cm] {$x_{12}=0$}
+			}
+			child {node[blob, fill=red!20, label=below:{\footnotesize $v_I = 105$\\\footnotesize TAGLIO}] (p2) {$x_{34}$}
+				edge from parent node[right, font=\footnotesize, xshift=0.2cm] {$x_{12}=1$}
+			};
+		\end{tikzpicture}
+		\caption{Albero completo. L'ottimo globale del problema è 90.}
+	\end{figure}
+	
+	\vspace{0.6cm}
+	\textbf{Esercizio Pratico: TSP Simmetrico, 3-Albero e Branch and Bound}\\
+	Abbiamo a disposizione un TSP Simmetrico su 5 nodi. 
+	Ecco la matrice dei costi formattata:
+	
+	\begin{table}[H]
+		\centering
+		\renewcommand{\arraystretch}{1.5}
+		\begin{tabular}{|c|c|c|c|c|}
+			\hline
+			\textbf{$i \setminus j$} & \textbf{2} & \textbf{3} & \textbf{4} & \textbf{5} \\ \hline
+			\textbf{1} & 16 & 19 & 22 & 26 \\ \hline
+			\textbf{2} & \textbf{/} & 24 & 27 & 29 \\ \hline
+			\textbf{3} & \textbf{/} & \textbf{/} & 29 & 18 \\ \hline
+			\textbf{4} & \textbf{/} & \textbf{/} & \textbf{/} & 23 \\ \hline
+		\end{tabular}
+		\caption{Matrice dei costi del TSP simmetrico.}
+	\end{table}
+	
+	\vspace{0.4cm}
+	\textbf{Valutazione Inferiore Iniziale tramite 3-Albero}\\
+	Il nostro punto di partenza sarà calcolato costruendo un \textbf{3-Albero di costo minimo}. 
+	\begin{enumerate}
+		\item \textbf{Isoliamo il Nodo 3:} Lavoreremo solo sui nodi $\{1, 2, 4, 5\}$.
+		\item \textbf{Albero di Copertura su $\{1, 2, 4, 5\}$:} Applichiamo l'algoritmo di Kruskal. 
+		\begin{itemize}[label=$\circ$, itemsep=1pt, leftmargin=1.5cm]
+			\item $(1,2)$ con costo \textbf{16}.
+			\item $(1,4)$ con costo \textbf{22}.
+			\item $(4,5)$ con costo \textbf{23}.
+		\end{itemize}
+		Costo base = $16 + 22 + 23 = \mathbf{61}$.
+		\item \textbf{Ricongiungimento del Nodo 3:} Peschiamo i \textbf{due} archi più economici per ricollegarlo. Sono l'arco $(3,5)$ a costo \textbf{18} e l'arco $(1,3)$ a costo \textbf{19}. 
+		Costo del ricongiungimento = $18 + 19 = \mathbf{37}$.
+	\end{enumerate}
+	
+	La Valutazione Inferiore di partenza è: $v_I = 61 + 37 = \mathbf{98}$. Non è ammissibile (i gradi sono sballati).
+	
+	\vspace{0.4cm}
+	\textbf{Esecuzione del Branch and Bound}\\
+	L'esercizio ci impone di esplorare l'albero forzando in sequenza tre archi: $x_{25}$, $x_{15}$ e $x_{35}$. Il nodo radice si chiamerà quindi $x_{25}$.
+	
+	\textbf{Ramificazione 1: Sull'arco $x_{25}$ (dal problema originale)}\\
+	\begin{itemize}[label=\textcolor{titlecolor}{\Large\textbullet}, itemsep=2pt, leftmargin=1.5cm]
+		\item \textbf{Problema $P_{11}$ ($x_{25} = 0$):} L'arco $(2,5)$ è vietato. Il nostro 3-albero originale \textit{non} lo usava.
+		\textbf{Esito:} $v_I(P_{11}) = \mathbf{98}$. Ramo aperto.
+		\item \textbf{Problema $P_{12}$ ($x_{25} = 1$):} L'arco $(2,5)$ è obbligatorio. 
+		L'albero base deve includere $(2,5)$ a 29, più $(1,2)$ a 16 e $(1,4)$ a 22. Costo = 67.
+		Ricolleghiamo il Nodo 3 (costo 37). \textbf{Esito:} $v_I(P_{12}) = \mathbf{104}$. Non è un ciclo.
+	\end{itemize}
+	
+	\textbf{Ramificazione 2: Sull'arco $x_{15}$ (dal problema $P_{11}$)}\\
+	Continuiamo a esplorare espandendo i nodi figli (che prenderanno il nome $x_{15}$).
+	\begin{itemize}[label=\textcolor{titlecolor}{\Large\textbullet}, itemsep=2pt, leftmargin=1.5cm]
+		\item \textbf{Problema $P_{21}$ ($x_{15} = 0$):} L'arco $(1,5)$ è vietato. Il nostro 3-albero originario \textit{non} lo usava.
+		\textbf{Esito:} $v_I(P_{21}) = \mathbf{98}$. Ramo aperto.
+		\item \textbf{Problema $P_{22}$ ($x_{15} = 1$):} L'arco $(1,5)$ è obbligatorio.
+		L'albero base include $(1,5)$ a 26, $(1,2)$ a 16 e $(1,4)$ a 22. Costo = 64.
+		Ricolleghiamo il Nodo 3 (costo 37). \textbf{Esito:} $v_I(P_{22}) = \mathbf{101}$. Analizzando i gradi, non è un ciclo. 
+		\textit{Nota teorica:} Il limite inferiore \textit{di questo specifico ramo} si aggiorna a 101. Scendendo nell'albero, l'aggiunta di vincoli peggiora (alza) la $v_I$ locale. Questa dinamica è alla base della terza regola di taglio che ci porta progressivamente all'ottimo.
+	\end{itemize}
+	
+	\textbf{Ramificazione 3: Sull'arco $x_{35}$ (dal problema $P_{21}$)}\\
+	Continuiamo dal problema $P_{21}$ (costo 98). I nuovi nodi si chiameranno $x_{35}$.
+	\begin{itemize}[label=\textcolor{titlecolor}{\Large\textbullet}, itemsep=2pt, leftmargin=1.5cm]
+		\item \textbf{Problema $P_{31}$ ($x_{35} = 0$):} A questo punto ci accorgiamo che il problema è vuoto poiché abbiamo istanziato tre variabili a zero ($x_{25}=0, x_{15}=0, x_{35}=0$) violando palesemente il vincolo di grado per il nodo 5 (che necessita di 2 archi, ma gliene è rimasto disponibile solo uno). Quindi possiamo tagliare questo ramo affermando con certezza che il problema è vuoto (Regola 1).
+		\item \textbf{Problema $P_{32}$ ($x_{35} = 1$):} L'arco $(3,5)$ è obbligatorio. Essendo già l'arco più economico del Nodo 3, non subiamo penalità. 
+		\textbf{Esito:} $v_I(P_{32}) = \mathbf{98}$. Ramo aperto.
+	\end{itemize}
+	
+	\vspace{0.4cm}
+	\textbf{Espansione Completa dell'Albero (Analisi dei restanti nodi)}\\
+	Per tracciare il quadro completo richiesto, analizziamo i problemi derivati dagli altri rami:
+	\begin{itemize}[label=$\circ$, itemsep=2pt, leftmargin=1.5cm]
+		\item \textbf{Problema $P_{33}$ (da $P_{22}$ con $x_{35}=0$):} Il ricongiungimento del nodo 3 non può usare $(3,5)$. Usa $(1,3)$ e $(2,3)$ (costo 43). L'albero base è 64. $v_I = 64+43 = 107$.
+		\item \textbf{Problema $P_{34}$ (da $P_{22}$ con $x_{35}=1$):} L'albero si scontra con limiti di grado e forma subtours. La $v_I$ è circa 101, ma rimane inammissibile.
+	\end{itemize}
+	
+	Ecco il tracciato grafico completo che riassume l'interazione dei problemi e la denominazione delle variabili ai vari livelli:
+	
+	\begin{figure}[H]
+		\centering
+		\begin{tikzpicture}[
+			level distance=2.5cm, 
+			level 1/.style={sibling distance=6.5cm},
+			level 2/.style={sibling distance=3.5cm},
+			level 3/.style={sibling distance=2cm},
+			edge from parent/.style={draw, thick, ->, >=stealth},
+			every node/.style={align=center},
+			blob/.style={draw, circle, thick, fill=blue!10, minimum size=1cm, inner sep=0pt}
+			]
+			
+			\node[blob, label=above:{\footnotesize $v_I = 98$}] (p0) {$x_{25}$}
+			% Livello 1: Branch su x_15
+			child {node[blob, label=above left:{\footnotesize Prob. $P_{11}$\\$v_I = 98$}] (p1) {$x_{15}$}
+				% Livello 2: Branch su x_35 da P11
+				child {node[blob, label=above left:{\footnotesize Prob. $P_{21}$\\$v_I = 98$}] (p3) {$x_{35}$}
+					child {node[blob, fill=red!20, label=below:{\footnotesize Prob. $P_{31}$\\\footnotesize VUOTO\\\footnotesize (Regola 1)}] (p5) {Fine}
+						edge from parent node[left, font=\footnotesize, xshift=-0.1cm] {$x_{35}=0$}
+					}
+					child {node[blob, label=below:{\footnotesize Prob. $P_{32}$\\$v_I = 98$\\Aperto}] (p6) {Fine}
+						edge from parent node[right, font=\footnotesize, xshift=0.1cm] {$x_{35}=1$}
+					}
+					edge from parent node[left, font=\footnotesize, xshift=-0.1cm] {$x_{15}=0$}
+				}
+				child {node[blob, label=above right:{\footnotesize Prob. $P_{22}$\\$v_I = 101$}] (p4) {$x_{35}$}
+					child {node[blob, label=below:{\footnotesize Prob. $P_{33}$\\$v_I = 107$}] (p7) {Fine}
+						edge from parent node[left, font=\footnotesize, xshift=-0.1cm] {$x_{35}=0$}
+					}
+					child {node[blob, label=below:{\footnotesize Prob. $P_{34}$\\$v_I \geq 101$}] (p8) {Fine}
+						edge from parent node[right, font=\footnotesize, xshift=0.1cm] {$x_{35}=1$}
+					}
+					edge from parent node[right, font=\footnotesize, xshift=0.1cm] {$x_{15}=1$}
+				}
+				edge from parent node[left, font=\footnotesize, xshift=-0.2cm] {$x_{25}=0$}
+			}
+			% Livello 1: Branch su x_15 da P12
+			child {node[blob, label=above right:{\footnotesize Prob. $P_{12}$\\$v_I = 104$}] (p2) {$x_{15}$}
+				edge from parent node[right, font=\footnotesize, xshift=0.2cm] {$x_{25}=1$}
+			};
+			
+		\end{tikzpicture}
+		\caption{Albero di B\&B completo per l'esercizio TSP Simmetrico.}
+	\end{figure}
+	
+	\begin{quote}
+		\textit{Disclaimer: I calcoli matematici presentati in quest'ultimo esercizio sono stati estrapolati a mano dallo scrivente. Sebbene il processo logico segua fedelmente la teoria, l'elaborato è in attesa di validazione ufficiale e correzione da parte del professore.}
+	\end{quote}
+	
+	\vspace{1.5cm}
+	\begin{center}
+		\rule{0.65\textwidth}{1pt} \\
+		\vspace{0.4cm}
+		\textcolor{titlecolor}{\LARGE \textbf{--- Fine Lezione 17 ---}} \\
+		\vspace{0.2cm}
+		\rule{0.65\textwidth}{1pt}
+	\end{center}
+	\newpage
+	
+	\avviso{\textit{\textbf{Questa lezione, come le sue precedenti e successive, può contenere errori e/o imprecisioni. Per il bene di tutti, è buona norma far notare all'autore l'errore o l'imprecisione così da risolvere nel minor tempo possibile. I canali di comunicazione, per eventuali avvisi generali o di errori trovati negli appunti, sono in cima al file. Grazie per la collaborazione e Buono studio!}}}
+	
+	\section*{Lezione 18 | 21 ottobre 2026}
+	\subsection*{Ripresa del Branch and Bound e Taglio di Gomory sul problema dello Zaino Intero}
+	
+	\vspace{0.6cm}
+	\textbf{Il Branch and Bound nel TSP di Massimo: Inammissibilità e Gradi}\\
+	Oggi affrontiamo il TSP da una prospettiva capovolta: un problema di \textbf{Massimo}. In questa variante, cerchiamo il ciclo Hamiltoniano che massimizza il profitto (o la distanza, a seconda del contesto) anziché minimizzare il costo.
+	
+	Il professore apre la lezione con una riflessione profonda sulla prima regola di taglio del Branch and Bound: \textit{quando e perché un sottoproblema diventa "vuoto" (inammissibile)?}
+	Per capirlo, disegna alla lavagna le due discese "estreme" lungo l'albero binario di esplorazione, partendo da un problema a 5 nodi.
+	
+	\textbf{1. La Discesa a Sinistra (L'Azzeramento degli Archi)}\\
+	Cosa succede se, partendo dalla radice, ramifichiamo ostinatamente sempre verso il figlio sinistro?
+	Spostarsi a sinistra significa imporre che un arco \textbf{non debba essere preso} ($x_{ij} = 0$). Se forziamo $x_{12} = 0$, poi $x_{13} = 0$, poi $x_{14} = 0$, e così via, stiamo progressivamente cancellando tutte le strade in uscita dal nodo 1.
+	Arriverà inesorabilmente un punto, su una foglia in profondità, in cui il nodo 1 non avrà più alcun arco a disposizione per collegarsi al resto del grafo. Senza strade, è impossibile costruire un albero di copertura, tantomeno un ciclo. Il sottoproblema diventa matematicamente \textbf{vuoto} e viene tagliato (Regola 1).
+	
+	\begin{figure}[H]
+		\centering
+		\begin{tikzpicture}[
+			level distance=2cm, 
+			sibling distance=3cm,
+			edge from parent/.style={draw, thick, ->, >=stealth},
+			every node/.style={align=center},
+			blob/.style={draw, circle, thick, fill=blue!10, minimum size=0.9cm, inner sep=0pt}
+			]
+			
+			\node[blob] (p0) {$P_0$}
+			child {node[blob] (p1) {$P_1$}
+				child {node[blob] (p2) {$P_2$}
+					child {node[blob, fill=red!20, label=below:{\footnotesize Nessun arco rimasto\\\footnotesize \textbf{VUOTO (Taglio)}}] (p3) {$P_3$}
+						child[missing] {}
+						child[missing] {}
+						edge from parent node[left, font=\footnotesize, xshift=-0.1cm] {$x_{14}=0$}
+					}
+					child {edge from parent[draw=none]} % spazio vuoto per bilanciare
+					edge from parent node[left, font=\footnotesize, xshift=-0.1cm] {$x_{13}=0$}
+				}
+				child {edge from parent[draw=none]}
+				edge from parent node[left, font=\footnotesize, xshift=-0.1cm] {$x_{12}=0$}
+			}
+			child {edge from parent[dashed, gray] node[right, font=\footnotesize, xshift=0.1cm] {$x_{12}=1$}};
+			
+		\end{tikzpicture}
+		\caption{Esplorazione estrema a sinistra. Negando progressivamente tutti gli archi uscenti dal nodo 1, il problema collassa e diventa vuoto.}
+	\end{figure}
+	
+	\textbf{2. La Discesa a Destra (La Violazione del Grado)}\\
+	Cosa succede, al contrario, se scendiamo costantemente verso il figlio destro?
+	Spostarsi a destra significa imporre categoricamente l'utilizzo di un arco ($x_{ij} = 1$). Se imponiamo $x_{12} = 1$, poi $x_{13} = 1$, e poi $x_{14} = 1$, stiamo costringendo il nodo 1 a collegarsi a tre città contemporaneamente. 
+	Ma qual è la regola sacra del ciclo Hamiltoniano? \textbf{Ogni nodo deve avere esattamente grado 2} (un ingresso e un'uscita). Se anche un solo nodo supera il grado 2 (diventando un incrocio con 3 o più vie), è fisicamente impossibile che quel percorso formi un ciclo Hamiltoniano puro senza incrociarsi o creare disgiunzioni. Il ramo diventa quindi inammissibile e viene tagliato.
+	
+	\begin{figure}[H]
+		\centering
+		\begin{tikzpicture}[
+			level distance=2cm, 
+			sibling distance=3cm,
+			edge from parent/.style={draw, thick, ->, >=stealth},
+			every node/.style={align=center},
+			blob/.style={draw, circle, thick, fill=blue!10, minimum size=0.9cm, inner sep=0pt}
+			]
+			
+			\node[blob] (p0) {$P_0$}
+			child {edge from parent[dashed, gray] node[left, font=\footnotesize, xshift=-0.1cm] {$x_{12}=0$}}
+			child {node[blob] (p1) {$P_1$}
+				child {edge from parent[draw=none]}
+				child {node[blob] (p2) {$P_2$}
+					child {edge from parent[draw=none]}
+					child {node[blob, fill=red!20, label=below:{\footnotesize Grado Nodo 1 = 3\\\footnotesize \textbf{INAMMISSIBILE (Taglio)}}] (p3) {$P_3$}
+						edge from parent node[right, font=\footnotesize, xshift=0.1cm] {$x_{14}=1$}
+					}
+					edge from parent node[right, font=\footnotesize, xshift=0.1cm] {$x_{13}=1$}
+				}
+				edge from parent node[right, font=\footnotesize, xshift=0.1cm] {$x_{12}=1$}
+			};
+			
+		\end{tikzpicture}
+		\caption{Esplorazione estrema a destra. Obbligando il nodo 1 a prendere troppi archi, il suo grado eccede 2, rendendo impossibile la formazione di un ciclo Hamiltoniano.}
+	\end{figure}
+	Questa consapevolezza è essenziale: il Branch and Bound non esplora mai all'infinito. Le limitazioni strutturali del problema (assenza di archi o violazione dei gradi) "potano" naturalmente l'albero.
+	
+	\vspace{0.6cm}
+	\separatore
+	\vspace{0.4cm}
+	
+	\textbf{Le Regole di Taglio nel Problema di Massimo}\\
+	Poiché ci troviamo in un problema di Massimizzazione, la prospettiva delle valutazioni si capovolge rispetto alle lezioni precedenti:
+	\begin{itemize}[label=\textcolor{titlecolor}{\Large\textbullet}, itemsep=2pt, leftmargin=1.5cm]
+		\item \textbf{Valutazione Inferiore ($v_I$):} Rappresenta una soluzione ammissibile certa (es. un ciclo Hamiltoniano noto). È il nostro "guadagno minimo garantito".
+		\item \textbf{Valutazione Superiore ($v_S$):} Rappresenta il Rilassato (la stima ottimistica). Ci dice qual è il profitto massimo teoricamente raggiungibile in quel sottoproblema.
+	\end{itemize}
+	
+	Riscriviamo quindi le regole del "Bound" per la Massimizzazione:
+	
+	\textbf{Taglio per Bound (Regola 2):}\\
+	Se calcoliamo la Valutazione Superiore di un sottoproblema $P$ e scopriamo che $\mathbf{v_S(P) \leq v_I}$ (globale), allora \textbf{tagliamo il ramo}.
+	\textit{Il senso logico:} Stiamo cercando di massimizzare il profitto. Se abbiamo già in tasca una soluzione ammissibile che ci fa guadagnare 100 ($v_I = 100$), e il rilassato di un nuovo ramo ci dice che, \textit{nella migliore delle ipotesi, guadagneremo 95}, perché dovremmo perdere tempo a esplorarlo? Tagliamo subito.
+	
+	\textbf{Taglio per Ottimalità (Regola 3):}\\
+	Se $\mathbf{v_S(P) > v_I}$ (il ramo promette un profitto superiore, es. 110) e ci accorgiamo che la soluzione che ha generato questa $v_S(P)$ \textbf{è ammissibile} (è un perfetto ciclo Hamiltoniano), allora: \textbf{aggiorniamo la $v_I$ globale a 110 e tagliamo il ramo}.
+	\textit{Il senso logico:} Abbiamo appena trovato una soluzione reale e praticabile che batte il nostro vecchio record. La sostituiamo. Perché tagliamo? Perché abbiamo raggiunto il massimo potenziale di quel ramo con una soluzione ammissibile; aggiungere ulteriori vincoli scendendo nell'albero potrebbe solo far scendere il profitto, mai alzarlo. Il GAP si è ridotto dal basso!
+	
+	\vspace{0.6cm}
+	\separatore
+	\vspace{0.4cm}
+	
+	\textbf{ILP Generica vs TSP: La Semantica del "Rilassato Continuo"}\\
+	Il professore generalizza poi il discorso scrivendo alla lavagna un modello di Programmazione Lineare Intera (PLI) generico, simile al problema dello zaino:
+	\[
+	\begin{cases}
+		\max \quad c^T x \\[6pt]
+		p^T x \leq P \\
+		A^T x \leq V \\
+		x \in \{0, 1\}
+	\end{cases}
+	\]
+	Questi problemi possono essere risolti con i Piani di Taglio (Gomory) o con il Branch and Bound. Affinché il B\&B parta, servono una $v_I$ e una $v_S$.
+	\begin{itemize}[label=\textcolor{titlecolor}{\Large\textbullet}, itemsep=2pt, leftmargin=1.5cm]
+		\item La \textbf{Valutazione Inferiore ($v_I$)} (soluzione ammissibile) si trova velocemente con \textbf{Algoritmi Greedy} intelligenti (es. basati sui rendimenti per lo zaino).
+		\item La \textbf{Valutazione Superiore ($v_S$)} si trova risolvendo il \textbf{Rilassato Continuo}.
+	\end{itemize}
+	\textit{Attenzione alla semantica:}
+	Nella PLI classica (come nello zaino qui sopra), "Rilassato Continuo" significa letteralmente \textbf{togliere i vincoli di interezza} (permettendo a $x$ di valere 0.7, 0.4, ecc.) e risolvere il modello come un normalissimo problema di Programmazione Lineare continua.
+	Nel TSP, invece, la definizione di "Rilassato Continuo" cambia natura: \textbf{le variabili rimangono intere} ($x \in \{0,1\}$), ma ad essere rimossi sono i \textit{vincoli di grado} (permettendo a un nodo di avere 1 o 3 strade) o i \textit{vincoli SEC}. In entrambi i casi, il concetto matematico è lo stesso: rimuovere vincoli restrittivi per ampliare la regione ammissibile e ottenere un limite teorico (Bound).
+	
+	\vspace{0.6cm}
+	\separatore
+	\vspace{0.4cm}
+	
+	\textbf{MATLAB: Risolvere la PLI con \texttt{intlinprog}}\\
+	Come si traduce tutto questo al calcolatore? All'esame potremo usare MATLAB.
+	Finora abbiamo usato \texttt{linprog} per la Programmazione Lineare. Per la Programmazione Lineare Intera, MATLAB offre una funzione dedicata, che applica internamente algoritmi ibridi di Branch and Bound e piani di taglio: \textbf{\texttt{intlinprog}}.
+	
+	La sintassi completa per risolvere un problema nella forma:
+	$\min c^T x$ con $A x \leq b$, $A_{eq} x = b_{eq}$, $LB \leq x \leq UB$ è la seguente:
+	\[
+	\texttt{x = intlinprog(c, I, A, b, A\_eq, b\_eq, LB, UB)}
+	\]
+	Gli argomenti sono identici a \texttt{linprog}, con un'unica, cruciale aggiunta: la variabile \textbf{\texttt{I}} (che la documentazione ufficiale chiama \texttt{intcon}).
+	
+	\textbf{Cos'è e come si usa il vettore \texttt{I} (\texttt{intcon})?}\\
+	L'argomento \texttt{I} è un vettore riga (o colonna) che contiene gli \textbf{indici numerici delle variabili che DEVONO assumere valori interi}. 
+	Ad esempio, se abbiamo 5 variabili decisionali ($x_1, x_2, x_3, x_4, x_5$) e vogliamo che siano tutte intere, scriveremo:
+	\[
+	\texttt{I = [1, 2, 3, 4, 5]}
+	\]
+	Così facendo, diciamo a MATLAB: \textit{"La prima, la seconda, la terza, la quarta e la quinta variabile della funzione obiettivo non possono avere decimali"}.
+	
+	\textbf{La Programmazione Lineare Misto-Intera (MILP):}\\
+	Qui risiede la vera potenza di MATLAB. Cosa succede se omettiamo un numero da quell'array?
+	Se dichiariamo:
+	\[
+	\texttt{I = [1, 2, 4, 5]}
+	\]
+	Abbiamo volutamente saltato il numero 3. Questo comando istruisce il solver a costringere $x_1, x_2, x_4, x_5$ a prendere valori interi (es. 0, 1, 5, 8), ma lascia \textbf{totalmente libera la variabile $x_3$}, permettendole di assumere valori frazionari continui (es. 2.71, 14.5).
+	Questa flessibilità ci permette di risolvere problemi della vita reale estremamente complessi, noti come Problemi Misto-Interi. Immaginate di dover decidere quanti furgoni comprare (variabile intera: non posso comprare "mezzo furgone") e contestualmente quanti litri esatti di carburante inserire in ciascuno (variabile continua: 45.3 litri). Basterà inserire nella variabile \texttt{I} solo la posizione dell'array corrispondente ai furgoni, escludendo quella del carburante!
+	
+	\vspace{0.6cm}
+	\textbf{Il Branch and Bound applicato allo Zaino Binario}\\
+	Finora abbiamo visto il Branch and Bound applicato al problema del Commesso Viaggiatore (TSP). Tuttavia, questo algoritmo è universale per la Programmazione Lineare Intera. Il professore ce lo dimostra applicandolo al classico \textbf{Problema dello Zaino Binario} (Knapsack Problem).
+	
+	Il modello matematico proposto è un problema di Massimizzazione:
+	\[
+	\begin{cases}
+		\max \quad 5x_1 + 7x_2 + 8x_3 + 9x_4 + 11x_5 \\[6pt]
+		7x_1 + 8x_2 + 10x_3 + 12x_4 + 13x_5 \leq 32 \\[6pt]
+		x_j \in \{0, 1\} \quad \forall j = 1, \dots, 5
+	\end{cases}
+	\]
+	Trattandosi di uno zaino, i coefficienti della funzione obiettivo rappresentano i \textbf{Valori ($V_j$)} degli oggetti, mentre i coefficienti del vincolo rappresentano i loro \textbf{Pesi ($p_j$)}. La capienza massima dello zaino è $P = 32$.
+	
+	\vspace{0.4cm}
+	\textbf{Calcolo dei Rendimenti e Ordinamento}\\
+	Per risolvere il problema, calcoliamo i rendimenti (rapporto Valore/Peso, $R_j = V_j / p_j$) di ciascun oggetto:
+	\begin{itemize}[label=$\circ$, itemsep=2pt, leftmargin=1.5cm]
+		\item $R_1 = 5 / 7 \approx 0.714$
+		\item $R_2 = 7 / 8 = \mathbf{0.875} \quad \text{\textcolor{green!60!black}{\textbf{(1° Posto)}} \quad (Oggetto 2)}$
+		\item $R_3 = 8 / 10 = \mathbf{0.800} \quad \text{\textcolor{orange}{\textbf{(3° Posto)}} \quad (Oggetto 3)}$
+		\item $R_4 = 9 / 12 = \mathbf{0.750} \quad \text{\textbf{(4° Posto)} \quad (Oggetto 4)}$
+		\item $R_5 = 11 / 13 \approx \mathbf{0.846} \quad \text{\textcolor{blue}{\textbf{(2° Posto)}} \quad (Oggetto 5)}$
+	\end{itemize}
+	L'ordine decrescente di attrattività degli oggetti è quindi: \textbf{$x_2, x_5, x_3, x_4, x_1$}.
+	
+	\vspace{0.4cm}
+	\textbf{Calcolo delle Valutazioni (Caso Base)}\\
+	Calcoliamo la \textbf{Valutazione Inferiore ($v_I$)}, ovvero la soluzione ammissibile (\textit{Greedy} intera). 
+	Capienza iniziale: 32.
+	\begin{enumerate}
+		\item Inserisco $x_2$ (peso 8): Capienza residua $32 - 8 = 24$. Valore accumulato $= 7$.
+		\item Inserisco $x_5$ (peso 13): Capienza residua $24 - 13 = 11$. Valore accumulato $= 7 + 11 = 18$.
+		\item Inserisco $x_3$ (peso 10): Capienza residua $11 - 10 = 1$. Valore accumulato $= 18 + 8 = \mathbf{26}$.
+		\item Provo a inserire $x_4$ (peso 12). Non entra nello spazio 1. Scarto.
+		\item Provo a inserire $x_1$ (peso 7). Non entra nello spazio 1. Scarto.
+	\end{enumerate}
+	La soluzione intera è $\tilde{x} = (0, 1, 1, 0, 1)$. La Valutazione Inferiore è $\mathbf{v_I = 26}$.
+	
+	Calcoliamo ora la \textbf{Valutazione Superiore ($v_S$)}, ovvero il Rilassato Continuo. 
+	Ripercorriamo gli stessi inserimenti finché lo zaino non si blocca a capienza 1. A questo punto, anziché scartare l'oggetto $x_4$, \textbf{lo frazioniamo}. L'oggetto pesa 12, ma noi abbiamo solo 1 di spazio. Ne prenderemo esattamente $\frac{1}{12}$.
+	Il valore continuo è dato dalla somma degli oggetti interi più la frazione del valore dell'oggetto 4:
+	\[
+	v_{S_{cont}} = 26 + \left(\frac{1}{12}\right) \times 9 = 26 + 0.75 = 26.75
+	\]
+	Essendo i dati del problema interi e stando massimizzando, applichiamo il troncamento (\textit{floor}):
+	\[
+	v_S = \lfloor 26.75 \rfloor = \mathbf{26}
+	\]
+	
+	\textbf{Risultato:} Il GAP è compreso tra $26$ e $26$. È pari a ZERO. Abbiamo già trovato l'ottimo! In questo scenario, l'algoritmo di Branch and Bound non parte nemmeno.
+	
+	\vspace{0.6cm}
+	\separatore
+	\vspace{0.4cm}
+	
+	\textbf{Forzare il Branch and Bound: Modifica del Problema}\\
+	Il professore ci illustra come una minima perturbazione dei dati possa stravolgere la struttura del problema. Aumentiamo il termine noto del vincolo (la capienza) di una sola unità, portandolo a \textbf{33}.
+	\[
+	7x_1 + 8x_2 + 10x_3 + 12x_4 + 13x_5 \leq \mathbf{33}
+	\]
+	\textit{Perché questa modifica ci dà la certezza di dover usare il Branch and Bound?} 
+	Aumentando la capienza a 33, la soluzione intera \textit{Greedy} rimane identica: ci fermiamo all'oggetto 3 con $v_I = 26$ e uno spazio residuo che passa da 1 a 2. L'oggetto successivo ($x_4$, peso 12) continua a non entrare per intero. 
+	Tuttavia, nel Rilassato Continuo, frazionare l'oggetto in $2/12$ (cioè $1/6$) produce un valore maggiore:
+	\[
+	v_{S_{cont}} = 26 + \left(\frac{1}{6}\right) \times 9 = 26 + 1.5 = 27.5 \implies \mathbf{v_S = \lfloor 27.5 \rfloor = 27}
+	\]
+	Il GAP si è appena aperto: \textbf{GAP = [26, 27]}. Dobbiamo sviscerarlo usando l'albero.
+	
+	\vspace{0.4cm}
+	\textbf{Esecuzione del Branch and Bound}\\
+	La regola aurea del Branch and Bound impone che \textbf{si ramifica sempre partendo dalla variabile che nel rilassato continuo ha assunto un valore frazionario}. 
+	
+	\begin{quote}
+		\textbf{Nota importante sull'albero e le variabili di branching:} 
+		A livello puramente algoritmico, i nodi di un albero di Branch and Bound non si chiamano genericamente "$P_0$", "$P_1$". Ogni nodo prende logicamente il nome della \textbf{variabile che vi è stata frazionata} e che ha causato la successiva ramificazione.
+		Inoltre, è fondamentale capire che i rami destro e sinistro vivono vite matematiche indipendenti. Forzare un vincolo a sinistra (es. $x_4=0$) crea una situazione di zaino completamente diversa da quella di destra (es. $x_4=1$). Di conseguenza, se scendendo ulteriormente ci trovassimo a dover frazionare un nuovo oggetto, \textbf{la variabile frazionata a sinistra potrebbe benissimo essere diversa da quella frazionata a destra!} Questo fa parte della fisiologia dell'algoritmo.
+	\end{quote}
+	
+	Nel nostro caso base, la variabile frazionata era $x_4$. Il nodo radice prenderà il suo nome.
+	Costruiamo i due figli:
+	
+	\textbf{Figlio Sinistro: Fissiamo $\mathbf{x_4 = 0}$}\\
+	Impediamo l'inserimento dell'oggetto 4. L'ordine di inserimento diventa: $x_2, x_5, x_3, x_1$.
+	Capienza iniziale: 33.
+	\begin{enumerate}
+		\item Inserisco $x_2$ (peso 8, val 7): Capienza = 25. Valore = 7.
+		\item Inserisco $x_5$ (peso 13, val 11): Capienza = 12. Valore = 18.
+		\item Inserisco $x_3$ (peso 10, val 8): Capienza = 2. Valore = 26.
+		\item Inserisco $x_1$ (peso 7, val 5): Non entra! Fraziono prendendo $\frac{2}{7}$.
+	\end{enumerate}
+	Valore continuo: $26 + \left(\frac{2}{7}\right) \times 5 \approx 26 + 1.428 = 27.428$.
+	Valutazione Superiore (troncata): $\mathbf{v_S = 27}$. 
+	La soluzione è ancora frazionaria (avendo frazionato $x_1$). Il nodo rimane temporaneamente \textbf{aperto}, con un GAP locale tra 26 (la $v_I$ globale) e 27. Poiché qui abbiamo frazionato $x_1$, questo specifico nodo prenderà il nome di $x_1$.
+	
+	\textbf{Figlio Destro: Fissiamo $\mathbf{x_4 = 1}$}\\
+	Obblighiamo l'inserimento dell'oggetto 4. Lo inseriamo subito per scalare la capienza.
+	\begin{enumerate}
+		\item Inserisco obbligatoriamente $x_4$ (peso 12, val 9): Capienza residua $33 - 12 = 21$. Valore = 9.
+	\end{enumerate}
+	Ora procediamo con il normale ordine di rendimento ($x_2, x_5, x_3, x_1$) per saturare i restanti 21 spazi:
+	\begin{enumerate}[resume]
+		\item Inserisco $x_2$ (peso 8, val 7): Capienza = $21 - 8 = 13$. Valore accumulato $= 9 + 7 = 16$.
+		\item Inserisco $x_5$ (peso 13, val 11): Capienza = $13 - 13 = \mathbf{0}$. Valore accumulato $= 16 + 11 = \mathbf{27}$.
+	\end{enumerate}
+	La capienza è scesa esattamente a zero! Non abbiamo avuto bisogno di frazionare nulla. 
+	La soluzione trovata è $\bar{x} = (0, 1, 0, 1, 1)$, tutte variabili intere! Essendo a componenti intere, il rilassato continuo coincide con una vera soluzione ammissibile per lo zaino.
+	La Valutazione Superiore è $\mathbf{v_S = 27}$. 
+	
+	\vspace{0.4cm}
+	\textbf{La Regola dell'Aggiornamento Ottimale}\\
+	A questo punto si verifica la magia della terza regola di taglio dei problemi di Massimo (Taglio per Ottimalità).
+	Abbiamo trovato una soluzione intera ammissibile che genera un profitto di $27$. Siccome questo profitto è strettamente superiore al vecchio "minimo garantito" che avevamo in tasca all'inizio (la $v_I$ di base era 26), possiamo \textbf{aggiornare la Valutazione Inferiore globale dell'intero problema}: la nuova $v_I$ diventa $\mathbf{27}$.
+	
+	Aggiornare la $v_I$ globale genera un effetto a catena (chiamato \textit{Fathoming}) su tutto l'albero!
+	Guardiamo cosa succede al Figlio Sinistro (il nodo $x_1$) che avevamo lasciato aperto. La sua Valutazione Superiore (il suo potenziale massimo) era 27. Ma ora la nostra $v_I$ globale è salita a 27.
+	Il GAP locale per il nodo $x_1$ passa da $[26, 27]$ a $\mathbf{[27, 27]}$. 
+	Poiché $v_S \leq v_{I_{globale}}$ (cioè $27 \leq 27$), il ramo di sinistra viene \textbf{tagliato per Bound} (Regola 2): non potrà mai offrirci una soluzione strettamente migliore di quella che abbiamo già in tasca.
+	
+	\begin{figure}[H]
+		\centering
+		\begin{tikzpicture}[
+			level distance=2.5cm, 
+			sibling distance=5cm,
+			edge from parent/.style={draw, thick, ->, >=stealth},
+			every node/.style={align=center},
+			blob/.style={draw, circle, thick, minimum size=0.9cm, inner sep=0pt}
+			]
+			
+			% Nodo Radice (variabile frazionata: x4)
+			\node[blob, fill=blue!10, label=right:{\footnotesize GAP iniziale: $[26, 27]$}] (root) {$x_4$}
+			% Figlio Sx (variabile frazionata: x1)
+			child {node[blob, fill=red!20, label=below:{\footnotesize $v_S = 27$\\\footnotesize TAGLIATO (Bound)\\\footnotesize GAP aggiornato: $[27,27]$}] (p1) {$x_1$}
+				edge from parent node[left, font=\footnotesize, xshift=-0.2cm] {$x_4=0$}
+			}
+			% Figlio Dx (Nessuna variabile frazionata, è sol. intera. Chiamiamo il nodo con il valore o lasciamo un identificatore generico, lo indichiamo come "Intero")
+			child {node[blob, fill=green!20, label=below:{\footnotesize $v_S = 27$\\\footnotesize \textbf{SOL. INTERA}\\$v_I$ aggiornata a 27\\\footnotesize TAGLIATO (Ottimalità)}] (p2) {Intero}
+				edge from parent node[right, font=\footnotesize, xshift=0.2cm] {$x_4=1$}
+			};
+			
+		\end{tikzpicture}
+		\caption{L'aggiornamento della $v_I$ da parte del ramo destro porta alla chiusura simultanea di tutti gli altri rami aperti dell'albero. Il nodo radice prende il nome della variabile originariamente frazionata ($x_4$), mentre il nodo sinistro prende il nome della nuova variabile frazionata ($x_1$).}
+	\end{figure}
+	
+	Avendo tagliato o risolto tutti i rami, l'algoritmo termina. L'ottimo globale del problema dello zaino modificato è \textbf{27}, ed è stato trovato obbligando l'inserimento dell'oggetto 4.
+	
+	\vspace{0.6cm}
+	\textbf{Il Problema dello Zaino Intero: Branch and Bound vs Piani di Taglio}\\
+	Passiamo ora a una variante diversa del problema: lo \textbf{Zaino Intero}. A differenza dello zaino binario, qui le variabili decisionali non sono limitate a $0$ o $1$, ma appartengono all'insieme $\mathbb{Z}_+$ (possono assumere qualsiasi valore intero positivo: $0, 1, 2, 3, \dots$). Possiamo cioè inserire più copie dello stesso oggetto.
+	
+	Il professore introduce un concetto computazionale fondamentale: applicare il Branch and Bound allo Zaino Intero è possibile, ma \textbf{computazionalmente devastante}. Se un oggetto può essere inserito 0, 1, 2... fino a 10 volte, l'albero di ricerca non sarà più semplicemente binario (prendo/non prendo), ma esploderà in innumerevoli ramificazioni per ogni singola variabile. Questo richiederebbe tempi di calcolo esagerati per MATLAB. Per questo motivo, per lo Zaino Intero è decisamente più efficace e diretto l'uso dei \textbf{Piani di Taglio di Gomory}.
+	
+	Il modello matematico è quindi il seguente:
+	\[
+	\begin{cases} 
+		\max \quad 5x_1 + 7x_2 + 8x_3 + 9x_4 + 11x_5 \\ 
+		7x_1 + 8x_2 + 10x_3 + 12x_4 + 13x_5 \leq 63 \\ 
+		x_j \in \mathbb{Z}_+ \quad \forall j = 1, \dots, 5 
+	\end{cases}
+	\]
+	
+	\vspace{0.4cm}
+	\textbf{1. Calcolo delle Valutazioni ($v_I$ e $v_S$)}\\
+	Il miglior rendimento (come calcolato nell'esercizio precedente) appartiene sempre all'Oggetto 2 ($R_2 = 7/8 = 0.875$).
+	
+	\textbf{Valutazione Inferiore ($v_I$):}\\
+	Cerchiamo una soluzione intera ammissibile. Se il professore ha proposto il vettore $\tilde{x} = (1, 7, 0, 0, 0)$, verifichiamone la correttezza:
+	\begin{itemize}[label=$\circ$, itemsep=2pt, leftmargin=1.5cm]
+		\item \textbf{Peso totale:} $7(1) + 8(7) = 7 + 56 = 63$. Il peso satura esattamente la capienza. È ammissibile!
+		\item \textbf{Valore totale ($v_I$):} $5(1) + 7(7) = 5 + 49 = \mathbf{54}$.
+	\end{itemize}
+	
+	\textbf{Valutazione Superiore ($v_S$ - Rilassato Continuo):}\\
+	Avendo a disposizione quantità infinite di ogni oggetto, il Rilassato Continuo prenderà \textit{esclusivamente} l'oggetto con il miglior rendimento in assoluto ($x_2$), inserendolo anche in forma frazionaria fino a riempire lo zaino.
+	\[
+	x_2 = \frac{63}{8} = 7.875
+	\]
+	La soluzione ottima del Rilassato è $\bar{x} = \left(0, \frac{63}{8}, 0, 0, 0\right)$.
+	Il valore continuo massimo raggiungibile è:
+	\[
+	v_{S_{cont}} = 7 \times \left(\frac{63}{8}\right) = \frac{441}{8} = 55.125
+	\]
+	Applicando il troncamento all'intero inferiore (\textit{floor}):
+	\[
+	v_S = \lfloor 55.125 \rfloor = \mathbf{55}
+	\]
+	
+	\vspace{0.4cm}
+	\textbf{2. Formato Primale Esteso e l'Errore da Non Fare all'Esame}\\
+	Per applicare l'algoritmo di Gomory, dobbiamo trasformare la disequazione in un'equazione. Lo facciamo aggiungendo una \textbf{variabile di scarto} $x_6 \geq 0$. (Spesso chiamata gergalmente "forma duale" a lezione, il suo nome tecnico è \textit{Forma Standard o Primale Esteso}).
+	\[
+	7x_1 + 8x_2 + 10x_3 + 12x_4 + 13x_5 + \mathbf{x_6} = 63
+	\]
+	Dato che l'ottimo continuo ha utilizzato solo la variabile $x_2$, la nostra \textbf{Matrice di Base ($A_B$)} sarà composta unicamente dal coefficiente di $x_2$, ovvero $8$.
+	L'inversa della base è semplicemente:
+	\[
+	A_B^{-1} = \frac{1}{8}
+	\]
+	La \textbf{Matrice non di base ($A_N$)} è formata dai coefficienti di tutte le altre variabili escluse.
+	Qui il professore fa un avvertimento cruciale per l'esame: le variabili originali erano 5, ma noi abbiamo aggiunto $x_6$. È comunissimo, per stanchezza o distrazione, dimenticarsi di includere il coefficiente $1$ della variabile di scarto nella $A_N$. Se la dimenticate, l'intero taglio di Gomory risulterà matematicamente errato.
+	\[
+	A_N = \begin{pmatrix} 7 & 10 & 12 & 13 & \mathbf{1} \end{pmatrix}
+	\]
+	
+	\vspace{0.4cm}
+	\textbf{3. Costruzione della Matrice $\tilde{A}$ e delle Parti Frazionarie}\\
+	Calcoliamo $\tilde{A} = A_B^{-1} A_N$:
+	\[
+	\tilde{A} = \frac{1}{8} \begin{pmatrix} 7 & 10 & 12 & 13 & 1 \end{pmatrix} = \begin{pmatrix} \frac{7}{8} & \frac{10}{8} & \frac{12}{8} & \frac{13}{8} & \frac{1}{8} \end{pmatrix}
+	\]
+	Semplificando le frazioni otteniamo $\tilde{A} = \begin{pmatrix} \frac{7}{8} & \frac{5}{4} & \frac{3}{2} & \frac{13}{8} & \frac{1}{8} \end{pmatrix}$.
+	
+	Il teorema del taglio di Gomory richiede il calcolo rigoroso della \textbf{parte frazionaria} di ogni coefficiente, definita come $\{a\} = a - \lfloor a \rfloor$. Procediamo:
+	\begin{itemize}[label=$\circ$, itemsep=2pt, leftmargin=1.5cm]
+		\item Coeff. $x_1$: $\{7/8\} = \mathbf{7/8}$
+		\item Coeff. $x_3$: $\{5/4\} = 5/4 - 1 = \mathbf{1/4}$
+		\item Coeff. $x_4$: $\{3/2\} = 3/2 - 1 = \mathbf{1/2}$
+		\item Coeff. $x_5$: $\{13/8\} = 13/8 - 1 = \mathbf{5/8}$
+		\item Coeff. $x_6$: $\{1/8\} = \mathbf{1/8}$
+	\end{itemize}
+	Ci serve infine la parte frazionaria del termine noto, ovvero il valore assunto dalla nostra variabile di base $x_2$ nell'ottimo continuo ($\bar{x}_2 = 63/8$).
+	\[
+	\left\{\frac{63}{8}\right\} = \frac{63}{8} - 7 = \mathbf{\frac{7}{8}}
+	\]
+	
+	\vspace{0.4cm}
+	\textbf{4. Scrittura del Vincolo di Taglio Finale}\\
+	La disuguaglianza del taglio di Gomory si ottiene ponendo la somma delle parti frazionarie delle variabili non di base maggiore o uguale alla parte frazionaria del termine noto:
+	\[
+	\sum_{j \in N} \{\tilde{a}_{rj}\} x_j \geq \{\bar{x}_r\}
+	\]
+	Sostituendo i valori appena calcolati, otteniamo esattamente la disequazione mostrata a lezione:
+	\[
+	\frac{7}{8}x_1 + \frac{1}{4}x_3 + \frac{1}{2}x_4 + \frac{5}{8}x_5 + \frac{1}{8}x_6 \geq \frac{7}{8}
+	\]
+	Per rendere questo vincolo elegante e utilizzabile da un solutore come MATLAB senza problemi di arrotondamento sui decimali, eliminiamo le frazioni moltiplicando l'intera equazione per il minimo comune multiplo (che è $8$):
+	\[
+	8\left(\frac{7}{8}x_1\right) + 8\left(\frac{1}{4}x_3\right) + 8\left(\frac{1}{2}x_4\right) + 8\left(\frac{5}{8}x_5\right) + 8\left(\frac{1}{8}x_6\right) \geq 8\left(\frac{7}{8}\right)
+	\]
+	\[
+	\mathbf{7x_1 + 2x_3 + 4x_4 + 5x_5 + x_6 \geq 7}
+	\]
+	Abbiamo così dimostrato la costruzione del perfetto piano di taglio per lo Zaino Intero. Aggiungendo questo nuovo vincolo al modello originale, il Simplesso sarà costretto a scartare il vecchio vertice frazionario ($x_2 = 63/8$) poiché, sostituendo le variabili non di base con $0$ in questa nuova disequazione, otterrebbe $0 \geq 7$, generando una palese violazione matematica che lo spingerà a cercare una nuova e più profonda soluzione intera.
+	
+	\vspace{1.5cm}
+	\begin{center}
+		\rule{0.65\textwidth}{1pt} \\
+		\vspace{0.4cm}
+		\textcolor{titlecolor}{\LARGE \textbf{--- Fine Lezione 18 ---}} \\
+		\vspace{0.2cm}
+		\rule{0.65\textwidth}{1pt}
+	\end{center}
+	\newpage
+	
+	\avviso{\textit{\textbf{Questa lezione, come le sue precedenti e successive, può contenere errori e/o imprecisioni. Per il bene di tutti, è buona norma far notare all'autore l'errore o l'imprecisione così da risolvere nel minor tempo possibile. I canali di comunicazione, per eventuali avvisi generali o di errori trovati negli appunti, sono in cima al file. Grazie per la collaborazione e Buono studio!}}}
+	
+	\section*{Lezione 19 | 22 ottobre 2026}
+	\subsection*{Esercitazione Pre Compitino (primo esame parziale)}
+	
+	
 	
 \end{document}
