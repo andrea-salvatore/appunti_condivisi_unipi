@@ -1578,6 +1578,210 @@
 	
 	Mandando in esecuzione il \texttt{linprog}, la saturazione massima possibile risulta essere $\mathbf{27}$ ore complessive (coincidente con la somma totale di tutte le ore giornaliere disponibili $5+6+4+7+5$). La ripartizione delle ore, che rispetta rigorosamente i vincoli settimanali, viene fornita dal vettore $\bar{x}$ (la cui visualizzazione dipende dall'ordine in cui si inseriscono le variabili in matrice).
 	
+	\vspace{0.8cm}
+	\hrule
+	\vspace{0.4cm}
+	
+	\textbf{Esercizio 4: Analisi Algebrica e di Weyl su Grafici di Poliedri}\\
+	In questo esercizio applichiamo il Teorema di Rappresentazione di Weyl e la teoria della divergenza per analizzare cinque poliedri differenti forniti in allegato[cite: 2]. Per ogni grafico definiremo la matrice $A$ e il vettore $b$ della forma algebrica ($Ax \leq b$), gli insiemi $V$ ed $E$ della forma di Weyl, e individueremo i vettori di costo $c = (c_1, c_2)^T$ che soddisfano le condizioni di ottimo richieste.
+	
+	\vspace{0.6cm}
+	\textbf{1. La Retta Infinita (Poliedro 1)}\\
+	Il primo grafico mostra una retta passante per l'origine, bisettrice del primo e terzo quadrante[cite: 2]. Un poliedro monodimensionale illimitato in entrambe le direzioni[cite: 2].
+	
+	\begin{figure}[H]
+		\centering
+		\begin{tikzpicture}
+			\begin{axis}[
+				width=7cm, height=7cm, axis lines=middle, 
+				xmin=-3, xmax=3, ymin=-3, ymax=3, 
+				xtick=\empty, ytick=\empty,
+				xlabel={$x_1$}, ylabel={$x_2$}
+				]
+				\addplot[domain=-2.5:2.5, color=blue, line width=1.5pt] {x};
+			\end{axis}
+		\end{tikzpicture}
+	\end{figure}
+	
+	\begin{itemize}[label=\textcolor{titlecolor}{\Large\textbullet}, itemsep=4pt, leftmargin=1.5cm]
+		\item \textbf{Forma Algebrica ($Ax \leq b$):} La retta ha equazione $x_1 = x_2$. Si traduce nel sistema di disequazioni $x_1 - x_2 \leq 0$ e $-x_1 + x_2 \leq 0$.
+		\[
+		A = \begin{bmatrix} 1 & -1 \\ -1 & 1 \end{bmatrix}, \qquad b = \begin{bmatrix} 0 \\ 0 \end{bmatrix}
+		\]
+		\item \textbf{Forma di Weyl:} Essendo una retta passante per l'origine, ha un solo vertice e due direzioni opposte.
+		\[
+		V = \left\{ \begin{pmatrix} 0 \\ 0 \end{pmatrix} \right\}, \qquad E = \left\{ e_1=\begin{pmatrix} 1 \\ 1 \end{pmatrix}, e_2=\begin{pmatrix} -1 \\ -1 \end{pmatrix} \right\}
+		\]
+		\item \textbf{Ricerca del vettore $c$ per la massimizzazione ($\max c^T x$):}
+		\begin{enumerate}[label=\alph*)]
+			\item \textbf{Esiste massimo finito:} Affinché non diverga lungo le direzioni, deve valere $c^T e_1 \leq 0$ e $c^T e_2 \leq 0$. Quindi $(c_1 + c_2) \leq 0$ e $(-c_1 - c_2) \leq 0$. L'unica soluzione è $c_1 = -c_2$. Ad esempio, $\mathbf{c = (1, -1)^T}$.
+			\item \textbf{Non esiste massimo finito:} Basta violare la condizione precedente, scegliendo un vettore che formi un angolo acuto con una delle direzioni (es. $c^T e_1 > 0$). Scegliamo $\mathbf{c = (1, 1)^T}$.
+			\item \textbf{Esiste minimo finito:} Nei problemi di minimo vale la stessa regola algebrica sui raggi. Usiamo $\mathbf{c = (1, -1)^T}$.
+			\item \textbf{Non esiste minimo finito:} Scegliamo una direzione di discesa illimitata, ad esempio $\mathbf{c = (1, 1)^T}$.
+			\item \textbf{Soluzione ottima non unica:} Utilizzando $\mathbf{c = (1, -1)^T}$, la funzione obiettivo è ortogonale alla retta. Il prodotto scalare è $0$ in ogni punto del poliedro. Esistono infinite soluzioni ottime.
+		\end{enumerate}
+	\end{itemize}
+	
+	\vspace{0.6cm}
+	\textbf{2. Il Cono Aperto a Sinistra (Poliedro 2)}\\
+	Il secondo grafico mostra un cono con vertice in $(0, -1)$ che si apre verso l'asse $x_1$ negativo[cite: 2].
+	
+	\begin{figure}[H]
+		\centering
+		\begin{tikzpicture}
+			\begin{axis}[
+				width=7cm, height=7cm, axis lines=middle, 
+				xmin=-4, xmax=2, ymin=-4, ymax=2, 
+				xtick=\empty, ytick={-1},
+				xlabel={$x_1$}, ylabel={$x_2$}
+				]
+				\fill[blue, opacity=0.1] (0,-1) -- (-3,2) -- (-4,2) -- (-4,-4) -- (-3,-4) -- cycle;
+				\draw[line width=1.5pt, color=blue] (0,-1) -- (-3,2);
+				\draw[line width=1.5pt, color=blue] (0,-1) -- (-3,-4);
+				\filldraw (0,-1) circle (2pt) node[right] {$(0,-1)$};
+			\end{axis}
+		\end{tikzpicture}
+	\end{figure}
+	
+	\begin{itemize}[label=\textcolor{titlecolor}{\Large\textbullet}, itemsep=4pt, leftmargin=1.5cm]
+		\item \textbf{Forma Algebrica ($Ax \leq b$):} Il bordo superiore passa per $(0,-1)$ con pendenza $-1 \implies x_2 \leq -x_1 - 1 \implies x_1 + x_2 \leq -1$. Il bordo inferiore passa per $(0,-1)$ con pendenza $+1 \implies x_2 \geq x_1 - 1 \implies -x_1 + x_2 \leq -1$.
+		\[
+		A = \begin{bmatrix} 1 & 1 \\ -1 & 1 \end{bmatrix}, \qquad b = \begin{bmatrix} -1 \\ -1 \end{bmatrix}
+		\]
+		\item \textbf{Forma di Weyl:} Un vertice e due direzioni estreme.
+		\[
+		V = \left\{ \begin{pmatrix} 0 \\ -1 \end{pmatrix} \right\}, \qquad E = \left\{ e_1=\begin{pmatrix} -1 \\ 1 \end{pmatrix}, e_2=\begin{pmatrix} -1 \\ -1 \end{pmatrix} \right\}
+		\]
+		\item \textbf{Ricerca del vettore $c$:} Affinché il massimo non diverga, serve $c^T e_1 \leq 0$ (cioè $-c_1 + c_2 \leq 0$) e $c^T e_2 \leq 0$ (cioè $-c_1 - c_2 \leq 0$). Risolvendo si ottiene $c_1 \geq |c_2|$.
+		\begin{enumerate}[label=\alph*)]
+			\item \textbf{Esiste massimo finito:} Rispettiamo $c_1 \geq |c_2|$. Esempio: $\mathbf{c = (1, 0)^T}$. (Il vertice $(0,-1)$ sarà l'ottimo).
+			\item \textbf{Non esiste massimo finito:} Violiamo la condizione. Esempio: $\mathbf{c = (-1, 0)^T}$ (diverge verso sinistra).
+			\item \textbf{Esiste minimo finito:} Per il minimo cerchiamo $\max -c^T x$, quindi serve $-c_1 \geq |-c_2| \implies c_1 \leq -|c_2|$. Esempio: $\mathbf{c = (-1, 0)^T}$.
+			\item \textbf{Non esiste minimo finito:} Esempio: $\mathbf{c = (1, 0)^T}$.
+			\item \textbf{Soluzione ottima non unica:} Scegliamo un $c$ ortogonale a una direzione per far coincidere il massimo con un intero bordo. Scegliamo $\mathbf{c = (1, 1)^T}$ (ortogonale a $e_1$). Tutti i punti sul raggio superiore sono ottimi.
+		\end{enumerate}
+	\end{itemize}
+	
+	\vspace{0.6cm}
+	\textbf{3. Il Segmento Limitato (Poliedro 3)}\\
+	Il terzo grafico mostra un segmento sull'asse delle ascisse compreso tra l'origine e il punto $(1,0)$[cite: 2].
+	
+	\begin{figure}[H]
+		\centering
+		\begin{tikzpicture}
+			\begin{axis}[
+				width=7cm, height=5cm, axis lines=middle, 
+				xmin=-1, xmax=2, ymin=-1, ymax=1, 
+				xtick={1}, ytick=\empty,
+				xlabel={$x_1$}, ylabel={$x_2$}
+				]
+				\draw[line width=3pt, color=blue] (0,0) -- (1,0);
+				\filldraw (1,0) circle (1.5pt) node[below right] {$(1,0)$};
+				\filldraw (0,0) circle (1.5pt);
+			\end{axis}
+		\end{tikzpicture}
+	\end{figure}
+	
+	\begin{itemize}[label=\textcolor{titlecolor}{\Large\textbullet}, itemsep=4pt, leftmargin=1.5cm]
+		\item \textbf{Forma Algebrica ($Ax \leq b$):} Il segmento è vincolato da $0 \leq x_1 \leq 1$ e $x_2 = 0$.
+		\[
+		A = \begin{bmatrix} 1 & 0 \\ -1 & 0 \\ 0 & 1 \\ 0 & -1 \end{bmatrix}, \qquad b = \begin{bmatrix} 1 \\ 0 \\ 0 \\ 0 \end{bmatrix}
+		\]
+		\item \textbf{Forma di Weyl:} Essendo un poliedro perfettamente chiuso e limitato, non possiede direzioni.
+		\[
+		V = \left\{ \begin{pmatrix} 0 \\ 0 \end{pmatrix}, \begin{pmatrix} 1 \\ 0 \end{pmatrix} \right\}, \qquad E = \emptyset
+		\]
+		\item \textbf{Ricerca del vettore $c$:} \textit{Attenzione teorica:} Poiché $E = \emptyset$, per il Teorema Fondamentale della PL è matematicamente impossibile che questo problema diverga. Massimo e minimo finiti esistono \textbf{sempre} per qualsiasi vettore $c$.
+		\begin{enumerate}[label=\alph*)]
+			\item \textbf{Esiste massimo finito:} Qualsiasi vettore, ad esempio $\mathbf{c = (1, 0)^T}$.
+			\item \textbf{Non esiste massimo finito:} \textbf{Impossibile.} Il poliedro è limitato.
+			\item \textbf{Esiste minimo finito:} Qualsiasi vettore, ad esempio $\mathbf{c = (1, 0)^T}$.
+			\item \textbf{Non esiste minimo finito:} \textbf{Impossibile.}
+			\item \textbf{Soluzione ottima non unica:} Serve un vettore ortogonale al segmento (che giace sull'asse $x_1$). Basta prendere $\mathbf{c = (0, 1)^T}$. Il prodotto scalare sarà $0$ per tutti i punti del segmento.
+		\end{enumerate}
+	\end{itemize}
+	
+	\vspace{0.6cm}
+	\textbf{4. Il Semipiano Superiore (Poliedro 4)}\\
+	Il grafico mostra un'area infinita che parte dalla retta orizzontale passante per $(0,1)$ ed è limitata solo inferiormente[cite: 2].
+	
+	\begin{figure}[H]
+		\centering
+		\begin{tikzpicture}
+			\begin{axis}[
+				width=7cm, height=6cm, axis lines=middle, 
+				xmin=-3, xmax=3, ymin=-1, ymax=3, 
+				xtick=\empty, ytick={1},
+				xlabel={$x_1$}, ylabel={$x_2$}
+				]
+				\fill[blue, opacity=0.1] (-3,1) rectangle (3,3);
+				\draw[line width=1.5pt, color=blue] (-3,1) -- (3,1);
+				\filldraw (0,1) circle (2pt) node[below right] {$(0,1)$};
+			\end{axis}
+		\end{tikzpicture}
+	\end{figure}
+	
+	\begin{itemize}[label=\textcolor{titlecolor}{\Large\textbullet}, itemsep=4pt, leftmargin=1.5cm]
+		\item \textbf{Forma Algebrica ($Ax \leq b$):} Esiste un solo vincolo: $x_2 \geq 1 \implies -x_2 \leq -1$. L'asse $x_1$ è completamente libero.
+		\[
+		A = \begin{bmatrix} 0 & -1 \end{bmatrix}, \qquad b = \begin{bmatrix} -1 \end{bmatrix}
+		\]
+		\item \textbf{Forma di Weyl:} Il vertice di base convenzionale è $(0,1)$. Il cono di recessione (direzioni) genera l'intero semipiano, quindi comprende l'asse $x_1$ in entrambe le direzioni e l'asse $x_2$ in positivo.
+		\[
+		V = \left\{ \begin{pmatrix} 0 \\ 1 \end{pmatrix} \right\}, \qquad E = \left\{ \begin{pmatrix} 1 \\ 0 \end{pmatrix}, \begin{pmatrix} -1 \\ 0 \end{pmatrix}, \begin{pmatrix} 0 \\ 1 \end{pmatrix} \right\}
+		\]
+		\item \textbf{Ricerca del vettore $c$:} Affinché ci sia un massimo finito, il vettore $c$ deve essere $\leq 0$ su tutte e tre le direzioni. Dato che abbiamo sia $(1,0)$ che $(-1,0)$, $c_1$ deve essere rigorosamente $0$. Per via di $(0,1)$, $c_2 \leq 0$.
+		\begin{enumerate}[label=\alph*)]
+			\item \textbf{Esiste massimo finito:} Deve essere $c_1=0$ e $c_2 \leq 0$. Esempio: $\mathbf{c = (0, -1)^T}$.
+			\item \textbf{Non esiste massimo finito:} Qualsiasi altra direzione. Esempio: $\mathbf{c = (0, 1)^T}$.
+			\item \textbf{Esiste minimo finito:} L'inverso del massimo. Esempio: $\mathbf{c = (0, 1)^T}$.
+			\item \textbf{Non esiste minimo finito:} Esempio: $\mathbf{c = (0, -1)^T}$.
+			\item \textbf{Soluzione ottima non unica:} Se scegliamo $\mathbf{c = (0, -1)^T}$ (il massimo finito), tutti i punti sulla retta $x_2=1$ restituiscono lo stesso valore ottimo ($-1$). Ottimo multiplo infinito.
+		\end{enumerate}
+	\end{itemize}
+	
+	\vspace{0.6cm}
+	\textbf{5. Il Poliedro Illimitato Inferiormente (Poliedro 5)}\\
+	L'ultimo grafico raffigura un poliedro con una chiusura superiore a forma di mezza losanga e pareti verticali che divergono verso il basso[cite: 2].
+	
+	\begin{figure}[H]
+		\centering
+		\begin{tikzpicture}
+			\begin{axis}[
+				width=7cm, height=7cm, axis lines=middle, 
+				xmin=-1, xmax=6, ymin=-3, ymax=3, 
+				xtick={1,2,3,4}, ytick={1,2},
+				xlabel={$x_1$}, ylabel={$x_2$}
+				]
+				\fill[blue, opacity=0.1] (1,-3) -- (1,1) -- (2,2) -- (3,2) -- (4,1) -- (4,-3) -- cycle;
+				\draw[line width=1.5pt, color=blue] (1,-3) -- (1,1) -- (2,2) -- (3,2) -- (4,1) -- (4,-3);
+				\filldraw (1,1) circle (1.5pt);
+				\filldraw (2,2) circle (1.5pt);
+				\filldraw (3,2) circle (1.5pt);
+				\filldraw (4,1) circle (1.5pt);
+			\end{axis}
+		\end{tikzpicture}
+	\end{figure}
+	
+	\begin{itemize}[label=\textcolor{titlecolor}{\Large\textbullet}, itemsep=4pt, leftmargin=1.5cm]
+		\item \textbf{Forma Algebrica ($Ax \leq b$):} Estrapoliamo le 5 rette perimetrali dai punti visibili. Bordo sinistro ($x_1 \geq 1$), bordo obliquo SX (passa per $(1,1)$ e $(2,2) \implies -x_1 + x_2 \leq 0$), tetto orizzontale ($x_2 \leq 2$), bordo obliquo DX (passa per $(3,2)$ e $(4,1) \implies x_1 + x_2 \leq 5$), bordo destro ($x_1 \leq 4$).
+		\[
+		A = \begin{bmatrix} -1 & 0 \\ -1 & 1 \\ 0 & 1 \\ 1 & 1 \\ 1 & 0 \end{bmatrix}, \qquad b = \begin{bmatrix} -1 \\ 0 \\ 2 \\ 5 \\ 4 \end{bmatrix}
+		\]
+		\item \textbf{Forma di Weyl:} Individuiamo i $4$ vertici per il $Conv(V)$. L'apertura verso il basso indica un'unica direzione di divergenza $e_1$ verso $y$ negativo per il $Cone(E)$.
+		\[
+		V = \left\{ \begin{pmatrix} 1 \\ 1 \end{pmatrix}, \begin{pmatrix} 2 \\ 2 \end{pmatrix}, \begin{pmatrix} 3 \\ 2 \end{pmatrix}, \begin{pmatrix} 4 \\ 1 \end{pmatrix} \right\}, \qquad E = \left\{ \begin{pmatrix} 0 \\ -1 \end{pmatrix} \right\}
+		\]
+		\item \textbf{Ricerca del vettore $c$:} La condizione di stabilità per il massimo è $c^T e_1 \leq 0 \implies -c_2 \leq 0 \implies c_2 \geq 0$.
+		\begin{enumerate}[label=\alph*)]
+			\item \textbf{Esiste massimo finito:} Rispettiamo $c_2 \geq 0$. Esempio: $\mathbf{c = (0, 1)^T}$.
+			\item \textbf{Non esiste massimo finito:} Violiamo il vincolo ($c_2 < 0$). Esempio: $\mathbf{c = (0, -1)^T}$. Il problema diverge verso $-\infty$ seguendo la direzione.
+			\item \textbf{Esiste minimo finito:} Ricerchiamo $\max -c^Tx$, quindi serve $c_2 \leq 0$. Esempio: $\mathbf{c = (0, -1)^T}$.
+			\item \textbf{Non esiste minimo finito:} Esempio: $\mathbf{c = (0, 1)^T}$.
+			\item \textbf{Soluzione ottima non unica:} Se scegliamo un vettore costo perpendicolare al tetto piatto del poliedro (la retta orizzontale tra $(2,2)$ e $(3,2)$), l'intero segmento sarà ottimo. Scegliamo $\mathbf{c = (0, 1)^T}$. Entrambi i vertici restituiscono valore $2$.
+		\end{enumerate}
+	\end{itemize}
+	
 	\vspace{1.5cm}
 	\begin{center}
 		\rule{0.65\textwidth}{1pt} \\
@@ -3176,6 +3380,207 @@
 	
 	Inoltre, se si facesse il calcolo anche per la terza base possibile $B_3=\{2,3\}$, si otterrebbe un punto del tutto diverso [nello specifico $\bar{x} = (0, -0.5, 3.5)$], dimostrando che la degenerazione non significa che \textit{tutte} le basi portano allo stesso punto, ma che \textit{più basi} descrivono quel singolo vertice.
 	
+	\vspace{0.8cm}
+	\begin{quote}
+		\textbf{Disclaimer sulle Esercitazioni:} \textit{Gli esercizi seguenti sono stati svolti a casa dallo studente come lavoro di consolidamento. Sebbene i modelli matematici e le procedure MATLAB seguano rigorosamente la teoria spiegata a lezione, le soluzioni non sono state ancora sottoposte a correzione ufficiale da parte del professore e potrebbero contenere imperfezioni calcolistiche. Si consiglia di analizzare il procedimento logico più che il singolo decimale.}
+	\end{quote}
+	\vspace{0.4cm}
+	
+	\subsection*{Esercitazioni Assegnate (30 settembre 2026)}
+	
+	\textbf{Esercizio 1: Problema di Trasporto Automobilistico}\\
+	\textit{Testo:} Una fabbrica automobilistica produce tre tipi di autovetture T1, T2, T3 negli stabilimenti S1, S2, S3. La capacità di produzione mensile degli stabilimenti S1, S2, S3 è data da 100, 80 e 100 autovetture rispettivamente, ed il costo di produzione di una singola autovettura di tipo Ti nello stabilimento Sj è dato dalla tabella seguente. Si sa che la produzione mensile deve essere di almeno 80 autovetture per ogni tipo. 
+	1) Scrivere un modello matematico per determinare la quantità di macchine da produrre mensilmente in ciascun stabilimento in modo da minimizzare i costi. Scrivere i comandi MATLAB e determinare la soluzione ottima.
+	2) Se la produzione dello stabilimento S1 deve essere almeno il 30\% della produzione complessiva, come cambia il modello e la soluzione ottima?
+	
+	\begin{table}[H]
+		\centering
+		\renewcommand{\arraystretch}{1.3}
+		\begin{tabular}{|c|c|c|c|}
+			\hline
+			& \textbf{S1} & \textbf{S2} & \textbf{S3} \\ \hline
+			\textbf{T1} & 72 & 55 & 81 \\ \hline
+			\textbf{T2} & 59 & 100 & 49 \\ \hline
+			\textbf{T3} & 82 & 55 & 63 \\ \hline
+		\end{tabular}
+		\caption{Costi unitari di produzione per autovettura.}
+	\end{table}
+	
+	\textbf{1) Modello Matematico e Implementazione MATLAB}\\
+	Siano $x_{ij}$ il numero di auto di tipo $i$ prodotte nello stabilimento $j$. Per convertire il problema in formato primale standard (tutto $\leq$) richiesto da MATLAB, moltiplicheremo per $-1$ i vincoli di produzione minima ($\geq 80$) e i vincoli di non negatività.
+	\[
+	\begin{cases}
+		\min \quad 72x_{11} + 55x_{12} + 81x_{13} + 59x_{21} + 100x_{22} \ + & \\
+		\qquad \quad + \ 49x_{23} + 82x_{31} + 55x_{32} + 63x_{33} & \\[6pt]
+		x_{11} + x_{21} + x_{31} \leq 100 &\text{(Capacità S1)} \\
+		x_{12} + x_{22} + x_{32} \leq 80 &\text{(Capacità S2)} \\
+		x_{13} + x_{23} + x_{33} \leq 100 &\text{(Capacità S3)} \\[6pt]
+		-x_{11} - x_{12} - x_{13} \leq -80 &\text{(Prod. Minima T1)} \\
+		-x_{21} - x_{22} - x_{23} \leq -80 &\text{(Prod. Minima T2)} \\
+		-x_{31} - x_{32} - x_{33} \leq -80 &\text{(Prod. Minima T3)} \\[6pt]
+		-x_{ij} \leq 0 \quad \forall i,j &\text{(Non negatività)}
+	\end{cases}
+	\]
+	
+	Struttura vettori e matrici per MATLAB:
+	\begin{itemize}[label=$\circ$, itemsep=2pt, leftmargin=1.5cm]
+		\item \texttt{c = [72 55 81 59 100 49 82 55 63];}
+		\item \texttt{b = [100; 80; 100; -80; -80; -80; 0; 0; 0; 0; 0; 0; 0; 0; 0];}
+		\item La matrice \texttt{A} avrà 15 righe e 9 colonne. Le prime 6 righe conterranno i coefficienti logici (1 per le capacità, -1 per i minimi), le restanti 9 righe formeranno la matrice identità negativa per imporre la non negatività su tutte e 9 le variabili.
+	\end{itemize}
+	
+	Comando: \texttt{[x, fval] = linprog(c, A, b, [], [], [], [])}
+	Risultato:
+	\[
+	\bar{x} = (60, 20, 0, \quad 0, 0, 80, \quad 0, 60, 20)^T, \qquad z = 13900
+	\]
+	
+	\textbf{2) Variazione sul Modello (Vincolo del 30\%)}\\
+	Dobbiamo imporre che la produzione totale di S1 sia $\geq 30\%$ della produzione globale.
+	La produzione di S1 è: $x_{11} + x_{21} + x_{31}$.
+	La produzione globale è la somma di tutte le $x_{ij}$.
+	Il vincolo logico è:
+	\[
+	(x_{11} + x_{21} + x_{31}) \geq 0.30 \times (x_{11} + x_{12} + \dots + x_{33})
+	\]
+	Portando tutto allo stesso membro:
+	\[
+	0.70(x_{11} + x_{21} + x_{31}) - 0.30(x_{12} + x_{13} + x_{22} + x_{23} + x_{32} + x_{33}) \geq 0
+	\]
+	Per inserirlo in MATLAB, lo moltiplichiamo per $-1$ facendolo diventare $\leq 0$:
+	\[
+	-0.70(x_{11} + x_{21} + x_{31}) + 0.30(x_{12} + x_{13} + x_{22} + x_{23} + x_{32} + x_{33}) \leq 0
+	\]
+	Aggiungendo questa riga ad \texttt{A} e uno \texttt{0} a \texttt{b}, la nuova soluzione ottima diventa:
+	\[
+	\bar{x} = (72, 8, 0, \quad 0, 0, 80, \quad 0, 72, 8)^T, \qquad z = 14008
+	\]
+	
+	\vspace{0.6cm}
+	\hrule
+	\vspace{0.4cm}
+	
+	\textbf{Esercizio 2: Verifica di Ammissibilità e Degenerazione}\\
+	\textit{Testo:} Dato il seguente problema di programmazione lineare:
+	\[
+	\begin{cases}
+		\max \quad 5x_1 - 6x_2 \\[6pt]
+		x_2 \leq 3 \quad &\text{(Vincolo 1)} \\
+		-x_1 \leq 2 \quad &\text{(Vincolo 2)} \\
+		x_1 \leq 2 \quad &\text{(Vincolo 3)} \\
+		x_1 - x_2 \leq 3 \quad &\text{(Vincolo 4)} \\
+		-3x_1 - 2x_2 \leq 6 \quad &\text{(Vincolo 5)} \\
+		-x_2 \leq 5 \quad &\text{(Vincolo 6)}
+	\end{cases}
+	\]
+	Valutare per la base $B = \{4, 6\}$ la soluzione primale e per la base $B = \{2, 5\}$ la soluzione duale complementare, verificandone ammissibilità e degenerazione.
+	
+	\textbf{Valutazione Base Primale $B = \{4, 6\}$}\\
+	Costruiamo il sottosistema primale ponendo all'uguaglianza i vincoli 4 e 6:
+	\[
+	\begin{cases}
+		x_1 - x_2 = 3 \\
+		-x_2 = 5 \implies x_2 = -5
+	\end{cases}
+	\]
+	Sostituendo $x_2$ nella prima: $x_1 - (-5) = 3 \implies x_1 + 5 = 3 \implies x_1 = -2$.
+	La soluzione di base primale è $\bar{x} = (-2, -5)$.
+	Controllo Ammissibilità nei vincoli non di base $N = \{1, 2, 3, 5\}$:
+	\begin{itemize}[label=$\circ$, itemsep=1pt, leftmargin=1.5cm]
+		\item Vincolo 5: $-3(-2) - 2(-5) = 6 + 10 = 16 \leq 6$ \textbf{(FALSO)}
+	\end{itemize}
+	La soluzione viola il quinto vincolo ed è quindi \textbf{Non Ammissibile}.
+	Controlliamo la degenerazione: verifichiamo se satura qualche altro vincolo.
+	Vincolo 2: $-(-2) = 2 \leq 2$ (Saturato, l'uguaglianza è perfetta!). Poiché un vincolo dell'insieme $N$ passa esattamente per questo vertice, la soluzione è \textbf{Degenere}.
+	
+	\textbf{Valutazione Base Duale $B = \{2, 5\}$}\\
+	Costruiamo il sistema duale (trasponendo i coefficienti) per le sole variabili $y_2$ e $y_5$, ponendo a zero le variabili in $N=\{1,3,4,6\}$:
+	\[
+	\begin{cases}
+		-y_2 - 3y_5 = 5 \\
+		-2y_5 = -6 \implies y_5 = 3
+	\end{cases}
+	\]
+	Sostituendo $y_5$ nella prima: $-y_2 - 9 = 5 \implies -y_2 = 14 \implies y_2 = -14$.
+	La soluzione di base duale è $\bar{y} = (0, -14, 0, 0, 3, 0)^T$.
+	Affinché una soluzione duale sia ammissibile, tutte le sue componenti devono essere $\geq 0$. Avendo ottenuto $y_2 = -14$, la soluzione è \textbf{Non Ammissibile}.
+	Inoltre, nessuna delle variabili in base ($y_2, y_5$) è pari a zero. Pertanto, la soluzione è \textbf{Non Degenere}.
+	
+	\vspace{0.6cm}
+	\hrule
+	\vspace{0.4cm}
+	
+	\textbf{Esercizio 3: Problema degli Operai Specializzati}\\
+	\textit{Testo:} Una ditta deve produrre almeno 58 pantaloni A e 62 pantaloni B a settimana. Può assumere due tipi di operai. L'operaio Tipo 1 costa 500€/settimana e produce 13 A e 12 B. L'operaio Tipo 2 costa 520€/settimana e produce 11 A e 16 B. Determinare gli operai da assumere minimizzando il costo.
+	
+	\textbf{Modello Matematico e MATLAB}\\
+	Convertiamo le richieste minime in vincoli di formato standard (moltiplicando per -1):
+	\[
+	\begin{cases}
+		\min \quad 500x_1 + 520x_2 \\[6pt]
+		-13x_1 - 11x_2 \leq -58 \\
+		-12x_1 - 16x_2 \leq -62 \\
+		-x_1 \leq 0, \quad -x_2 \leq 0
+	\end{cases}
+	\]
+	Struttura MATLAB:
+	\begin{itemize}[label=$\circ$, itemsep=2pt, leftmargin=1.5cm]
+		\item \texttt{c = [500 520];}
+		\item \texttt{A = [-13 -11; -12 -16; -1 0; 0 -1];}
+		\item \texttt{b = [-58; -62; 0; 0];}
+	\end{itemize}
+	Risultato continuo:
+	\[
+	\bar{x} = (3.2368, \quad 1.4474)^T, \qquad z \approx 2371.1 \text{ \texteuro}
+	\]
+	\textit{Nota Logica:} Essendo il problema risolto in Programmazione Lineare Continua (avendo omesso i vincoli di interezza richiesti dalla logica pratica, in quanto non si può assumere "mezza persona"), il risultato è frazionario. Nella realtà, questo problema andrebbe risolto come PLI.
+	
+	\vspace{0.6cm}
+	\hrule
+	\vspace{0.4cm}
+	
+	\textbf{Esercizio 4: Problema di Assegnamento e Variazioni}\\
+	\textit{Testo:} Affidare i progetti A,B,C,D agli studi 1,2,3,4 (assegnamento 1 a 1). 
+	Se lo studio 2 non accettasse di svolgere il progetto A, la soluzione ottima cambierebbe?
+	
+	\begin{table}[H]
+		\centering
+		\renewcommand{\arraystretch}{1.3}
+		\begin{tabular}{|c|c|c|c|c|}
+			\hline
+			\textbf{Studio $\setminus$ Prog} & \textbf{A} & \textbf{B} & \textbf{C} & \textbf{D} \\ \hline
+			\textbf{1} & 7 & 5 & 8 & 6 \\ \hline
+			\textbf{2} & 5 & 10 & 11 & 8 \\ \hline
+			\textbf{3} & 8 & 5 & 6 & 5 \\ \hline
+			\textbf{4} & 4 & 7 & 8 & 9 \\ \hline
+		\end{tabular}
+		\caption{Costi di assegnamento studi/progetti.}
+	\end{table}
+	
+	\textbf{Modello Matematico}\\
+	Avremo 16 variabili binarie $x_{ij}$. Nel formato puro (prima di tradurlo in disuguaglianze per MATLAB), il sistema di uguaglianze è:
+	\[
+	\begin{cases}
+		\min \quad 7x_{11} + 5x_{12} + \dots + 9x_{44} \\[6pt]
+		7x_{11} + 5x_{12} + 8x_{13} + 6x_{14} = 1 \quad &\text{(Tutti i vincoli di riga)} \\
+		7x_{11} + 5x_{21} + 8x_{31} + 4x_{41} = 1 \quad &\text{(Tutti i vincoli di colonna)} \\
+		x_{ij} \in \{0,1\} \quad \forall i,j=1,\dots,4
+	\end{cases}
+	\]
+	Soluzione MATLAB senza vincolo aggiuntivo:
+	\[
+	\bar{x} = (0,1,0,0, \quad 0,0,0,1, \quad 0,0,1,0, \quad 1,0,0,0)^T, \qquad z = 23
+	\]
+	Ovvero: Studio 1 $\to$ B, Studio 2 $\to$ D, Studio 3 $\to$ C, Studio 4 $\to$ A.
+	
+	\textbf{Inserimento del Vincolo: Studio 2 rifiuta Progetto A}\\
+	Si traduce matematicamente imponendo $x_{21} = 0$.
+	Inserendolo nel modello e rilanciando il calcolatore, otteniamo:
+	\[
+	\bar{x}_{nuova} = (0,1,0,0, \quad 0,0,0,1, \quad 0,0,1,0, \quad 1,0,0,0)^T, \qquad z = 23
+	\]
+	La soluzione ottima non è cambiata. Analizzando il primo vettore $\bar{x}$, scopriamo che il valore della coordinata $x_{21}$ era già naturalmente 0. L'algoritmo aveva già escluso quell'assegnamento per convenienza economica, rendendo il nuovo vincolo strutturalmente ridondante.
+	
 	\vspace{1.5cm}
 	\begin{center}
 		\rule{0.65\textwidth}{1pt} \\
@@ -4080,10 +4485,11 @@
 	
 	\textbf{Regola di selezione dei rapporti e Illimitatezza:}\\
 	Nel simplesso primale scartavamo i rapporti negativi, prestando attenzione a quando tutti i denominatori erano $\leq 0$ (che indicava un problema che tendeva a $+\infty$). 
-	Qui avviene \textbf{esattamente il contrario}:
+	Qui l'obiettivo è sempre ottenere \textbf{rapporti positivi}, ma la condizione per far sì che vengano presi in considerazione cambia:
 	\begin{itemize}
-		\item Si prendono in considerazione \textbf{solo ed esclusivamente i rapporti scalari negativi} ($r_i < 0$), scartando categoricamente quelli positivi.
-		\item Se durante il calcolo si scopre che \textbf{tutti gli scalari (i denominatori) sono positivi}, l'algoritmo si ferma. Questo indica che la funzione obiettivo del problema duale va verso $-\infty$ (il che si verifica geometricamente quando una delle componenti di $\bar{y}_B$ è pari a zero).
+		\item Poiché il numeratore ($-\bar{y}_i$) sarà sempre negativo o nullo (essendo la soluzione duale di partenza ammissibile, per cui $\bar{y}_i \geq 0$), la condizione necessaria affinché il rapporto venga valutato è che \textbf{il denominatore sia strettamente minore di zero ($< 0$)}.
+		\item Dividendo una quantità negativa (o nulla) per una strettamente negativa, si otterrà sempre un risultato positivo. Di conseguenza, esattamente come nel caso del primale, tra tutti i rapporti validi calcolati si preleverà \textbf{quello numericamente più piccolo} (il valore positivo che più si avvicina a zero).
+		\item Se durante il calcolo si scopre che \textbf{tutti i denominatori sono maggiori o uguali a zero ($\geq 0$)}, l'algoritmo si ferma. Questo indica che la funzione obiettivo del problema duale va verso $-\infty$ (certificando che il poliedro primale originario è vuoto).
 	\end{itemize}
 	
 	Se esistono invece rapporti validi (negativi), si analizzerà la lista calcolata e il prescelto per uscire dalla base diventerà ufficialmente l'indice \textbf{$h$}.
@@ -4111,9 +4517,8 @@
 		Tra tutti i rapporti strettamente positivi, si deve scegliere il rapporto numericamente \textit{più piccolo} (cioè il valore maggiore di zero che più si avvicina a zero). \\
 		\textit{Intervento di Bland:} Se e solo se ci sono più indici che presentano lo stesso identico valore numerico minimo, si applica Bland e si sceglie l'indice più piccolo tra quelli in parità.
 		
-		\item \textbf{Nel Simplesso Duale (ricerca di $h$ tramite rapporti $< 0$):} 
-		Tra tutti i rapporti strettamente negativi (scartando quelli $\geq 0$), si deve scegliere il rapporto numericamente \textit{più grande} (cioè il valore negativo che più si avvicina a zero, ad esempio $-0.5$ vince su $-3$). \\
-		\textit{Intervento di Bland:} Anche qui, se e solo se ci sono più indici che presentano lo stesso identico valore numerico massimo (più vicino a zero), si applica Bland scegliendo l'indice più piccolo tra i candidati in pareggio.
+		\item \textbf{Nel Simplesso Duale (ricerca di $h$ tramite rapporti $> 0$ generati da denominatori $< 0$):} Tra tutti i rapporti validi (che risulteranno positivi), si deve scegliere il rapporto numericamente \textit{più piccolo} (cioè il valore maggiore di zero che più si avvicina a zero). \\
+		\textit{Intervento di Bland:} Anche qui, se e solo se ci sono più indici che presentano lo stesso identico valore numerico minimo, si applica Bland scegliendo l'indice più piccolo tra i candidati in pareggio.
 	\end{itemize}
 	
 	\vspace{0.1cm}
@@ -7320,6 +7725,21 @@
 	\section*{Lezione 19 | 22 ottobre 2026}
 	\subsection*{Esercitazione Pre Compitino (primo esame parziale)}
 	
+	Verrà inserita appena avrò modo di completare correttamente l'esercitazione da solo.
 	
+	\vspace{1.5cm}
+	\begin{center}
+		\rule{0.65\textwidth}{1pt} \\
+		\vspace{0.4cm}
+		\textcolor{titlecolor}{\LARGE \textbf{--- Fine Lezione 19 ---}} \\
+		\vspace{0.2cm}
+		\rule{0.65\textwidth}{1pt}
+	\end{center}
+	\newpage
+	
+	\avviso{\textit{\textbf{Questa lezione, come le sue precedenti e successive, può contenere errori e/o imprecisioni. Per il bene di tutti, è buona norma far notare all'autore l'errore o l'imprecisione così da risolvere nel minor tempo possibile. I canali di comunicazione, per eventuali avvisi generali o di errori trovati negli appunti, sono in cima al file. Grazie per la collaborazione e Buono studio!}}}
+	
+	\section*{Lezione 20 | 26 ottobre 2026}
+	\subsection*{}
 	
 \end{document}
