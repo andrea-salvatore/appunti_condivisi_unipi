@@ -174,151 +174,146 @@
 	\subsection*{Introduzione alla PL | Problema di produzione} % Usato subsection* invece di \title
 	
 	\textbf{Definizione di \underline{Problema di Programmazione Lineare}}:\\
-	\textit{Si definisce tale un problema di minimo e massimo di una funzione lineare soggetta a vincoli lineari di $\leq$, $\geq$ o $=$. Un problema è Lineare se i suoi vincoli e la Funzione Obiettivo sono di primo grado}.\\
-	\underline{Attenzione!!!} Scopriremo nella \textit{Lezione 2} che il $<$ e il $>$ non sono accettati perché la soluzione ottima del problema di PL è sempre sul bordo del Poliedro.\\
+	\textit{Si definisce tale un problema di minimo e massimo di una funzione lineare soggetta a vincoli lineari di $\leq$, $\geq$ o $=$. Un problema è Lineare se i suoi vincoli e la Funzione Obiettivo sono di primo grado}.
 	
-	Ipotizziamo un problema di questo tipo\\\\
-	\begin{center}
+	\underline{Attenzione!!!} Scopriremo nella \textit{Lezione 2} che il $<$ e il $>$ non sono accettati perché la soluzione ottima del problema di PL è sempre sul bordo del Poliedro.
+	
+	\vspace{0.4cm}
+	Ipotizziamo un problema di questo tipo:
+	
+	\begin{table}[H]
+		\centering
+		\renewcommand{\arraystretch}{1.3}
 		\begin{tabular}{|c|c|c|c|}
 			\hline
-			\textbf{Kg/Unità} & \textbf{Travi Reticolari} & \textbf{Pilastri Composti} & \textbf{Disponibilità} \\
-			\hline
-			\textbf{Acciaio} & 20 & 10 & 950\\
-			\hline
-			\textbf{Lavorazione} & 2 & 3 & 120\\
-			\hline
-			\textbf{Collaudo e verniciatura} & 1 & 2 & 70\\
-			\hline
+			\textbf{Kg/Unità} & \textbf{Travi Reticolari} & \textbf{Pilastri Composti} & \textbf{Disponibilità} \\ \hline
+			\textbf{Acciaio} & 20 & 10 & 950 \\ \hline
+			\textbf{Lavorazione} & 2 & 3 & 120 \\ \hline
+			\textbf{Collaudo e verniciatura} & 1 & 2 & 70 \\ \hline
 		\end{tabular}
-	\end{center}
-	Questa tabella indica le colonne come il bene da produrre (con le disponibilità finali) e le righe come le risorse da usare.\\\\
-	Questo si chiama, appunto, "Problema di produzione" perché riguarda la realizzazione di un modello matematico applicato a lavori di produzione che hanno determinati vincoli. I medesimi vincoli si rappresentano attraverso un sistema che per la PL si chiama \textit{Formato Primale Standard} e si rappresenta così:
+	\end{table}
+	
+	Questa tabella indica le colonne come il bene da produrre (con le disponibilità finali) e le righe come le risorse da usare.
+	
+	Questo si chiama, appunto, "Problema di produzione" perché riguarda la realizzazione di un modello matematico applicato a lavori di produzione che hanno determinati vincoli. I medesimi vincoli si rappresentano attraverso un sistema che per la PL si chiama \textbf{Formato Primale Standard} e si rappresenta così:
 	\[
-	\begin{aligned}
-		& \begin{cases}
-			\min/\max c^Tx\\
-			Ax \leq b\\
-			x \geq 0
-		\end{cases}
-	\end{aligned}
+	\begin{cases}
+		\min/\max c^Tx \\
+		Ax \leq b \\
+		x \geq 0
+	\end{cases}
 	\]
-	\begin{itemize}
-		\item $\boldsymbol{\min/\max c^Tx}$ $\rightarrow$ è la Funzione Obiettivo (FO) che ci indica cosa vogliamo minimizzare o massimizzare. È compreso in $R^n$ perché contiene solo il numero $n$ delle variabili del problema.
-		\item $\boldsymbol{Ax \leq b}$ $\downarrow$
-		\begin{itemize}
-			\item \textbf{A} $\rightarrow$ è la Matrice che contiene i coefficienti del problema ed è compresa in $R^{m*n}$ con \textit{m} che indica il numero di vincoli del nostro problema e \textit{n} che indica il numero di variabili.
-			\item \textbf{b} $\rightarrow$ è il vettore colonna che contiene i valori di $\leq$ associati rispettivamente al proprio vincolo. È compreso in $R^m$ perché contiene solo i valori a destra del $\leq$.
+	
+	\begin{itemize}[label=\textcolor{titlecolor}{\Large\textbullet}, itemsep=4pt, leftmargin=1.5cm]
+		\item $\boldsymbol{\min/\max c^Tx} \rightarrow$ è la \textbf{Funzione Obiettivo (FO)} che ci indica cosa vogliamo minimizzare o massimizzare. È compreso in $\mathbb{R}^n$ perché contiene solo il numero $n$ delle variabili del problema.
+		
+		\item $\boldsymbol{Ax \leq b}$
+		\begin{itemize}[label=$\circ$, itemsep=2pt]
+			\item $\mathbf{A} \rightarrow$ è la \textbf{Matrice} che contiene i coefficienti del problema ed è compresa in $\mathbb{R}^{m \times n}$ con \textit{m} che indica il numero di vincoli del nostro problema e \textit{n} che indica il numero di variabili.
+			\item $\mathbf{b} \rightarrow$ è il \textbf{vettore colonna} che contiene i valori di $\leq$ associati rispettivamente al proprio vincolo. È compreso in $\mathbb{R}^m$ perché contiene solo i valori a destra del $\leq$.
 		\end{itemize}
-		\item $\boldsymbol{x \geq 0}$ $\rightarrow$ Vincolo che ci indica il valore minimo di x dato che, in una situazione reale, non potremmo avere -10 travi reticolari, ad esempio. Serve per avere risultati realistici dato che il modello matematico considera \underline{SOLO} la matematica e non la realtà delle cose.
-		\begin{itemize}
-			\item $\boldsymbol{x_1}$ $\rightarrow$ Travi reticolari.
-			\item $\boldsymbol{x_2}$ $\rightarrow$ Pilastri composti.
+		
+		\item $\boldsymbol{x \geq 0} \rightarrow$ \textbf{Vincolo di non negatività} che ci indica il valore minimo di $x$ dato che, in una situazione reale, non potremmo avere -10 travi reticolari, ad esempio. Serve per avere risultati realistici dato che il modello matematico considera \underline{SOLO} la matematica e non la realtà delle cose.
+		\begin{itemize}[label=$\circ$, itemsep=2pt]
+			\item $x_1 \rightarrow$ Travi reticolari.
+			\item $x_2 \rightarrow$ Pilastri composti.
 		\end{itemize}
 	\end{itemize}
-	Pappalardo ribadisce quanto sia importante la rappresentazione dei valori da dare al MATLAB per poter svolgere i calcoli (e farli svolgere al sistema) nella maniera corretta. Ad esempio, se avessimo 7 vincoli e 3 variabili, il numero totale di valori da dare al sistema sarà 31 perché:\\
-	$\boldsymbol{(7 * 3) + 3 + 7 = 31}$\\
+	
+	Pappalardo ribadisce quanto sia importante la rappresentazione dei valori da dare al MATLAB per poter svolgere i calcoli (e farli svolgere al sistema) nella maniera corretta. Ad esempio, se avessimo 7 vincoli e 3 variabili, il numero totale di valori da dare al sistema sarà 31 perché:
+	\[ \mathbf{(7 \times 3) + 3 + 7 = 31} \]
 	Questi sono tutti i valori che fornirò al MATLAB per trovare l'ottimo, in particolare quei numeri si riferiscono a:
-	\begin{itemize}
-		\item $(7*3) \rightarrow$ che sarebbe la Matrice $A$.
-		\item $+ 3 \rightarrow$ sommo il numero di variabili della 
-		FO.
-		\item $+ 7 \rightarrow$ sommo il numero dei risultati di ogni vincolo. Se abbiamo 7 vincoli di $\leq$, allora avrò 7 valori a destra del $\leq$, che quindi rappresentano il valore del vettore colonna $b$
+	\begin{itemize}[label=-, itemsep=2pt, leftmargin=2cm]
+		\item $(7 \times 3) \rightarrow$ che sarebbe la Matrice $A$.
+		\item $+ 3 \rightarrow$ sommo il numero di variabili della FO.
+		\item $+ 7 \rightarrow$ sommo il numero dei risultati di ogni vincolo. Se abbiamo 7 vincoli di $\leq$, allora avrò 7 valori a destra del $\leq$, che quindi rappresentano il valore del vettore colonna $b$.
 	\end{itemize}
 	
-	L'esempio che possiamo fare riguarda l'esercizio della tabella precedente $\downarrow$
-	
-	\[ 
-	\begin{aligned}
-		\text{Problema in 2 Variabili $\rightarrow$ ($R^2$)}
-		& \begin{cases}
-			\max 300x_1 + 200x_2\\
-			20x_1 + 10x_2 \leq 950\\
-			2x_1 + 3x_2 \leq 120\\
-			x_1 + 2x_2 \leq 70\\
-			x_{1/2} \geq 0
-		\end{cases}
-	\end{aligned}
+	\vspace{0.4cm}
+	L'esempio che possiamo fare riguarda l'esercizio della tabella precedente:
+	\[
+	\text{Problema in 2 Variabili ($\mathbb{R}^2$)} \implies 
+	\begin{cases}
+		\max \quad 300x_1 + 200x_2 \\
+		20x_1 + 10x_2 \leq 950 \\
+		2x_1 + 3x_2 \leq 120 \\
+		x_1 + 2x_2 \leq 70 \\
+		x_{1}, x_{2} \geq 0
+	\end{cases}
 	\]
 	
 	Questa tipologia di problemi di ricerca operativa si definiscono come:
-	
-	\begin{itemize}
+	\begin{itemize}[label=\textcolor{titlecolor}{\Large\textbullet}, itemsep=4pt, leftmargin=1.5cm]
 		\item \textbf{Ottimizzazione}: Nel caso del problema citato sopra, parliamo dell'ottimizzazione dei \textit{Guadagni} e la minimizzazione dei \textit{Costi}.
-		\item \textbf{Risorse limitate}: Vincoli del problema. \textit{$Lineare = Proporzionale$}.
+		\item \textbf{Risorse limitate}: Vincoli del problema. \textit{Lineare = Proporzionale}.
 		\item \textbf{Variabili decisionali}: Trasformare il problema concreto in un modello matematico come mostrato prima.
-		\begin{itemize}
-			\item A seconda del problema si può intuire la correttezza del risultato ottenuto dal modello realizzato. Se il problema trattasse la produzione di indumenti come cappotti, pantaloni, e quant'altro, sappiamo che una soluzione ottima come $47,5$ non potrebbe mai essere corretta dato che non puoi produrre mezzo pantalone o mezzo cappotto, dunque, è corretto accettare valori come $47$ dato che è il valore intero più grande vicino alla soluzione ottima, ma se invece si sta parlando di liquidi, o in generale grammi o chilogrammi, allora il valore con la virgola esprime una quantità generica (e non un'unità come un pantalone appunto) e quindi $47,5$ sarebbe accettato.
+		\begin{itemize}[label=$\circ$, itemsep=2pt]
+			\item A seconda del problema si può intuire la correttezza del risultato ottenuto dal modello realizzato. Se il problema trattasse la produzione di indumenti come cappotti, pantaloni, e quant'altro, sappiamo che una soluzione ottima come $47,5$ non potrebbe mai essere corretta dato che non puoi produrre mezzo pantalone o mezzo cappotto; dunque, è corretto accettare valori come $47$ dato che è il valore intero più grande vicino alla soluzione ottima. Ma se invece si sta parlando di liquidi, o in generale grammi o chilogrammi, allora il valore con la virgola esprime una quantità generica (e non un'unità come un pantalone appunto) e quindi $47,5$ sarebbe accettato.
 		\end{itemize}
 	\end{itemize}
 	
-	\underline{Piccola nota}: l'ultima riga dei vincoli del modello scritto qui su, quindi, "$x_{1/2} \geq 0$", in realtà rappresenta un modo veloce di scrivere:
-	
-	 \[
-	 \begin{aligned}
-	 	\begin{cases}
-	 		x_1 + 0x_2 \geq 0\\
-	 		0x_1 + x_2 \geq 0
-	 	\end{cases}
-	 \end{aligned}
-	 \]
-	Che è invece il modo corretto, considerando che poi le x diventeranno negative per cambiare il segno da $\geq$ a $\leq$, in questo modo diventa:
+	\textbf{\underline{Piccola nota}:} L'ultima riga dei vincoli del modello scritto qui su, quindi, "$x_{1}, x_{2} \geq 0$", in realtà rappresenta un modo veloce di scrivere:
 	\[
-	\begin{aligned}
-		\begin{cases}
-			-x_1 + 0x_2 \leq 0\\
-			0x_1 -x_2 \leq 0
-		\end{cases}
-	\end{aligned}
+	\begin{cases}
+		x_1 + 0x_2 \geq 0 \\
+		0x_1 + x_2 \geq 0
+	\end{cases}
 	\]
-	Reputo importante saperlo perché questi valori fanno parte della matrice A spiegata in precedenza.
-	\vspace{0.5cm}
+	Che è invece il modo corretto, considerando che poi le $x$ diventeranno negative per cambiare il segno da $\geq$ a $\leq$, in questo modo diventa:
+	\[
+	\begin{cases}
+		-x_1 + 0x_2 \leq 0 \\
+		0x_1 - x_2 \leq 0
+	\end{cases}
+	\]
+	Reputo importante saperlo perché questi valori fanno parte della matrice $A$ spiegata in precedenza.
 	
+	\vspace{0.4cm}
 	Attraverso il modello matematico che realizziamo, otteniamo dei risultati che, a seconda del valore stesso di questi risultati, possono essere:
-	
-	\begin{itemize}
-		\item 	\textbf{Soluzione Ammissibile}: soluzione che rispetta tutti i vincoli del modello.
-		\item \textbf{Soluzione Ottima}: La soluzione migliore possibile massima/minima che rispetta i vincoli.
+	\begin{itemize}[label=-, itemsep=2pt, leftmargin=2cm]
+		\item \textbf{Soluzione Ammissibile}: soluzione che rispetta tutti i vincoli del modello.
+		\item \textbf{Soluzione Ottima}: La soluzione migliore possibile (massima/minima) che rispetta i vincoli.
 	\end{itemize}
 	
-	\vspace{1cm}
+	\vspace{0.6cm}
+	\separatore
+	\vspace{0.4cm}
 	
-	\textbf{Esercizio 1}\\
+	\textbf{Esercizio 1 (Problema in $\mathbb{R}^3$)}
 	\[
-	\begin{aligned}
-		\textbf{Problema in $\boldsymbol{R^3}$}
-		\begin{cases}
-			\max x_1 - 2x_2 + 3x_3\\
-			6x_1 - 7x_2 \leq 9\\
-			x_1 + 4x_2 + 5x_3 \geq 8
-		\end{cases}
-	\end{aligned}
+	\begin{cases}
+		\max \quad x_1 - 2x_2 + 3x_3 \\
+		6x_1 - 7x_2 \leq 9 \\
+		x_1 + 4x_2 + 5x_3 \geq 8
+	\end{cases}
 	\]
-	Domanda: è nella forma Primale Standard? No perché il secondo vincolo è di $\geq$ e va trasformato in $leq$ invertendo la funzione. Dunque, per portarlo in formato Primale Standard, devo:
+	\textbf{Domanda:} È nella forma Primale Standard? \textbf{No}, perché il secondo vincolo è di $\geq$ e va trasformato in $\leq$ invertendo la disequazione. Dunque, per portarlo in formato Primale Standard, devo:
 	\[
-	\begin{aligned}
-		\begin{cases}
-			\max x_1 - 2x_2 + 3x_3\\
-			6x_1 - 7x_2 \leq 9\\
-			\boldsymbol{-x_1 - 4x_2 - 5x_3 \leq -8}
-		\end{cases}
-	\end{aligned}
+	\begin{cases}
+		\max \quad x_1 - 2x_2 + 3x_3 \\
+		6x_1 - 7x_2 \leq 9 \\
+		\mathbf{-x_1 - 4x_2 - 5x_3 \leq -8}
+	\end{cases}
 	\]
 	
-	\vspace{1cm}
+	\vspace{0.4cm}
+	\textbf{Il Solutore MATLAB (\texttt{linprog})}\\
+	La funzione di MATLAB che usiamo per i problemi di PL (e poi anche di PLI e PL su Reti quando arriverà il loro momento) è \textbf{\texttt{linprog}} che accetta valori in questo modo:
+	\begin{center}
+		\texttt{linprog(c, A, b, Aeq, beq, lb, ub)}
+	\end{center}
+	Dove \texttt{Aeq} e \texttt{beq} valgono vuoti \texttt{[]} per i problemi di PL pura, dato che si usano per forzare uguaglianze, e poi abbiamo \texttt{lb} che rappresenta il minimo valore che le $x$ possono assumere (Lower Bound) e \texttt{ub} che rappresenta il massimo valore (Upper Bound). Le altre variabili non citate qui sono state spiegate in precedenza.
 	
-	La funzione di MATLAB che usiamo per i problemi di PL (e poi anche di PLI e PL su Reti quando arriverà il loro monento) è \textbf{\underline{linprog}} che accetta valori in questo modo:\\\\ \textit{\textbf{linprog(c, A, b, Aeq, beq, lb, ub)}}\\\\
-	dove \textit{Aeq} e \textit{beq} valgono 0 per i problemi di PL, dato che si usano in PLI, e poi, come detto in precedenza, abbiamo \textit{lb} che rappresenta il minimo valore che le x possono assumere e \textit{ub} che rappresenta il massimo valore che le x possono assumere. Le altre variabili non citate qui sono state spiegate in precedenza.
-	
-	\vspace{1cm}
-	
-	\textbf{IMPORTANTE!!!} \textit{linprog} cerca solo i minimi. Matematicamente sappiamo però che il minimo di una funzione è come fare il massimo della sua opposta:
-	
-	\textit{$\boldsymbol{f(x) = - f(x) \rightarrow}$}
+	\vspace{0.2cm}
+	\textbf{IMPORTANTE!!!} \texttt{linprog} cerca nativamente \textbf{solo i minimi}. Matematicamente sappiamo però che il minimo di una funzione è come fare il massimo della sua opposta:
+	\[
+	\mathbf{\min f(x) = - \max (-f(x))}
+	\]
 	\underline{Ed è fondamentale da sapere!}\\
-	Questo ci permette, dunque, di dire che moltiplicando le funzioni per -1 otteniamo:
-	\begin{itemize}
-		\item $\min \Leftrightarrow \max$
-		\item $\leq \Leftrightarrow \geq$
+	Questo ci permette, dunque, di dire che moltiplicando le funzioni per $-1$ otteniamo le conversioni inverse:
+	\begin{itemize}[label=$\circ$, itemsep=2pt, leftmargin=2cm]
+		\item $\min \iff \max$
+		\item $\leq \iff \geq$
 	\end{itemize}
 	\vspace{1.5cm}
 	\begin{center}
@@ -335,44 +330,44 @@
 	\section*{Lezione 2 | 22 settembre 2026}
 	\subsection*{Continuazione del problema di produzione e introduzione del problema di assegnamento}
 	
-	Riprendendo da dove abbiamo lasciato: Se in un problema di PL ci trovassimo un vincolo con $=$, come si gestisce? Domanda che nasce sempre dal fatto che \textit{linprog} risolve solo problemi col $\leq$.\\
-	Matematicamente, una funzione con $=$ si può rappresentare come la stessa funzione scritta due volte dove però la prima volta la poni con $\leq$ e la seconda con il $\geq$ che diventa nuovamente di $\leq$ sempre per le proprietà che abbiamo già spiegato.
-	Un banale esempio potrebbe essere la funzione $\boldsymbol{5x_1 + 4x_2 = 6}$:
+	Riprendendo da dove abbiamo lasciato: Se in un problema di PL ci trovassimo un vincolo con $=$, come si gestisce? Domanda che nasce sempre dal fatto che \texttt{linprog} risolve nativamente solo problemi col $\leq$.
+	
+	Matematicamente, una funzione con $=$ si può rappresentare come la stessa funzione scritta due volte a sistema, dove però la prima volta la si pone con $\leq$ e la seconda volta con il $\geq$ (che diventerà nuovamente $\leq$ applicando le proprietà di inversione spiegate in precedenza).
+	Un banale esempio potrebbe essere la funzione $\mathbf{5x_1 + 4x_2 = 6}$:
 	
 	\[
-	\begin{aligned}
-		\begin{cases}
-			5x_1 + 4x_2 \leq 6\\
-			5x_1 + 4x_2 \geq 6
-		\end{cases}
-	\end{aligned}
+	\begin{cases}
+		5x_1 + 4x_2 \leq 6 \\
+		5x_1 + 4x_2 \geq 6
+	\end{cases}
 	\]
-	e quindi...
+	e quindi, applicando l'inversione, otteniamo il formato primale:
 	\[
-	\begin{aligned}
-		\begin{cases}
-			5x_1 + 4x_2 \leq 6\\
-			-5x_1 - 4x_2 \leq 6
-		\end{cases}
-	\end{aligned}
+	\begin{cases}
+		5x_1 + 4x_2 \leq 6 \\
+		-5x_1 - 4x_2 \leq -6
+	\end{cases}
 	\]
-	Risolvendo così il problema dei vincoli di uguale ($=$) nei problemi di PL.\\
+	Questo è il metodo per risolvere i vincoli di uguale ($=$) nei problemi di PL.
 	
-	In seguito vedremo il caso in cui si passa da $\leq$ a $=$ introducendo la variabile di \textit{Slack} (o Scarto).\\
-	\textit{$\boldsymbol{f(x) \leq k \rightarrow f(x) + s = k}$}\\
-	Ma si vedrà in seguito.
+	\begin{quote}
+		\textit{Anticipazione:} In seguito vedremo il caso opposto, ovvero quando si passa da un vincolo $\leq$ a un vincolo $=$ introducendo la \textbf{Variabile di Slack} (o Scarto). 
+		\[ f(x) \leq k \implies f(x) + s = k \]
+		Ma lo approfondiremo nelle prossime lezioni.
+	\end{quote}
 	
-	\vspace{1cm}
-		
-	La risoluzione geometrica di un problema di PL richiede la conoscenza di questi 3 punti facenti parte del corso di \underline{Matematica 0}:
-	\begin{itemize}
-		\item Un $=$ nel piano rappresenta una Retta.
-		\item Un $\leq$ nel piano rappresenta un semipiano inferiore.
-		\item Un $\geq$ nel piano rappresenta un semipiano superiore.
+	\vspace{0.4cm}
+	\textbf{Risoluzione Geometrica e GeoGebra}\\
+	La risoluzione geometrica di un problema di PL richiede la conoscenza di questi 3 punti fondamentali del corso di Matematica 0:
+	\begin{itemize}[label=\textcolor{titlecolor}{\Large\textbullet}, itemsep=2pt, leftmargin=1.5cm]
+		\item Un $=$ nel piano rappresenta una \textbf{Retta}.
+		\item Un $\leq$ nel piano rappresenta un \textbf{semipiano inferiore}.
+		\item Un $\geq$ nel piano rappresenta un \textbf{semipiano superiore}.
 	\end{itemize}
-	Ricordiamo che all'esame si può usare tutto affinché \textbf{non} si usi la connessione internet, dunque, è possibile usare anche \textbf{\textit{GeoGebra}} che nel caso di questo corso è estremamente utile per la visualizzazione grafica del nostro modello matematico.\\
 	
-	Geometricamente, il grafico del problema affrontato precedentemente è questo:
+	Ricordiamo che all'esame si può usare di tutto, purché \textbf{non} si usi la connessione internet. Dunque, è possibilissimo usare software come \textbf{GeoGebra}, che nel caso di questo corso è estremamente utile per la visualizzazione grafica immediata del nostro modello matematico.
+	
+	Geometricamente, il grafico del problema di produzione affrontato nella precedente lezione è questo:
 	
 	\begin{figure}[H]
 		\centering
@@ -383,7 +378,6 @@
 				axis lines=middle,
 				ymajorgrids=true,
 				xmajorgrids=true,
-				% ZOOM IMPOSTATO QUI
 				xmin=-50,
 				xmax=200,
 				ymin=-50,
@@ -398,15 +392,15 @@
 				\clip(-50,-50) rectangle (200,200);
 				
 				% VINCOLO 1 (Blu)
-				\draw[line width=2pt, color=myblue, fill=myblue, fill opacity=0.15] 
+				\draw[line width=2pt, color=blue, fill=blue, fill opacity=0.15] 
 				(-155.24,402.33)--(-396.58,402.33)--(-396.58,-427.61)--(262.88,-427.61)--(-155.24,402.33);
 				
 				% VINCOLO 2 (Rosso)
-				\draw[line width=2pt, color=myred, fill=myred, fill opacity=0.15] 
+				\draw[line width=2pt, color=red, fill=red, fill opacity=0.15] 
 				(-399.74,306.49)--(-396.58,-427.61)--(706.14,-427.61)--(-399.74,306.49);
 				
 				% VINCOLO 3 (Verde)
-				\draw[line width=2pt, color=mygreen, fill=mygreen, fill opacity=0.15] 
+				\draw[line width=2pt, color=green, fill=green, fill opacity=0.15] 
 				(-399.74,234.87)--(-396.58,-427.61)--(931.53,-427.61)--(-399.74,234.87);
 				
 				% VINCOLO DI NON NEGATIVITÀ x1 >= 0 (Grigio chiaro)
@@ -419,134 +413,86 @@
 				
 			\end{axis}
 		\end{tikzpicture}
-		\caption{La Regione Ammissibile è la zona dove tutti i colori si sovrappongono.}
+		\caption{La \textbf{Regione Ammissibile} è la zona in cui tutti i colori si sovrappongono (soddisfacendo simultaneamente tutti i vincoli).}
 	\end{figure}
 	
-	La Regione Ammissibile è anche detta \textbf{\textit{Poliedro}} la cui definizione è:
-	\begin{itemize}
-		\item Definizione che piace ai Matematici: \textit{Si definisce tale l'intersezione di un numero finito di semispazi chiusi.}
-		\item Definizione che piace a Ingegneri e Informatici: \textit{Si definisce tale le soluzioni di $Ax \leq b$}.
+	La Regione Ammissibile è anche detta \textbf{Poliedro}, la cui definizione è:
+	\begin{itemize}[label=\textcolor{titlecolor}{\Large\textbullet}, itemsep=2pt, leftmargin=1.5cm]
+		\item \textbf{Definizione matematica:} \textit{Si definisce tale l'intersezione di un numero finito di semispazi chiusi.}
+		\item \textbf{Definizione Ingegneristica/Informatica:} \textit{Si definisce tale l'insieme delle soluzioni di $Ax \leq b$.}
 	\end{itemize}
-	Meglio usare quella che piace ai matematici dato che Pappalardo è un Matematico.\\\\
+	Il professore consiglia di utilizzare quella matematica, essendo egli stesso un matematico.
+	
+	\vspace{0.4cm}
 	\textbf{Nota importante sulla Notazione (per evitare disastri all'esame):}\\
 	Il professore ci tiene a fare una precisazione fondamentale per non confondere i concetti. Fate molta attenzione all'uso delle parentesi, perché indicano due cose radicalmente diverse:
-	\begin{itemize}
-		\item Quando si usa la lettera \textbf{senza parentesi}, si intende esclusivamente il \textbf{Poliedro geometrico}, ovvero il puro insieme delle soluzioni ammissibili.
-		\item Quando si usa la lettera \textbf{tra parentesi}, ci si riferisce all'\textbf{intero Problema in corso}, che comprende sia lo spazio ammissibile che la Funzione Obiettivo da ottimizzare.
+	\begin{itemize}[label=$\circ$, itemsep=2pt, leftmargin=1.5cm]
+		\item Quando si usa la lettera \textbf{senza parentesi (es. $P$)}, si intende esclusivamente il \textbf{Poliedro geometrico}, ovvero il puro insieme delle soluzioni ammissibili.
+		\item Quando si usa la lettera \textbf{tra parentesi (es. $(P)$)}, ci si riferisce all'\textbf{intero Problema in corso}, che comprende sia lo spazio ammissibile che la Funzione Obiettivo da ottimizzare.
 	\end{itemize}
 	
 	Visivamente e algebricamente, la differenza si riassume in questo modo:
 	\[
-	\underbrace{P = \{ Ax \leq b \}}_{\text{Il Poliedro}} 
+	\underbrace{P = \{ Ax \leq b \}}_{\text{Il Poliedro (Spazio Geometrico)}} 
 	\qquad \text{vs} \qquad 
-	\underbrace{(P) = \begin{cases} \max/\min c^T x \\ x \in P \end{cases}}_{\text{Il Problema completo}}
+	\underbrace{(P) = \begin{cases} \max/\min c^T x \\ x \in P \end{cases}}_{\text{Il Problema di Ottimizzazione Completo}}
 	\]
 	
-	In particolar modo, il modello matematico del problema di riferimento era questo:
+	Riprendendo il modello matematico del problema di riferimento, esso era strutturato così:
 	\[ 
-	\begin{aligned}
-		& \begin{cases}
-			\max 300x_1 + 200x_2\\
-			20x_1 + 10x_2 \leq 950\\
-			2x_1 + 3x_2 \leq 120\\
-			x_1 + 2x_2 \leq 70\\
-			x_{1/2} \geq 0
-		\end{cases}
-	\end{aligned}
+	\begin{cases}
+		\max \quad 300x_1 + 200x_2 \\
+		20x_1 + 10x_2 \leq 950 \\
+		2x_1 + 3x_2 \leq 120 \\
+		x_1 + 2x_2 \leq 70 \\
+		x_{1}, x_{2} \geq 0
+	\end{cases}
 	\]
 	
-	Le intersezioni che vedete nel grafico (immaginate ci siano dei puntini) si chiamano \textbf{\textit{Vertici}}. Per calcolare l'intersezione tra un vincolo e un altro bisogna mettere a sistema i due o più vincoli in questione e risolverli con l'uguale ($=$). Prendiamo un esempio:
+	Le intersezioni che vedete nel grafico (i "puntini" di incrocio tra le rette) si chiamano \textbf{Vertici}. Per calcolare l'intersezione tra due o più vincoli, bisogna metterli a sistema e risolverli trasformando i $\leq$ in uguaglianze ($=$). 
+	Esempio:
 	\[
-	\begin{aligned}
-		\textbf{Intersezione tra i vincoli 1 e 2}
-		\begin{cases}
-			20x_1 + 10x_2 = 950\\
-			2x_1 + 3x_2 = 120
-		\end{cases}
-	\end{aligned}
+	\textbf{Intersezione tra i vincoli 1 e 2} \implies
+	\begin{cases}
+		20x_1 + 10x_2 = 950 \\
+		2x_1 + 3x_2 = 120
+	\end{cases}
 	\]
-	Risolvendo questo sistema, si otterranno dei risultati che indicheranno il valore del vertice in cui si intersecano. Ovviamente, i risultati che si ottengono riguardano i valori assunti da $x_1$ e $x_2$ in questo specifico caso di un problema in $R^2$.
-	Dopo aver ottenuto i risultati, è fondamentale prendere questi risultati e inserirli nelle equazioni che \textbf{\underline{non}} sono state inserite nel sistema risolvendo però con il $\leq$ e non con l'$=$ come per il sottosistema. Se le disequazioni vengono rispettate, allora il sottosistema di equazioni create rappresenta un \textbf{Vertice} del nostro Poliedro.\\
+	Risolvendo questo sistema, si otterranno dei risultati che indicheranno il valore esatto delle coordinate ($x_1, x_2$) del vertice in cui si intersecano, all'interno del nostro piano $\mathbb{R}^2$.
 	
-	Quanto è importante il Determinante della matrice di questo sottosistema creato? \textbf{\underline{MOLTISSIMO}}, infatti, se $det(matrice) \neq 0$, allora la soluzione esiste ed è unica e quindi il vertice esiste.\\
+	Dopo aver ottenuto queste coordinate, è \textbf{fondamentale} prendere questi risultati e \textit{sostituirli} all'interno delle altre equazioni (i vincoli che \underline{non} avevamo inserito nel sistema), mantenendo però il segno originario di $\leq$. Se tutte le disequazioni rimanenti vengono rispettate senza essere violate, allora il sottosistema di equazioni creato descrive a tutti gli effetti un \textbf{Vertice ammissibile} del nostro Poliedro.
 	
-	Nota bene:
-	\begin{itemize}
-		\item Ciò che è stato detto a riguardo dei Vertici riguarda solo una grossissima anticipazione di ciò che vedremo più in là. Credo che sia una buona cosa sapere questo in anticipo, ma senza metterci troppa testa perché i dettagli importanti verranno visti dopo.
-		\item scrivere "$det(matrice)$" fa parte della sintassi di MATLAB che, ovviamente, durante l'esame si può usare soprattutto per questi dettagli. Semplicemente, crei la matrice A secondo le regole stabilite dal linguaggio, poi si scrive la stringa che vi ho fornito e vi restituisce il risultato.
+	Quanto è importante il Determinante della matrice di questo sottosistema creato? \textbf{\underline{MOLTISSIMO}}. Infatti, se $\det(\text{matrice}) \neq 0$, allora la soluzione esiste ed è unica, garantendo matematicamente che il vertice esista.
+	
+	\textbf{Note a margine:}
+	\begin{itemize}[label=-, itemsep=2pt, leftmargin=2cm]
+		\item Ciò che è stato detto a riguardo dei Vertici è una grossissima anticipazione di ciò che vedremo più in là. È un'ottima infarinatura, ma senza metterci troppa testa ora: i dettagli matematici rigorosi verranno affrontati in seguito.
+		\item La funzione \texttt{det(matrice)} fa parte della sintassi base di MATLAB. All'esame potremo usarla per calcolare i determinanti all'istante: basta creare la matrice $A$ e scrivere il comando per ottenere il risultato.
 	\end{itemize}
 	
-	Come anticipato nella \textit{\underline{Lezione 1}}, nei problemi di PL si esclude l'utilizzo del $<$ e del $>$ dalla realizzazione dei modelli matematici per la seguente definizione:\\\\
-	\textit{La soluzione ottima del problema non è dentro al Poliedro, dunque, se esiste, si trova sempre sul bordo}.\\\\
-	Dunque, è intuibile che l'esclusione di questi due segni dipende dal fatto che Geometricamente escluderebbero il bordo del poliedro, rendendo impossibile trovare la vera soluzione ottima del problema.
+	Come anticipato nella \textit{Lezione 1}, nei problemi di PL si esclude rigorosamente l'utilizzo del $<$ e del $>$ (disequazioni strette) per una ragione puramente geometrica:
+	\begin{quote}
+		\textit{"La soluzione ottima del problema non è mai un punto indefinito all'interno del Poliedro. Se l'ottimo esiste, si trova sempre sul suo \textbf{bordo}."}
+	\end{quote}
+	L'utilizzo di $<$ o $>$ escluderebbe geometricamente i bordi del poliedro (le rette stesse), rendendo matematicamente impossibile "toccare" e trovare la vera soluzione ottima del problema.
 	
-	\vspace{1cm}
+	\vspace{0.6cm}
+	\separatore
+	\vspace{0.4cm}
 	
-	\textbf{Esercizio di prova}
+	\textbf{Esercizio di prova e le Linee di Isoguadagno}
 	\[
-	\begin{aligned}
-		\begin{cases}
-			\max x_1 + x_2\\
-			2x_1 + x_2 \leq 7\\
-			x_1 + 3x_2 \leq 8\\
-			-x_1 \leq 0\\
-			-x_2 \leq 0
-		\end{cases}
-	\end{aligned}
+	\begin{cases}
+		\max \quad x_1 + x_2 \\
+		2x_1 + x_2 \leq 7 \\
+		x_1 + 3x_2 \leq 8 \\
+		-x_1 \leq 0 \\
+		-x_2 \leq 0
+	\end{cases}
 	\]
-	Il cui Poliedro è...
 	
-	\begin{figure}[H]
-		\centering
-		\begin{tikzpicture}[line cap=round,line join=round]
-			\begin{axis}[
-				width=12cm, % Gestisce la grandezza fisica sul foglio
-				height=12cm,
-				axis lines=middle,
-				ymajorgrids=true,
-				xmajorgrids=true,
-				% ZOOM (modifica questi valori per inquadrare diversamente)
-				xmin=-5,
-				xmax=15,
-				ymin=-5,
-				ymax=15,
-				% Tacche degli assi
-				xtick={-5, 0, 5, 10, 15},
-				ytick={-5, 0, 5, 10, 15},
-				xlabel = {$x_1$},
-				ylabel = {$x_2$},
-				]
-				
-				% Riquadro di clip per lo zoom
-				\clip(-5,-5) rectangle (15,15);
-				
-				% VINCOLO 1 (Rosso) 
-				% Equivalente a: pspolygon(-2.2,11.4)(-21.72,11.3)(-21.72,-15.72)(11.41,-15.82)(-2.2,11.4)
-				\draw[line width=2pt, color=myred, fill=myred, fill opacity=0.15] 
-				(-2.2,11.4)--(-21.72,11.3)--(-21.72,-15.72)--(11.41,-15.82)--(-2.2,11.4);
-				
-				% VINCOLO 2 (Verde)
-				% Equivalente a: pspolygon(-21.72,9.90)(-21.72,-15.72)(21.72,-15.72)(21.72,-4.57)(-21.72,9.90)
-				\draw[line width=2pt, color=mygreen, fill=mygreen, fill opacity=0.15] 
-				(-21.72,9.90)--(-21.72,-15.72)--(21.72,-15.72)--(21.72,-4.57)--(-21.72,9.90);
-				
-				% VINCOLO DI NON NEGATIVITÀ x1 >= 0 (Grigio)
-				\draw[line width=2pt, color=gray, fill=gray, fill opacity=0.1] 
-				(0,11.5)--(0,-15.92)--(21.92,-15.92)--(21.92,11.5);
-				
-				% VINCOLO DI NON NEGATIVITÀ x2 >= 0 (Grigio scuro)
-				\draw[line width=2pt, color=darkgray, fill=darkgray, fill opacity=0.1] 
-				(-21.92,11.5)--(-21.92,0)--(21.92,0)--(21.92,11.5);
-				
-			\end{axis}
-		\end{tikzpicture}
-		\caption{con Regione Ammissibile compresa tra l'asse delle y, l'asse delle x e l'intersezione dei due vincoli. vedi i colori per aiutarti.\\PS: la linea rossa crea quell'angolo in alto per un semplice errore di formattazione grafica.}
-	\end{figure}
+	Il cui Poliedro generato è:
 	
-	Per ogni poliedro, esistono le \textit{\textbf{Linee di Isoguadagno}} (o Isocosto). Si ottengono ponendo la FO = K, dunque, in questo caso:\\
-	$x_1 + x_2 = k$\\
-	Sono delle linee perpendicolari alla direzione del vettore della FO stessa e sono \underline{utilissime} nella ricerca della soluzione ottima. In che modo? Semplice, cerco la linea di Isoguadagno più grande che si trova all'interno del poliedro che, inevitabilmente, sarà sul bordo di quest'ultimo, e quindi seguendo la definizione fornita prima, ossia quella che dice che la soluzione ottima, se esiste, è sul bordo, dimostra che le linee di Isoguadagno servono a trovare proprio l'ottimo del nostro problema.\\
-	Una dimostrazione con il grafico:
 	\begin{figure}[H]
 		\centering
 		\begin{tikzpicture}[line cap=round, line join=round]
@@ -556,37 +502,77 @@
 				axis lines=middle,
 				ymajorgrids=true,
 				xmajorgrids=true,
-				% --- IMPOSTAZIONI ZOOM ---
 				xmin=-5,
 				xmax=15,
 				ymin=-5,
 				ymax=15,
-				% --- GESTIONE DEI NUMERI SUGLI ASSI ---
 				xtick={-5, 0, 5, 10, 15},
 				ytick={-5, 0, 5, 10, 15},
 				xlabel = {$x_1$},
 				ylabel = {$x_2$},
 				]
 				
-				% Riquadro di clip per nascondere ciò che esce dallo zoom
 				\clip(-5,-5) rectangle (15,15);
 				
-				% --- AREE AMMISSIBILI E VINCOLI ---
-				\draw[line width=2pt, color=myred, fill=myred, fill opacity=0.15]
+				% VINCOLO 1 (Rosso)
+				\draw[line width=2pt, color=red, fill=red, fill opacity=0.15] 
+				(-2.2,11.4)--(-21.72,11.3)--(-21.72,-15.72)--(11.41,-15.82)--(-2.2,11.4);
+				
+				% VINCOLO 2 (Verde)
+				\draw[line width=2pt, color=green, fill=green, fill opacity=0.15] 
+				(-21.72,9.90)--(-21.72,-15.72)--(21.72,-15.72)--(21.72,-4.57)--(-21.72,9.90);
+				
+				% Non negatività
+				\draw[line width=2pt, color=gray, fill=gray, fill opacity=0.1] 
+				(0,11.5)--(0,-15.92)--(21.92,-15.92)--(21.92,11.5);
+				
+				\draw[line width=2pt, color=darkgray, fill=darkgray, fill opacity=0.1] 
+				(-21.92,11.5)--(-21.92,0)--(21.92,0)--(21.92,11.5);
+				
+			\end{axis}
+		\end{tikzpicture}
+		\caption{La Regione Ammissibile è compresa tra l'asse delle $y$, l'asse delle $x$ e l'intersezione dei due vincoli (area in cui si sovrappongono i colori).}
+	\end{figure}
+	
+	Per ogni poliedro, esistono le \textbf{Linee di Isoguadagno} (o Isocosto, nei problemi di minimo). Si ottengono ponendo la Funzione Obiettivo uguale a una costante $k$. Nel nostro caso:
+	\[ x_1 + x_2 = k \]
+	
+	Queste linee sono sempre perpendicolari alla direzione del vettore della FO stessa e sono \underline{utilissime} nella ricerca visiva della soluzione ottima. In che modo? È semplice: per un problema di Massimo, si fa scorrere la linea di Isoguadagno verso l'esterno fino a trovare il \textit{valore $k$ più grande possibile} che riesca ancora a "toccare" (essere all'interno o sul bordo de) il poliedro. Come enunciato dal teorema precedente, l'ultimo punto toccato sarà inevitabilmente sul bordo (un vertice), indicandoci graficamente l'ottimo esatto del nostro problema.
+	
+	\begin{figure}[H]
+		\centering
+		\begin{tikzpicture}[line cap=round, line join=round]
+			\begin{axis}[
+				width=12cm,
+				height=12cm,
+				axis lines=middle,
+				ymajorgrids=true,
+				xmajorgrids=true,
+				xmin=-5,
+				xmax=15,
+				ymin=-5,
+				ymax=15,
+				xtick={-5, 0, 5, 10, 15},
+				ytick={-5, 0, 5, 10, 15},
+				xlabel = {$x_1$},
+				ylabel = {$x_2$},
+				]
+				
+				\clip(-5,-5) rectangle (15,15);
+				
+				% Aree ammissibili
+				\draw[line width=2pt, color=red, fill=red, fill opacity=0.15]
 				(-2.2,11.3)--(-21.72,11.3)--(-21.72,-15.72)--(11.41,-15.72)--(-2.2,11.3);
 				
-				\draw[line width=2pt, color=mygreen, fill=mygreen, fill opacity=0.15]
+				\draw[line width=2pt, color=green, fill=green, fill opacity=0.15]
 				(-21.72,9.91)--(-21.72,-15.72)--(21.72,-15.72)--(21.72,-4.57)--(-21.72,9.91);
 				
-				% Vincoli di non negatività (Grigio)
 				\draw[line width=2pt, color=gray, fill=gray, fill opacity=0.1]
 				(0,11.3)--(0,-15.72)--(21.92,-15.72)--(21.92,11.3);
-				
 				\draw[line width=2pt, color=darkgray, fill=darkgray, fill opacity=0.1]
 				(-21.92,11.3)--(-21.92,0)--(21.92,0)--(21.92,11.3);
 				
-				% --- RETTE (es. Funzioni Obiettivo) ---
-				% Sintassi matematica corretta (rimossi i doppi meno "--")
+				% Linee di Isoguadagno (Arancioni)
 				\draw [line width=2pt, color=orange, domain=-5:15] plot(\x,{1 - \x});
 				\draw [line width=2pt, color=orange, domain=-5:15] plot(\x,{0.5 - \x});
 				\draw [line width=2pt, color=orange, domain=-5:15] plot(\x,{-\x});
@@ -594,8 +580,7 @@
 				\draw [line width=2pt, color=orange, domain=-5:15] plot(\x,{1.5 - \x});
 				\draw [line width=2pt, color=orange, domain=-5:15] plot(\x,{2 - \x});
 				
-				% --- ETICHETTE ---
-				% Ho spostato le etichette a coordinate visibili (-3) per non farle tagliare fuori dal clip
+				% Etichette
 				\node[font=\scriptsize] at (-3, 6.5) {$eq1$};
 				\node[font=\scriptsize] at (-3, 5.5) {$eq2$};
 				\node[font=\scriptsize] at (-3, 4.5) {$eq3$};
@@ -605,38 +590,41 @@
 				
 			\end{axis}
 		\end{tikzpicture}
-		\caption{Le linee di Isoguadagno sono quelle arancioni, perpendicolari alla direzione del vettore della FO e che salgono e/o scendono a seconda del valore K. Dal grafico si può intravedere il fatto che ci sarà un valore K che toccherà i bordi del poliedro. In uno dei punti dei bordi del Poliedro, quindi, c'è l'ottimo del problema. Per questo è molto utile usarle a questo scopo.}
+		\caption{Le linee di Isoguadagno (in arancione) salgono o scendono a seconda del valore $k$. Il grafico mostra chiaramente come esse si "spingano" verso l'esterno fino a toccare il bordo limite del poliedro per individuare l'ottimo.}
 	\end{figure}
 	
-	Quando parliamo di Poliedri ormai sappiamo che è uno spazio chiuso, sostanzialmente, ma non è sempre così: esistono eccome Poliedri aperti la cui Soluzione Ottima va a $+\infty$. Dunque, ora possiamo anche dire che:\\
-	\textit{Se un Poliedro \textbf{non} è chiuso, allora è \underline{illimitato}}.\\
-	Un possibile problema che un matematico, un ingegnere e anche banalmente uno studente può trovarsi davanti è la mancanza di Vincoli: si, spesso un Poliedro risulta illimitato perché manca qualche vincolo. Può capitare dato che spesso alcuni sono complicati da trovare nella traccia dell'esercizio e/o in un problema reale. È importante trovarli tutti per proseguire.\\
+	\vspace{0.4cm}
+	\textbf{Poliedri Aperti e Mancanza di Soluzioni}\\
+	Quando parliamo di Poliedri, siamo abituati a visualizzarli come spazi chiusi. Ma non è sempre così: esistono eccome Poliedri aperti in cui la Funzione Obiettivo non trova mai un "tetto" e diverge a $+\infty$. Dunque, possiamo definire una regola aurea:
+	\begin{quote}
+		\textit{Se un Poliedro \textbf{non} è chiuso, allora è \underline{illimitato}.}
+	\end{quote}
+	Questo problema (molto comune per studenti, ingegneri e matematici) deriva spesso dalla \textbf{mancanza di vincoli}. Può capitare che alcuni limiti fisici del problema reale siano complicati da tradurre in equazioni e vengano inavvertitamente omessi, lasciando il poliedro aperto e rendendo la soluzione illimitata. È essenziale individuare tutti i vincoli per ottenere un risultato realistico.
 	
-	Allo stesso tempo, esistono anche modelli matematici di PL che, usando GeoGebra o MATLAB, non restituiscono alcun Poliedro. Di sicuro non scompare e di sicuro non hanno sbagliato i due software citati prima dato che sono strumenti molto potenti, piuttosto qui ci troviamo davanti al caso opposto al precedente: se non esiste un Poliedro, sicuramente ci sono troppi vincoli e non esiste una regione ammissibile che rispetta tutti i vincoli del nostro modello. Come per il caso precedente, può capitare di inserire vincoli di troppo o semplicemente il problema non è risolvibile così com'è. Succede anche in situazioni reali.
+	Allo stesso tempo, può presentarsi il problema diametralmente opposto. Sottoponendo il modello a MATLAB o GeoGebra, i software potrebbero non restituire \textit{nessun poliedro}. I programmi non stanno sbagliando (sono strumenti di calcolo puramente deterministici); in questo caso, significa che sono stati inseriti \textbf{troppi vincoli} o vincoli tra loro contraddittori. Non esiste una singola regione di spazio in grado di rispettarli tutti contemporaneamente, rendendo il problema "inammissibile" e irrisolvibile così com'è. 
 	
-	\vspace{1cm}
+	\vspace{0.6cm}
+	\separatore
+	\vspace{0.4cm}
 	
-	Nuovo Problema di PL: \textbf{Problema di Assegnamento}
+	\textbf{Nuovo Problema di PL: Problema di Assegnamento}\\
+	Ipotizziamo di avere $4$ studi di ingegneria a disposizione e $4$ progetti da dover realizzare.
 	
-	Ipotizziamo di avere 4 studi di Ingegneria e 4 progetti da realizzare:\\\\
-	\begin{center}
+	\begin{table}[H]
+		\centering
+		\renewcommand{\arraystretch}{1.3}
 		\begin{tabular}{|c|c|c|c|c|}
 			\hline
-			Progetti $\downarrow$/Studi di ing $\rightarrow$ & \textbf{1} & \textbf{2} & \textbf{3} & \textbf{4}\\
-			\hline
-			\textbf{1} & 8 & 7 & 9 & 5\\
-			\hline
-			\textbf{2} & 12 & 13 & 15 & 16\\
-			\hline
-			\textbf{3} & 9 & 14 & 6 & 10\\
-			\hline
-			\textbf{4} & 7 & 8 & 11 & 9\\
-			\hline
+			\textbf{Progetti $\downarrow$ / Studi $\rightarrow$} & \textbf{1} & \textbf{2} & \textbf{3} & \textbf{4}\\ \hline
+			\textbf{1} & 8 & 7 & 9 & 5 \\ \hline
+			\textbf{2} & 12 & 13 & 15 & 16 \\ \hline
+			\textbf{3} & 9 & 14 & 6 & 10 \\ \hline
+			\textbf{4} & 7 & 8 & 11 & 9 \\ \hline
 		\end{tabular}
-	\end{center}
-	Dove i valori interni alla tabella si riferiscono a quanto costerebbe far realizzare un progetto ad un particolare studio. Ad esempio, il progetto 2 costerebbe 16 se lo svolgesse lo studio 4, e così via.
+		\caption{Matrice dei costi. I valori interni indicano il costo preventivato per far realizzare un determinato progetto a un particolare studio (es. il Progetto 2 costa $16$ se svolto dallo Studio 4).}
+	\end{table}
 	
-	Pappalardo ci fa subito presente una cosa prima della fine della lezione, ossia che il numero possibile di assegnamenti è pari a $\boldsymbol{n!}$ (n fattoriale), mentre invece se inseriamo i vincoli che implicano il fatto che un progetto può esser fatto solo da uno studio e ogni studio può realizzare solo un progetto, gli assegnamenti diventano $\boldsymbol{n^n}$.\\
+	Il professore introduce una considerazione fondamentale di calcolo combinatorio a chiusura della lezione. In assenza di vincoli restrittivi, il numero possibile di assegnamenti totali tra studi e progetti sarebbe pari a $\boldsymbol{n!}$ ($n$ fattoriale). Tuttavia, introducendo i classici vincoli logici dell'assegnamento puro (ovvero: un progetto può essere fatto da un solo studio, e ogni studio può prendere in carico un solo progetto), lo spazio combinatorio delle soluzioni cambia drasticamente, e gli assegnamenti possibili diventano $\boldsymbol{n^n}$.
 	
 	\vspace{1.5cm}
 	\begin{center}
@@ -8024,5 +8012,476 @@
 		\item \textit{Passaggio fondamentale:} Adesso che ci sono meno quartieri da coprire, il numero di "1" ($\#_1$) delle antenne rimanenti è cambiato! \textbf{Ricalcolo i rendimenti} basandomi solo sulle righe sopravvissute, e scelgo la successiva antenna migliore.
 		\item Mi fermo quando non ci sono più righe da coprire. Il costo totale delle antenne scelte diventerà la mia nuova (e molto più ottimizzata) Valutazione Superiore $v_S$.
 	\end{enumerate}
+	
+	\vspace{1.5cm}
+	\begin{center}
+		\rule{0.65\textwidth}{1pt} \\
+		\vspace{0.4cm}
+		\textcolor{titlecolor}{\LARGE \textbf{--- Fine Lezione 20 ---}} \\
+		\vspace{0.2cm}
+		\rule{0.65\textwidth}{1pt}
+	\end{center}
+	\newpage
+	
+	\avviso{\textit{\textbf{Questa lezione, come le sue precedenti e successive, può contenere errori e/o imprecisioni. Per il bene di tutti, è buona norma far notare all'autore l'errore o l'imprecisione così da risolvere nel minor tempo possibile. I canali di comunicazione, per eventuali avvisi generali o di errori trovati negli appunti, sono in cima al file. Grazie per la collaborazione e Buono studio!}}}
+	
+	\section*{Lezione 21 | 27 ottobre 2026}
+	\subsection*{Problema del Bin Packing}
+	
+	\vspace{0.6cm}
+	\textbf{Il Problema del Bin Packing (Confezionamento Ottimo)}\\
+	Ipotizziamo di avere a disposizione 9 oggetti caratterizzati esclusivamente dal loro peso. Riassumiamo i dati in una tabella a 9 colonne:
+	
+	\begin{table}[H]
+		\centering
+		\renewcommand{\arraystretch}{1.3}
+		\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|}
+			\hline
+			\textbf{Oggetto ($j$)} & \textbf{1} & \textbf{2} & \textbf{3} & \textbf{4} & \textbf{5} & \textbf{6} & \textbf{7} & \textbf{8} & \textbf{9} \\ \hline
+			\textbf{Peso ($p_j$)} & 77 & 66 & 55 & 37 & 37 & 37 & 13 & 8 & 4 \\ \hline
+		\end{tabular}
+		\caption{Vettore riga dei pesi associati ai 9 oggetti da trasportare.}
+	\end{table}
+	
+	Sappiamo che la capienza massima del nostro contenitore è pari a $C = 112$. 
+	
+	\vspace{0.4cm}
+	\textbf{Siamo di fronte a un Problema dello Zaino?}\\
+	La risposta è \textbf{NO}, sebbene a prima vista possa sembrare molto simile. 
+	È fondamentale tracciare la linea di demarcazione tra queste due tipologie di problemi della PLI:
+	\begin{itemize}[label=\textcolor{titlecolor}{\Large\textbullet}, itemsep=2pt, leftmargin=1.5cm]
+		\item \textbf{Problema dello Zaino (Knapsack):} L'obiettivo è selezionare un sottoinsieme di oggetti di massimo rendimento (considerando il loro \textit{valore}) per saturare un singolo zaino e ottenere il profitto più alto possibile. Alcuni oggetti vengono lasciati a terra.
+		\item \textbf{Problema del Bin Packing:} Qui non ci interessa il "valore" degli oggetti, perché \textbf{dobbiamo portare tutto}. Non possiamo lasciare nulla a terra. Per rimanere coerenti con una casistica reale, immaginiamo i "Bin" come degli scatoloni o dei \textit{container} da caricare su un camion diretto verso una frontiera. Il vettore riga rappresenta il peso di ogni merce da caricare.
+	\end{itemize}
+	
+	L'obiettivo sostanziale del Bin Packing è il \textbf{risparmio logistico}: siccome devo trasportare obbligatoriamente tutti gli oggetti, qual è la combinazione di carico perfetta che mi permette di utilizzare (e quindi pagare) il \textbf{minor numero possibile di container}? La capienza $112$ rappresenta il limite fisico di ogni singolo contenitore che decidiamo di attivare.
+	
+	\vspace{0.4cm}
+	\textbf{Le Valutazioni nel Bin Packing}\\
+	Poiché l'obiettivo è minimizzare il numero di container utilizzati, ci troviamo di fronte a un \textbf{Problema di Minimo}. Di conseguenza, le logiche di valutazione seguono la regola standard per questa classe:
+	\begin{itemize}[label=$\circ$, itemsep=2pt, leftmargin=1.5cm]
+		\item \textbf{Valutazione Superiore ($v_S$):} È rappresentata da \textit{qualsiasi soluzione ammissibile}. Trovando un modo valido per inscatolare tutti gli oggetti (anche usando un approccio poco efficiente, come mettere un oggetto per ogni scatolone), otteniamo un tetto massimo di spesa certa.
+		\item \textbf{Valutazione Inferiore ($v_I$):} È rappresentata dal \textit{Rilassato Continuo}. Togliendo i vincoli di interezza, il computer calcolerà il limite fisico minimo (frazionario) di spazio necessario per trasportare il peso totale.
+	\end{itemize}
+	
+	\vspace{0.6cm}
+	\separatore
+	\vspace{0.4cm}
+	
+	\textbf{Il Modello Matematico: Un Sistema a Due Variabili}\\
+	Rispetto agli altri modelli studiati nell'intero corso di Ricerca Operativa, il Bin Packing è probabilmente quello più particolare, poiché necessita di \textbf{due tipologie diverse di variabili binarie} all'interno dello stesso sistema per poter funzionare correttamente.
+	
+	Nel caso peggiore in assoluto (in cui ogni oggetto richiede un container tutto suo), ci serviranno al massimo 9 container. Definiamo quindi gli indici: $i$ per i contenitori (da 1 a 9) e $j$ per gli oggetti (da 1 a 9).
+	
+	\textbf{1. La variabile di attivazione del contenitore ($y_i$)}\\
+	Si tratta di una variabile binaria $y_i \in \{0, 1\}$ che indica semplicemente se decidiamo di utilizzare o non utilizzare quel determinato contenitore. 
+	\begin{itemize}[label=-, itemsep=1pt]
+		\item $y_i = 1 \implies$ Il contenitore $i$ viene pagato e utilizzato.
+		\item $y_i = 0 \implies$ Il contenitore $i$ resta vuoto e non viene conteggiato.
+	\end{itemize}
+	Da questa variabile scaturisce la nostra \textbf{Funzione Obiettivo}. Vogliamo minimizzare il numero totale di contenitori utilizzati, quindi chiediamo al modello di minimizzare la somma di tutte le variabili $y_i$:
+	\[
+	\min \sum_{i=1}^9 y_i
+	\]
+	
+	\textbf{2. La variabile di assegnamento dell'oggetto ($x_{ij}$)}\\
+	Oltre all'attivazione del container, dobbiamo dire al sistema "cosa va dove". Utilizziamo la variabile binaria $x_{ij} \in \{0, 1\}$.
+	\begin{itemize}[label=-, itemsep=1pt]
+		\item $x_{ij} = 1 \implies$ L'oggetto $j$ viene inserito all'interno del contenitore $i$.
+		\item $x_{ij} = 0 \implies$ L'oggetto $j$ NON si trova nel contenitore $i$.
+	\end{itemize}
+	
+	\vspace{0.4cm}
+	\textbf{I Vincoli Strutturali}\\
+	Adesso assembliamo le due tipologie di variabili all'interno dei vincoli necessari.
+	
+	\textbf{A. Vincolo di Assegnazione Univoca (Per ogni Oggetto)}\\
+	Dobbiamo garantire che ogni singolo oggetto venga caricato in uno, e un solo, container. Se prendiamo l'Oggetto 1, la somma delle sue presenze ($x$) in tutti i possibili container ($i$) deve fare esattamente 1. Avendo 9 oggetti da smaltire, scriveremo 9 vincoli identici (uno per ogni oggetto $j$):
+	\[
+	\begin{aligned}
+		&x_{1,1} + x_{2,1} + x_{3,1} + \dots + x_{9,1} = 1 \quad &\text{(Oggetto 1 assegnato una volta)}\\
+		&x_{1,2} + x_{2,2} + x_{3,2} + \dots + x_{9,2} = 1 \quad &\text{(Oggetto 2 assegnato una volta)}\\
+		&\vdots \\
+		&x_{1,9} + x_{2,9} + x_{3,9} + \dots + x_{9,9} = 1 \quad &\text{(Oggetto 9 assegnato una volta)}\\
+	\end{aligned}
+	\]
+	
+	\textbf{B. Vincolo di Capienza Massima (Per ogni Contenitore)}\\
+	Questo è il vincolo più elegante del modello. Dobbiamo imporre che la somma dei pesi degli oggetti inseriti in uno specifico contenitore $i$ non superi mai la sua capienza massima ($112$). 
+	Ma c'è un trucco: questo limite di capienza \textbf{esiste solo se il contenitore è stato attivato} ($y_i = 1$). Se il contenitore non lo attiviamo ($y_i = 0$), la sua capienza disponibile per noi è zero!
+	Moltiplichiamo quindi la capienza $112$ per la variabile $y_i$. Se $y_i=0$, il vincolo impone che il peso interno debba essere $\leq 0$ (impedendo fisicamente l'inserimento di qualsiasi oggetto). Se $y_i=1$, il limite sale a $112$, sbloccando il container.
+	
+	Scriviamo i 9 vincoli (uno per ogni possibile contenitore $i$):
+	\[
+	\begin{aligned}
+		&77x_{1,1} + 66x_{1,2} + 55x_{1,3} + \dots + 4x_{1,9} \leq 112y_1 \quad &\text{(Capacità Contenitore 1)}\\
+		&77x_{2,1} + 66x_{2,2} + 55x_{2,3} + \dots + 4x_{2,9} \leq 112y_2 \quad &\text{(Capacità Contenitore 2)}\\
+		&\vdots \\
+		&77x_{9,1} + 66x_{9,2} + 55x_{9,3} + \dots + 4x_{9,9} \leq 112y_9 \quad &\text{(Capacità Contenitore 9)}\\
+	\end{aligned}
+	\]
+	
+	Per inserire questo vincolo nel Formato Standard per un calcolatore (con i termini noti a destra), portiamo la $y$ a sinistra tramite una banale operazione elementare:
+	\[
+	77x_{1,1} + 66x_{1,2} + \dots + 4x_{1,9} - 112y_1 \leq 0
+	\]
+	
+	\textbf{Il Modello Completo (Matematichese)}\\
+	Aggiungendo i vincoli di natura binaria, il modello compatto e rigoroso (che genererà ben 90 variabili in totale: $9 \times 9 = 81$ variabili $x$ più 9 variabili $y$) si scrive così:
+	\[
+	\begin{cases}
+		\min \quad \sum_{i=1}^9 y_i \\[6pt]
+		\sum_{i=1}^9 x_{ij} = 1 \quad \forall j = 1, \dots, 9 \\[6pt]
+		\sum_{j=1}^9 p_j x_{ij} \leq C \cdot y_i \quad \forall i = 1, \dots, 9 \\[6pt]
+		y_i \in \{0, 1\} \quad \forall i \\
+		x_{ij} \in \{0, 1\} \quad \forall i, j
+	\end{cases}
+	\]
+	
+	\vspace{0.6cm}
+	\separatore
+	\vspace{0.4cm}
+	
+	\textbf{Gli Algoritmi Euristici per il Bin Packing (Valutazioni Superiori)}\\
+	Risolvere il modello esatto appena scritto richiede tempi computazionali enormi. Per trovare rapidamente delle Valutazioni Superiori ($v_S$) ammissibili, si utilizzano tre algoritmi euristici. L'efficienza dell'algoritmo cambia drasticamente l'economia aziendale: se compriamo 9 container a $10.000$ euro l'uno per una pessima organizzazione, l'indomani dichiariamo bancarotta. 
+	
+	\textit{Nota preliminare fondamentale:} Tutti gli algoritmi per il Bin Packing richiedono che gli oggetti siano \textbf{ordinati in senso decrescente di peso} prima di iniziare. I nostri dati di partenza (77, 66, 55, 37, 37, 37, 13, 8, 4) sono già stati ordinati dal professore.
+	
+	\vspace{0.3cm}
+	\textbf{1. Next Fit Decreasing (NFD)}\\
+	È il metodo più semplice e meno efficiente. Mantiene aperto (corrente) \textbf{un solo contenitore alla volta}.
+	\begin{itemize}[label=$\circ$, itemsep=1pt]
+		\item Apro il Container 1 e ci metto il primo oggetto.
+		\item Prendo il secondo oggetto. Entra nel Container 1? 
+		\begin{itemize}[label=-]
+			\item \textit{SI:} Lo inserisco e il Container 1 rimane quello "corrente".
+			\item \textit{NO:} \textbf{Chiudo e sigillo per sempre il Container 1}. Apro il Container 2, che diventa il nuovo "corrente". Non guarderò mai più lo spazio vuoto avanzato nel Container 1.
+		\end{itemize}
+	\end{itemize}
+	\textit{Pro e Contro:} Richiede una memoria computazionale minuscola (il PC deve ricordare lo spazio libero di un solo scatolone). Tuttavia, spreca un'enormità di spazio lasciando buchi vuoti inutilizzati.
+	
+	\vspace{0.3cm}
+	\textbf{2. First Fit Decreasing (FFD)}\\
+	Fa un passo avanti in termini di logica. 
+	\begin{itemize}[label=$\circ$, itemsep=1pt]
+		\item Prendo un oggetto. Scorro \textbf{tutti i contenitori già aperti}, partendo in ordine rigoroso dal primissimo che ho aperto.
+		\item Inserisco l'oggetto \textbf{nel primo contenitore in cui entra}.
+		\item Se non entra in nessuno dei contenitori aperti, ne apro uno nuovo.
+	\end{itemize}
+	\textit{Pro e Contro:} Recupera spazio riempiendo i buchi lasciati dai primi container, ma è "pigro": si accontenta del primo spazio utile che trova senza ottimizzarlo.
+	
+	\vspace{0.3cm}
+	\textbf{3. Best Fit Decreasing (BFD) - L'Algoritmo Sovrano}\\
+	È in assoluto il metodo più intelligente ed efficiente, perché analizza e ottimizza lo spazio. L'esempio del server di un videogioco rende l'idea alla perfezione: se devo smistare un giocatore, lo inserisco nel server che è già più vicino alla saturazione per riempirlo completamente, senza "sporcare" (rubare spazio) nei server che sono ancora belli vuoti e capienti.
+	
+	\begin{itemize}[label=$\circ$, itemsep=1pt]
+		\item Prendo un oggetto. Calcolo lo spazio residuo in \textbf{tutti} i contenitori già aperti.
+		\item Inserisco l'oggetto nel contenitore che ha lo \textbf{spazio residuo minore possibile} in grado di ospitarlo (cioè quello in cui ci sta "più a filo").
+		\item Se non entra in nessuno, ne apro uno nuovo.
+	\end{itemize}
+	L'obiettivo vitale di questo algoritmo è quello di saturare completamente i container già aperti per evitare di comprarne altri.
+	
+	\vspace{0.4cm}
+	\textbf{Applicazione del Best Fit Decreasing (BFD) ai nostri dati}\\
+	Mettiamo in pratica il BFD con i nostri 9 oggetti (C = 112).
+	
+	\begin{enumerate}
+		\item \textbf{Ogg. 1 (77):} Apro Container 1. Inserisco. \textit{(Spazio C1 = 112 - 77 = 35)}.
+		\item \textbf{Ogg. 2 (66):} Non entra in C1 (66 > 35). Apro Container 2. \textit{(Spazio C2 = 112 - 66 = 46)}.
+		\item \textbf{Ogg. 3 (55):} Non entra né in C1 né in C2. Apro Container 3. \textit{(Spazio C3 = 112 - 55 = 57)}.
+		\item \textbf{Ogg. 4 (37):} Analizzo gli spazi (C1: 35, C2: 46, C3: 57). L'oggetto pesa 37. L'unico in cui NON entra è C1. Tra C2 e C3, lo spazio più "stretto" utile è quello di C2 (46). Inserisco in C2! \textit{(Spazio C2 = 46 - 37 = 9)}.
+		\item \textbf{Ogg. 5 (37):} Spazi attuali (C1: 35, C2: 9, C3: 57). Entra solo in C3. Inserisco in C3. \textit{(Spazio C3 = 57 - 37 = 20)}.
+		\item \textbf{Ogg. 6 (37):} Spazi attuali (C1: 35, C2: 9, C3: 20). Non entra in nessuno! Apro Container 4. \textit{(Spazio C4 = 112 - 37 = 75)}.
+		\item \textbf{Ogg. 7 (13):} Spazi attuali (C1: 35, C2: 9, C3: 20, C4: 75). Entra in C1, C3, C4. Il più stretto utile è C3 (20). Inserisco in C3! \textit{(Spazio C3 = 20 - 13 = 7)}.
+		\item \textbf{Ogg. 8 (8):} Spazi (C1: 35, C2: 9, C3: 7, C4: 75). Entra in C1, C2, C4. Il più stretto utile è C2 (9). Inserisco in C2! \textit{(Spazio C2 = 9 - 8 = 1)}.
+		\item \textbf{Ogg. 9 (4):} Spazi (C1: 35, C2: 1, C3: 7, C4: 75). Entra in C1, C3, C4. Il più stretto utile è C3 (7). Inserisco in C3! \textit{(Spazio C3 = 7 - 4 = 3)}.
+	\end{enumerate}
+	
+	Graficamente, la disposizione logistica dei container si presenta così:
+	\begin{figure}[H]
+		\centering
+		\resizebox{\textwidth}{!}{
+			\begin{tikzpicture}[
+				box/.style={draw, thick, fill=blue!10, text centered, minimum width=2.5cm, minimum height=0.7cm},
+				container/.style={draw, thick, rounded corners, inner sep=10pt}
+				]
+				
+				% Container 1
+				\node[align=center] (c1_title) at (0,3.9) {\textbf{Container 1} \\ (Spazio: 35)};
+				\draw[thick] (-1.8, 2.0) rectangle (1.8, 3.0);
+				\node[box] (c1_1) at (0,2.5) {Ogg. 1 (77)};
+				
+				% Container 2
+				\node[align=center] (c2_title) at (4.5,3.9) {\textbf{Container 2} \\ (Spazio: 1)};
+				\draw[thick] (2.7, 0.6) rectangle (6.3, 3.0);
+				\node[box] (c2_1) at (4.5,2.5) {Ogg. 2 (66)};
+				\node[box, fill=green!15] (c2_2) at (4.5,1.8) {Ogg. 4 (37)};
+				\node[box, fill=orange!15] (c2_3) at (4.5,1.1) {Ogg. 8 (8)};
+				
+				% Container 3
+				\node[align=center] (c3_title) at (9,3.9) {\textbf{Container 3} \\ (Spazio: 3)};
+				\draw[thick] (7.2, -0.1) rectangle (10.8, 3.0);
+				\node[box] (c3_1) at (9,2.5) {Ogg. 3 (55)};
+				\node[box, fill=green!15] (c3_2) at (9,1.8) {Ogg. 5 (37)};
+				\node[box, fill=purple!15] (c3_3) at (9,1.1) {Ogg. 7 (13)};
+				\node[box, fill=cyan!15] (c3_4) at (9,0.4) {Ogg. 9 (4)};
+				
+				% Container 4
+				\node[align=center] (c4_title) at (13.5,3.9) {\textbf{Container 4} \\ (Spazio: 75)};
+				\draw[thick] (11.7, 2.0) rectangle (15.3, 3.0);
+				\node[box, fill=red!15] (c4_1) at (13.5,2.5) {Ogg. 6 (37)};
+				
+			\end{tikzpicture}
+		}
+		\caption{Riempimento ottenuto tramite Best Fit Decreasing. I container 2 e 3 sono stati ottimizzati magistralmente (avanzano solo 1 e 3 unità di spazio libero). Abbiamo utilizzato 4 container in totale.}
+	\end{figure}
+	
+	Il vettore di soluzione $\bar{x}$, che raggruppa le 9 variabili binarie per ogni singolo container ($C1, C2, C3, C4$) indicando con $1$ l'oggetto presente, risulterà strutturato così (mostro l'inizio per brevità):
+	\[
+	\bar{x} = \underbrace{(1,0,0,0,0,0,0,0,0)}_{\text{Container 1}}, \underbrace{(0,1,0,1,0,0,0,1,0)}_{\text{Container 2}}, \dots
+	\]
+	La nostra \textbf{Valutazione Superiore (ammissibile)} trovata è $\mathbf{v_S = 4}$. Abbiamo speso 4 contenitori.
+	
+	\vspace{0.4cm}
+	\textbf{Calcolo della Valutazione Inferiore ($v_I$)}\\
+	Come calcoliamo la $v_I$ (il limite fisico invalicabile)? Come anticipato, è il nostro Rilassato Continuo in cui ignoriamo l'interezza (possiamo versare gli oggetti come se fossero liquido).
+	La formula è banalissima: si calcola il peso totale della merce e lo si divide per la capienza di un singolo container.
+	
+	Peso totale $= 77 + 66 + 55 + 37 + 37 + 37 + 13 + 8 + 4 = 334$
+	\[
+	v_{I_{cont}} = \frac{334}{112} \approx 2.98
+	\]
+	Poiché ci troviamo in un problema di Minimo e sappiamo che non possiamo acquistare $2.98$ container, il limite assoluto di spesa va arrotondato \textbf{per eccesso} (non potremo mai spendere meno di 3 container, perché in 2 container non entrerebbero fisicamente).
+	\[
+	v_I = \lceil 2.98 \rceil = \mathbf{3}
+	\]
+	Il nostro GAP attuale risiede tra $\mathbf{v_I = 3}$ e $\mathbf{v_S = 4}$. 
+	
+	\vspace{0.6cm}
+	\separatore
+	\vspace{0.4cm}
+	
+	\textbf{Esercizio Finale: Confronto dei tre algoritmi}\\
+	Il professore fornisce un nuovo set di dati per testare l'efficienza dei tre algoritmi visti finora.
+	\begin{itemize}
+		\item Pesi Oggetti: $31, 27, 25, 22, 14, 5, 3, 2$ (già ordinati decrescenti)
+		\item Capienza Container: $C = 49$
+	\end{itemize}
+	
+	\textbf{1. Calcolo Valutazione Inferiore (Rilassato Continuo):}\\
+	Somma dei pesi $= 31 + 27 + 25 + 22 + 14 + 5 + 3 + 2 = 129$
+	\[ v_I = \left\lceil \frac{129}{49} \right\rceil = \lceil 2.63 \rceil = \mathbf{3} \]
+	Il limite matematico invalicabile ci dice che servono almeno 3 contenitori.
+	
+	\vspace{0.2cm}
+	\textbf{2. Applicazione Next Fit Decreasing (NFD):}\\
+	\textit{Regola: Chiudo il contenitore appena un oggetto non entra. Mai tornare indietro.}
+	\begin{itemize}[label=$\circ$, itemsep=1pt, leftmargin=1.5cm]
+		\item \textbf{C1:} Metto 31. Spazio: 18. Il 27 non entra. CHIUDO C1.
+		\item \textbf{C2:} Metto 27. Spazio: 22. Il 25 non entra. CHIUDO C2.
+		\item \textbf{C3:} Metto 25. Spazio: 24. Metto 22. Spazio: 2. Il 14 non entra. CHIUDO C3.
+		\item \textbf{C4:} Metto 14. Spazio: 35. Metto 5. Spazio 30. Metto 3. Spazio 27. Metto 2. Spazio 25. FINE.
+	\end{itemize}
+	\textbf{Risultato NFD:} Utilizzati $\mathbf{4}$ contenitori. (Uno spreco totale in C1 e C2).
+	
+	\begin{figure}[H]
+		\centering
+		\resizebox{\textwidth}{!}{
+			\begin{tikzpicture}[
+				box/.style={draw, thick, text centered, minimum width=2.5cm, minimum height=0.7cm}
+				]
+				
+				% Container 1
+				\node[align=center] (c1_title) at (0,3.9) {\textbf{Container 1} \\ (Spazio: 18)};
+				\draw[thick] (-1.8, 2.0) rectangle (1.8, 3.0);
+				\node[box, fill=blue!10] (c1_1) at (0,2.5) {Ogg. 1 (31)};
+				
+				% Container 2
+				\node[align=center] (c2_title) at (4.5,3.9) {\textbf{Container 2} \\ (Spazio: 22)};
+				\draw[thick] (2.7, 2.0) rectangle (6.3, 3.0);
+				\node[box, fill=green!15] (c2_1) at (4.5,2.5) {Ogg. 2 (27)};
+				
+				% Container 3
+				\node[align=center] (c3_title) at (9,3.9) {\textbf{Container 3} \\ (Spazio: 2)};
+				\draw[thick] (7.2, 1.3) rectangle (10.8, 3.0);
+				\node[box, fill=orange!15] (c3_1) at (9,2.5) {Ogg. 3 (25)};
+				\node[box, fill=purple!15] (c3_2) at (9,1.8) {Ogg. 4 (22)};
+				
+				% Container 4
+				\node[align=center] (c4_title) at (13.5,3.9) {\textbf{Container 4} \\ (Spazio: 25)};
+				\draw[thick] (11.7, -0.1) rectangle (15.3, 3.0);
+				\node[box, fill=cyan!15] (c4_1) at (13.5,2.5) {Ogg. 5 (14)};
+				\node[box, fill=red!15] (c4_2) at (13.5,1.8) {Ogg. 6 (5)};
+				\node[box, fill=yellow!20] (c4_3) at (13.5,1.1) {Ogg. 7 (3)};
+				\node[box, fill=magenta!15] (c4_4) at (13.5,0.4) {Ogg. 8 (2)};
+				
+			\end{tikzpicture}
+		}
+		\caption{Rappresentazione grafica dell'algoritmo NFD. Si notano i grandi spazi sprecati nei primi due container, chiusi prematuramente.}
+	\end{figure}
+	
+	\vspace{0.2cm}
+	\textbf{3. Applicazione First Fit Decreasing (FFD):}\\
+	\textit{Regola: Provo a inserire l'oggetto nel primo container aperto che trovo partendo da C1.}
+	\begin{itemize}[label=$\circ$, itemsep=1pt, leftmargin=1.5cm]
+		\item \textbf{C1:} Metto 31. Spazio: 18. 
+		\item \textbf{C2:} (Il 27 non entra in C1). Metto 27. Spazio: 22.
+		\item \textbf{C3:} (Il 25 non entra né in C1 né in C2). Metto 25. Spazio: 24.
+		\item (Il 22 non entra in C1. Entra in C2). Metto 22 in \textbf{C2}. Spazio C2: 0.
+		\item (Il 14 entra in C1). Metto 14 in \textbf{C1}. Spazio C1: 4.
+		\item (Il 5 non entra in C1 né in C2. Entra in C3). Metto 5 in \textbf{C3}. Spazio C3: 19.
+		\item (Il 3 entra in C1). Metto 3 in \textbf{C1}. Spazio C1: 1.
+		\item (Il 2 non entra in C1 né in C2. Entra in C3). Metto 2 in \textbf{C3}. Spazio C3: 17.
+	\end{itemize}
+	\textbf{Risultato FFD:} L'algoritmo ha recuperato i buchi passati! Sono bastati $\mathbf{3}$ contenitori.
+	
+	\begin{figure}[H]
+		\centering
+		\resizebox{0.8\textwidth}{!}{
+			\begin{tikzpicture}[
+				box/.style={draw, thick, text centered, minimum width=2.5cm, minimum height=0.7cm}
+				]
+				
+				% Container 1
+				\node[align=center] (c1_title) at (0,3.9) {\textbf{Container 1} \\ (Spazio: 1)};
+				\draw[thick] (-1.8, 0.6) rectangle (1.8, 3.0);
+				\node[box, fill=blue!10] (c1_1) at (0,2.5) {Ogg. 1 (31)};
+				\node[box, fill=cyan!15] (c1_2) at (0,1.8) {Ogg. 5 (14)};
+				\node[box, fill=yellow!20] (c1_3) at (0,1.1) {Ogg. 7 (3)};
+				
+				% Container 2
+				\node[align=center] (c2_title) at (4.5,3.9) {\textbf{Container 2} \\ (Spazio: 0)};
+				\draw[thick] (2.7, 1.3) rectangle (6.3, 3.0);
+				\node[box, fill=green!15] (c2_1) at (4.5,2.5) {Ogg. 2 (27)};
+				\node[box, fill=purple!15] (c2_2) at (4.5,1.8) {Ogg. 4 (22)};
+				
+				% Container 3
+				\node[align=center] (c3_title) at (9,3.9) {\textbf{Container 3} \\ (Spazio: 17)};
+				\draw[thick] (7.2, 0.6) rectangle (10.8, 3.0);
+				\node[box, fill=orange!15] (c3_1) at (9,2.5) {Ogg. 3 (25)};
+				\node[box, fill=red!15] (c3_2) at (9,1.8) {Ogg. 6 (5)};
+				\node[box, fill=magenta!15] (c3_3) at (9,1.1) {Ogg. 8 (2)};
+				
+			\end{tikzpicture}
+		}
+		\caption{Rappresentazione grafica dell'algoritmo FFD. I buchi lasciati inizialmente nei primi container sono stati riutilizzati, permettendo di risparmiare un intero container rispetto all'NFD.}
+	\end{figure}
+	
+	\vspace{0.2cm}
+	\textbf{4. Applicazione Best Fit Decreasing (BFD):}\\
+	\textit{Regola: Inserisco l'oggetto nel contenitore con lo spazio residuo minore utile (saturazione).}
+	\begin{itemize}[label=$\circ$, itemsep=1pt, leftmargin=1.5cm]
+		\item Fino al peso 25 (Ogg 3), gli step sono identici (Apro C1, C2, C3). Spazi liberi: C1(18), C2(22), C3(24).
+		\item \textbf{Ogg 4 (22):} Entra in C2 e C3. Lo spazio minore utile è C2 (22). Inserisco in \textbf{C2}. Spazio C2: 0. (Saturazione Perfetta!).
+		\item \textbf{Ogg 5 (14):} Spazi (C1:18, C2:0, C3:24). Entra in C1 e C3. Spazio minore utile è C1 (18). Inserisco in \textbf{C1}. Spazio C1: 4.
+		\item \textbf{Ogg 6 (5):} Spazi (C1:4, C2:0, C3:24). Entra in C3. Inserisco in \textbf{C3}. Spazio C3: 19.
+		\item \textbf{Ogg 7 (3):} Spazi (C1:4, C2:0, C3:19). Spazio minore utile è C1 (4). Inserisco in \textbf{C1}. Spazio C1: 1.
+		\item \textbf{Ogg 8 (2):} Spazi (C1:1, C2:0, C3:19). Entra solo in C3. Inserisco in \textbf{C3}. Spazio C3: 17.
+	\end{itemize}
+	\textbf{Risultato BFD:} Anche il Best Fit ha utilizzato $\mathbf{3}$ contenitori.
+	
+	\begin{figure}[H]
+		\centering
+		\resizebox{0.8\textwidth}{!}{
+			\begin{tikzpicture}[
+				box/.style={draw, thick, text centered, minimum width=2.5cm, minimum height=0.7cm}
+				]
+				
+				% Container 1
+				\node[align=center] (c1_title) at (0,3.9) {\textbf{Container 1} \\ (Spazio: 1)};
+				\draw[thick] (-1.8, 0.6) rectangle (1.8, 3.0);
+				\node[box, fill=blue!10] (c1_1) at (0,2.5) {Ogg. 1 (31)};
+				\node[box, fill=cyan!15] (c1_2) at (0,1.8) {Ogg. 5 (14)};
+				\node[box, fill=yellow!20] (c1_3) at (0,1.1) {Ogg. 7 (3)};
+				
+				% Container 2
+				\node[align=center] (c2_title) at (4.5,3.9) {\textbf{Container 2} \\ (Spazio: 0)};
+				\draw[thick] (2.7, 1.3) rectangle (6.3, 3.0);
+				\node[box, fill=green!15] (c2_1) at (4.5,2.5) {Ogg. 2 (27)};
+				\node[box, fill=purple!15] (c2_2) at (4.5,1.8) {Ogg. 4 (22)};
+				
+				% Container 3
+				\node[align=center] (c3_title) at (9,3.9) {\textbf{Container 3} \\ (Spazio: 17)};
+				\draw[thick] (7.2, 0.6) rectangle (10.8, 3.0);
+				\node[box, fill=orange!15] (c3_1) at (9,2.5) {Ogg. 3 (25)};
+				\node[box, fill=red!15] (c3_2) at (9,1.8) {Ogg. 6 (5)};
+				\node[box, fill=magenta!15] (c3_3) at (9,1.1) {Ogg. 8 (2)};
+				
+			\end{tikzpicture}
+		}
+		\caption{Rappresentazione grafica dell'algoritmo BFD. In questo specifico set numerico, la disposizione finale coincide con quella dell'FFD, confermando l'ottimizzazione in 3 contenitori.}
+	\end{figure}
+	
+	\vspace{0.4cm}
+	\textbf{Conclusione Straordinaria: Ottimo Trovato!}\\
+	Gli algoritmi FFD e BFD ci hanno fornito una Valutazione Superiore (soluzione ammissibile) pari a $\mathbf{v_S = 3}$.
+	Il calcolo fisico del Rilassato Continuo ci aveva fornito una Valutazione Inferiore $\mathbf{v_I = 3}$.
+	Poiché $v_I = v_S$, il GAP è nullo. La soluzione con 3 contenitori trovata non è solo ammissibile, ma è matematicamente l'ottimo assoluto del problema. Non esiste modo nell'universo per spedire quel carico acquistando solo 2 container.
+	
+	\vspace{0.6cm}
+	\textbf{Il Problema del Bin Packing su MATLAB}\\
+	Avendo definito la natura e i vincoli del problema del Bin Packing, è fondamentale capire come impostare correttamente i vettori e le matrici per poterlo risolvere computazionalmente tramite il solutore \texttt{intlinprog} di MATLAB. 
+	
+	La complessità del Bin Packing per la macchina deriva proprio dalla presenza di due tipologie di variabili distinte che lavorano in sinergia ($x_{ij}$ per l'assegnamento degli oggetti e $y_i$ per l'attivazione dei contenitori).
+	
+	Prendendo come riferimento un problema generico con $n$ oggetti e un massimo di $y$ contenitori disponibili (ricordando che, nel caso peggiore in cui ogni oggetto richiede un container tutto suo, avremo $y = n$), ecco come si strutturano matematicamente i dati di input:
+	
+	\begin{itemize}[label=\textcolor{titlecolor}{\Large\textbullet}, itemsep=6pt, leftmargin=1.5cm]
+		\item \textbf{Quante variabili decisionali abbiamo in totale?}\\
+		Il sistema deve allocare una variabile binaria per ogni possibile combinazione "oggetto-contenitore", più una variabile binaria per l'attivazione di ogni contenitore. Il totale delle colonne del nostro sistema sarà quindi:
+		\[ \textbf{Numero Variabili} = (n \times y) + y \]
+		Nel nostro esercizio con 9 oggetti e (massimo) 9 contenitori, avremo $(9 \times 9) + 9 = 90$ variabili totali.
+		
+		\item \textbf{Come si compone il vettore dei costi (c)?}\\
+		Il vettore della Funzione Obiettivo ($c$) è lungo esattamente quanto il numero totale delle variabili ($(n \times y) + y$).
+		Tuttavia, il Bin Packing non considera un costo per l'inserimento dell'oggetto all'interno del contenitore, ma valuta unicamente il "costo" di attivazione del contenitore stesso (vogliamo minimizzare i container aperti). Pertanto:
+		\begin{itemize}[label=$\circ$, itemsep=1pt]
+			\item Le prime $n \times y$ posizioni (relative alle variabili $x_{ij}$) conterranno tutti \textbf{zeri}.
+			\item Le ultime $y$ posizioni (relative alle variabili $y_i$) conterranno tutti \textbf{uni}.
+		\end{itemize}
+		In questo modo, il solutore sommerà (e quindi minimizzerà) solo le variabili $y_i$ effettivamente accese.
+		
+		\item \textbf{Come si compone il vettore dei termini noti delle disuguaglianze (b)?}\\
+		Il vettore $b$ sarà composto \textbf{unicamente da zeri}. 
+		Perché? Nel modello matematico, i vincoli di capienza erano strutturati legando il peso degli oggetti all'attivazione del container: $\sum p_j x_{ij} \leq C \cdot y_i$. 
+		Per portare il vincolo nel Formato Primale Standard richiesto da MATLAB (con i termini noti a destra), abbiamo spostato la variabile $y_i$ a sinistra, cambiando segno:
+		\[ \sum p_j x_{ij} - C \cdot y_i \leq 0 \]
+		Il termine noto a destra è rimasto vuoto, da cui deriva la colonna di soli zeri per il vettore $b$.
+		
+		\item \textbf{Come si compone la matrice delle uguaglianze ($A_{eq}$)?}\\
+		Questa matrice serve per gestire il \textbf{Vincolo di Assegnazione Univoca}: ogni oggetto deve essere assegnato a uno e un solo contenitore ($\sum_{i=1}^y x_{ij} = 1$).
+		Per evitare disastri nella costruzione della matrice, le variabili vanno inserite nel vettore in rigoroso \textbf{ordine lessicografico} (es. raggruppando prima tutte le $x_{1,j}$ del primo contenitore, poi le $x_{2,j}$ del secondo, fino all'ultimo $x_{n,y}$, e accodando alla fine le $y_i$).
+		
+		Per ogni riga di \texttt{$A_{eq}$} (che corrisponde a un singolo oggetto $j$ da piazzare):
+		\begin{itemize}[label=$\circ$, itemsep=1pt]
+			\item Si inserisce un \textbf{1} in corrispondenza delle colonne delle variabili $x_{ij}$ relative a quello specifico oggetto $j$, indipendentemente dal contenitore $i$.
+			\item Si inserisce \textbf{0} in tutti gli altri spazi rimanenti (inclusi gli spazi finali delle variabili $y_i$, che in questo vincolo non c'entrano nulla).
+		\end{itemize}
+		\textit{Nota dimensionale:} Ogni riga di \texttt{Aeq} avrà una lunghezza totale pari al numero delle variabili, ovvero $(n \times y) + y$.
+		
+		\item \textbf{Come si compone la matrice delle disuguaglianze (A)?}\\
+		La matrice $A$ è deputata a far rispettare il \textbf{Vincolo di Capienza Massima} per ogni singolo contenitore. 
+		Ogni riga di $A$ rappresenta un contenitore $i$. All'interno di questa riga:
+		\begin{itemize}[label=$\circ$, itemsep=1pt]
+			\item Si inseriscono i coefficienti relativi ai \textbf{pesi} degli oggetti ($w_j$ o $p_j$) nelle colonne corrispondenti alle variabili $x_{ij}$ di quel preciso contenitore $i$.
+			\item Si inseriscono \textbf{zeri} in corrispondenza di tutti gli altri contenitori (poiché il vincolo riguarda solo il contenitore $i$).
+			\item Infine, nella colonna esatta associata alla variabile di attivazione $y_i$ di quel contenitore (nella coda del vettore), si inserisce il valore \textbf{$-C$} (ovvero meno la capacità massima del contenitore). Questo materializza il vincolo $\dots - C \cdot y_i \leq 0$ discusso per il vettore $b$.
+		\end{itemize}
+	\end{itemize}
+	
+	\vspace{1.5cm}
+	\begin{center}
+		\rule{0.65\textwidth}{1pt} \\
+		\vspace{0.4cm}
+		\textcolor{titlecolor}{\LARGE \textbf{--- Fine Lezione 21 ---}} \\
+		\vspace{0.2cm}
+		\rule{0.65\textwidth}{1pt}
+	\end{center}
+	\newpage
+	
+	\avviso{\textit{\textbf{Questa lezione, come le sue precedenti e successive, può contenere errori e/o imprecisioni. Per il bene di tutti, è buona norma far notare all'autore l'errore o l'imprecisione così da risolvere nel minor tempo possibile. I canali di comunicazione, per eventuali avvisi generali o di errori trovati negli appunti, sono in cima al file. Grazie per la collaborazione e Buono studio!}}}
+	
+	\section*{Lezione 22 | 28 ottobre 2026}
+	\subsection*{}
 	
 \end{document}
