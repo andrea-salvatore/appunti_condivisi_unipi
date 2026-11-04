@@ -9285,6 +9285,1176 @@
 	\avviso{\textit{\textbf{Questa lezione, come le sue precedenti e successive, può contenere errori e/o imprecisioni. Per il bene di tutti, è buona norma far notare all'autore l'errore o l'imprecisione così da risolvere nel minor tempo possibile. I canali di comunicazione, per eventuali avvisi generali o di errori trovati negli appunti, sono in cima al file. Grazie per la collaborazione e Buono studio!}}}
 	
 	\section*{Lezione 24 | 2 novembre 2026}
+	\subsection*{Simplesso su Reti (per Flussi)}
+	
+	\vspace{0.2cm}
+	Riprendiamo l'analisi del nostro albero di copertura $T$. Ipotizziamo che esso generi un flusso di base ammissibile. Come abbiamo già imparato, il vettore dei flussi $\bar{x}$ può essere scomposto nelle variabili di base (gli archi dell'albero, indicati con $T$) e nelle variabili non di base (gli archi scartati, indicati con $L$):
+	\[
+	\bar{x} = \begin{pmatrix} \bar{x}_T \\ \bar{x}_L \end{pmatrix} = \begin{pmatrix} \bar{x}_T \\ 0 \end{pmatrix}
+	\]
+	Affinché questo flusso sia fisicamente e matematicamente ammissibile, deve rispettare la regola logistica fondamentale: $\bar{x}_T \geq 0$.
+	
+	Cosa succede, invece, se i potenziali dei nodi $\bar{\pi}$ (generati da questa soluzione $\bar{x}$) \textbf{non sono ammissibili}?
+	Significa che il Test di Ottimalità (le Condizioni di Bellman) è fallito. In termini matematici, esiste almeno un arco $(i,j)$ appartenente all'insieme non di base $L$ che vìola la disequazione:
+	\[
+	-\pi_i + \pi_j > c_{ij} \quad \text{(Condizione violata per qualche } (i,j) \in L)
+	\]
+	
+	\vspace{0.4cm}
+	\textbf{Il Costo Ridotto (Nota fondamentale sulla Notazione)}\\
+	Per comodità di calcolo e di esposizione, portiamo tutti i termini della disuguaglianza dallo stesso lato, definendo una nuova grandezza chiamata \textbf{Costo Ridotto}. La sua formula è:
+	\[
+	\text{Costo Ridotto} = c_{ij} + \pi_i - \pi_j
+	\]
+	\begin{quote}
+		\textbf{ATTENZIONE ALLA NOTAZIONE!!!}\\
+		In tutta la Ricerca Operativa siamo stati abituati a indicare i valori relativi alla base corrente mettendo una linea orizzontale sopra la lettera (come $\bar{x}$ o $\bar{\pi}$). 
+		Per quanto riguarda il costo ridotto, \textbf{il professore esige una notazione diversa}: non vuole vedere la linea sopra la C (niente $\bar{c}_{ij}$), bensì impone di scrivere la lettera \textbf{$\pi$ come apice}. \\
+		D'ora in avanti, il costo ridotto si scriverà rigorosamente così: $\mathbf{c_{ij}^\pi}$. È una pura scelta stilistica e di trascrizione del docente, ma il significato matematico resta esattamente lo stesso!
+	\end{quote}
+	
+	Utilizzando questa nuova e corretta notazione, riscriviamo le condizioni di Bellman. 
+	La nostra soluzione di base è \textbf{ottima} se e solo se il potenziale è ammissibile, ovvero se il costo ridotto di tutti gli archi non di base è non negativo:
+	\[
+	c_{ij}^\pi \geq 0 \quad \forall (i,j) \in L
+	\]
+	Se invece il costo ridotto di un arco fuori base risulta \textbf{strettamente minore di zero} ($c_{ij}^\pi < 0$), l'ammissibilità duale è violata e non siamo all'ottimo.
+	
+	A riprova di ciò, il professore ci mostra il modello duale espresso nella sua forma generale:
+	\[
+	\max b^T \pi \quad \text{soggetto a} \quad -\pi_i + \pi_j \leq c_{ij}
+	\]
+	Che, grazie alla nostra nuova definizione, diventa banalmente:
+	\[
+	\max b^T \pi \quad \text{soggetto a} \quad \mathbf{c_{ij}^\pi \geq 0}
+	\]
+	Se anche un solo vincolo di questo sistema viene violato ($c_{ij}^\pi < 0$), il potenziale è inammissibile.
+	
+	\vspace{0.6cm}
+	\separatore
+	\vspace{0.4cm}
+	
+	\textbf{L'Algoritmo del Simplesso su Reti}\\
+	Se la condizione di ottimalità è violata, entra in gioco il \textbf{Simplesso per Flussi} (o Simplesso su Reti). Questo algoritmo ricalca la logica del Simplesso Duale: come ogni iterazione del simplesso, il processo si divide in due scelte: chi entra in base e chi esce.
+	\begin{enumerate}
+		\item \textbf{L'Indice Entrante ($k$):}\\
+		Nel simplesso su reti si trova \textbf{sempre per primo l'arco entrante}. Chi sarà? Banalmente, calcoliamo i costi ridotti $c_{ij}^\pi$ di tutti gli archi scartati ($L$). Quello che presenta un costo ridotto \textbf{negativo} (violando Bellman) sarà il nostro arco entrante.
+		
+		\item \textbf{La Creazione del Ciclo:}\\
+		Cosa succede geometricamente se prendiamo un albero (che per definizione non ha percorsi chiusi) e gli aggiungiamo a forza un nuovo arco? La regola della teoria dei grafi è implacabile: \textbf{si crea esattamente un ciclo}. Poiché stiamo inserendo l'ennesimo arco in un sistema di $N$ nodi che ne aveva già $N-1$, il ciclo è inevitabile.
+	\end{enumerate}
+	
+	Per visualizzare questo fenomeno, il professore disegna un grafo a 8 nodi. Le frecce nere rappresentano il nostro albero di copertura (la base attuale, priva di cicli). La freccia viola rappresenta l'arco entrante (quello che ha $c_{ij}^\pi < 0$). Inserendolo, il grafo "si chiude".
+	
+	\begin{figure}[H]
+		\centering
+		\begin{tikzpicture}[scale=1.5, >=stealth, node distance=2cm,
+			node_style/.style={circle, draw=titlecolor, thick, fill=titlecolor!10, minimum size=8mm, font=\bfseries},
+			tree_style/.style={->, thick, color=black},
+			entering_style/.style={->, ultra thick, color=violet}
+			]
+			
+			% Posizionamento Nodi (Layout gerarchico a griglia/albero per evitare sovrapposizioni)
+			\node[node_style] (1) at (0, 2) {1};
+			\node[node_style] (2) at (2, 2) {2};
+			\node[node_style] (3) at (4, 2) {3};
+			\node[node_style] (4) at (4, 0) {4};
+			\node[node_style] (5) at (0, 0) {5};
+			
+			% Rami periferici dell'albero (estranei al ciclo)
+			\node[node_style] (6) at (0, -1.5) {6};
+			\node[node_style] (7) at (-1.5, -2.5) {7};
+			\node[node_style] (8) at (1.5, -2.5) {8};
+			
+			% Albero di Copertura (Base E_T) - Nero
+			\draw[tree_style] (1) -- (2);
+			\draw[tree_style] (2) -- (3);
+			\draw[tree_style] (4) -- (3); % Attenzione al verso!
+			\draw[tree_style] (4) -- (5); % Attenzione al verso!
+			\draw[tree_style] (5) -- (6);
+			\draw[tree_style] (6) -- (7);
+			\draw[tree_style] (6) -- (8);
+			
+			% Arco Entrante - Viola
+			\draw[entering_style] (5) -- (1) node[midway, left, font=\bfseries] {Arco Entrante};
+			
+		\end{tikzpicture}
+		\caption{Inserendo l'arco entrante (viola) all'interno dell'albero di base (nero), si crea inevitabilmente un ciclo chiuso tra i nodi 1, 2, 3, 4 e 5.}
+	\end{figure}
+	
+	\vspace{0.4cm}
+	\textbf{Il Ciclo e i Gruppi $C^+$ e $C^-$}\\
+	Se abbiamo fatto entrare un arco per migliorare il costo, per ripristinare la natura di "albero" (e mantenere il rango corretto della matrice) \textbf{dobbiamo buttare fuori un altro arco}. L'arco uscente dovrà essere obbligatoriamente uno degli archi di base che fanno parte del ciclo appena formatosi.
+	
+	Per capire chi uscirà, dobbiamo far circolare un nuovo flusso (che chiameremo $\theta$) all'interno del ciclo. 
+	Il professore ci insegna a dividere gli archi del ciclo in due squadre ben distinte:
+	\begin{itemize}[label=\textcolor{titlecolor}{\Large\textbullet}, itemsep=2pt, leftmargin=1.5cm]
+		\item \textbf{Gruppo $C^+$ (Concordi):} Sono tutti gli archi del ciclo che \textbf{viaggiano nello stesso identico senso di marcia dell'arco entrante viola}.
+		\item \textbf{Gruppo $C^-$ (Discordi):} Sono tutti gli archi del ciclo che \textbf{viaggiano contromano} rispetto al senso di marcia imposto dall'arco viola.
+	\end{itemize}
+	
+	\textit{Menzione importante del professore:} A noi interessa etichettare con $C^+$ o $C^-$ \textbf{solo ed esclusivamente} gli archi che formano l'anello chiuso! Degli altri archi dell'albero non ci importa assolutamente nulla della loro direzione. Il modello matematico che stiamo per scrivere non andrà a intaccare il flusso di quegli archi periferici, per cui li ignoreremo.
+	
+	Riprendiamo il grafico precedente e applichiamo le etichette. L'arco viola va da 5 a 1. Seguiamo questo flusso in tondo:
+	
+	\begin{figure}[H]
+		\centering
+		\begin{tikzpicture}[scale=1.5, >=stealth, node distance=2cm,
+			node_style/.style={circle, draw=titlecolor, thick, fill=titlecolor!10, minimum size=8mm, font=\bfseries},
+			cplus_style/.style={->, ultra thick, color=green!60!black},
+			cminus_style/.style={->, ultra thick, color=red},
+			entering_style/.style={->, ultra thick, color=violet},
+			neutral_style/.style={->, thick, color=gray}
+			]
+			
+			% Posizionamento Nodi (Layout gerarchico a griglia/albero per evitare sovrapposizioni)
+			\node[node_style] (1) at (0, 2) {1};
+			\node[node_style] (2) at (2, 2) {2};
+			\node[node_style] (3) at (4, 2) {3};
+			\node[node_style] (4) at (4, 0) {4};
+			\node[node_style] (5) at (0, 0) {5};
+			
+			% Rami periferici dell'albero (estranei al ciclo)
+			\node[node_style] (6) at (0, -1.5) {6};
+			\node[node_style] (7) at (-1.5, -2.5) {7};
+			\node[node_style] (8) at (1.5, -2.5) {8};
+			
+			% Arco Entrante - Viola
+			\draw[entering_style] (5) -- (1) node[midway, left, font=\bfseries] {$\boldsymbol{C^+}$};
+			
+			% Archi del Ciclo Concordi (Verdi)
+			\draw[cplus_style] (1) -- (2) node[midway, above, font=\bfseries] {$\boldsymbol{C^+}$};
+			\draw[cplus_style] (2) -- (3) node[midway, above, font=\bfseries] {$\boldsymbol{C^+}$};
+			\draw[cplus_style] (4) -- (5) node[midway, below, font=\bfseries] {$\boldsymbol{C^+}$};
+			
+			% Archi "Contromano" (Rossi)
+			\draw[cminus_style] (4) -- (3) node[midway, right, font=\bfseries] {$\boldsymbol{C^-}$};
+			
+			% Rami periferici dell'albero (estranei al ciclo) - Grigi
+			\draw[neutral_style] (5) -- (6);
+			\draw[neutral_style] (6) -- (7);
+			\draw[neutral_style] (6) -- (8);
+			
+		\end{tikzpicture}
+		\caption{Classificazione del ciclo. Il flusso immesso da $(5\to1)$ attraversa $(1\to2)$, $(2\to3)$ e $(4\to5)$ nel verso corretto (Verdi, $C^+$). Per richiudersi in 5, è costretto a percorrere l'arco $(4\to3)$ "contromano" rispetto alla sua freccia originale (Rosso, $C^-$). Gli archi estranei al ciclo (grigi) vengono ignorati dall'aggiornamento del flusso.}
+	\end{figure}
+	
+	\vspace{0.4cm}
+	\textbf{L'Aggiornamento del Flusso $x(\theta)$ e l'Ammissibilità}\\
+	Ora spingiamo un quantitativo di merce (che chiamiamo $\theta \geq 0$) lungo questo anello. Il nuovo modello di flusso $x_{ij}(\theta)$ si calcola in questo modo:
+	\begin{itemize}[label=$\circ$, itemsep=2pt, leftmargin=1.5cm]
+		\item $x_{ij}(\theta) = \bar{x}_{ij} + \theta \quad$ per ogni $(i,j) \in C^+$ (La merce va nello stesso verso della freccia, quindi il flusso aumenta).
+		\item $x_{ij}(\theta) = \bar{x}_{ij} - \theta \quad$ per ogni $(i,j) \in C^-$ (La merce va contromano, quindi il flusso esistente viene "spinto indietro" e diminuisce).
+		\item $x_{ij}(\theta) = \bar{x}_{ij} \quad$ per tutti gli altri archi fuori dal ciclo (Flusso inalterato).
+	\end{itemize}
+	
+	Ma come facciamo a essere sicuri che immettendo questa merce non stiamo sbilanciando i nodi (violando l'ammissibilità della rete)? 
+	Il professore ce lo dimostra analizzando le 4 tipologie di nodi che possono esistere all'interno di un ciclo chiuso. In ognuno di questi micro-casi, l'immissione di $\theta$ si annulla perfettamente, garantendo che l'operazione non alteri il bilancio.
+	
+	\begin{figure}[H]
+		\centering
+		% Tipo 1
+		\begin{minipage}{0.22\textwidth}
+			\centering
+			\textbf{Tipo 1}\\
+			(Transito Diretto)
+			\vspace{0.3cm}
+			\begin{tikzpicture}[>=stealth, scale=1.2]
+				\node[circle, draw, thick] (A) at (0,0) {};
+				\draw[->, thick, green!60!black] (-1,0) -- (A) node[midway, above] {$+\theta$};
+				\draw[->, thick, green!60!black] (A) -- (1,0) node[midway, above] {$+\theta$};
+			\end{tikzpicture}
+			\vspace{0.1cm}
+			\textit{\footnotesize Un arco $C^+$ entra e un arco $C^+$ esce. Riceve $\theta$ e cede $\theta$. Bilancio intatto.}
+		\end{minipage}
+		\hfill
+		% Tipo 2
+		\begin{minipage}{0.22\textwidth}
+			\centering
+			\textbf{Tipo 2}\\
+			(Transito Inverso)
+			\vspace{0.3cm}
+			\begin{tikzpicture}[>=stealth, scale=1.2]
+				\node[circle, draw, thick] (A) at (0,0) {};
+				\draw[<-, thick, red] (-1,0) -- (A) node[midway, above] {$-\theta$};
+				\draw[<-, thick, red] (A) -- (1,0) node[midway, above] {$-\theta$};
+			\end{tikzpicture}
+			\vspace{0.1cm}
+			\textit{\footnotesize Un arco $C^-$ esce e un $C^-$ entra. Cede meno e riceve meno. Bilancio intatto.}
+		\end{minipage}
+		\hfill
+		% Tipo 3
+		\begin{minipage}{0.22\textwidth}
+			\centering
+			\textbf{Tipo 3}\\
+			(Entrata Doppia)
+			\vspace{0.3cm}
+			\begin{tikzpicture}[>=stealth, scale=1.2]
+				\node[circle, draw, thick] (A) at (0,0) {};
+				\draw[->, thick, green!60!black] (-1,0.5) -- (A) node[midway, above=2pt] {$+\theta$};
+				\draw[->, thick, red] (-1,-0.5) -- (A) node[midway, below=2pt] {$-\theta$};
+			\end{tikzpicture}
+			\vspace{0.1cm}
+			\textit{\footnotesize Due frecce entrano nel nodo. Per seguire il ciclo, una è $C^+$ e una $C^-$. $+\theta-\theta=0$.}
+		\end{minipage}
+		\hfill
+		% Tipo 4
+		\begin{minipage}{0.22\textwidth}
+			\centering
+			\textbf{Tipo 4}\\
+			(Uscita Doppia)
+			\vspace{0.3cm}
+			\begin{tikzpicture}[>=stealth, scale=1.2]
+				\node[circle, draw, thick] (A) at (0,0) {};
+				\draw[->, thick, green!60!black] (A) -- (1,0.5) node[midway, above=2pt] {$+\theta$};
+				\draw[->, thick, red] (A) -- (1,-0.5) node[midway, below=2pt] {$-\theta$};
+			\end{tikzpicture}
+			\vspace{0.1cm}
+			\textit{\footnotesize Due frecce escono. Per seguire il ciclo, una è $C^+$ e una $C^-$. $+\theta-\theta=0$.}
+		\end{minipage}
+	\end{figure}
+	
+	Come dimostrato, immettere il flusso $\theta$ produce una soluzione sempre ammissibile per quanto riguarda i bilanci.
+	
+	\vspace{0.4cm}
+	\textbf{Il Vantaggio Economico e la Scelta di $\theta$}\\
+	Perché stiamo immettendo questo flusso? Il professore enuncia un teorema fondamentale sul costo totale della rete. Il nuovo costo sarà pari al costo del vecchio flusso, più il flusso $\theta$ moltiplicato per il \textbf{costo ridotto dell'arco che vìola Bellman}:
+	\[
+	c^T x(\theta) = c^T \bar{x} + \theta \cdot \mathbf{c_{ij}^\pi}
+	\]
+	Dato che stiamo cercando di minimizzare i costi, questa è una notizia meravigliosa! Sappiamo che il costo ridotto dell'arco entrante ($c_{ij}^\pi$) è strettamente minore di zero (altrimenti non lo avremmo fatto entrare). Se moltiplichiamo una quantità positiva $\theta$ per un numero negativo, il termine totale diventa negativo e \textbf{il costo finale si abbassa}. Più grande è $\theta$, più risparmiamo!
+	
+	Quanta merce $\theta$ possiamo spingere nel ciclo?
+	L'unico limite che abbiamo è il rispetto del vincolo primale $x \geq 0$. Guardando le equazioni precedenti, gli unici archi che rischiano di diventare negativi sono quelli del gruppo $C^-$ (a cui stiamo sottraendo $\theta$). 
+	Il valore massimo che possiamo immettere è quindi pari al \textbf{flusso più piccolo presente negli archi $C^-$}. Se spingessimo anche solo un'unità in più, quell'arco diventerebbe negativo, rompendo l'ammissibilità.
+	\[
+	\theta = \min \{ \bar{x}_{ij} \mid (i,j) \in C^- \}
+	\]
+	
+	L'arco che determina questo valore minimo è l'arco che si azzererà per primo. \textbf{Questo sarà il nostro arco uscente}. 
+	Una volta estromesso quest'ultimo e inserito l'arco viola, la nuova base ripristina la forma di albero di copertura e il ciclo sparisce. Il simplesso avanza di un'iterazione!
+	
+	\vspace{0.4cm}
+	\textbf{Domande a Raffica sul Ciclo e le Casistiche}\\
+	Per testare la comprensione della logica di rete, la lezione si chiude con queste brillanti riflessioni:
+	
+	\begin{itemize}[label=\textcolor{titlecolor}{\Large\textbullet}, itemsep=4pt, leftmargin=1.5cm]
+		\item \textbf{L'arco entrante può essere anche quello uscente?} \\
+		Matematicamente impossibile. L'arco entrante per definizione viaggia nel suo stesso senso, quindi appartiene sempre a $C^+$. L'arco uscente, dovendo "svuotarsi" per via della sottrazione, deve appartenere obbligatoriamente a $C^-$.
+		
+		\item \textbf{Può succedere che uno degli archi sia già vuoto in partenza?} \\
+		Sì! Se il flusso su un arco in $C^-$ era già $0$ (una soluzione di base \textit{degenere}), il nostro calcolo ci darà $\theta = 0$. Il costo non migliorerà (risparmio = 0), ma il simplesso eseguirà comunque un cambio di base geometrico, scambiando l'arco entrante e uscente senza muovere merce.
+		
+		\item \textbf{Possono venire tutti concordi (tutti $C^+$) gli archi del ciclo?} \\
+		Cosa succederebbe se tutte le frecce del ciclo andassero nella stessa direzione dell'arco viola? L'insieme $C^-$ sarebbe vuoto. Non essendoci archi a cui sottrarre flusso, non avremmo alcun limite superiore per $\theta$. Potremmo spingere flusso all'infinito ($\theta \to \infty$), e poiché lo stiamo moltiplicando per un costo ridotto negativo, la funzione obiettivo crollerebbe verso $-\infty$. 
+		Questo significa che abbiamo trovato un "ciclo a costo negativo" e che il problema è \textbf{illimitato}. 
+	\end{itemize}
+	
+	\vspace{0.6cm}
+	\textbf{Esercizio: Evoluzione del Simplesso su Reti}\\
+	Iniziamo l'analisi di un nuovo problema logistico su un grafo di 6 nodi. Come sempre, il primo passo è definire con estrema chiarezza i fabbisogni dei nodi e i costi degli archi.
+	
+	\textbf{Dati dei Nodi (Bilanci):}
+	\begin{itemize}[label=\textcolor{titlecolor}{\Large\textbullet}, itemsep=2pt, leftmargin=1.5cm]
+		\item \textbf{Sorgenti (Erogano, $b_i < 0$):} Nodo 1 ($-6$), Nodo 2 ($-4$), Nodo 3 ($-10$).
+		\item \textbf{Destinazioni (Richiedono, $b_i > 0$):} Nodo 4 ($+10$), Nodo 5 ($+5$), Nodo 6 ($+5$).
+	\end{itemize}
+	Verifica del bilancio: $-6 -4 -10 + 10 + 5 + 5 = 0$. La rete è perfettamente bilanciata.
+	
+	\textbf{Archi e Costi ($c_{ij}$):}\\
+	L'ordine lessicografico dei 9 archi orientati è: $(1\to2), (1\to3), (2\to4), (3\to2), (3\to4), (3\to5), (4\to5), (4\to6), (5\to6)$.\\
+	I costi forniti sono: $c_{13}=3$, $c_{24}=4$, $c_{32}=6$, $c_{34}=9$, $c_{35}=11$, $c_{45}=4$, $c_{46}=6$, $c_{56}=7$.
+	\textit{Nota algebrica:} Durante la lezione non è stato trascritto il costo dell'arco $(1\to2)$. Tuttavia, sapendo che nell'albero iniziale i potenziali saranno $\pi_1 = 0$ e $\pi_2 = 10$, e che l'arco $(1\to2)$ fa parte della base, l'equazione di Bellman all'uguaglianza ($-\pi_1+\pi_2 = c_{12}$) ci garantisce matematicamente che $\mathbf{c_{12} = 10}$.
+	
+	\vspace{0.4cm}
+	\textbf{Fase 1: Analisi dell'Albero di Copertura Iniziale}\\
+	Il professore traccia lo "scarabocchio viola" per definire l'albero di copertura di partenza (l'insieme di base $T$). Essendo $N=6$ nodi, la base contiene $N-1 = 5$ archi. 
+	Gli archi di base sono: $\mathbf{(1\to2), (2\to4), (3\to4), (3\to5), (5\to6)}$.
+	
+	\begin{figure}[H]
+		\centering
+		\begin{tikzpicture}[scale=1.5, >=stealth, node distance=2cm,
+			node_style/.style={circle, draw=titlecolor, thick, fill=titlecolor!10, minimum size=8mm, font=\bfseries},
+			tree_style/.style={->, ultra thick, color=violet},
+			non_tree_style/.style={->, thick, dashed, color=gray}
+			]
+			
+			\node[node_style, label={[text=red, font=\bfseries]above:$\boldsymbol{-6}$}] (1) at (0, 2) {1};
+			\node[node_style, label={[text=red, font=\bfseries]above:$\boldsymbol{-4}$}] (2) at (3, 2) {2};
+			\node[node_style, label={[text=red, font=\bfseries]below:$\boldsymbol{-10}$}] (3) at (0, 0) {3};
+			\node[node_style, label={[text=green!60!black, font=\bfseries]below:$\boldsymbol{+10}$}] (4) at (3, 0) {4};
+			\node[node_style, label={[text=green!60!black, font=\bfseries]below:$\boldsymbol{+5}$}] (5) at (6, 0) {5};
+			\node[node_style, label={[text=green!60!black, font=\bfseries]above:$\boldsymbol{+5}$}] (6) at (6, 2) {6};
+			
+			% Archi dell'Albero di Copertura (Base E_T) - Viola
+			\draw[tree_style] (1) -- (2) node[midway, above, font=\bfseries, color=black] {C=10};
+			\draw[tree_style] (2) -- (4) node[midway, right, font=\bfseries, color=black] {C=4};
+			\draw[tree_style] (3) -- (4) node[midway, below, font=\bfseries, color=black] {C=9};
+			\draw[tree_style] (3) to[bend right=30] node[midway, below, font=\bfseries, color=black] {C=11} (5);
+			\draw[tree_style] (5) -- (6) node[midway, right, font=\bfseries, color=black] {C=7};
+			
+			% Archi Non di Base (E_L) - Tratteggiati
+			\draw[non_tree_style] (1) -- (3) node[midway, left, font=\bfseries, color=black] {C=3};
+			\draw[non_tree_style] (3) -- (2) node[midway, above left, font=\bfseries, color=black] {C=6};
+			\draw[non_tree_style] (4) -- (5) node[midway, above, font=\bfseries, color=black] {C=4};
+			\draw[non_tree_style] (4) -- (6) node[midway, above left, font=\bfseries, color=black] {C=6};
+			
+		\end{tikzpicture}
+		\caption{Grafo a 6 nodi iniziale. Le linee viola formano l'albero di copertura. Notiamo subito che le "foglie" dell'albero (nodi con un solo arco viola collegato) sono il Nodo 1 e il Nodo 6.}
+	\end{figure}
+	
+	\vspace{0.4cm}
+	\textbf{1. Soluzione di Base Primale ($\bar{x}$) e Degenerazione}\\
+	Applichiamo la \textit{Visita Posticipata} partendo dalle foglie per calcolare i flussi.
+	\begin{enumerate}
+		\item \textbf{Nodo 1 (Foglia):} Offre 6. L'unico arco in base è uscente verso 2. $\implies x_{12} = 6$.
+		\item \textbf{Nodo 6 (Foglia):} Richiede 5. L'unico arco in base è in entrata da 5. $\implies x_{56} = 5$.
+		\item \textbf{Nodo 5:} Richiede 5 e cede 5 al nodo 6 (totale 10). L'unica entrata è da 3. $\implies x_{35} = 10$.
+		\item \textbf{Nodo 2:} Offre 4. Riceve 6 dal nodo 1. Totale da smaltire: $4+6 = 10$. L'unica uscita è verso 4. $\implies x_{24} = 10$.
+		\item \textbf{Nodo 4:} Richiede 10. Riceve già 10 dal nodo 2 ($x_{24}$). Il suo fabbisogno è perfettamente coperto. Di conseguenza, l'arco in ingresso dal Nodo 3 non deve trasportare nulla! $\implies \mathbf{x_{34} = 0}$.
+	\end{enumerate}
+	
+	Posizionando in ordine lessicografico, la soluzione di base è:
+	\[ \bar{x} = (6, 0, 10, 0, 0, 10, 0, 0, 5)^T \]
+	Essendo i flussi tutti non negativi, la soluzione è \textbf{Ammissibile}. Tuttavia, notiamo che la variabile di base $x_{34}$ assume valore $0$. Questa è la definizione algebrica esatta di \textbf{Soluzione di Base Degenere} (un arco dell'albero si è svuotato).
+	
+	\vspace{0.4cm}
+	\textbf{2. Costi Ridotti e l'Arco Entrante ($k$)}\\
+	Il professore ci fornisce i potenziali duali $\bar{\pi}$ associati a questa base (imponendo $\pi_1 = 0$):
+	\[ \bar{\pi} = (0, 10, 5, 14, 16, 23)^T \]
+	Per verificare se l'albero è ottimo, calcoliamo i \textbf{Costi Ridotti} degli archi non di base.
+	\begin{quote}
+		\textbf{ATTENZIONE ALLA NOTAZIONE!!!}\\
+		Come imposto dal professore, il costo ridotto dell'arco $(i,j)$ non si indica con la barra, bensì con il potenziale ad apice: $\mathbf{c_{ij}^\pi}$. La formula resta $c_{ij}^\pi = c_{ij} + \pi_i - \pi_j$.
+	\end{quote}
+	
+	Calcoliamo il primo costo ridotto per l'arco tratteggiato $(1\to3)$:
+	\[ c_{13}^\pi = c_{13} + \pi_1 - \pi_3 = 3 + 0 - 5 = \mathbf{-2} \]
+	Essendo $c_{13}^\pi < 0$, la condizione di Bellman è violata. Il nostro albero non è ottimo e dobbiamo far entrare questo arco nella base per abbassare i costi. L'arco \textbf{entrante} è quindi $\mathbf{(1\to3)}$.
+	
+	\vspace{0.4cm}
+	\textbf{3. Il Ciclo, $C^+$, $C^-$ e l'Arco Uscente ($h$)}\\
+	Inserendo l'arco $(1\to3)$ nell'albero viola, si forma un ciclo chiuso.
+	\begin{quote}
+		\textit{Correzione geometrica fondamentale:} A lezione c'è stata una piccola confusione nella dettatura degli insiemi $C^+$ e $C^-$. Tracciamo il percorso esatto: l'arco entrante spinge il flusso da $1 \to 3$. Per chiudere l'anello usando solo la base, andiamo da $3 \to 4$, poi "in retromarcia" da $4 \to 2$, e infine "in retromarcia" da $2 \to 1$.
+	\end{quote}
+	Quindi la suddivisione geometrica reale è:
+	\begin{itemize}
+		\item \textbf{$C^+$ (Concordi):} Viaggiano nello stesso senso dell'arco entrante. L'unico è $\mathbf{(3\to4)}$.
+		\item \textbf{$C^-$ (Discordi):} Vengono percorsi contromano per tornare indietro. Sono $\mathbf{(2\to4)}$ e $\mathbf{(1\to2)}$.
+	\end{itemize}
+	
+	Dobbiamo pompare una quantità $\theta$ nel ciclo. Il limite massimo $\theta$ è dettato dall'arco in $C^-$ che si svuota per primo:
+	\[ \theta = \min \{ \bar{x}_{ij} \mid (i,j) \in C^- \} = \min \{ \bar{x}_{24}, \bar{x}_{12} \} = \min \{ 10, 6 \} = \mathbf{6} \]
+	L'arco che "strozza" il ciclo, esaurendosi per primo, è $(1\to2)$ (con valore minimo del flusso). Di conseguenza, l'arco \textbf{uscente} dalla base sarà esattamente $\mathbf{(1\to2)}$.
+	
+	\vspace{0.6cm}
+	\separatore
+	\vspace{0.4cm}
+	
+	\textbf{Il Passo a Casa: La Nuova Base e la Seconda Iterazione}\\
+	Estromettendo l'arco $(1\to2)$ e accogliendo l'arco $(1\to3)$, il nostro albero di copertura si rinnova. Gli archi della \textbf{Nuova Base} sono: $\mathbf{(1\to3), (2\to4), (3\to4), (3\to5), (5\to6)}$.
+	
+	\begin{figure}[H]
+		\centering
+		\begin{tikzpicture}[scale=1.5, >=stealth, node distance=2cm,
+			node_style/.style={circle, draw=titlecolor, thick, fill=titlecolor!10, minimum size=8mm, font=\bfseries},
+			tree_style/.style={->, ultra thick, color=violet},
+			non_tree_style/.style={->, thick, dashed, color=gray}
+			]
+			
+			\node[node_style, label={[text=red, font=\bfseries]above:$\boldsymbol{-6}$}] (1) at (0, 2) {1};
+			\node[node_style, label={[text=red, font=\bfseries]above:$\boldsymbol{-4}$}] (2) at (3, 2) {2};
+			\node[node_style, label={[text=red, font=\bfseries]below:$\boldsymbol{-10}$}] (3) at (0, 0) {3};
+			\node[node_style, label={[text=green!60!black, font=\bfseries]below:$\boldsymbol{+10}$}] (4) at (3, 0) {4};
+			\node[node_style, label={[text=green!60!black, font=\bfseries]below:$\boldsymbol{+5}$}] (5) at (6, 0) {5};
+			\node[node_style, label={[text=green!60!black, font=\bfseries]above:$\boldsymbol{+5}$}] (6) at (6, 2) {6};
+			
+			% NUOVO Albero di Copertura (Base E_T) - Viola
+			\draw[tree_style] (1) -- (3) node[midway, left, font=\bfseries, color=black] {C=3};
+			\draw[tree_style] (2) -- (4) node[midway, right, font=\bfseries, color=black] {C=4};
+			\draw[tree_style] (3) -- (4) node[midway, below, font=\bfseries, color=black] {C=9};
+			\draw[tree_style] (3) to[bend right=30] node[midway, below, font=\bfseries, color=black] {C=11} (5);
+			\draw[tree_style] (5) -- (6) node[midway, right, font=\bfseries, color=black] {C=7};
+			
+			% Archi Non di Base (E_L) - Tratteggiati
+			\draw[non_tree_style] (1) -- (2) node[midway, above, font=\bfseries, color=black] {C=10};
+			\draw[non_tree_style] (3) -- (2) node[midway, above left, font=\bfseries, color=black] {C=6};
+			\draw[non_tree_style] (4) -- (5) node[midway, above, font=\bfseries, color=black] {C=4};
+			\draw[non_tree_style] (4) -- (6) node[midway, above left, font=\bfseries, color=black] {C=6};
+			
+		\end{tikzpicture}
+		\caption{Il nuovo albero di copertura. L'arco $(1\to2)$ è diventato tratteggiato (non di base), mentre $(1\to3)$ è entrato a far parte della base viola.}
+	\end{figure}
+	
+	Svolgiamo ora l'intero passaggio analitico richiesto dal professore per questa nuova base.
+	
+	\textbf{1. Nuova Soluzione Primale ($\bar{x}$):}\\
+	Partiamo dalle nuove foglie dell'albero viola (Nodi 1, 2, 6):
+	\begin{itemize}
+		\item \textbf{Nodo 6:} Richiede 5. In ingresso da 5 $\implies x_{56} = 5$.
+		\item \textbf{Nodo 5:} Richiede 5 + eroga 5 al nodo 6. In ingresso da 3 $\implies x_{35} = 10$.
+		\item \textbf{Nodo 2:} Offre 4. Unica uscita verso 4 $\implies x_{24} = 4$.
+		\item \textbf{Nodo 1:} Offre 6. Unica uscita verso 3 $\implies x_{13} = 6$.
+		\item \textbf{Nodo 4:} Richiede 10. In ingresso riceve 4 dal Nodo 2. Ne mancano 6. Li deve ricevere dall'unico altro arco in base in entrata, ovvero da 3 $\implies x_{34} = 6$.
+	\end{itemize}
+	Verifica al Nodo 3: Riceve 6 dal nodo 1, offre 10 di suo (totale da spedire 16). Invia 6 a 4 e 10 a 5. Il bilancio di 16 in uscita coincide. Tutto perfetto.
+	La nuova soluzione (non degenere, in quanto nessuna variabile di base è nulla) è:
+	\[ \bar{x}_{nuova} = \mathbf{(0, 6, 4, 0, 6, 10, 0, 0, 5)^T} \]
+	
+	\textbf{2. Nuovi Potenziali Duali ($\bar{\pi}$):}\\
+	Sfruttiamo le equazioni di Bellman all'uguaglianza ($-\pi_i + \pi_j = c_{ij}$) per i soli archi viola, imponendo sempre $\pi_1 = 0$:
+	\begin{itemize}
+		\item Arco $(1\to3)$: $-0 + \pi_3 = 3 \implies \mathbf{\pi_3 = 3}$
+		\item Arco $(3\to4)$: $-3 + \pi_4 = 9 \implies \mathbf{\pi_4 = 12}$
+		\item Arco $(2\to4)$: $-\pi_2 + 12 = 4 \implies \mathbf{\pi_2 = 8}$
+		\item Arco $(3\to5)$: $-3 + \pi_5 = 11 \implies \mathbf{\pi_5 = 14}$
+		\item Arco $(5\to6)$: $-14 + \pi_6 = 7 \implies \mathbf{\pi_6 = 21}$
+	\end{itemize}
+	Il nuovo vettore dei potenziali è: $\bar{\pi}_{nuovo} = \mathbf{(0, 8, 3, 12, 14, 21)^T}$.
+	
+	\textbf{3. Test di Ottimalità (Nuovi Costi Ridotti $c_{ij}^\pi$):}\\
+	Verifichiamo se il nuovo albero ci ha portati all'ottimo calcolando il costo ridotto ($c_{ij}^\pi = c_{ij} + \pi_i - \pi_j$) per gli archi fuori base (i tratteggiati):
+	\begin{itemize}
+		\item $(1\to2): \quad c_{12}^\pi = 10 + 0 - 8 = \mathbf{2} \geq 0$
+		\item $(3\to2): \quad c_{32}^\pi = 6 + 3 - 8 = \mathbf{1} \geq 0$
+		\item $(4\to5): \quad c_{45}^\pi = 4 + 12 - 14 = \mathbf{2} \geq 0$
+		\item $(4\to6): \quad c_{46}^\pi = 6 + 12 - 21 = \mathbf{-3} < 0 \quad \text{\textcolor{red}{(Violato!)}}$
+	\end{itemize}
+	Il costo ridotto dell'arco $(4\to6)$ è negativo! Questo significa che non siamo ancora al traguardo. L'algoritmo non è terminato: nel prossimo (e teoricamente ultimo) passo del simplesso, l'arco entrante sarebbe proprio il $(4\to6)$, che andrebbe a creare un nuovo ciclo per abbassare ulteriormente il costo di logistica, fino al raggiungimento di costi ridotti totalmente positivi o nulli.
+	
+	\vspace{1.5cm}
+	\begin{center}
+		\rule{0.65\textwidth}{1pt} \\
+		\vspace{0.4cm}
+		\textcolor{titlecolor}{\LARGE \textbf{--- Fine Lezione 24 ---}} \\
+		\vspace{0.2cm}
+		\rule{0.65\textwidth}{1pt}
+	\end{center}
+	\newpage
+	
+	\avviso{\textit{\textbf{Questa lezione, come le sue precedenti e successive, può contenere errori e/o imprecisioni. Per il bene di tutti, è buona norma far notare all'autore l'errore o l'imprecisione così da risolvere nel minor tempo possibile. I canali di comunicazione, per eventuali avvisi generali o di errori trovati negli appunti, sono in cima al file. Grazie per la collaborazione e Buono studio!}}}
+	
+	\section*{Lezione 25 | 3 novembre 2026}
+	\subsection*{Albero dei Cammini Minimi}
+	
+	Il nostro problema si basa su un grafo a 6 nodi con una configurazione di bilancio molto particolare: abbiamo un'unica grande sorgente centrale e tutti gli altri nodi fungono da destinazioni unitarie.
+	\begin{itemize}[label=\textcolor{titlecolor}{\Large\textbullet}, itemsep=2pt, leftmargin=1.5cm]
+		\item \textbf{Sorgente:} Nodo 1 eroga 5 $\implies b_1 = -5$.
+		\item \textbf{Destinazioni:} Nodi 2, 3, 4, 5, 6 richiedono 1 $\implies b_2 = b_3 = b_4 = b_5 = b_6 = +1$.
+	\end{itemize}
+	L'ordine lessicografico degli archi e i relativi costi sono i seguenti: $(1\to2)$ costo 6; $(1\to3)$ costo 8; $(2\to4)$ costo 4; $(3\to2)$ costo 5; $(3\to4)$ costo 7; $(3\to5)$ costo 1; $(4\to6)$ costo 3; $(5\to4)$ costo 4; $(5\to6)$ costo 6.
+	
+	L'albero di copertura individuato (gli archi in base $T$, evidenziati in viola) comprende: $\mathbf{(1\to2), (1\to3), (2\to4), (3\to5), (4\to6)}$.
+	
+	\begin{figure}[H]
+		\centering
+		\begin{tikzpicture}[scale=1.5, >=stealth, node distance=2cm,
+			node_style/.style={circle, draw=titlecolor, thick, fill=titlecolor!10, minimum size=8mm, font=\bfseries},
+			tree_style/.style={->, ultra thick, color=violet},
+			non_tree_style/.style={->, thick, dashed, color=gray}
+			]
+			
+			% Layout gerarchico planare per evitare incroci
+			\node[node_style, label={[text=red, font=\bfseries]above:$\boldsymbol{-5}$}] (1) at (3, 4) {1};
+			\node[node_style, label={[text=green!60!black, font=\bfseries]left:$\boldsymbol{+1}$}] (2) at (1, 2) {2};
+			\node[node_style, label={[text=green!60!black, font=\bfseries]right:$\boldsymbol{+1}$}] (3) at (5, 2) {3};
+			\node[node_style, label={[text=green!60!black, font=\bfseries]left:$\boldsymbol{+1}$}] (4) at (1, 0) {4};
+			\node[node_style, label={[text=green!60!black, font=\bfseries]right:$\boldsymbol{+1}$}] (5) at (5, 0) {5};
+			\node[node_style, label={[text=green!60!black, font=\bfseries]below:$\boldsymbol{+1}$}] (6) at (3, -2) {6};
+			
+			% Archi dell'Albero di Copertura (Base T) - Viola
+			\draw[tree_style] (1) -- (2) node[midway, above left, font=\bfseries, color=black] {C=6};
+			\draw[tree_style] (1) -- (3) node[midway, above right, font=\bfseries, color=black] {C=8};
+			\draw[tree_style] (2) -- (4) node[midway, left, font=\bfseries, color=black] {C=4};
+			\draw[tree_style] (3) -- (5) node[midway, right, font=\bfseries, color=black] {C=1};
+			\draw[tree_style] (4) -- (6) node[midway, below left, font=\bfseries, color=black] {C=3};
+			
+			% Archi Non di Base (L) - Tratteggiati
+			\draw[non_tree_style] (3) -- (2) node[midway, above, font=\bfseries, color=black] {C=5};
+			\draw[non_tree_style] (3) -- (4) node[pos=0.7, above left, font=\bfseries, color=black] {C=7};
+			\draw[non_tree_style] (5) -- (4) node[midway, below, font=\bfseries, color=black] {C=4};
+			\draw[non_tree_style] (5) -- (6) node[midway, below right, font=\bfseries, color=black] {C=6};
+			
+		\end{tikzpicture}
+	\end{figure}
+	
+	Il flusso in questo grafo si comporta come se ci fosse un'unità di flusso per ogni nodo e tutti i nodi intermedi agissero da nodi di transito. All'interno della rete abbiamo circa $N!$ (N fattoriale) cammini minimi possibili, impossibili da elencare manualmente a priori; per questo motivo, agiamo matematicamente come in un normale flusso su reti.
+	Il modello standard rimane:
+	
+	$$\min c^T x \quad \text{soggetto a} \quad Ex = b, \quad x \geq 0$$
+	Il vettore dei termini noti $b$ in generale può assumere valori come $-1, 0, 1$. Tuttavia, nel caso specifico del \textbf{Problema dell'Albero dei Cammini Minimi}, la sua struttura è rigidamente definita:
+	
+	$$b_i = \begin{cases} -(N - 1) & \text{se } i = r \text{ (Nodo Radice, in questo caso il Nodo 1)} \\ 1 & \text{se } i \neq r \text{ (Tutti gli altri nodi)} \end{cases}$$
+	Perché prende il nome di "Albero dei Cammini Minimi"? Perché l'obiettivo è selezionare gli archi meno costosi in assoluto per riuscire a visitare tutti i nodi partendo dalla radice (tutto dipende ovviamente dai servizi che si devono erogare).
+	
+	Calcolando la soluzione di base attraverso la Visita Posticipata, la nostra variabile $\bar{x}$ (rispettando l'ordine lessicografico dei 9 archi) assume i seguenti valori:
+	
+	$$\bar{x} = \mathbf{(3, 2, 2, 0, 0, 1, 1, 0, 0)^T}$$
+	Se moltiplichiamo questi valori di flusso per il costo delle rispettive tratte (es. 3 unità sull'arco da costo 6, 2 unità sull'arco da costo 8, ecc.), il flusso totale spende esattamente \textbf{46}. Questo è un normalissimo problema che si risolve sempre con l'algoritmo del Simplesso per Flussi, come già visto ampiamente nelle lezioni precedenti.
+	
+	\vspace{0.6cm}
+	\separatore
+	\vspace{0.4cm}
+	
+	\textbf{Modifica del Costo e Avvio del Simplesso}\
+	Il professore ci sottopone ora lo stesso identico grafo, con gli stessi nodi, gli stessi archi e lo stesso albero di copertura viola, introducendo però una singola, sostanziale differenza: \textbf{il costo dell'arco $(4\to6)$ passa da 3 a 30}.
+	
+	\begin{figure}[H]
+		\centering
+		\begin{tikzpicture}[scale=1.5, >=stealth, node distance=2cm,
+			node_style/.style={circle, draw=titlecolor, thick, fill=titlecolor!10, minimum size=8mm, font=\bfseries},
+			tree_style/.style={->, ultra thick, color=violet},
+			non_tree_style/.style={->, thick, dashed, color=gray}
+			]
+			
+			% Layout gerarchico planare per evitare incroci
+			\node[node_style, label={[text=red, font=\bfseries]above:$\boldsymbol{-5}$}] (1) at (3, 4) {1};
+			\node[node_style, label={[text=green!60!black, font=\bfseries]left:$\boldsymbol{+1}$}] (2) at (1, 2) {2};
+			\node[node_style, label={[text=green!60!black, font=\bfseries]right:$\boldsymbol{+1}$}] (3) at (5, 2) {3};
+			\node[node_style, label={[text=green!60!black, font=\bfseries]left:$\boldsymbol{+1}$}] (4) at (1, 0) {4};
+			\node[node_style, label={[text=green!60!black, font=\bfseries]right:$\boldsymbol{+1}$}] (5) at (5, 0) {5};
+			\node[node_style, label={[text=green!60!black, font=\bfseries]below:$\boldsymbol{+1}$}] (6) at (3, -2) {6};
+			
+			% Archi dell'Albero di Copertura (Base T) - Viola
+			\draw[tree_style] (1) -- (2) node[midway, above left, font=\bfseries, color=black] {C=6};
+			\draw[tree_style] (1) -- (3) node[midway, above right, font=\bfseries, color=black] {C=8};
+			\draw[tree_style] (2) -- (4) node[midway, left, font=\bfseries, color=black] {C=4};
+			\draw[tree_style] (3) -- (5) node[midway, right, font=\bfseries, color=black] {C=1};
+			\draw[tree_style] (4) -- (6) node[midway, below left, font=\bfseries, color=red] {C=30};
+			
+			% Archi Non di Base (L) - Tratteggiati
+			\draw[non_tree_style] (3) -- (2) node[midway, above, font=\bfseries, color=black] {C=5};
+			\draw[non_tree_style] (3) -- (4) node[pos=0.7, above left, font=\bfseries, color=black] {C=7};
+			\draw[non_tree_style] (5) -- (4) node[midway, below, font=\bfseries, color=black] {C=4};
+			\draw[non_tree_style] (5) -- (6) node[midway, below right, font=\bfseries, color=black] {C=6};
+			
+		\end{tikzpicture}
+	\end{figure}
+	
+	Nonostante l'arco $(4\to6)$ sia diventato costosissimo (30), per il momento lo teniamo ancora in base (albero viola inalterato).
+	Ricalcolando i potenziali per questa base (ponendo sempre $\pi_1 = 0$), otteniamo il vettore duale complementare:
+	
+	$$\bar{\pi} = \mathbf{(0, 6, 8, 10, 9, 40)^T}$$
+	Prima di avviare il calcolo, fissiamo due concetti teorici fondamentali per l'esame:
+	\begin{itemize}[label=$\circ$, itemsep=2pt, leftmargin=1.5cm]
+		\item Un flusso di base si dice \textbf{degenere} se una delle componenti di base $\bar{x}_T$ è pari a zero.
+		\item Un potenziale si dice \textbf{degenere} quando uno dei vincoli non di base viene soddisfatto con l'uguaglianza stretta ($=$).
+	\end{itemize}
+	
+	I vincoli non di base corrispondono fondamentalmente alle Condizioni di Bellman: $-\pi_i + \pi_j \leq c_{ij}$ per ogni $(i,j) \in L$.
+	Per avviare il Simplesso per Flussi, è sufficiente calcolare i costi ridotti ($c_{ij}^\pi = c_{ij} + \pi_i - \pi_j$) degli archi tratteggiati fino a trovarne uno negativo (che vìola Bellman e diventerà l'arco entrante).
+	\begin{itemize}
+		\item $c_{32}^\pi = 5 + 8 - 6 = \mathbf{7} \geq 0$ (Condizione rispettata)
+		\item $c_{34}^\pi = 7 + 8 - 10 = \mathbf{5} \geq 0$ (Condizione rispettata)
+		\item $c_{54}^\pi = 4 + 9 - 10 = \mathbf{3} \geq 0$ (Condizione rispettata)
+		\item $c_{56}^\pi = 6 + 9 - 40 = \mathbf{-25} < 0 \quad \text{\textcolor{red}{(Condizione Violata!)}}$
+	\end{itemize}
+	
+	Poiché il costo ridotto dell'arco $(5\to6)$ è fortemente negativo, esso sarà il nostro \textbf{Arco Entrante}.
+	
+	\vspace{0.4cm}
+	\textbf{La "Grossissima Semplificazione" del Simplesso sui Cammini Minimi}\
+	In un normale simplesso su reti, a questo punto dovremmo individuare il ciclo chiuso, dividere gli archi in $C^+$ e $C^-$ e sottrarre il flusso per trovare l'arco uscente.
+	Ma qui siamo nel Problema dell'Albero dei Cammini Minimi, e avviene una magia strutturale. Questo problema gode di una proprietà geometrica ferrea: \textbf{ogni nodo deve avere rigorosamente uno e un solo arco in entrata} (non ci interessa assolutamente quanti archi abbia in uscita, ma in ingresso deve essercene solo uno!).
+	
+	Questo è sufficiente per abbattere radicalmente i calcoli, dimostrando che \textbf{non serve fare $C^+$ e $C^-$}. Se guardiamo l'ultimo grafico, il nostro arco entrante $(5\to6)$ punta dritto dentro al Nodo 6. Affinché il Nodo 6 continui ad avere un solo arco in ingresso per rispettare la regola dei cammini minimi, l'arco che già entrava nel Nodo 6 deve obbligatoriamente sparire.
+	L'arco preesistente che entra nel Nodo 6 è il $(4\to6)$ (quello che costava 30). Di conseguenza, \textbf{l'arco uscente è inevitabilmente il $(4\to6)$}.
+	
+	Questo algoritmo si presenta come una grossissima semplificazione del Simplesso su Reti, che a sua volta è una grossissima semplificazione del Simplesso Duale.
+	
+	Inoltre, per la struttura stessa dei cammini minimi (dove le destinazioni richiedono sempre una quantità positiva, $b_i = 1$), questa tipologia di alberi \textbf{non può mai essere degenere} (nessun arco di base trasporterà mai zero unità, ma minimo 1).
+	Questo ci permette di escludere completamente dai nostri procedimenti la Regola Anticiclo di Bland! Al posto di Bland, per scegliere l'arco entrante, possiamo permetterci il lusso di scegliere sempre e liberamente "il più negativo" in assoluto per accelerare la convergenza.
+	
+	\subsection*{Domande Teoriche}
+	
+	Prima di affrontare l'esercizio di programmazione lineare su reti, il professore ha fornito alcune indicazioni teoriche basate sugli argomenti trattati nel corso. Ecco le risposte chiare ed esaustive basate sulla teoria:
+	
+	\begin{enumerate}
+		\item \textbf{Il problema di produzione e il problema di assegnamento possono essere vuoti?}\\
+		\textbf{No}. 
+		Nel \textbf{problema di produzione}, l'obiettivo è massimizzare il guadagno rispettando le risorse limitate. Come spiegato nella teoria, se le risorse scarseggiano o i costi sono troppo elevati, è sempre possibile ricorrere alla soluzione banale di "non produrre nulla" (ponendo tutte le variabili decisionali a zero), garantendo così che il poliedro ammetta sempre almeno una soluzione e non sia mai vuoto.\\
+		Nel \textbf{problema di assegnamento}, si cerca di assegnare $n$ compiti a $n$ risorse minimizzando i costi. Grazie alla sua struttura matematica rigida (con vincoli di uguaglianza che impongono di assegnare esattamente ogni compito a una risorsa), esiste sempre almeno una permutazione valida (un assegnamento possibile). Questo assicura che il problema non possa mai essere matematicamente inammissibile o vuoto.
+		
+		\item \textbf{Il problema del trasporto può essere vuoto?}\\
+		\textbf{Sì}. 
+		Nel problema del trasporto, si spostano merci dai depositi (che offrono merce limitata) ai supermercati (che la richiedono). Affinché il problema abbia soluzione, la disponibilità totale dei depositi deve essere maggiore o uguale alla richiesta totale dei supermercati. Se, al contrario, la domanda totale supera l'offerta totale disponibile ("produco troppo poco"), diventa fisicamente impossibile soddisfare le richieste, rendendo i vincoli contraddittori e il problema matematicamente vuoto.
+		
+		\item \textbf{Il problema dello zaino può essere vuoto?}\\
+		\textbf{No}. 
+		L'obiettivo è massimizzare il valore inserito nello zaino senza superare la capienza massima $P$. Esiste sempre la soluzione ammissibile in cui non si inserisce alcun oggetto nello zaino (soluzione con tutti zeri). Questa soluzione genera un peso pari a $0$ (che rispetta palesemente il vincolo $0 \le P$) e un valore pari a $0$. Seppur possa trattarsi di una soluzione degenere in certi contesti, garantisce sempre l'esistenza di un poliedro non vuoto.
+		
+		\item \textbf{Il Bin Packing e il Flusso Minimo possono essere vuoti?}\\
+		Nel \textbf{Bin Packing}, l'obiettivo è minimizzare il numero di contenitori (bin) di capacità fissa per stipare una lista di oggetti. Il problema risulta inammissibile (vuoto) \textit{solo} nella circostanza in cui almeno uno degli oggetti da trasportare possiede un volume o peso strettamente superiore alla capacità massima del singolo contenitore, rendendone impossibile l'imballaggio.\\
+		Nel \textbf{Flusso Minimo su Reti}, il problema può essere vuoto. Ciò accade, ad esempio, quando i vincoli di bilancio creano un paradosso strutturale: se un nodo sorgente (che deve erogare una quantità definita) si ritrova senza alcun arco uscente, sarà fisicamente impossibile smaltire il suo flusso, violando le equazioni di bilancio e rendendo il poliedro vuoto.
+	\end{enumerate}
+	
+	Iniziamo l'esercizio analizzando un grafo logistico a 6 nodi, strutturalmente simile a quelli visti nelle lezioni precedenti. In questo specifico caso, la rete è di puro transito: non ci vengono fornite richieste o erogazioni esplicite per i nodi, per cui ci concentreremo esclusivamente sulla struttura dell'albero e sull'analisi dei costi.
+	
+	I costi di percorrenza degli archi orientati ($c_{ij}$) sono i seguenti:
+	$(1\to3) = 3$; \quad $(1\to2) = 12$; \quad $(2\to4) = 7$; \quad $(3\to2) = 8$; \quad $(3\to4) = 4$; \quad $(3\to5) = 8$; \quad $(4\to6) = 14$; \quad $(5\to4) = 6$; \quad $(5\to6) = 2$.
+	\textit{Nota matematica:} Negli appunti originali trascritti a lezione, il costo dell'arco $(1\to2)$ era stato segnato per errore a 2. Svolgendo l'algebra dei potenziali ($\pi_2 = 12$ con $\pi_1 = 0$), emerge matematicamente che il costo reale di quella tratta deve essere obbligatoriamente 12. Applichiamo quindi questa doverosa correzione per far quadrare i conti.
+	
+	Il professore ci illustra l'albero di copertura, evidenziando in base (i celebri "scarabocchi viola") i seguenti archi: \textbf{$(1\to3), (1\to2), (2\to4), (3\to5), (4\to6)$}.
+	
+	\begin{figure}[H]
+		\centering
+		\begin{tikzpicture}[scale=1.5, >=stealth, node distance=2cm,
+			node_style/.style={circle, draw=titlecolor, thick, fill=titlecolor!10, minimum size=8mm, font=\bfseries},
+			tree_style/.style={->, ultra thick, color=violet},
+			non_tree_style/.style={->, thick, dashed, color=gray}
+			]
+			
+			% Posizionamento Nodi
+			\node[node_style] (1) at (0, 2) {1};
+			\node[node_style] (2) at (2, 3.5) {2};
+			\node[node_style] (3) at (2, 0.5) {3};
+			\node[node_style] (4) at (4, 3.5) {4};
+			\node[node_style] (5) at (4, 0.5) {5};
+			\node[node_style] (6) at (6, 2) {6};
+			
+			% Archi dell'Albero di Copertura (Base T) - Viola
+			\draw[tree_style] (1) -- (3) node[midway, below left, font=\bfseries, color=black] {C=3};
+			\draw[tree_style] (1) -- (2) node[midway, above left, font=\bfseries, color=black] {C=12};
+			\draw[tree_style] (2) -- (4) node[midway, above, font=\bfseries, color=black] {C=7};
+			\draw[tree_style] (3) -- (5) node[midway, below, font=\bfseries, color=black] {C=8};
+			\draw[tree_style] (4) -- (6) node[midway, above right, font=\bfseries, color=black] {C=14};
+			
+			% Archi Non di Base (L) - Tratteggiati
+			\draw[non_tree_style] (3) -- (2) node[midway, right, font=\bfseries, color=black] {C=8};
+			\draw[non_tree_style] (3) -- (4) node[pos=0.3, above left, font=\bfseries, color=black] {C=4};
+			\draw[non_tree_style] (5) -- (4) node[midway, right, font=\bfseries, color=black] {C=6};
+			\draw[non_tree_style] (5) -- (6) node[midway, below right, font=\bfseries, color=black] {C=2};
+			
+		\end{tikzpicture}
+	\end{figure}
+	
+	A questo punto, il professore rivolge all'aula una domanda cruciale: \textit{"Come si trova il primo albero di partenza? Ovvero, come fate a trovare la prima base ammissibile se all'esame non ve la fornisco io?"}
+	La risposta risiede nell'utilizzo del \textbf{Problema Ausiliario}, strumento che abbiamo già imparato a conoscere nelle precedenti lezioni. Poiché un problema di rete (con le sue equazioni di bilancio) potrebbe essere strutturalmente inammissibile (vuoto), si avvia il problema ausiliario per individuare matematicamente la primissima base di partenza valida per la Programmazione Lineare su Reti.
+	
+	Per testare l'ottimalità di questa base, calcoliamo il vettore dei potenziali $\bar{\pi}$ (fissando $\pi_1 = 0$ e applicando $-\pi_i + \pi_j = c_{ij}$ sui soli archi viola):
+	\begin{itemize}[label=$\circ$, itemsep=2pt, leftmargin=1.5cm]
+		\item Arco $(1\to3)$: $-0 + \pi_3 = 3 \implies \mathbf{\pi_3 = 3}$
+		\item Arco $(1\to2)$: $-0 + \pi_2 = 12 \implies \mathbf{\pi_2 = 12}$
+		\item Arco $(2\to4)$: $-12 + \pi_4 = 7 \implies \mathbf{\pi_4 = 19}$
+		\item Arco $(3\to5)$: $-3 + \pi_5 = 8 \implies \mathbf{\pi_5 = 11}$
+		\item Arco $(4\to6)$: $-19 + \pi_6 = 14 \implies \mathbf{\pi_6 = 33}$
+	\end{itemize}
+	Il vettore duale complementare è perfettamente confermato: $\bar{\pi} = \mathbf{(0, 12, 3, 19, 11, 33)^T}$.
+	
+	Procediamo con il controllo di Bellman calcolando i costi ridotti ($c_{ij}^\pi = c_{ij} + \pi_i - \pi_j$) per gli archi fuori base. Verifichiamo subito l'arco $(3\to4)$:
+	\[ c_{34}^\pi = c_{34} + \pi_3 - \pi_4 = 4 + 3 - 19 = \mathbf{-12} < 0 \]
+	La condizione di Bellman è palesemente violata. Questa base non è ottima e l'arco $(3\to4)$ diventerà l'arco entrante nel prossimo passo del simplesso.
+	
+	\vspace{0.6cm}
+	\separatore
+	\vspace{0.4cm}
+	
+	\textbf{L'Assegnamento visto come Flusso su Rete (Grafo Bipartito)}\\
+	Passiamo a un nuovo esercizio che unisce concetti apparentemente distanti. Ci troviamo di fronte a un grafo di 8 nodi. Il professore decide di organizzarli graficamente in modo molto peculiare: i nodi da 1 a 4 vengono disposti in colonna a sinistra, mentre i nodi da 5 a 8 vengono messi in colonna a destra. 
+	Ogni singolo nodo di sinistra viene collegato tramite un arco orientato a ogni singolo nodo di destra.
+	
+	Qual è la natura di questa rete?
+	\begin{itemize}[label=\textcolor{titlecolor}{\Large\textbullet}, itemsep=2pt, leftmargin=1.5cm]
+		\item I nodi di sinistra (1, 2, 3, 4) presentano \textbf{solo archi uscenti} ed erogano esattamente 1 unità ciascuno ($b_i = -1$). Si comportano come "persone" disponibili a lavorare.
+		\item I nodi di destra (5, 6, 7, 8) presentano \textbf{solo archi entranti} e richiedono esattamente 1 unità ciascuno ($b_i = +1$). Si comportano come "lavori" da eseguire.
+	\end{itemize}
+	Questo modello non è altro che il celebre \textbf{Problema di Assegnamento}, ma riletto e strutturato matematicamente come un modello di Flusso Minimo su Reti, la cui formula canonica rimane l'impeccabile: $\min c^T x$ con $Ex = b$ e $x \ge 0$.
+	
+	I costi per questi collegamenti (la fatica o il costo economico per assegnare la persona $i$ al lavoro $j$) sono riportati in questa matrice associata:
+	\begin{center}
+		\begin{tabular}{|c|c|c|c|c|}
+			\hline
+			\textbf{Nodi} & \textbf{5} & \textbf{6} & \textbf{7} & \textbf{8} \\
+			\hline
+			\textbf{1} & 11 & 10 & 8 & 7 \\
+			\hline
+			\textbf{2} & 12 & 9 & 10 & 8 \\
+			\hline
+			\textbf{3} & 9 & 10 & 11 & 9 \\
+			\hline
+			\textbf{4} & 13 & 15 & 14 & 10 \\
+			\hline
+		\end{tabular}
+	\end{center}
+	
+	Per rendere visibile questa mole impressionante di archi (16 in totale), il grafo viene disegnato "allargando" le due colonne. In questo modo le traiettorie si distinguono chiaramente senza accavallarsi in un groviglio incomprensibile.
+	
+	\begin{figure}[H]
+		\centering
+		\begin{tikzpicture}[scale=1.5, >=stealth, node distance=4cm,
+			node_style/.style={circle, draw=titlecolor, thick, fill=titlecolor!10, minimum size=8mm, font=\bfseries},
+			edge_style/.style={->, thin, color=gray!50}
+			]
+			
+			% Nodi di sinistra (Erogano 1, quindi b = -1)
+			\node[node_style, label={[text=red, font=\bfseries]left:$\boldsymbol{-1}$}] (1) at (0, 3) {1};
+			\node[node_style, label={[text=red, font=\bfseries]left:$\boldsymbol{-1}$}] (2) at (0, 2) {2};
+			\node[node_style, label={[text=red, font=\bfseries]left:$\boldsymbol{-1}$}] (3) at (0, 1) {3};
+			\node[node_style, label={[text=red, font=\bfseries]left:$\boldsymbol{-1}$}] (4) at (0, 0) {4};
+			
+			% Nodi di destra (Richiedono 1, quindi b = +1)
+			\node[node_style, label={[text=green!60!black, font=\bfseries]right:$\boldsymbol{+1}$}] (5) at (4, 3) {5};
+			\node[node_style, label={[text=green!60!black, font=\bfseries]right:$\boldsymbol{+1}$}] (6) at (4, 2) {6};
+			\node[node_style, label={[text=green!60!black, font=\bfseries]right:$\boldsymbol{+1}$}] (7) at (4, 1) {7};
+			\node[node_style, label={[text=green!60!black, font=\bfseries]right:$\boldsymbol{+1}$}] (8) at (4, 0) {8};
+			
+			% Archi - Disegnati chiari per non appesantire
+			\foreach \i in {1,2,3,4} {
+				\foreach \j in {5,6,7,8} {
+					\draw[edge_style] (\i) -- (\j);
+				}
+			}
+		\end{tikzpicture}
+		\caption{Grafo bipartito completo (16 archi). A sinistra le "Persone" (Sorgenti), a destra i "Lavori" (Destinazioni).}
+	\end{figure}
+	
+	Il vettore della soluzione ottima trovato $\bar{x}$, letto rigorosamente in ordine lessicografico, assume i valori: $\mathbf{(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1)^T}$. I numeri $1$ al suo interno indicano banalmente gli assegnamenti prescelti: Persona 1 al Lavoro 5, Persona 2 al Lavoro 6, ecc.
+	
+	\vspace{0.4cm}
+	\textbf{La Base dell'Assegnamento e la Visita Posticipata}\\
+	A questo punto, il professore ripropone lo stesso problema stringendo l'inquadratura: ci chiede di visualizzare \textbf{esclusivamente l'albero di copertura} (l'insieme di base $T$) che ha generato questa soluzione. 
+	Gli archi di base prescelti per formare l'albero sono: \textbf{$(1\to5), (2\to5), (2\to6), (3\to6), (3\to7), (3\to8), (4\to8)$}.
+	Ripulendo il grafico da tutte le frecce inutili, l'albero viola emerge con incredibile chiarezza:
+	
+	\begin{figure}[H]
+		\centering
+		\begin{tikzpicture}[scale=1.5, >=stealth, node distance=4cm,
+			node_style/.style={circle, draw=titlecolor, thick, fill=titlecolor!10, minimum size=8mm, font=\bfseries},
+			tree_style/.style={->, ultra thick, color=violet}
+			]
+			
+			% Nodi di sinistra
+			\node[node_style, label={[text=red, font=\bfseries]left:$\boldsymbol{-1}$}] (1) at (0, 3) {1};
+			\node[node_style, label={[text=red, font=\bfseries]left:$\boldsymbol{-1}$}] (2) at (0, 2) {2};
+			\node[node_style, label={[text=red, font=\bfseries]left:$\boldsymbol{-1}$}] (3) at (0, 1) {3};
+			\node[node_style, label={[text=red, font=\bfseries]left:$\boldsymbol{-1}$}] (4) at (0, 0) {4};
+			
+			% Nodi di destra
+			\node[node_style, label={[text=green!60!black, font=\bfseries]right:$\boldsymbol{+1}$}] (5) at (4, 3) {5};
+			\node[node_style, label={[text=green!60!black, font=\bfseries]right:$\boldsymbol{+1}$}] (6) at (4, 2) {6};
+			\node[node_style, label={[text=green!60!black, font=\bfseries]right:$\boldsymbol{+1}$}] (7) at (4, 1) {7};
+			\node[node_style, label={[text=green!60!black, font=\bfseries]right:$\boldsymbol{+1}$}] (8) at (4, 0) {8};
+			
+			% Archi di Base
+			\draw[tree_style] (1) -- (5);
+			\draw[tree_style] (2) -- (5);
+			\draw[tree_style] (2) -- (6);
+			\draw[tree_style] (3) -- (6);
+			\draw[tree_style] (3) -- (7);
+			\draw[tree_style] (3) -- (8);
+			\draw[tree_style] (4) -- (8);
+			
+		\end{tikzpicture}
+		\caption{L'Albero di Copertura per l'Assegnamento (i 7 archi di base).}
+	\end{figure}
+	
+	Per dimostrare come questa base viola produca l'assegnamento perfetto citato in precedenza, eseguiamo insieme all'aula l'Algoritmo della Visita Posticipata, partendo rigorosamente dai nodi "foglia" (quelli che hanno un solo arco collegato in base):
+	\begin{enumerate}
+		\item \textbf{Nodo 1 (Foglia):} Eroga 1 unità e possiede un unico arco uscente, l'arco $(1\to5)$. Deve cederlo interamente lì. $\implies \mathbf{x_{15} = 1}$.
+		\item \textbf{Nodo 5 (Analisi a cascata):} Il Nodo 5 richiede 1 unità, che ha appena ricevuto per intero dal Nodo 1. Poiché è sazio, l'altro arco che gli entra in base (quello dal Nodo 2) non deve trasportare nulla. $\implies \mathbf{x_{25} = 0}$.
+		\item \textbf{Nodo 2:} Eroga 1 unità. Poiché $x_{25}=0$, è costretto a riversare la sua intera risorsa sull'unico altro arco uscente a disposizione, ovvero $(2\to6)$. $\implies \mathbf{x_{26} = 1}$.
+		\item \textbf{Nodo 6 (Analisi a cascata):} Richiede 1 unità, appena ricevuta per intero dal Nodo 2. Essendo sazio, l'arco in ingresso dal Nodo 3 non trasporta nulla. $\implies \mathbf{x_{36} = 0}$.
+		\item \textbf{Nodo 4 (Foglia):} Eroga 1 unità. L'unico arco uscente in base è $(4\to8)$. $\implies \mathbf{x_{48} = 1}$.
+		\item \textbf{Nodo 8 (Analisi a cascata):} Richiede 1 unità, appena ricevuta dal Nodo 4. L'arco in ingresso dal Nodo 3 si azzera. $\implies \mathbf{x_{38} = 0}$.
+		\item \textbf{Nodo 7 (Foglia):} Richiede 1 unità. L'unico arco in ingresso è dal Nodo 3. $\implies \mathbf{x_{37} = 1}$.
+		\item \textbf{Controllo Radice (Nodo 3):} Analizziamo le uscite del Nodo 3. Invia 0 a 6, 1 a 7, e 0 a 8. L'erogazione totale è esattamente 1, pari alla sua offerta iniziale. Il bilancio di rete è perfetto!
+	\end{enumerate}
+	
+	Le variabili in base ammontano a quattro uni e tre zeri (gli altri archi del grafo originario sono ovviamente posti a 0). Questo vettore replica esattamente l'assegnamento perfetto mostrato in partenza.
+	
+	\vspace{0.4cm}
+	\textbf{Il Teorema della Degenerazione nell'Assegnamento}\\
+	Guardando l'esito della visita posticipata, salta subito all'occhio un'anomalia matematica pesantissima: tre variabili di base ($x_{25}, x_{36}, x_{38}$) si sono completamente svuotate, assumendo il valore zero.
+	
+	Questo porta alla fatidica domanda conclusiva: \textit{"Ma quindi tutte le soluzioni di base del problema di assegnamento sono degeneri?"}\\
+	La risposta è un inconfutabile \textbf{Sì}. 
+	La dimostrazione algebrica fornita dal professore è schiacciante: per formare un albero di copertura valido (e quindi una base) in un grafo con $2n$ nodi, ci occorrono esattamente $(2n - 1)$ archi. 
+	Tuttavia, poiché l'assegnamento richiede che ogni persona svolga un solo lavoro e ogni lavoro venga eseguito da una sola persona, il numero di collegamenti logici effettivi (gli assegnamenti attivi, col valore di flusso pari a $1$) non potrà mai essere superiore a $n$. 
+	
+	La differenza logica tra la dimensione della base geometrica e la dimensione della soluzione reale ci dà il numero di variabili di base costrette matematicamente ad azzerarsi:
+	\[ \text{Variabili Degeneri} = (2n - 1) - n = \mathbf{n - 1} \]
+	Nel nostro caso ($n=4$), ben $4 - 1 = 3$ variabili di base devono necessariamente valere zero. L'assegnamento strutturato su reti è, per sua natura ineluttabile, \textbf{sempre e costantemente una soluzione di base degenere}.
+	
+	\vspace{1.5cm}
+	\begin{center}
+		\rule{0.65\textwidth}{1pt} \\
+		\vspace{0.4cm}
+		\textcolor{titlecolor}{\LARGE \textbf{--- Fine Lezione 25 ---}} \\
+		\vspace{0.2cm}
+		\rule{0.65\textwidth}{1pt}
+	\end{center}
+	\newpage
+	
+	\avviso{\textit{\textbf{Questa lezione, come le sue precedenti e successive, può contenere errori e/o imprecisioni. Per il bene di tutti, è buona norma far notare all'autore l'errore o l'imprecisione così da risolvere nel minor tempo possibile. I canali di comunicazione, per eventuali avvisi generali o di errori trovati negli appunti, sono in cima al file. Grazie per la collaborazione e Buono studio!}}}
+	
+	\section*{Lezione 26 | 4 novembre 2026}
+	\subsection*{Reti Capacitate e Teorema della caratterizzazione delle basi nelle Reti Capacitate}
+	
+	Il grafo analizzato all'inizio di questa lezione introduce un nuovo fondamentale argomento: le \textbf{reti capacitate}. 
+	In questo scenario, i nodi mantengono la loro natura di sorgenti o destinazioni (il nodo 1 eroga 8, il 2 eroga 2, il 3 eroga 1; il nodo 4 richiede 4, il 5 richiede 3, il 6 richiede 4), ma gli archi subiscono un potenziamento informativo. Oltre al classico costo di percorrenza, ogni arco possiede ora una \textbf{portata massima} (Upper Bound), ovvero un limite fisico alla quantità di flusso che può transitarvi.
+	
+	Graficamente, i due valori vengono riportati sull'arco separati da una virgola, come fossero delle coordinate: \textbf{(Costo, Portata)}.
+	
+	\begin{figure}[H]
+		\centering
+		\begin{tikzpicture}[scale=1.5, >=stealth, node distance=2cm,
+			node_style/.style={circle, draw=titlecolor, thick, fill=titlecolor!10, minimum size=8mm, font=\bfseries},
+			edge_style/.style={->, thick, color=black}
+			]
+			
+			% Posizionamento Nodi
+			\node[node_style, label={[text=red, font=\bfseries]above:$\boldsymbol{-8}$}] (1) at (0, 2) {1};
+			\node[node_style, label={[text=red, font=\bfseries]above:$\boldsymbol{-2}$}] (2) at (2, 3.5) {2};
+			\node[node_style, label={[text=red, font=\bfseries]below:$\boldsymbol{-1}$}] (3) at (2, 0.5) {3};
+			\node[node_style, label={[text=green!60!black, font=\bfseries]above:$\boldsymbol{+4}$}] (4) at (4, 3.5) {4};
+			\node[node_style, label={[text=green!60!black, font=\bfseries]below:$\boldsymbol{+3}$}] (5) at (4, 0.5) {5};
+			\node[node_style, label={[text=green!60!black, font=\bfseries]right:$\boldsymbol{+4}$}] (6) at (6, 2) {6};
+			
+			% Archi con [Costo, Portata]
+			\draw[edge_style] (1) -- (2) node[midway, above left, font=\bfseries] {[6, 8]};
+			\draw[edge_style] (1) -- (3) node[midway, below left, font=\bfseries] {[2, 7]};
+			\draw[edge_style] (3) -- (2) node[midway, left, font=\bfseries] {[5, 4]};
+			\draw[edge_style] (2) -- (4) node[midway, above, font=\bfseries] {[4, 5]};
+			\draw[edge_style] (3) -- (4) node[pos=0.3, below right, font=\bfseries] {[7, 4]};
+			\draw[edge_style] (3) -- (5) node[midway, below, font=\bfseries] {[9, 1]};
+			\draw[edge_style] (4) -- (5) node[midway, right, font=\bfseries] {[6, 3]};
+			\draw[edge_style] (4) -- (6) node[midway, above right, font=\bfseries] {[8, 7]};
+			\draw[edge_style] (5) -- (6) node[midway, below right, font=\bfseries] {[2, 6]};
+			
+		\end{tikzpicture}
+		\caption{Rete capacitata. Su ogni singolo arco è riportata la coppia di valori $[Costo, Capacita']$.}
+	\end{figure}
+	
+	Definiamo gli spazi matematici in gioco. Chiamando $m$ la cardinalità degli archi e $n$ la cardinalità dei nodi:
+	\begin{itemize}[label=\textcolor{titlecolor}{\Large\textbullet}, itemsep=2pt, leftmargin=1.5cm]
+		\item Il vettore delle portate massime (Upper Bound) è $u \in \mathbb{R}^m$.
+		\item Il vettore dei flussi è $x \in \mathbb{R}^m$.
+		\item Il vettore dei costi è $c \in \mathbb{R}^m$.
+		\item Il vettore dei termini noti (bilanci) è $b \in \mathbb{R}^n$.
+	\end{itemize}
+	
+	Quando si cerca il cammino minimo puro, la portata massima solitamente non interessa. In questo contesto, invece, essa è fondamentale e altera il modello. 
+	Il problema si scrive inizialmente così:
+	\[
+	\begin{cases}
+		\min c^T x \\
+		Ex = b \\
+		0 \le x \le u
+	\end{cases}
+	\]
+	
+	Per poterlo risolvere e manipolare, dobbiamo portarlo nel \textbf{Formato Duale Standard}. L'ultimo vincolo ($\le u$) deve diventare un'uguaglianza stretta. Per farlo, introduciamo le variabili di scarto (Slack), che indicheremo con il vettore $w$.
+	Il modello aggiornato e definitivo diventa:
+	\[
+	\begin{cases}
+		\min c^T x \\
+		Ex = b \\
+		x + w = u \\
+		x, w \ge 0
+	\end{cases}
+	\]
+	La matrice $E$ è la celebre matrice di incidenza del grafo.
+	
+	\vspace{0.4cm}
+	\textbf{Analisi Matriciale e il Rango}\\
+	Possiamo raggruppare i due sistemi di vincoli (bilanci nodi e capacità archi) in un'unica grande espressione matriciale a blocchi:
+	\[
+	\begin{bmatrix}
+		E & 0 \\
+		I & I
+	\end{bmatrix}
+	\begin{bmatrix}
+		x \\
+		w
+	\end{bmatrix}
+	=
+	\begin{bmatrix}
+		b \\
+		u
+	\end{bmatrix}
+	\]
+	Le dimensioni di questa macro-struttura sono le seguenti:
+	\begin{itemize}[label=$\circ$, itemsep=2pt, leftmargin=1.5cm]
+		\item La matrice di incidenza $E$ è $n \times m$. Il blocco $0$ affiancato è anch'esso $n \times m$.
+		\item I blocchi identità $I$ per il vincolo di upper bound sono di dimensione $m \times m$.
+		\item Il vettore colonna delle variabili di decisione contiene sia $x$ che $w$, quindi si trova in $\mathbb{R}^{2m}$.
+		\item Il vettore colonna dei termini noti contiene sia i bilanci $b$ che le capacità $u$, risultando di dimensione $m + n$.
+	\end{itemize}
+	In totale, la macro-matrice dei coefficienti possiede $\mathbf{(m+n)}$ \textbf{righe} e $\mathbf{2m}$ \textbf{colonne}.
+	
+	A questo punto sorge il quesito sulgebrico: \textit{Quanto può valere al massimo il rango di questa matrice?}
+	Il rango definisce la dimensione massima delle sottomatrici quadrate invertibili, ovvero la dimensione delle nostre \textbf{Basi}. In linea teorica, il rango massimo è limitato dal numero di righe.
+	
+	Il professore introduce qui un Teorema fondamentale: \textbf{Il rango della macro-matrice è esattamente pari a $m+n-1$}.
+	Questo significa che per costruire una Base (la sottomatrice quadrata per calcolare i vertici) dovremo estrarre esattamente $(m+n-1) \times (m+n-1)$ elementi. 
+	
+	Visivamente, la sottomatrice di base si ottiene troncando una riga ridondante dalla matrice di incidenza originaria $E$ (che diventa $\tilde{E}$ di dimensione $n-1$), e mantenendo intatte le righe delle capacità. 
+	Rappresentando la struttura a blocchi della Base con le relative dimensioni a lato, otteniamo:
+	\[
+	\begin{array}{c@{\quad}c}
+		\begin{matrix} (n-1) \\ m \end{matrix} & 
+		\begin{bmatrix} 
+			\tilde{E} & 0 \\ 
+			I & I 
+		\end{bmatrix}
+	\end{array}
+	\]
+	
+	Il Teorema si chiude con una proprietà eccezionale: \textbf{il determinante di qualsiasi Base estratta da questa struttura varrà sempre e soltanto $1$ oppure $-1$}. 
+	Questa caratteristica rende la matrice \textbf{Totalmente Unimodulare}. 
+	Grazie al Teorema di Interezza, sapere che la matrice è unimodulare ci permette di godere di un enorme vantaggio computazionale: possiamo tralasciare completamente i complessi vincoli di interezza, in quanto la geometria stessa del poliedro e l'algebra della matrice forzeranno il Simplesso a convergere naturalmente verso una soluzione a coordinate rigorosamente intere.
+	
+	\subsection*{Teorema di caratterizzazione delle basi per le reti capacitate}
+	Passiamo ora al \textbf{Teorema di caratterizzazione delle basi per le reti capacitate}. Questo teorema si adatta a una \textbf{tripartizione degli archi} in tre insiemi distinti: $T$, $L$, e $U$.
+	Quando si parla di tripartizione, si intendono matematicamente le seguenti circostanze:
+	\begin{itemize}[label=\textcolor{titlecolor}{\Large\textbullet}, itemsep=2pt, leftmargin=1.5cm]
+		\item $T \cap L = \emptyset$
+		\item $T \cap U = \emptyset$
+		\item $L \cap U = \emptyset$
+		\item $T \cup L \cup U = A$ \quad (dove $A$ indica l'insieme di tutti gli archi del grafo)
+	\end{itemize}
+	Sappiamo bene che la lettera $T$ maiuscolo indica l'intero albero di copertura, mentre gli insiemi $L$ e $U$ sono archi effettivamente "liberi", il che significa che in certi casi possono anche essere vuoti.
+	
+	Poiché gli archi sono divisi in tre blocchi, vuol dire che lo saranno di conseguenza anche le rispettive variabili del sistema. Il vettore $x$ potrà essere indicizzato come $x_T$, $x_L$, e $x_U$. La stessa identica cosa vale per $w$, utilizzata come variabile di scarto, con la semplice differenza che per gli indici di scarto applichiamo un apice (il "primo"): le variabili saranno quindi $w_{T'}, w_{L'}, w_{U'}$.
+	
+	Per questo motivo, la macro-matrice dei vincoli $\begin{bmatrix} E & 0 \\ I & I \end{bmatrix}$ viene decisa a tavolino dal professore per essere \textbf{esapartizionata} (divisa in 6 blocchi colonna). La prima metà delle colonne ospiterà i blocchi non primi ($T, L, U$), mentre la seconda metà ospiterà i blocchi primi ($T', L', U'$).
+	
+	Analizzando la cardinalità, se l'insieme $T$ (l'albero) contiene per definizione $n-1$ archi, gli archi restanti da piazzare negli insiemi $L$ e $U$ saranno esattamente $m - (n - 1) = m - n + 1$. Pertanto, la cardinalità dell'insieme $L$ (così come quella di $U$) sarà compresa tra $0$ e $m - n + 1$.
+	
+	A questo punto possiamo ufficialmente terminare l'esposizione del teorema affermando che l'unione \textbf{$T \cup U \cup T' \cup L'$ forma una Base}. 
+	Possiamo quindi scrivere formalmente che nell'insieme $B$ (le variabili di base) ci sono quelle quattro lettere, mentre nell'insieme $N$, che indica convenzionalmente gli indici non di base, ci saranno le restanti $L$ ed $U'$:
+	\[ B = \{T, U, T', L'\} \quad \text{e} \quad N = \{L, U'\} \]
+	
+	Data questa tripartizione, possiamo ricavare immediatamente la soluzione di base estesa. Il vettore soluzione $(x, w)$ è strutturato in 6 componenti (le prime tre per $x_T, x_L, x_U$ e le ultime tre per $w_{T'}, w_{L'}, w_{U'}$). Sostituendo i valori logici imposti dalla partizione, la base si trova così:
+	\[ 
+	\begin{pmatrix} x \\ w \end{pmatrix} = 
+	\begin{pmatrix} x_T \\ x_L \\ x_U \\ w_{T'} \\ w_{L'} \\ w_{U'} \end{pmatrix} = 
+	\begin{pmatrix} x_T \\ 0 \\ u_U \\ u_T - x_T \\ u_L \\ 0 \end{pmatrix} 
+	\]
+	
+	Cosa rappresenta fisicamente questa soluzione?
+	\begin{itemize}[label=$\circ$, itemsep=2pt, leftmargin=1.5cm]
+		\item Il valore \textbf{$u_U$} e lo \textbf{$0$} finale si riferiscono ad archi \textbf{saturi}: il flusso è esattamente pari alla portata massima ($x_U = u_U$), per cui lo scarto è nullo ($w_{U'} = 0$).
+		\item Il valore \textbf{$0$} e il \textbf{$u_L$} si riferiscono ad archi \textbf{completamente vuoti}: non vi passa alcun flusso ($x_L = 0$), quindi lo scarto coincide con l'intera portata disponibile ($w_{L'} = u_L$).
+		\item Il valore \textbf{$x_T$} è il flusso da trovare sull'albero di copertura (quello che nello schema risulta lo spazio vuoto da calcolare per bilanciare i nodi), con il rispettivo scarto pari a \textbf{$u_T - x_T$}.
+	\end{itemize}
+	Inoltre, ricordando sempre il vincolo $x + w = u$, le identità si verificano perfettamente blocco per blocco: $x_T + w_{T'} = u_T$, $x_L + w_{L'} = u_L$, e $x_U + w_{U'} = u_U$. La conclusione è che in questo modo le soluzioni di base si calcolano molto velocemente.
+	
+	Facciamo un'osservazione sul calcolo dimensionale. Il numero totale di variabili in gioco è $2m$. Sappiamo che gli indici in base devono pareggiare il rango della matrice, che ammonta a $m + n - 1$. Sottraendo questa somma di base al totale $2m$, otteniamo esattamente il numero di variabili fuori base:
+	\[ 2m - (m + n - 1) = \mathbf{m - n + 1} \]
+	
+	Seguendo questo specifico teorema, possiamo definire concretamente le dimensioni della base applicata al grafo di 6 nodi studiato a inizio lezione. In quel grafo avevamo $n = 6$ nodi e $m = 9$ archi. Calcoliamo il rango:
+	\[ \text{Rango} = m + n - 1 = 9 + 6 - 1 = \mathbf{14} \]
+	Questo significa che le sottomatrici quadrate di base del nostro problema di partenza saranno pari a \textbf{$14 \times 14$}.
+	
+	\textbf{Esercizio: Valutazione di una Soluzione su Rete Capacitata}\\
+	Applichiamo la teoria appena dimostrata su un grafo a 6 nodi. 
+	\textit{Nota algebrica preliminare:} Per garantire il perfetto bilancio della rete e la coerenza matematica dei flussi che andremo a calcolare, rettifichiamo il valore di erogazione del nodo 3, che è pari a 1 (e non a 3). 
+	In questo modo, la somma delle erogazioni ($-8 -2 -1 = -11$) pareggia esattamente la somma delle richieste ($+4 +3 +4 = +11$).
+	
+	\textbf{Dati dei Nodi (Bilanci):}
+	\begin{itemize}[label=\textcolor{titlecolor}{\Large\textbullet}, itemsep=2pt, leftmargin=1.5cm]
+		\item \textbf{Erogazioni ($b_i < 0$):} Nodo 1 ($-8$), Nodo 2 ($-2$), Nodo 3 ($-1$).
+		\item \textbf{Richieste ($b_i > 0$):} Nodo 4 ($+4$), Nodo 5 ($+3$), Nodo 6 ($+4$).
+	\end{itemize}
+	
+	\textbf{Archi, Costi e Capacità:}\\
+	L'ordine lessicografico dei 9 archi, associati alle coppie \textbf{[Costo, Capacità]}, è il seguente:
+	$(1\to2)$ [C=6, U=8], $(1\to3)$ [C=2, U=7], $(2\to4)$ [C=4, U=5], $(3\to2)$ [C=5, U=4], $(3\to4)$ [C=7, U=4], $(3\to5)$ [C=9, U=4], $(4\to5)$ [C=6, U=3], $(4\to6)$ [C=8, U=7], $(5\to6)$ [C=2, U=6].
+	
+	\textbf{Struttura della Tripartizione ($T, L, U$):}
+	\begin{itemize}[label=$\circ$, itemsep=2pt, leftmargin=1.5cm]
+		\item \textbf{Albero di Copertura $T$ (Viola):} Archi $(1\to2), (1\to3), (2\to4), (4\to6), (5\to6)$. (Sono esattamente $n-1 = 5$ archi che collegano tutti i nodi senza cicli).
+		\item \textbf{Arco Saturo $U$ (Rosso):} Arco $(3\to5)$.
+		\item \textbf{Archi Vuoti $L$ (Grigio Tratteggiato):} Archi $(3\to2), (3\to4), (4\to5)$.
+	\end{itemize}
+	
+	\begin{figure}[H]
+		\centering
+		\begin{tikzpicture}[scale=1.5, >=stealth, node distance=2cm,
+			node_style/.style={circle, draw=titlecolor, thick, fill=titlecolor!10, minimum size=8mm, font=\bfseries},
+			tree_style/.style={->, ultra thick, color=violet},
+			sat_style/.style={->, ultra thick, color=red},
+			non_tree_style/.style={->, thick, dashed, color=gray}
+			]
+			
+			% Posizionamento Nodi
+			\node[node_style, label={[text=red, font=\bfseries]above:$\boldsymbol{-8}$}] (1) at (0, 2) {1};
+			\node[node_style, label={[text=red, font=\bfseries]above:$\boldsymbol{-2}$}] (2) at (2, 3.5) {2};
+			\node[node_style, label={[text=red, font=\bfseries]below:$\boldsymbol{-1}$}] (3) at (2, 0.5) {3};
+			\node[node_style, label={[text=green!60!black, font=\bfseries]above:$\boldsymbol{+4}$}] (4) at (4, 3.5) {4};
+			\node[node_style, label={[text=green!60!black, font=\bfseries]below:$\boldsymbol{+3}$}] (5) at (4, 0.5) {5};
+			\node[node_style, label={[text=green!60!black, font=\bfseries]right:$\boldsymbol{+4}$}] (6) at (6, 2) {6};
+			
+			% Archi dell'Albero di Copertura (Base T) - Viola
+			\draw[tree_style] (1) -- (2) node[midway, above left, font=\bfseries, color=black] {[6, 8]};
+			\draw[tree_style] (1) -- (3) node[midway, below left, font=\bfseries, color=black] {[2, 7]};
+			\draw[tree_style] (2) -- (4) node[midway, above, font=\bfseries, color=black] {[4, 5]};
+			\draw[tree_style] (4) -- (6) node[midway, above right, font=\bfseries, color=black] {[8, 7]};
+			\draw[tree_style] (5) -- (6) node[midway, below right, font=\bfseries, color=black] {[2, 6]};
+			
+			% Arco Saturo (Base U) - Rosso
+			\draw[sat_style] (3) -- (5) node[midway, below, font=\bfseries, color=black] {[9, 4]};
+			
+			% Archi Non di Base (L) - Tratteggiati
+			\draw[non_tree_style] (3) -- (2) node[midway, left, font=\bfseries, color=black] {[5, 4]};
+			\draw[non_tree_style] (3) -- (4) node[pos=0.3, below right, font=\bfseries, color=black] {[7, 4]};
+			\draw[non_tree_style] (4) -- (5) node[midway, right, font=\bfseries, color=black] {[6, 3]};
+			
+		\end{tikzpicture}
+		\caption{Rete Capacitata a 6 nodi. L'albero di base è in viola, l'arco saturo è in rosso, gli archi non di base sono tratteggiati. I valori sono disposti in modo pulito e distanziato come coppia $[Costo, Capacita']$.}
+	\end{figure}
+	
+	\vspace{0.4cm}
+	\textbf{Calcolo della Soluzione e Analisi delle Variabili}\\
+	Il professore ci fornisce il prezioso suggerimento per effettuare la visita a cascata sulle reti: \textit{"Un nodo per essere considerato 'foglia' deve avere un solo arco ad esso incidente all'interno dell'albero di copertura"}. 
+	
+	Procedendo con i bilanci, si ottiene la seguente soluzione accorpata $(X, W)$:
+	\[
+	(X, W) = \mathbf{(5, 3, 7, 0, 0, 4, 0, 3, 1 \ \mid \ 3, 4, -2, 4, 4, 0, 3, 4, 5)^T}
+	\]
+	
+	Come ampiamente spiegato dal teorema delle basi, questo vettore a $18$ componenti si divide in due metà simmetriche:
+	\begin{enumerate}
+		\item \textbf{La prima metà (Flussi $X$):} Indica le quantità di merce che transitano sugli archi $(12, 13, 24, 32, 34, 35, 45, 46, 56)$.
+		\item \textbf{La seconda metà (Scarti $W$):} Indica il margine residuo di capienza per gli stessi identici archi ($W = U - X$).
+	\end{enumerate}
+	
+	Le dimensioni del problema confermano la teoria:
+	\begin{itemize}[label=$\circ$, itemsep=2pt, leftmargin=1.5cm]
+		\item \textbf{Indici di Base (Dimensione della sottomatrice quadrata):} $m + n - 1 = 9 + 6 - 1 = \mathbf{14}$. 
+		\item \textbf{Indici Non di Base (Variabili imposte dalla tripartizione):} $m - n + 1 = 9 - 6 + 1 = \mathbf{4}$. (Infatti, 3 archi sono vuoti in $L$ e generano $x=0$, e 1 arco è saturo in $U$ e genera $w=0$. Totale 4 zeri forzati).
+	\end{itemize}
+	
+	\vspace{0.4cm}
+	\textbf{Verifica di Ammissibilità}\\
+	Quella generata è una soluzione valida per avviare il Simplesso?
+	Per scoprirlo, analizziamo l'arco $(2\to4)$ appartenente all'albero di copertura. Guardando il vettore degli scarti $W$, in corrispondenza dell'arco $(2\to4)$ leggiamo il valore $\mathbf{-2}$.
+	
+	Matematicamente, poiché $W_{24} = U_{24} - X_{24} \implies -2 = 5 - 7$, il flusso calcolato per bilanciare la rete impone di spingere ben 7 unità di merce in un arco che ha una portata massima di 5. Stiamo "sfondando" la portata logistica dell'arco.
+	Poiché un vincolo di non negatività ($W \ge 0$) è palesemente violato, \textbf{la soluzione è Inammissibile}. 
+	
+	Di conseguenza, \textbf{non possiamo avviare l'Algoritmo del Simplesso} partendo da questa configurazione, poiché ci troviamo geometricamente al di fuori del poliedro logistico della rete capacitata.
+	
+	\textbf{Esercizio: Calcolo della Soluzione di Base su Rete Capacitata}\\
+	Il professore propone un secondo esercizio basato su un nuovo grafo a 5 nodi per consolidare l'algoritmo di risoluzione e la gestione della tripartizione.
+	
+	\textbf{Dati dei Nodi (Bilanci):}
+	\begin{itemize}[label=\textcolor{titlecolor}{\Large\textbullet}, itemsep=2pt, leftmargin=1.5cm]
+		\item \textbf{Sorgenti ($b_i < 0$):} Nodo 1 ($-6$), Nodo 2 ($-3$).
+		\item \textbf{Destinazioni ($b_i > 0$):} Nodo 3 ($+1$), Nodo 4 ($+4$), Nodo 5 ($+4$).
+	\end{itemize}
+	Verifica del bilancio: $-6 -3 + 1 + 4 + 4 = 0$. La rete è perfettamente bilanciata.
+	
+	\textbf{Archi, Costi e Capacità:}\\
+	L'ordine lessicografico dei 7 archi, associati alle coppie \textbf{[Costo, Capacità]}, è il seguente:
+	$(1\to2)$ [1, 8], $(1\to3)$ [2, 9], $(2\to4)$ [5, 3], $(2\to5)$ [4, 7], $(3\to2)$ [2, 8], $(3\to5)$ [5, 9], $(5\to4)$ [6, 6].
+	
+	\textbf{Struttura della Tripartizione ($T, L, U$):}
+	\begin{itemize}[label=$\circ$, itemsep=2pt, leftmargin=1.5cm]
+		\item \textbf{Albero di Copertura $T$ (Viola):} Archi $(1\to2), (1\to3), (3\to5), (5\to4)$. (Sono esattamente $n-1 = 4$ archi che formano lo scheletro dell'albero).
+		\item \textbf{Arco Saturo $U$ (Rosso):} Arco $(2\to4)$.
+		\item \textbf{Archi Vuoti $L$ (Grigio Tratteggiato):} Archi $(2\to5), (3\to2)$.
+	\end{itemize}
+	
+	\begin{figure}[H]
+		\centering
+		\begin{tikzpicture}[scale=1.5, >=stealth, node distance=2cm,
+			node_style/.style={circle, draw=titlecolor, thick, fill=titlecolor!10, minimum size=8mm, font=\bfseries},
+			tree_style/.style={->, ultra thick, color=violet},
+			sat_style/.style={->, ultra thick, color=red},
+			non_tree_style/.style={->, thick, dashed, color=gray}
+			]
+			
+			% Posizionamento Nodi
+			\node[node_style, label={[text=red, font=\bfseries]above:$\boldsymbol{-6}$}] (1) at (0, 2) {1};
+			\node[node_style, label={[text=red, font=\bfseries]above:$\boldsymbol{-3}$}] (2) at (2.5, 3.5) {2};
+			\node[node_style, label={[text=green!60!black, font=\bfseries]below:$\boldsymbol{+1}$}] (3) at (2.5, 0.5) {3};
+			\node[node_style, label={[text=green!60!black, font=\bfseries]above:$\boldsymbol{+4}$}] (4) at (5, 3.5) {4};
+			\node[node_style, label={[text=green!60!black, font=\bfseries]below:$\boldsymbol{+4}$}] (5) at (5, 0.5) {5};
+			
+			% Archi dell'Albero di Copertura (Base T) - Viola
+			\draw[tree_style] (1) -- (2) node[midway, above left, font=\bfseries, color=black] {[1, 8]};
+			\draw[tree_style] (1) -- (3) node[midway, below left, font=\bfseries, color=black] {[2, 9]};
+			\draw[tree_style] (3) -- (5) node[midway, below, font=\bfseries, color=black] {[5, 9]};
+			\draw[tree_style] (5) -- (4) node[midway, right, font=\bfseries, color=black] {[6, 6]};
+			
+			% Arco Saturo (Base U) - Rosso
+			\draw[sat_style] (2) -- (4) node[midway, above, font=\bfseries, color=black] {[5, 3]};
+			
+			% Archi Non di Base (L) - Tratteggiati
+			\draw[non_tree_style] (3) to[bend left=15] node[midway, left, font=\bfseries, color=black] {[2, 8]} (2);
+			\draw[non_tree_style] (2) -- (5) node[pos=0.3, above right, font=\bfseries, color=black] {[4, 7]};
+			
+		\end{tikzpicture}
+		\caption{Rete Capacitata a 5 nodi. L'albero di base è in viola, l'arco saturo è in rosso, gli archi non di base sono tratteggiati. I valori sono disposti in modo pulito come coppia $[Costo, Capacita']$.}
+	\end{figure}
+	
+	\vspace{0.4cm}
+	\textbf{Calcolo della Soluzione e Analisi delle Variabili}\\
+	Per ricavare le incognite sull'albero viola, dobbiamo prima aggiornare i bilanci dei nodi isolando i flussi "fissi" derivanti dagli archi fuori base.
+	Sappiamo che gli archi in $L$ trasportano 0, ma l'arco saturo in $U$ $(2\to4)$ trasporta obbligatoriamente il suo upper bound, ovvero 3 unità. 
+	Di conseguenza, calcoliamo i bilanci aggiornati $b'_i$ per la Visita Posticipata sull'albero $T$:
+	\begin{itemize}
+		\item \textbf{Nodo 2:} Eroga 3, ma invia immediatamente 3 unità al nodo 4 tramite l'arco saturo. La sua erogazione residua per l'albero scende a 0 ($b'_2 = 0$).
+		\item \textbf{Nodo 4:} Richiede 4, ma riceve 3 unità dall'arco saturo in entrata. Il suo fabbisogno residuo scende a 1 ($b'_4 = +1$).
+		\item Gli altri nodi rimangono invariati: $b'_1 = -6, b'_3 = +1, b'_5 = +4$.
+	\end{itemize}
+	
+	Eseguiamo ora la Visita Posticipata sull'albero $T$ (archi viola) usando i nuovi bilanci $b'_i$:
+	\begin{enumerate}
+		\item \textbf{Nodo 2 (Foglia):} Bilancio aggiornato $0$. L'unico arco in ingresso in base è $(1\to2)$. Non richiedendo nulla, $\implies \mathbf{x_{12} = 0}$.
+		\item \textbf{Nodo 4 (Foglia):} Bilancio aggiornato $+1$. L'unico arco in ingresso in base è $(5\to4)$. Riceve l'unità mancante. $\implies \mathbf{x_{54} = 1}$.
+		\item \textbf{Nodo 5:} Bilancio $+4$ ed eroga $1$ al nodo 4 (totale $5$ da ricevere). L'unico ingresso è $(3\to5)$. $\implies \mathbf{x_{35} = 5}$.
+		\item \textbf{Nodo 3:} Bilancio $+1$ ed eroga $5$ al nodo 5 (totale $6$ da ricevere). L'unico ingresso è $(1\to3)$. $\implies \mathbf{x_{13} = 6}$.
+		\item \textbf{Nodo 1 (Radice):} Eroga $6$. Deve inviare 0 verso il Nodo 2 e 6 verso il Nodo 3. Il bilancio in uscita chiude perfettamente a 6.
+	\end{enumerate}
+	
+	Posizionando i flussi in ordine lessicografico e associando lo scarto complementare ($W = U - X$), ricaviamo la soluzione di base esapartizionata $(X, W)$:
+	\begin{itemize}
+		\item \textbf{Vettore Flussi X:} $(0, 6, 3, 0, 0, 5, 1)$
+		\item \textbf{Vettore Scarti W:} $(8, 3, 0, 7, 8, 4, 5)$ \textit{(Calcolato banalmente sottraendo la $X$ dalla rispettiva capacità $U$ di ogni arco)}.
+	\end{itemize}
+	Il vettore concatenato sarà quindi: 
+	\[ (X, W) = \mathbf{(0, 6, 3, 0, 0, 5, 1 \ \mid \ 8, 3, 0, 7, 8, 4, 5)^T} \]
+	Analizzando il vettore, notiamo due aspetti fondamentali:
+	\begin{enumerate}
+		\item \textbf{Ammissibilità:} Guardando tutte le componenti di $X$ e di $W$, constatiamo che \textbf{non ci sono valori negativi} (nessun arco sfora la portata $U$ e nessuno ha flusso minore di 0). \textbf{La soluzione è perfettamente ammissibile} (\textit{Nota: eventuali contraddizioni su "valori negativi" provenienti da precedenti calcoli non si applicano a questa specifica rete, in cui la capienza logistica è ampiamente rispettata}).
+		\item \textbf{Degenerazione:} Un componente dell'insieme di base $T$, ovvero l'arco $(1\to2)$, è risultato vuoto ($x_{12}=0$). Avendo una variabile in base pari a zero, \textbf{la soluzione è degenere}.
+	\end{enumerate}
+	Essendo una Soluzione di Base Ammissibile (S.B.A.), possiamo serenamente avviare il Simplesso per Flussi partendo da qui.
+	
+	\vspace{0.6cm}
+	\separatore
+	\vspace{0.4cm}
+	
+	\textbf{Domanda Teorica: Quando un problema di rete risulta vuoto?}\\
+	A chiusura della lezione, il professore ha posto una domanda teorica fondamentale, riprendendo le valutazioni di ammissibilità strutturale dei grafi. Questa tipologia di problemi può rivelarsi "vuota" (inammissibile) se si verificano anomalie o paradossi, che si riassumono in tre casistiche principali:
+	
+	\begin{enumerate}
+		\item \textbf{Non bilanciamento della Rete:} Se la somma algebrica totale delle richieste e delle erogazioni di tutti i nodi non dà zero ($\sum b_i \neq 0$), significa che c'è un eccesso di offerta o di domanda incolmabile. La matematica non può bilanciare l'equazione $Ex = b$, rendendo il problema intrinsecamente vuoto.
+		\item \textbf{Anomalie Strutturali dei Nodi:} Il problema risulta vuoto se un nodo è fisicamente impossibilitato a soddisfare il proprio ruolo.
+		\begin{itemize}
+			\item Se un nodo deve \textbf{erogare} un servizio (Sorgente, $b_i < 0$), ma strutturalmente \textbf{non possiede alcun arco uscente} verso il resto del grafo, la merce rimarrà bloccata all'infinito.
+			\item Analogamente, se un nodo \textbf{richiede} un servizio (Destinazione, $b_i > 0$), ma \textbf{non possiede alcun arco entrante}, non potrà mai ricevere la risorsa richiesta, violando irrimediabilmente il vincolo.
+		\end{itemize}
+		\item \textbf{Portate Insufficienti (Taglio di Capacità):} In una rete capacitata, se la somma delle portate massime (Upper Bound) di tutte le strade che collegano una zona di produzione a una zona di destinazione risulta strettamente inferiore alla quantità di merce che deve obbligatoriamente transitarvi per soddisfare i fabbisogni, il problema si blocca. Le portate risultano insufficienti e la soluzione è matematicamente vuota.
+	\end{enumerate}
+	
+	\vspace{1.5cm}
+	\begin{center}
+		\rule{0.65\textwidth}{1pt} \\
+		\vspace{0.4cm}
+		\textcolor{titlecolor}{\LARGE \textbf{--- Fine Lezione 26 ---}} \\
+		\vspace{0.2cm}
+		\rule{0.65\textwidth}{1pt}
+	\end{center}
+	\newpage
+	
+	\avviso{\textit{\textbf{Questa lezione, come le sue precedenti e successive, può contenere errori e/o imprecisioni. Per il bene di tutti, è buona norma far notare all'autore l'errore o l'imprecisione così da risolvere nel minor tempo possibile. I canali di comunicazione, per eventuali avvisi generali o di errori trovati negli appunti, sono in cima al file. Grazie per la collaborazione e Buono studio!}}}
+	
+	\section*{Lezione 27 | 5 novembre 2026}
 	\subsection*{}
 	
 \end{document}
