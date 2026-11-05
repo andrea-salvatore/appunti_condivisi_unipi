@@ -10455,6 +10455,459 @@
 	\avviso{\textit{\textbf{Questa lezione, come le sue precedenti e successive, può contenere errori e/o imprecisioni. Per il bene di tutti, è buona norma far notare all'autore l'errore o l'imprecisione così da risolvere nel minor tempo possibile. I canali di comunicazione, per eventuali avvisi generali o di errori trovati negli appunti, sono in cima al file. Grazie per la collaborazione e Buono studio!}}}
 	
 	\section*{Lezione 27 | 5 novembre 2026}
-	\subsection*{}
+	\subsection*{Test di Ottimalità sulle Reti Capacitate}
+	
+	Ipotizziamo di avere un flusso di base ammissibile attraverso il modello:
+	\[
+	\begin{cases}
+		\min c^T x + 0 \cdot w \\
+		\begin{bmatrix}
+			E & 0 \\
+			I & I
+		\end{bmatrix}
+		\begin{bmatrix}
+			x \\
+			w
+		\end{bmatrix}
+		=
+		\begin{bmatrix}
+			b \\
+			u
+		\end{bmatrix}\\
+		x,w \geq 0
+	\end{cases}
+	\]
+	dove il blocco della matrice $E$ (matrice di incidenza) ha $N-1$ righe e $M$ colonne, i blocchi identità $I$ hanno sempre $M$ righe e $M$ colonne, e il blocco $0$ superiore ha le stesse dimensioni di $E$. Nel vettore colonna delle variabili di decisione, entrambi i componenti ($x$ e $w$) hanno $M$ righe (ricordando che i nodi indipendenti della rete sono $N-1$ e gli archi sono $M$). Infine, abbiamo i vincoli di non negatività $x \ge 0$ e $w \ge 0$.
+	
+	Abbiamo un flusso di base ammissibile $\bar{x}$, definito da una tripartizione, e ci chiediamo se sia ottimo. 
+	Sappiamo che il flusso di base esteso si può scrivere come:
+	\[
+	(\bar{x}_T, \bar{x}_L, \bar{x}_U, \bar{w}_T, \bar{w}_L, \bar{w}_U)
+	\]
+	Conoscendo la parte relativa a $\bar{x}$, otteniamo direttamente la parte in $\bar{w}$ per semplice differenza, dato che $w = u - x$. Possiamo quindi rappresentare i flussi di base per la componente $x$ semplicemente come $(\bar{x}_T, 0, u_U)$. 
+	Poiché la positività di un duale rappresenta la positività delle variabili della soluzione, sarà sufficiente controllare la positività di $\bar{x}_T$ e $\bar{w}_T$, ponendo a zero le componenti fuori base $\bar{x}_L$ e $\bar{w}_{U'}$.
+	
+	E quindi, come si fa a vedere se è ottimo? Si studia il suo problema duale associato.
+	Nel caso classico della Programmazione Lineare, eravamo abituati a scrivere modelli del tipo:
+	\[
+	\begin{cases}
+		\max c^T x \\
+		Ax \le b
+	\end{cases}
+	\]
+	il cui duale complementare diventava:
+	\[
+	\begin{cases}
+		\min b^T y \\
+		A^T y = c \\
+		y \ge 0
+	\end{cases}
+	\]
+	Nel nostro caso delle reti capacitate (in cui si parte da un problema di minimo con vincoli di uguaglianza), il modello diventa un \textbf{Duale} di massimo, con la matrice dei coefficienti trasposta rispetto a quella di partenza. Nello specifico:
+	\[
+	\begin{cases}
+		\max \begin{bmatrix} b,u \end{bmatrix}^T \begin{bmatrix} \pi \\ \mu \end{bmatrix} \\\\
+		\begin{bmatrix}
+			E^T & I \\
+			0 & I
+		\end{bmatrix}
+		\begin{bmatrix}
+			\pi \\
+			\mu
+		\end{bmatrix}
+		\le
+		\begin{bmatrix}
+			c \\
+			0
+		\end{bmatrix}
+	\end{cases}
+	\]
+	In questo modello, il numero totale di variabili duali sarà $M + N - 1$ e rappresenta a tutti gli effetti il \textbf{modello dei potenziali sulle reti capacitate}. 
+	In particolar modo, all'interno della funzione obiettivo, il vettore colonna dei termini noti conterrà $b$ (di dimensione $N-1$) e $u$ (di dimensione $M$); il vettore colonna delle variabili conterrà i potenziali nodali $\pi$ (di dimensione $N-1$) e i potenziali degli archi $\mu$ (di dimensione $M$). Le dimensioni della matrice all'interno del vincolo sono la trasposta esatta della matrice precedente: $E^T$ e il blocco $0$ sottostante hanno dimensione $M \times (N-1)$, mentre le matrici $I$ sono $M \times M$.
+	
+	Dato che abbiamo eseguito una trasposizione pura del sistema, sappiamo che l'esapartizione avverrà ora \textbf{sulle righe} e non più sulle colonne. Prendiamo quindi l'insieme di base $B = \{T, U, T', L'\}$ (lasciando gli altri due insiemi nell'insieme non di base $N$).
+	Il professore ci ripropone infatti la matrice dei vincoli trasposta in questo modo, ponendo nella parte sinistra l'etichetta $(T, L, U)$ in corrispondenza delle righe della matrice di incidenza trasposta, e l'etichetta "con i primi" $(T', L', U')$ in corrispondenza del blocco zero sotto la $E^T$:
+	
+	\[
+	\begin{array}{c|c|c|}
+		\multicolumn{1}{c}{} & \multicolumn{1}{c}{\pi} & \multicolumn{1}{c}{\mu} \\
+		\cline{2-3}
+		T, L, U & E^T & I \\
+		\cline{2-3}
+		T', L', U' & 0 & I \\
+		\cline{2-3}
+	\end{array}
+	\le
+	\begin{bmatrix}
+		c \\
+		0
+	\end{bmatrix}
+	\]
+	
+	Moltiplicando l'intera matrice dei vincoli trasposta per il vettore colonna delle variabili duali, otteniamo il seguente sistema matriciale di disuguaglianze:
+	\[
+	\begin{bmatrix}
+		E^T & I \\
+		0 & I
+	\end{bmatrix}
+	\begin{bmatrix}
+		\pi \\
+		\mu_{T'} \\
+		\mu_{L'} \\
+		\mu_{U'}
+	\end{bmatrix}
+	\le
+	\begin{bmatrix}
+		c_T \\
+		c_L \\
+		c_U \\
+		0_{T'} \\
+		0_{L'} \\
+		0_{U'}
+	\end{bmatrix}
+	\]
+	In questa formulazione, $\pi$ rappresenta i potenziali relativi ai nodi (le variabili prive di apice), mentre le componenti $\mu$ rappresentano i potenziali duali associati ai vincoli di capacità (upper bound) per le tre partizioni degli archi.
+	
+	Estraendo esclusivamente i vincoli che fanno parte della base $B = \{T, U, T', L'\}$, il modello si traduce matematicamente nel seguente sistema di equazioni:
+	\[
+	\begin{cases}
+		E_T^T \pi + \mu_{T'} = c_T \\
+		E_U^T \pi + \mu_{U'} = c_U \\
+		\mu_{T'} = 0 \\
+		\mu_{L'} = 0
+	\end{cases}
+	\]
+	Questo sottosistema definisce le condizioni di equilibrio sui costi per la base attuale:
+	\begin{itemize}
+		\item La prima e la seconda equazione bilanciano i potenziali dei nodi ($\pi$) e degli archi ($\mu$) per gli elementi dell'albero di copertura ($T$) e per gli archi saturi ($U$), eguagliandoli ai rispettivi costi nominali $c$.
+		\item La terza e la quarta equazione impongono l'azzeramento dei potenziali duali associati agli scarti di base, forzando le componenti $\mu_{T'}$ e $\mu_{L'}$ a essere nulle.
+	\end{itemize}
+	\[
+	\begin{cases}
+		E_T^T \pi + \mu_{T} = c_T \\
+		E_U^T \pi + \mu_{U} = c_U \\
+		\mu_{T'} = 0 \\
+		\mu_{L'} = 0
+	\end{cases}
+	\]
+	Questo ha la dimostrazione del fatto che i potenziali sulle reti capacitate si calcolano esattamente come nelle reti non capacitate. Risolvendo il sistema, la soluzione duale di base risulta essere:
+	\[
+	(\pi, 0, 0, c_U - E_U^T \pi)
+	\]
+	
+	Se facessimo la stessa cosa con gli indici non di base, in corrispondenza di $L$ avremmo:
+	\[
+	E_L^T \pi \le c_L
+	\]
+	dato che $\mu_{L'} = 0$ (questo vincolo fa parte delle condizioni di ammissibilità del potenziale, che sono le condizioni di Bellman). Per quanto riguarda $U'$, il vincolo sarebbe semplicemente:
+	\[
+	\mu_{U'} \le 0
+	\]
+	
+	Quindi possiamo scrivere il seguente sistema in due disequazioni:
+	\[
+	\begin{cases}
+		E_L^T \pi \le c_L \\
+		c_U - E_U^T \pi \le 0
+	\end{cases}
+	\]
+	Sviluppando questo sottosistema componente per componente, esso diventa:
+	\[
+	\begin{cases}
+		-\pi_i + \pi_j \le c_{ij} & \forall (i,j) \in L \\
+		c_{ij} \le -\pi_i + \pi_j & \forall (i,j) \in U
+	\end{cases}
+	\]
+	In conclusione, riordinando i termini, possiamo scrivere il sistema finale basato sui costi ridotti $C^{\pi}_{ij}$:
+	\[
+	\begin{cases}
+		c^{\pi}_{ij} \ge 0 & \forall (i,j) \in L \\
+		c^{\pi}_{ij} \le 0 & \forall (i,j) \in U
+	\end{cases}
+	\]
+	Siccome sono tutti sistemi formati da due disequazioni, la prima disequazione di ogni sistema si riferisce rigorosamente alla prima disequazione del sistema precedente in questa specifica dimostrazione. In ogni caso, l'ultimo sistema rappresenta le \textbf{Condizioni di Bellman per le reti capacitate}. 
+	Il minimo richiesto per l'esame è sapere come arrivare a trovare i potenziali nodali $\pi_i$ e $\pi_j$ (che si calcolano sempre sull'albero di copertura $T$) e poi controllare le condizioni dell'ultimo sistema appena descritto. La variabile $\mu$ la usiamo unicamente come catalizzatore per i conti, e infatti poi sparisce.
+	
+	\vspace{0.4cm}
+	\textbf{Teorema di Bellman (Ottimalità Primale)}\\
+	Data una tripartizione di base $(T, L, U)$ che genera un flusso ammissibile, se i costi ridotti degli archi liberi vuoti ($L$) sono positivi o nulli ($c^{\pi}_{ij} \ge 0$) e i costi ridotti degli archi saturi ($U$) sono negativi o nulli ($c^{\pi}_{ij} \le 0$), allora la soluzione corrente è l'ottimo. 
+	
+	\textit{Significato e Motivazione:} L'essenza di questo teorema discende in modo diretto dal \textbf{Teorema della Dualità Forte}. Ottenere costi ridotti che rispettano esattamente i segni previsti significa, algebricamente, che le Condizioni di Bellman sono state soddisfatte. Questo certifica che il potenziale duale associato a quella base è pienamente ammissibile. Poiché possediamo già un flusso primale ammissibile (per ipotesi di partenza) e abbiamo appena confermato l'ammissibilità del duale complementare, la convergenza di queste due condizioni garantisce matematicamente e in modo assoluto di aver raggiunto la soluzione ottima del problema.
+	
+	\vspace{0.4cm}
+	\textbf{Teorema di Bellman (bis) (Ottimalità Duale)}\\
+	Data una tripartizione $(T, L, U)$ che genera un potenziale duale ammissibile, se il flusso di base associato risulta a sua volta ammissibile (ovvero i flussi calcolati sull'albero di copertura rispettano rigorosamente i limiti fisici di portata logistica: $0 \le x_T \le u_T$), allora ci troviamo all'ottimo.
+	
+	\textit{Significato e Motivazione:} Questo enunciato rappresenta la prospettiva ribaltata del precedente (utilissima se si dovesse applicare il Simplesso Duale). Se si parte da un sistema di potenziali che non viola alcuna condizione di Bellman sui costi ridotti, la componente duale è già considerata perfetta. A quel punto, non resta che calcolare e controllare il transito di merce sull'albero $T$: non appena i valori del flusso rientrano fisicamente nei limiti consentiti (senza assumere valori negativi e senza "sfondare" gli upper bound), il primale diventa ammissibile. L'allineamento istantaneo dell'ammissibilità su entrambi i fronti fa scattare in automatico l'ottimalità globale.
+	
+	\vspace{0.6cm}
+	\separatore
+	\vspace{0.4cm}
+	
+	\textbf{Esercizio 1}\\
+	A questo punto, il professore ci propone un esercizio logistico strutturato su un grafo a 6 nodi. La prima fase consiste nel definire i bilanci dei singoli nodi:
+	\begin{itemize}[label=\textcolor{titlecolor}{\Large\textbullet}, itemsep=2pt, leftmargin=1.5cm]
+		\item \textbf{Nodi Sorgente:} Nodo 1 eroga 9 ($b_1 = -9$), Nodo 2 eroga 2 ($b_2 = -2$), Nodo 3 eroga 3 ($b_3 = -3$).
+		\item \textbf{Nodi Destinazione:} Nodo 4 richiede 4 ($b_4 = +4$), Nodo 5 richiede 4 ($b_5 = +4$), Nodo 6 richiede 6 ($b_6 = +6$).
+	\end{itemize}
+	La rete è perfettamente bilanciata, dato che l'offerta totale (14) eguaglia la domanda totale (14).
+	
+	Gli archi del grafo, con i rispettivi valori di Costo e Capacità $[C, U]$ assegnati in ordine lessicografico, sono i seguenti: 
+	$(1\to2)$ [9, 3]; $(1\to3)$ [3, 10]; $(2\to4)$ [3, 11]; $(3\to2)$ [6, 10]; $(3\to4)$ [5, 7]; $(3\to5)$ [2, 11]; $(4\to6)$ [3, 10]; $(5\to4)$ [2, 8]; $(5\to6)$ [9, 9].
+	
+	All'interno di questo scenario, l'albero di copertura (l'insieme di base $T$, che evidenzieremo in viola) è formato dagli archi: $\mathbf{(1\to3), (2\to4), (3\to5), (4\to6), (5\to6)}$. 
+	L'arco $(1\to2)$ fa invece parte dell'insieme degli archi saturi $U$ (evidenziato in rosso). I restanti archi formano l'insieme degli archi vuoti $L$ (in grigio tratteggiato).
+	
+	\begin{figure}[H]
+		\centering
+		\begin{tikzpicture}[scale=1.5, >=stealth, node distance=2cm,
+			node_style/.style={circle, draw=titlecolor, thick, fill=titlecolor!10, minimum size=8mm, font=\bfseries},
+			tree_style/.style={->, ultra thick, color=violet},
+			sat_style/.style={->, ultra thick, color=red},
+			non_tree_style/.style={->, thick, dashed, color=gray}
+			]
+			
+			\node[node_style, label={[text=red, font=\bfseries]above:$\boldsymbol{-9}$}] (1) at (0, 2) {1};
+			\node[node_style, label={[text=red, font=\bfseries]above:$\boldsymbol{-2}$}] (2) at (2, 3.5) {2};
+			\node[node_style, label={[text=red, font=\bfseries]below:$\boldsymbol{-3}$}] (3) at (2, 0.5) {3};
+			\node[node_style, label={[text=green!60!black, font=\bfseries]above:$\boldsymbol{+4}$}] (4) at (4, 3.5) {4};
+			\node[node_style, label={[text=green!60!black, font=\bfseries]below:$\boldsymbol{+4}$}] (5) at (4, 0.5) {5};
+			\node[node_style, label={[text=green!60!black, font=\bfseries]right:$\boldsymbol{+6}$}] (6) at (6, 2) {6};
+			
+			% Archi dell'Albero di Copertura (Base T) - Viola
+			\draw[tree_style] (1) -- (3) node[midway, below left, font=\bfseries, color=black] {[3, 10]};
+			\draw[tree_style] (2) -- (4) node[midway, above, font=\bfseries, color=black] {[3, 11]};
+			\draw[tree_style] (3) -- (5) node[midway, below, font=\bfseries, color=black] {[2, 11]};
+			\draw[tree_style] (4) -- (6) node[midway, above right, font=\bfseries, color=black] {[3, 10]};
+			\draw[tree_style] (5) -- (6) node[midway, below right, font=\bfseries, color=black] {[9, 9]};
+			
+			% Arco Saturo (Base U) - Rosso
+			\draw[sat_style] (1) -- (2) node[midway, above left, font=\bfseries, color=black] {[9, 3]};
+			
+			% Archi Non di Base (L) - Tratteggiati
+			\draw[non_tree_style] (3) -- (2) node[midway, left, font=\bfseries, color=black] {[6, 10]};
+			\draw[non_tree_style] (3) -- (4) node[pos=0.3, below right, font=\bfseries, color=black] {[5, 7]};
+			\draw[non_tree_style] (5) -- (4) node[midway, right, font=\bfseries, color=black] {[2, 8]};
+			
+		\end{tikzpicture}
+	\end{figure}
+	
+	Per trovare il vettore dei flussi $\bar{x}$, dobbiamo prima calcolare le quote fisse. L'unico arco in $U$ è $(1\to2)$, che trasporta obbligatoriamente il suo upper bound: $x_{12} = 3$. Questo altera i bilanci per la visita posticipata sull'albero $T$: il nodo 1 perde 3 unità (il suo erogato su $T$ scende a 6), e il nodo 2 riceve 3 unità, che si sommano alle 2 che già produce (totale da spedire su $T$ pari a 5).
+	
+	Eseguendo la visita posticipata sulle foglie di $T$:
+	\begin{itemize}
+		\item \textbf{Nodo 2:} Deve spedire 5. L'unica via è $(2\to4) \implies x_{24} = 5$.
+		\item \textbf{Nodo 4:} Riceve 5 da 2, ma richiede solo 4. Ha un eccesso di 1 che deve spedire. L'uscita è $(4\to6) \implies x_{46} = 1$.
+		\item \textbf{Nodo 6:} Richiede 6. Riceve 1 dal nodo 4, gli mancano 5 unità. Le deve ricevere dal nodo 5. $\implies x_{56} = 5$.
+		\item \textbf{Nodo 5:} Invia 5 al nodo 6 e richiede 4 di suo (totale 9). L'unico ingresso è da 3. $\implies x_{35} = 9$.
+		\item \textbf{Nodo 1:} Deve erogare le 6 unità rimaste. L'uscita è su $(1\to3) \implies x_{13} = 6$.
+		\item \textbf{Controllo Nodo 3:} Riceve 6 dal nodo 1, eroga 3 di suo, per un totale di 9. Spedisce esattamente 9 verso il nodo 5. Bilancio perfetto.
+	\end{itemize}
+	
+	Scrivendo la soluzione $\bar{x}$ in ordine lessicografico, includendo gli zeri degli archi in $L$, otteniamo il vettore: 
+	\[ \bar{x} = \mathbf{(3, 6, 5, 0, 0, 9, 1, 0, 5)^T} \]
+	Questa soluzione è \textbf{non degenere}: l'unico arco saturo è correttamente l'arco $(1\to2)$ che si trova in $U$, mentre all'interno dell'albero di copertura $T$ nessun arco si è azzerato né ha raggiunto la propria capacità massima (es. $0 < x_{13} < 10$). 
+	
+	Calcoliamo ora i potenziali $\bar{\pi}$, imponendo $\pi_1 = 0$ e sfruttando le equazioni $-\pi_i + \pi_j = c_{ij}$ solo per gli archi viola dell'albero $T$:
+	\begin{itemize}
+		\item Da $(1\to3)$: $-0 + \pi_3 = 3 \implies \pi_3 = 3$
+		\item Da $(3\to5)$: $-3 + \pi_5 = 2 \implies \pi_5 = 5$
+		\item Da $(5\to6)$: $-5 + \pi_6 = 9 \implies \pi_6 = 14$
+		\item Da $(4\to6)$: $-\pi_4 + 14 = 3 \implies \pi_4 = 11$
+		\item Da $(2\to4)$: $-\pi_2 + 11 = 3 \implies \pi_2 = 8$
+	\end{itemize}
+	Otteniamo il vettore dei potenziali: $\bar{\pi} = \mathbf{(0, 8, 3, 11, 5, 14)^T}$. 
+	
+	Il professore sottolinea che, all'esame, per valutare l'ammissibilità del potenziale (e l'ottimalità della base) è sufficiente calcolare \textbf{al massimo quattro costi ridotti} $c_{ij}^\pi$, fermandosi non appena uno di essi viola la condizione di Bellman. 
+	Valutiamo le condizioni ($c_{ij}^\pi = c_{ij} + \pi_i - \pi_j$):
+	\begin{itemize}
+		\item $c_{12}^\pi$ (in $U$, deve essere $\le 0$): $9 + 0 - 8 = \mathbf{1} > 0 \quad \text{\textcolor{red}{(Violato!)}}$
+	\end{itemize}
+	Poiché il primo costo ridotto calcolato ($c_{12}^\pi$) vìola palesemente la condizione di Bellman (essendo positivo per un arco in $U$), non è necessario calcolarne altri. Il potenziale non è ammissibile. A causa di questa grave inammissibilità duale, in questo momento non è possibile avviare il Simplesso sui Potenziali.
+	
+	(A scopo didattico, calcoliamo anche gli altri costi ridotti, per dimostrare l'inammissibilità multipla):
+	\begin{itemize}
+		\item $c_{32}^\pi$ (in $L$, deve essere $\ge 0$): $6 + 3 - 8 = \mathbf{1} \ge 0 \quad \text{(Rispettato)}$
+		\item $c_{34}^\pi$ (in $L$, deve essere $\ge 0$): $5 + 3 - 11 = \mathbf{-3} < 0 \quad \text{\textcolor{red}{(Violato!)}}$
+		\item $c_{54}^\pi$ (in $L$, deve essere $\ge 0$): $2 + 5 - 11 = \mathbf{-4} < 0 \quad \text{\textcolor{red}{(Violato!)}}$
+	\end{itemize}
+	
+	\vspace{0.6cm}
+	\separatore
+	\vspace{0.4cm}
+	\textbf{Esercizio 2}\\
+	Il secondo esercizio tratta un grafo a 5 nodi.
+	I bilanci nodali sono: Nodo 1 eroga 8 ($b_1 = -8$), Nodo 2 eroga 6 ($b_2 = -6$), Nodo 3 richiede 1 ($b_3 = +1$), Nodo 4 richiede 6 ($b_4 = +6$), Nodo 5 richiede 7 ($b_5 = +7$).
+	
+	Gli archi, con relative combinazioni $[Costo, Capacita']$, sono:
+	$(1\to2)$ [2, 8]; $(1\to3)$ [3, 9]; $(2\to4)$ [2, 7]; $(3\to2)$ [4, 10]; $(3\to4)$ [7, 11]; $(3\to5)$ [6, 10]; $(4\to5)$ [5, 3].
+	
+	Ci viene fornita la tripartizione incompleta: sappiamo che gli archi in $U$ sono $(3\to4), (3\to5)$ e l'unico arco in $L$ è $(3\to2)$. 
+	L'albero di copertura $T$ è quindi formato inevitabilmente dai 4 archi restanti: $\mathbf{(1\to2), (1\to3), (2\to4), (4\to5)}$.
+	
+	\begin{figure}[H]
+		\centering
+		\begin{tikzpicture}[scale=1.5, >=stealth, node distance=2cm,
+			node_style/.style={circle, draw=titlecolor, thick, fill=titlecolor!10, minimum size=8mm, font=\bfseries},
+			tree_style/.style={->, ultra thick, color=violet},
+			sat_style/.style={->, ultra thick, color=red},
+			non_tree_style/.style={->, thick, dashed, color=gray}
+			]
+			
+			\node[node_style, label={[text=red, font=\bfseries]above:$\boldsymbol{-8}$}] (1) at (0, 2) {1};
+			\node[node_style, label={[text=red, font=\bfseries]above:$\boldsymbol{-6}$}] (2) at (2.5, 3.5) {2};
+			\node[node_style, label={[text=green!60!black, font=\bfseries]below:$\boldsymbol{+1}$}] (3) at (2.5, 0.5) {3};
+			\node[node_style, label={[text=green!60!black, font=\bfseries]above:$\boldsymbol{+6}$}] (4) at (5, 3.5) {4};
+			\node[node_style, label={[text=green!60!black, font=\bfseries]below:$\boldsymbol{+7}$}] (5) at (5, 0.5) {5};
+			
+			% Archi dell'Albero di Copertura (Base T)
+			\draw[tree_style] (1) -- (2) node[midway, above left, font=\bfseries, color=black] {[2, 8]};
+			\draw[tree_style] (1) -- (3) node[midway, below left, font=\bfseries, color=black] {[3, 9]};
+			\draw[tree_style] (2) -- (4) node[midway, above, font=\bfseries, color=black] {[2, 7]};
+			\draw[tree_style] (4) -- (5) node[midway, right, font=\bfseries, color=black] {[5, 3]};
+			
+			% Archi Saturi (Base U)
+			\draw[sat_style] (3) -- (4) node[pos=0.3, below right, font=\bfseries, color=black] {[7, 11]};
+			\draw[sat_style] (3) -- (5) node[midway, below, font=\bfseries, color=black] {[6, 10]};
+			
+			% Archi Vuoti (Base L)
+			\draw[non_tree_style] (3) -- (2) node[midway, left, font=\bfseries, color=black] {[4, 10]};
+			
+		\end{tikzpicture}
+	\end{figure}
+	
+	Impostiamo i flussi fissi su $U$ e $L$: $x_{34} = 11$, $x_{35} = 10$, $x_{32} = 0$.
+	Eseguiamo la visita posticipata sull'albero per trovare i flussi in $T$:
+	\begin{itemize}
+		\item \textbf{Nodo 5 (Foglia):} Richiede 7, ma riceve 10 dall'arco saturo $(3\to5)$. Ha un eccesso di 3, ma l'unico arco dell'albero collegato è $(4\to5)$, che è entrante. Per smaltire l'eccesso "all'indietro", il flusso deve essere negativo: $\implies x_{45} = -3$.
+		\item \textbf{Nodo 4:} Richiede 6. Riceve 11 da $(3\to4)$, e deve smaltire l'eccesso "negativo" appena calcolato. In pratica, dal nodo 4 escono -3 unità (cioè entrano 3), portando il carico a $11 - (-3) = 14$. Dato che ne richiede 6, c'è un'eccedenza netta di 8 unità che l'arco $(2\to4)$ in entrata deve compensare algebricamente. $\implies x_{24} = -8$.
+		\item \textbf{Nodo 2:} Eroga 6, ma deve anche compensare il flusso negativo in entrata di -8 da $(2\to4)$. L'ingresso dal nodo 1 deve coprire questo deficit logico. $\implies x_{12} = -14$.
+		\item \textbf{Nodo 3:} Richiede 1. Invia 11 su $(3\to4)$ e 10 su $(3\to5)$ (totale 21 in uscita). Per bilanciare deve ricevere in totale 22. $\implies x_{13} = 22$.
+		\item \textbf{Controllo Nodo 1:} Eroga 8. La somma delle uscite è $x_{12} + x_{13} = -14 + 22 = 8$. Bilancio perfetto.
+	\end{itemize}
+	La soluzione completa è $\bar{x} = \mathbf{(-14, 22, -8, 0, 11, 10, -3)^T}$. La presenza di flussi fortemente negativi rende questa base geometricamente corretta ma \textbf{totalmente inammissibile} sul piano logistico.
+	
+	Calcoliamo i potenziali sull'albero $\bar{\pi}$ ($\pi_1 = 0$):
+	\begin{itemize}
+		\item $(1\to2): \quad \pi_2 = 0 + 2 = 2$
+		\item $(1\to3): \quad \pi_3 = 0 + 3 = 3$
+		\item $(2\to4): \quad \pi_4 = 2 + 2 = 4$
+		\item $(4\to5): \quad \pi_5 = 4 + 5 = 9$
+	\end{itemize}
+	Otteniamo $\bar{\pi} = \mathbf{(0, 2, 3, 4, 9)^T}$.
+	
+	\vspace{0.6cm}
+	\separatore
+	\vspace{0.4cm}
+	\textbf{Esercizio Aggiuntivo: Il Problema del Trasporto come Rete di Flusso}\\
+	Il professore introduce a questo punto un'interessante analogia tra il Problema del Trasporto e la programmazione lineare su reti, dimostrando come il primo goda delle proprietà di interezza proprio perché convertibile in una struttura di flusso.
+	La matrice del trasporto si presenta così:
+	\begin{center}
+		\begin{tabular}{|c|c|c|c|c|}
+			\hline
+			\textbf{Depositi \textbackslash \ Destinazioni} & \textbf{3} & \textbf{4} & \textbf{5} & \\
+			\hline
+			\textbf{1} & 6 & 9 & 8 & \textbf{Min 18} \\
+			\hline
+			\textbf{2} & 7 & 11 & 9 & \textbf{Min 18} \\
+			\hline
+			& \textbf{Max 10} & \textbf{Max 15} & \textbf{Max 11} & \\
+			\hline
+		\end{tabular}
+	\end{center}
+	
+	Rappresentiamo il problema costruendo un grafo bipartito logico, dove a sinistra posizioniamo i nodi di partenza (sorgenti) e a destra i nodi di arrivo (destinazioni), separandoli per chiarezza visiva.
+	
+	\begin{figure}[H]
+		\centering
+		\begin{tikzpicture}[scale=1.5, >=stealth, node distance=3cm,
+			node_style/.style={circle, draw=titlecolor, thick, fill=titlecolor!10, minimum size=8mm, font=\bfseries},
+			edge_style/.style={->, thick, color=black}
+			]
+			
+			\node[node_style, label={[text=red, font=\bfseries]left:$\boldsymbol{-18}$}] (1) at (0, 2) {1};
+			\node[node_style, label={[text=red, font=\bfseries]left:$\boldsymbol{-18}$}] (2) at (0, 0) {2};
+			
+			\node[node_style, label={[text=green!60!black, font=\bfseries]right:$\boldsymbol{+10}$}] (3) at (4, 3) {3};
+			\node[node_style, label={[text=green!60!black, font=\bfseries]right:$\boldsymbol{+15}$}] (4) at (4, 1) {4};
+			\node[node_style, label={[text=green!60!black, font=\bfseries]right:$\boldsymbol{+11}$}] (5) at (4, -1) {5};
+			
+			% Archi dal Nodo 1
+			\draw[edge_style] (1) -- (3);
+			\draw[edge_style] (1) -- (4);
+			\draw[edge_style] (1) -- (5);
+			
+			% Archi dal Nodo 2
+			\draw[edge_style] (2) -- (3);
+			\draw[edge_style] (2) -- (4);
+			\draw[edge_style] (2) -- (5);
+			
+		\end{tikzpicture}
+		\caption{Rete bipartita del problema del trasporto. Costi di percorrenza degli archi: 
+			$\mathbf{(1\to3)} \implies C=6$; \quad 
+			$\mathbf{(1\to4)} \implies C=9$; \quad 
+			$\mathbf{(1\to5)} \implies C=8$; \quad 
+			$\mathbf{(2\to3)} \implies C=7$; \quad 
+			$\mathbf{(2\to4)} \implies C=11$; \quad 
+			$\mathbf{(2\to5)} \implies C=9$.}
+	\end{figure}
+	
+	Il flusso in uscita ricavato dal solutore è $\bar{x} = \mathbf{(10, 8, 0, 0, 7, 11)^T}$.
+	Il professore ci fornisce il potenziale $\bar{\pi} = \mathbf{(0, 1, 6, 9, 10)^T}$, ma per essere impeccabili e mantenere il rigore matematico delle reti (dove si applica $-\pi_i + \pi_j = c_{ij}$), andiamo a ricalcolare i potenziali esatti usando gli archi attivi del flusso $\bar{x}$ (ovvero gli archi $(1\to3), (1\to4), (2\to4), (2\to5)$ che costituiscono la base $T$):
+	\begin{itemize}
+		\item Fissiamo $\pi_1 = 0$.
+		\item Arco $(1\to3) \in T: -0 + \pi_3 = 6 \implies \pi_3 = 6$
+		\item Arco $(1\to4) \in T: -0 + \pi_4 = 9 \implies \pi_4 = 9$
+		\item Arco $(2\to4) \in T: -\pi_2 + 9 = 11 \implies \pi_2 = -2$
+		\item Arco $(2\to5) \in T: -(-2) + \pi_5 = 9 \implies \pi_5 = 7$
+	\end{itemize}
+	Il vettore corretto per la convenzione in uso è quindi $\bar{\pi}_{vero} = \mathbf{(0, -2, 6, 9, 7)^T}$.
+	Per valutare l'ottimalità, calcoliamo i costi ridotti degli archi non utilizzati (posti a zero):
+	\begin{itemize}
+		\item $c_{15}^\pi = c_{15} + \pi_1 - \pi_5 = 8 + 0 - 7 = \mathbf{1} \ge 0$
+		\item $c_{23}^\pi = c_{23} + \pi_2 - \pi_3 = 7 + (-2) - 6 = \mathbf{-1} < 0 \quad \text{\textcolor{red}{(Violato!)}}$
+	\end{itemize}
+	Sebbene il calcolo del costo ridotto dell'arco $(1\to5)$ restituisca un valore positivo, l'arco $(2\to3)$ vìola palesemente la condizione di Bellman. Questa configurazione di flussi è ammissibile (rispetta i bilanci) ma \textbf{non è la soluzione ottima}.
+	
+	\vspace{0.6cm}
+	\separatore
+	\vspace{0.4cm}
+	
+	\textbf{Esercizio per casa}\\
+	In conclusione di lezione, il professore assegna un piccolo quesito provocatorio per casa: \textit{"Costruire un piccolo problema di trasporto definendo un flusso ottimo che però NON sia di base"}. 
+	
+	Un piccolo esercizio banale, magari anche sbagliato, che ho fatto a mano per interpretare la richiesta, consiste nel ribaltare brutalmente la convenienza economica: ho costruito una rete a 6 nodi e ho inserito di proposito nell'albero di copertura (in viola) tutti gli archi più costosi della rete, relegando all'insieme fuori base $L$ (in tratteggiato) le tratte nettamente più convenienti. Per mia pura interpretazione (provocatoria e intuitiva), costringendo il flusso a passare per le tratte peggiori possibili, si otterrebbe una soluzione teoricamente pessima per l'albero di base, dimostrando visivamente che un flusso ripartito o appoggiato sugli archi tratteggiati sarebbe infinitamente più performante e ottimale di quello basico.
+	
+	\begin{figure}[H]
+		\centering
+		\begin{tikzpicture}[scale=1.5, >=stealth, node distance=2cm,
+			node_style/.style={circle, draw=titlecolor, thick, fill=titlecolor!10, minimum size=8mm, font=\bfseries},
+			tree_style/.style={->, ultra thick, color=violet},
+			non_tree_style/.style={->, thick, dashed, color=gray}
+			]
+			
+			\node[node_style, label={[text=red, font=\bfseries]above:$\boldsymbol{-10}$}] (1) at (3, 4) {1};
+			\node[node_style, label={[text=green!60!black, font=\bfseries]left:$\boldsymbol{+2}$}] (2) at (1, 2) {2};
+			\node[node_style, label={[text=green!60!black, font=\bfseries]right:$\boldsymbol{+2}$}] (3) at (5, 2) {3};
+			\node[node_style, label={[text=green!60!black, font=\bfseries]left:$\boldsymbol{+2}$}] (4) at (1, 0) {4};
+			\node[node_style, label={[text=green!60!black, font=\bfseries]right:$\boldsymbol{+2}$}] (5) at (5, 0) {5};
+			\node[node_style, label={[text=green!60!black, font=\bfseries]below:$\boldsymbol{+2}$}] (6) at (3, -2) {6};
+			
+			% Albero di Copertura provocatorio (Archi pessimi in base)
+			\draw[tree_style] (1) -- (2) node[midway, above left, font=\bfseries, color=black] {C=90};
+			\draw[tree_style] (1) -- (3) node[midway, above right, font=\bfseries, color=black] {C=95};
+			\draw[tree_style] (2) -- (4) node[midway, left, font=\bfseries, color=black] {C=80};
+			\draw[tree_style] (3) -- (5) node[midway, right, font=\bfseries, color=black] {C=85};
+			\draw[tree_style] (4) -- (6) node[midway, below left, font=\bfseries, color=black] {C=99};
+			
+			% Archi fuori base (Tratteggiati molto convenienti)
+			\draw[non_tree_style] (3) -- (2) node[midway, above, font=\bfseries, color=black] {C=2};
+			\draw[non_tree_style] (3) -- (4) node[pos=0.7, above right, font=\bfseries, color=black] {C=3};
+			\draw[non_tree_style] (5) -- (4) node[midway, below, font=\bfseries, color=black] {C=1};
+			\draw[non_tree_style] (5) -- (6) node[midway, below right, font=\bfseries, color=black] {C=2};
+			
+		\end{tikzpicture}
+		\caption{Tentativo di costruzione manuale. L'albero di copertura $T$ (viola) è forzato appositamente sugli archi peggiori della rete, lasciando le vere convenienze in $L$.}
+	\end{figure}
 	
 \end{document}
