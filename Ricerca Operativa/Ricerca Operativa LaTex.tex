@@ -10910,4 +10910,1085 @@
 		\caption{Tentativo di costruzione manuale. L'albero di copertura $T$ (viola) è forzato appositamente sugli archi peggiori della rete, lasciando le vere convenienze in $L$.}
 	\end{figure}
 	
+	\vspace{1.5cm}
+	\begin{center}
+		\rule{0.65\textwidth}{1pt} \\
+		\vspace{0.4cm}
+		\textcolor{titlecolor}{\LARGE \textbf{--- Fine Lezione 27 ---}} \\
+		\vspace{0.2cm}
+		\rule{0.65\textwidth}{1pt}
+	\end{center}
+	\newpage
+	
+	\avviso{\textit{\textbf{Questa lezione, come le sue precedenti e successive, può contenere errori e/o imprecisioni. Per il bene di tutti, è buona norma far notare all'autore l'errore o l'imprecisione così da risolvere nel minor tempo possibile. I canali di comunicazione, per eventuali avvisi generali o di errori trovati negli appunti, sono in cima al file. Grazie per la collaborazione e Buono studio!}}}
+	
+	\section*{Lezione 28 | 9 novembre 2026}
+	\subsection*{Algoritmo di Dijkstra}
+	
+	L'Algoritmo di Dijkstra è uno strumento fondamentale nella teoria delle reti, ideato specificamente per individuare l'albero dei cammini minimi (Shortest Path Tree) all'interno di un grafo con pesi non negativi. 
+	Per inquadrarne l'efficienza, basti pensare alla gerarchia risolutiva: se il Simplesso standard per la Programmazione Lineare possiede una sua struttura rigorosa, il Simplesso su Reti ne rappresenta una specializzazione molto più rapida e snella. A sua volta, il Simplesso per Cammini Minimi semplifica ulteriormente i calcoli, evitando la gestione dei cicli $C^+$ e $C^-$. A questo punto, sorge spontaneo chiedersi: \textit{perché introdurre Dijkstra se esiste già il Simplesso per i cammini minimi?} 
+	La risposta risiede nella sua estrema efficienza computazionale: Dijkstra è un algoritmo \textit{greedy} strettamente combinatorio, ancora più diretto e veloce del Simplesso per Reti, poiché non richiede pivot, calcolo di costi ridotti o cicli di scambio.
+	
+	Ipotizziamo di avere un grafo pesato a 6 nodi. 
+	\begin{figure}[H]
+		\centering
+		\begin{tikzpicture}[scale=1.5, >=stealth, node distance=2cm,
+			node_style/.style={circle, draw=titlecolor, thick, fill=titlecolor!10, minimum size=8mm, font=\bfseries},
+			edge_style/.style={->, thick, color=black}
+			]
+			
+			% Posizionamento Nodi
+			\node[node_style] (1) at (0, 2) {1};
+			\node[node_style] (2) at (2, 3.5) {2};
+			\node[node_style] (3) at (2, 0.5) {3};
+			\node[node_style] (4) at (4, 3.5) {4};
+			\node[node_style] (5) at (4, 0.5) {5};
+			\node[node_style] (6) at (6, 2) {6};
+			
+			% Archi con i rispettivi costi
+			\draw[edge_style] (1) -- (2) node[midway, above left, font=\bfseries] {C=9};
+			\draw[edge_style] (1) -- (3) node[midway, below left, font=\bfseries] {C=5};
+			\draw[edge_style] (2) -- (4) node[midway, above, font=\bfseries] {C=1};
+			\draw[edge_style] (3) -- (2) node[midway, left, font=\bfseries] {C=2};
+			\draw[edge_style] (3) -- (4) node[pos=0.3, below right, font=\bfseries] {C=3};
+			\draw[edge_style] (3) -- (5) node[midway, below, font=\bfseries] {C=14};
+			\draw[edge_style] (4) -- (5) node[midway, right, font=\bfseries] {C=2};
+			\draw[edge_style] (4) -- (6) node[midway, above right, font=\bfseries] {C=7};
+			\draw[edge_style] (5) -- (6) node[midway, below right, font=\bfseries] {C=8};
+			
+		\end{tikzpicture}
+		\caption{Rete dei cammini con costi $c_{ij}$ specificati sui rispettivi archi.}
+	\end{figure}
+	
+	Per impostare l'algoritmo, definiamo gli insiemi e i vettori necessari all'inizializzazione:
+	\begin{itemize}
+		\item L'insieme dei nodi da esplorare: $N = \{1, 2, \dots, n\}$.
+		\item Il vettore delle distanze minime temporanee dalla radice, denotato con $\pi$:
+		\[
+		\pi = \begin{bmatrix} 0 \\ +\infty \\ +\infty \\ \vdots \\ +\infty \end{bmatrix}
+		\]
+		\item Il vettore dei nodi predecessori nell'albero dei cammini, denotato con $P$:
+		\[
+		P = \begin{bmatrix} 1 \\ \emptyset \\ \emptyset \\ \vdots \\ \emptyset \end{bmatrix}
+		\]
+	\end{itemize}
+	Al termine dell'esecuzione dell'algoritmo, il vettore $\pi$ conterrà la lunghezza esatta dei cammini minimi dalla radice a ogni nodo, mentre il vettore $P$ fornirà, a ritroso, la ricostruzione topologica esatta dell'albero ottimo.
+	
+	Un concetto centrale dell'algoritmo è la \textbf{Stella Uscente} (o \textit{Forward Star}).
+	Per un generico nodo $i$, la stella uscente si definisce matematicamente come l'insieme dei nodi direttamente raggiungibili su grafi orientati tramite un arco uscente:
+	\[
+	FS(i) = \{ j \in N \mid \exists \ \text{arco } (i\to j) \}
+	\]
+	Ad esempio, osservando la topologia della rete, dal nodo 4 partono archi diretti esclusivamente verso i nodi 5 e 6. Di conseguenza:
+	\[
+	FS(4) = \{ 5, 6 \}
+	\]
+	
+	Il procedimento logico dell'algoritmo procede per iterazioni (o \textit{passi}) ben definite:
+	\begin{enumerate}
+		\item \textbf{Selezione:} Si estrae dall'insieme $N$ dei nodi non ancora esaminati il nodo $i$ la cui etichetta temporanea di distanza ($\pi_i$) risulta essere la minima assoluta in quel momento. Si rimuove definitivamente il nodo $i$ dall'insieme $N$ (esso è stato "risolto").
+		\item \textbf{Rilassamento (Aggiornamento):} Per ogni nodo adiacente $j$ appartenente alla stella uscente $FS(i)$, si verifica se il passaggio attraverso il nuovo nodo $i$ appena consolidato offra un percorso più breve rispetto a quello noto fino a quel momento. La condizione logica è:
+		\[
+		\pi_j > \pi_i + c_{ij}
+		\]
+		\begin{itemize}
+			\item Se la disuguaglianza \textbf{NON} è verificata (Falso), significa che la strada vecchia è migliore o uguale a quella nuova. Non si esegue alcuna operazione e si passa al successivo nodo di $FS(i)$.
+			\item Se la disuguaglianza \textbf{È} verificata (Vero), significa che abbiamo trovato una "scorciatoia" per arrivare a $j$ passando da $i$. Si procede quindi con l'aggiornamento simultaneo, descritto dal seguente sistema:
+			\[
+			\begin{cases}
+				\pi_j = \pi_i + c_{ij} \\
+				P(j) = i
+			\end{cases}
+			\]
+		\end{itemize}
+		\item Terminato il ciclo sui vicini, si torna al punto 1, ripetendo fino allo svuotamento totale dell'insieme $N$.
+	\end{enumerate}
+	
+	\textit{Nota Operativa:} Il membro sinistro della disequazione ($\pi_j$) rappresenta la lunghezza del cammino migliore trovato \textit{fino a quel momento} per raggiungere il nodo $j$. Il membro destro ($\pi_i + c_{ij}$) rappresenta invece il costo del \textit{nuovo cammino} candidato.
+	
+	\vspace{0.6cm}
+	\separatore
+	\vspace{0.4cm}
+	
+	\textbf{Svolgimento dell'Esercizio Pratico}\\
+	Mettiamo in pratica il procedimento sull'intero grafo descritto precedentemente. L'insieme iniziale dei nodi da analizzare è $N = \{1, 2, 3, 4, 5, 6\}$.
+	
+	\begin{figure}[H]
+		\centering
+		\begin{tikzpicture}[scale=1.5, >=stealth, node distance=2cm,
+			node_style/.style={circle, draw=titlecolor, thick, fill=titlecolor!10, minimum size=8mm, font=\bfseries},
+			edge_style/.style={->, thick, color=black}
+			]
+			
+			\node[node_style] (1) at (0, 2) {1};
+			\node[node_style] (2) at (2, 3.5) {2};
+			\node[node_style] (3) at (2, 0.5) {3};
+			\node[node_style] (4) at (4, 3.5) {4};
+			\node[node_style] (5) at (4, 0.5) {5};
+			\node[node_style] (6) at (6, 2) {6};
+			
+			\draw[edge_style] (1) -- (2) node[midway, above left, font=\bfseries] {C=9};
+			\draw[edge_style] (1) -- (3) node[midway, below left, font=\bfseries] {C=5};
+			\draw[edge_style] (3) -- (2) node[midway, left, font=\bfseries] {C=2};
+			\draw[edge_style] (2) -- (4) node[midway, above, font=\bfseries] {C=1};
+			\draw[edge_style] (3) -- (4) node[pos=0.3, below right, font=\bfseries] {C=3};
+			\draw[edge_style] (3) -- (5) node[midway, below, font=\bfseries] {C=14};
+			\draw[edge_style] (4) -- (5) node[midway, right, font=\bfseries] {C=2};
+			\draw[edge_style] (4) -- (6) node[midway, above right, font=\bfseries] {C=7};
+			\draw[edge_style] (5) -- (6) node[midway, below right, font=\bfseries] {C=8};
+			
+		\end{tikzpicture}
+		\caption{Rete dei cammini con costi $c_{ij}$ specificati sugli archi.}
+	\end{figure}
+	
+	\textbf{Inizializzazione (Passo 0)}\\
+	All'inizio del procedimento, assumiamo come radice dell'albero il nodo 1. Impostiamo a 0 la sua distanza da sé stesso e a $+\infty$ la distanza verso tutti gli altri nodi, in quanto non possediamo ancora informazioni sui percorsi. Analogamente, impostiamo il nodo 1 come predecessore di sé stesso e assegniamo il valore vuoto ($\emptyset$) a tutti gli altri.
+	
+	Le seguenti tabelle affiancate mostrano i riferimenti variabili e il loro stato numerico al Passo 0:
+	
+	\begin{table}[H]
+		\centering
+		\begin{minipage}{0.4\textwidth}
+			\centering
+			\begin{tabular}{|c|c|c|}
+				\hline
+				\textbf{Nodo} & $\boldsymbol{\pi}$ & $\mathbf{P}$ \\
+				\hline
+				\textbf{1} & $\pi_1$ & $P_1$ \\
+				\textbf{2} & $\pi_2$ & $P_2$ \\
+				\textbf{3} & $\pi_3$ & $P_3$ \\
+				\textbf{4} & $\pi_4$ & $P_4$ \\
+				\textbf{5} & $\pi_5$ & $P_5$ \\
+				\textbf{6} & $\pi_6$ & $P_6$ \\
+				\hline
+			\end{tabular}
+		\end{minipage}
+		\begin{minipage}{0.1\textwidth}
+			\centering
+			$\iff$
+		\end{minipage}
+		\begin{minipage}{0.4\textwidth}
+			\centering
+			\begin{tabular}{|c|c|c|}
+				\hline
+				\textbf{Nodo} & $\boldsymbol{\pi}$ & $\mathbf{P}$ \\
+				\hline
+				\textbf{1} & $0$ & $1$ \\
+				\textbf{2} & $+\infty$ & $\emptyset$ \\
+				\textbf{3} & $+\infty$ & $\emptyset$ \\
+				\textbf{4} & $+\infty$ & $\emptyset$ \\
+				\textbf{5} & $+\infty$ & $\emptyset$ \\
+				\textbf{6} & $+\infty$ & $\emptyset$ \\
+				\hline
+			\end{tabular}
+		\end{minipage}
+		\caption*{Tabelle del Passo 0. A sinistra la struttura logica, a destra i valori numerici.}
+	\end{table}
+	
+	\textbf{Passo 1: Selezione e Risoluzione del Nodo 1}\\
+	Dall'insieme dei nodi $N = \{1, 2, 3, 4, 5, 6\}$, cerchiamo il nodo con il valore temporaneo $\pi$ minimo. Tale nodo è palesemente il nodo 1 ($\pi_1 = 0$, mentre tutti gli altri sono infiniti). 
+	Pongo $i = 1$ e lo rimuovo dall'elenco dei nodi esplorabili.
+	Individuiamo la sua stella uscente: $FS(1) = \{2, 3\}$.
+	Effettuiamo ora i test di rilassamento per ogni destinazione:
+	
+	\begin{itemize}
+		\item \textbf{Verso il Nodo 2:} 
+		\[
+		\pi_2 > \pi_1 + c_{12} \implies +\infty > 0 + 9 \implies \text{Vero!}
+		\]
+		La disuguaglianza è rispettata. Abbiamo trovato una strada migliore, quindi aggiorniamo:
+		\[
+		\begin{cases}
+			\pi_2 = 9 \\
+			P_2 = 1
+		\end{cases}
+		\]
+		
+		\item \textbf{Verso il Nodo 3:} 
+		\[
+		\pi_3 > \pi_1 + c_{13} \implies +\infty > 0 + 5 \implies \text{Vero!}
+		\]
+		La disuguaglianza è rispettata. Aggiorniamo:
+		\[
+		\begin{cases}
+			\pi_3 = 5 \\
+			P_3 = 1
+		\end{cases}
+		\]
+	\end{itemize}
+	Aggiorniamo lo stato del sistema al termine del Passo 1:
+	\begin{table}[H]
+		\centering
+		\begin{tabular}{|c|c|c|}
+			\hline
+			\textbf{Nodo} & $\boldsymbol{\pi}$ & $\mathbf{P}$ \\
+			\hline
+			\rowcolor{titlecolor!20} \textbf{1} & $0$ & $1$ \\
+			\textbf{2} & $9$ & $1$ \\
+			\textbf{3} & $5$ & $1$ \\
+			\textbf{4} & $+\infty$ & $\emptyset$ \\
+			\textbf{5} & $+\infty$ & $\emptyset$ \\
+			\textbf{6} & $+\infty$ & $\emptyset$ \\
+			\hline
+		\end{tabular}
+		\caption*{Passo 1 (Nodo 1 risolto e consolidato).}
+	\end{table}
+	
+	\textbf{Passo 2: Selezione e Risoluzione del Nodo 3}\\
+	Dall'insieme dei nodi residui $N = \{2, 3, 4, 5, 6\}$, estraiamo il nodo con etichetta temporanea $\pi$ minima. Confrontando le distanze note ($\pi_2 = 9$ e $\pi_3 = 5$), selezioniamo il nodo 3 poiché garantisce il cammino parziale più corto.
+	Pongo $i = 3$ e lo rimuovo da $N$. 
+	Individuiamo la sua stella uscente: $FS(3) = \{2, 4, 5\}$.
+	Effettuiamo i test di rilassamento per questi tre adiacenti:
+	
+	\begin{itemize}
+		\item \textbf{Verso il Nodo 2:} 
+		\[
+		\pi_2 > \pi_3 + c_{32} \implies 9 > 5 + 2 \implies 9 > 7 \implies \text{Vero!}
+		\]
+		Scopriamo un'informazione preziosa: invece di viaggiare diretti con l'arco $(1\to2)$ a costo 9, conviene fare il giro passando dal nodo 3. Aggiorniamo:
+		\[
+		\begin{cases}
+			\pi_2 = 7 \\
+			P_2 = 3
+		\end{cases}
+		\]
+		
+		\item \textbf{Verso il Nodo 4:} 
+		\[
+		\pi_4 > \pi_3 + c_{34} \implies +\infty > 5 + 3 \implies \text{Vero!}
+		\]
+		Aggiorniamo:
+		\[
+		\begin{cases}
+			\pi_4 = 8 \\
+			P_4 = 3
+		\end{cases}
+		\]
+		
+		\item \textbf{Verso il Nodo 5:} 
+		\[
+		\pi_5 > \pi_3 + c_{35} \implies +\infty > 5 + 14 \implies \text{Vero!}
+		\]
+		Aggiorniamo:
+		\[
+		\begin{cases}
+			\pi_5 = 19 \\
+			P_5 = 3
+		\end{cases}
+		\]
+	\end{itemize}
+	Aggiorniamo la tabella riepilogativa al termine del Passo 2:
+	\begin{table}[H]
+		\centering
+		\begin{tabular}{|c|c|c|}
+			\hline
+			\textbf{Nodo} & $\boldsymbol{\pi}$ & $\mathbf{P}$ \\
+			\hline
+			\rowcolor{titlecolor!20} \textbf{1} & $0$ & $1$ \\
+			\textbf{2} & $7$ & $3$ \\
+			\rowcolor{titlecolor!20} \textbf{3} & $5$ & $1$ \\
+			\textbf{4} & $8$ & $3$ \\
+			\textbf{5} & $19$ & $3$ \\
+			\textbf{6} & $+\infty$ & $\emptyset$ \\
+			\hline
+		\end{tabular}
+		\caption*{Passo 2 (Nodo 3 risolto e consolidato).}
+	\end{table}
+	
+	\textbf{Passo 3: Selezione e Risoluzione del Nodo 2}\\
+	Dall'insieme dei nodi rimanenti $N = \{2, 4, 5, 6\}$, estraiamo il nodo che presenta il valore temporaneo $\pi$ minimo. Tra le distanze attualmente conosciute ($\pi_2 = 7$, $\pi_4 = 8$, $\pi_5 = 19$, $\pi_6 = +\infty$), il valore minimo assoluto corrisponde al nodo 2. 
+	Pongo quindi $i = 2$ e lo rimuovo dall'insieme dei nodi inesplorati.
+	La sua stella uscente è formata da un unico elemento: $FS(2) = \{4\}$.
+	Effettuiamo il test di rilassamento per questa destinazione:
+	\begin{itemize}
+		\item \textbf{Verso il Nodo 4:}
+		\[
+		\pi_4 > \pi_2 + c_{24} \implies 8 > 7 + 1 \implies 8 > 8 \implies \text{Falso!}
+		\]
+	\end{itemize}
+	La disuguaglianza stretta non è verificata. Il percorso alternativo che passa per il nodo 2 ha una lunghezza totale pari a 8, che è esattamente identica alla distanza ($\pi_4 = 8$) che avevamo già trovato al Passo 2 (passando direttamente dall'arco $3 \to 4$). 
+	\textit{Attenzione (Disclaimer di Degenerazione):} Poiché si è verificata l'uguaglianza $8 = 8$, la distanza minima per raggiungere il nodo 4 rimane inalterata, ma dal punto di vista topologico avremmo potuto arbitrariamente aggiornare il predecessore ponendo $P(4) = 2$ invece di $P(4) = 3$. Questo fenomeno indica la presenza di \textbf{cammini minimi multipli} (degenerazione strutturale), rendendo equivalente l'inserimento nell'albero ottimo dell'arco $(3\to4)$ rispetto all'arco $(2\to4)$. Nel nostro algoritmo standard (che richiede una disuguaglianza stretta), non eseguiamo l'aggiornamento.
+	
+	Aggiorniamo lo stato del sistema al termine del Passo 3:
+	\begin{table}[H]
+		\centering
+		\begin{tabular}{|c|c|c|}
+			\hline
+			\textbf{Nodo} & $\boldsymbol{\pi}$ & $\mathbf{P}$ \\
+			\hline
+			\rowcolor{titlecolor!20} \textbf{1} & $0$ & $1$ \\
+			\rowcolor{titlecolor!20} \textbf{2} & $7$ & $3$ \\
+			\rowcolor{titlecolor!20} \textbf{3} & $5$ & $1$ \\
+			\textbf{4} & $8$ & $3$ \\
+			\textbf{5} & $19$ & $3$ \\
+			\textbf{6} & $+\infty$ & $\emptyset$ \\
+			\hline
+		\end{tabular}
+		\caption*{Passo 3 (Nodo 2 risolto). Nessun aggiornamento eseguito: la tabella è identica a quella del passo precedente.}
+	\end{table}
+	
+	\textbf{Passo 4: Selezione e Risoluzione del Nodo 4}\\
+	Tra i nodi rimasti in $N = \{4, 5, 6\}$, il nodo con etichetta temporanea minima è il 4 ($\pi_4 = 8$). Pongo $i = 4$ e lo rimuovo.
+	La sua stella uscente è $FS(4) = \{5, 6\}$.
+	Eseguiamo i rilassamenti:
+	\begin{itemize}
+		\item \textbf{Verso il Nodo 5:}
+		\[
+		\pi_5 > \pi_4 + c_{45} \implies 19 > 8 + 2 \implies 19 > 10 \implies \text{Vero!}
+		\]
+		La disuguaglianza è rispettata. Aggiorniamo:
+		\[
+		\begin{cases}
+			\pi_5 = 10 \\
+			P_5 = 4
+		\end{cases}
+		\]
+		\item \textbf{Verso il Nodo 6:}
+		\[
+		\pi_6 > \pi_4 + c_{46} \implies +\infty > 8 + 7 \implies +\infty > 15 \implies \text{Vero!}
+		\]
+		La disuguaglianza è chiaramente rispettata. Aggiorniamo:
+		\[
+		\begin{cases}
+			\pi_6 = 15 \\
+			P_6 = 4
+		\end{cases}
+		\]
+	\end{itemize}
+	
+	\begin{table}[H]
+		\centering
+		\begin{tabular}{|c|c|c|}
+			\hline
+			\textbf{Nodo} & $\boldsymbol{\pi}$ & $\mathbf{P}$ \\
+			\hline
+			\rowcolor{titlecolor!20} \textbf{1} & $0$ & $1$ \\
+			\rowcolor{titlecolor!20} \textbf{2} & $7$ & $3$ \\
+			\rowcolor{titlecolor!20} \textbf{3} & $5$ & $1$ \\
+			\rowcolor{titlecolor!20} \textbf{4} & $8$ & $3$ \\
+			\textbf{5} & $10$ & $4$ \\
+			\textbf{6} & $15$ & $4$ \\
+			\hline
+		\end{tabular}
+		\caption*{Passo 4 (Nodo 4 risolto e consolidato).}
+	\end{table}
+	
+	\textbf{Passo 5: Selezione e Risoluzione del Nodo 5}\\
+	In $N = \{5, 6\}$, il valore minimo appartiene al nodo 5 ($\pi_5 = 10$). Pongo $i = 5$ e lo rimuovo.
+	La sua stella uscente è $FS(5) = \{6\}$.
+	\begin{itemize}
+		\item \textbf{Verso il Nodo 6:}
+		\[
+		\pi_6 > \pi_5 + c_{56} \implies 15 > 10 + 8 \implies 15 > 18 \implies \text{Falso!}
+		\]
+	\end{itemize}
+	Non aggiorno nulla. Passare dal nodo 5 per andare al 6 costerebbe 18, mentre passando per il nodo 4 il percorso costa solo 15.
+	
+	\begin{table}[H]
+		\centering
+		\begin{tabular}{|c|c|c|}
+			\hline
+			\textbf{Nodo} & $\boldsymbol{\pi}$ & $\mathbf{P}$ \\
+			\hline
+			\rowcolor{titlecolor!20} \textbf{1} & $0$ & $1$ \\
+			\rowcolor{titlecolor!20} \textbf{2} & $7$ & $3$ \\
+			\rowcolor{titlecolor!20} \textbf{3} & $5$ & $1$ \\
+			\rowcolor{titlecolor!20} \textbf{4} & $8$ & $3$ \\
+			\rowcolor{titlecolor!20} \textbf{5} & $10$ & $4$ \\
+			\textbf{6} & $15$ & $4$ \\
+			\hline
+		\end{tabular}
+		\caption*{Passo 5 (Nodo 5 risolto). Tabella invariata rispetto al Passo 4.}
+	\end{table}
+	
+	\textbf{Passo 6 (Ultimo): Selezione e Risoluzione del Nodo 6}\\
+	Estraiamo l'ultimo elemento rimasto in $N = \{6\}$, ponendo $i = 6$. 
+	La sua stella uscente è \textbf{vuota} ($FS(6) = \emptyset$), poiché dal nodo 6 non partono archi uscenti verso altre destinazioni. Non essendoci test di rilassamento da effettuare, l'algoritmo si conclude automaticamente. Il Vettore $\pi$ e il Vettore $P$ sono ora definitivi e ottimi.
+	
+	\vspace{0.4cm}
+	\begin{minipage}{\textwidth}
+		\textbf{Disclaimer d'Esame: L'importanza dei tracciamenti}\\
+		È fondamentale per la validità formale dell'elaborato (sia nelle prove in itinere che all'esame finale) che vengano tracciate visivamente e riportate \textbf{tutte} le tabelle di ogni singolo step dell'algoritmo. Se i nodi del grafo sono $n$, è necessario produrre esattamente $n$ tabelle di aggiornamento. Il fatto che in alcuni passaggi non avvengano variazioni (come verificatosi ai Passi 3 e 5) non autorizza a omettere la tabella corrispondente, in quanto la sua presenza certifica l'avvenuta ispezione della Stella Uscente di quel preciso nodo.
+	\end{minipage}
+	\vspace{0.4cm}
+	
+	\textbf{Conclusioni Teoriche sui Vettori e Costruzione dell'Albero Ottimo}\\
+	Al termine dell'algoritmo, siamo in possesso di due vettori fondamentali:
+	\begin{itemize}
+		\item Il \textbf{Vettore dei Potenziali Ottimi ($\pi$):} Esso rappresenta con certezza matematica le distanze minime assolute dalla radice (nodo 1) a tutti gli altri nodi della rete.
+		\item Il \textbf{Vettore dei Predecessori ($P$):} Definisce l'albero di copertura ottimo (Shortest Path Tree). Leggendo a ritroso i predecessori, possiamo ricostruire ogni singolo cammino. Ad esempio, per andare a 6 devo passare da $P_6=4$, per andare a 4 passo da $P_4=3$, per andare a 3 passo da $P_3=1$.
+	\end{itemize}
+	Questo albero è naturalmente e intrinsecamente orientato dai \textit{padri} verso i \textit{figli} (radicamento uscente), in quanto tutta l'architettura dei controlli è basata sulla \textit{Forward Star} (Stella Uscente) e sulla percorribilità reale della rete.
+	
+	Gli archi che formano l'albero ottimo di copertura sono determinati ricostruendo le coppie $(P_j \to j)$: 
+	$(1\to3), (3\to2), (3\to4), (4\to5), (4\to6)$.
+	
+	Rappresentiamo il grafo finale evidenziando in \textcolor{violet}{\textbf{viola}} l'albero ottimo dei cammini minimi:
+	
+	\begin{figure}[H]
+		\centering
+		\begin{tikzpicture}[scale=1.5, >=stealth, node distance=2cm,
+			node_style/.style={circle, draw=titlecolor, thick, fill=titlecolor!10, minimum size=8mm, font=\bfseries},
+			edge_style/.style={->, thick, color=gray},
+			tree_style/.style={->, ultra thick, color=violet}
+			]
+			
+			\node[node_style] (1) at (0, 2) {1};
+			\node[node_style] (2) at (2, 3.5) {2};
+			\node[node_style] (3) at (2, 0.5) {3};
+			\node[node_style] (4) at (4, 3.5) {4};
+			\node[node_style] (5) at (4, 0.5) {5};
+			\node[node_style] (6) at (6, 2) {6};
+			
+			% Archi fuori base (Grigi)
+			\draw[edge_style] (1) -- (2) node[midway, above left, font=\bfseries, color=black] {C=9};
+			\draw[edge_style] (2) -- (4) node[midway, above, font=\bfseries, color=black] {C=1};
+			\draw[edge_style] (3) -- (5) node[midway, below, font=\bfseries, color=black] {C=14};
+			\draw[edge_style] (5) -- (6) node[midway, below right, font=\bfseries, color=black] {C=8};
+			
+			% Archi dell'Albero Ottimo (Viola)
+			\draw[tree_style] (1) -- (3) node[midway, below left, font=\bfseries, color=black] {C=5};
+			\draw[tree_style] (3) -- (2) node[midway, left, font=\bfseries, color=black] {C=2};
+			\draw[tree_style] (3) -- (4) node[pos=0.3, below right, font=\bfseries, color=black] {C=3};
+			\draw[tree_style] (4) -- (5) node[midway, right, font=\bfseries, color=black] {C=2};
+			\draw[tree_style] (4) -- (6) node[midway, above right, font=\bfseries, color=black] {C=7};
+			
+		\end{tikzpicture}
+		\caption{Albero Ottimo dei Cammini Minimi (in viola) estratto tramite l'algoritmo di Dijkstra.}
+	\end{figure}
+	
+	\textbf{Domanda Teorica:} 
+	\textit{Nella colonna finale dei potenziali $\pi$, è possibile che per qualche nodo il valore rimanga $+\infty$?} \\
+	Sì, è un evento assolutamente possibile. Ciò si verifica essenzialmente in due casistiche strutturali:
+	\begin{enumerate}
+		\item Se la rete è graficamente disconnessa, formando isole isolate.
+		\item Se la topologia degli archi è tale per cui il nodo in questione possiede solo archi uscenti e nessun arco entrante che lo colleghi (direttamente o indirettamente) al nodo radice.
+	\end{enumerate}
+	In sintesi: un nodo irraggiungibile avrà sempre potenziale di distanza infinita.
+	
+	\textbf{Osservazione sui Potenziali e Costi Ridotti (Condizioni di Bellman)}\\
+	La condizione cardine del test di rilassamento all'interno di Dijkstra è:
+	\[ \pi_j \le \pi_i + c_{ij} \]
+	Riordinando in modo algebrico questa espressione otteniamo:
+	\[ c_{ij} + \pi_i - \pi_j \ge 0 \]
+	Questa non è nient'altro che la formula formale per il calcolo del Costo Ridotto $C^\pi_{ij}$ di un arco fuori base. 
+	Ciò rivela un'incredibile verità teorica: l'algoritmo di Dijkstra non fa altro che arrestarsi non appena individua un sistema di potenziali in cui le Condizioni di Bellman (costi ridotti tutti $\ge 0$) sono perfettamente rispettate. Quando un costo ridotto risulta negativo, la condizione di Bellman è violata (non ammissibile dualmente), e l'algoritmo interviene abbassando il potenziale e forzando l'inserimento di quell'arco nell'albero, proseguendo finché tutti i costi ridotti non diventano positivi, certificando così l'ottimalità assoluta.
+	
+	\vspace{0.6cm}
+	\separatore
+	\vspace{0.4cm}
+	
+	\textbf{Degenerazione Multipla e Costo del Flusso Ottimo}\\
+	Riprendiamo l'evento verificatosi al Passo 3, dove avevamo un percorso multiplo equivalente ($8 = 8$) verso il nodo 4. 
+	Se calcolassimo il problema con il Simplesso dei Flussi sul primo albero che abbiamo disegnato in alto (quello comprendente l'arco $3\to4$), la ripartizione dei carichi transitanti sugli archi restituirebbe il seguente vettore di flusso:
+	\[ \bar{x}_{(1)} = \mathbf{(0, 5, 0, 1, 3, 0, 1, 1, 0)^T} \]
+	
+	Sfruttando l'uguaglianza generata al Passo 3, possiamo sostituire nell'albero di base l'arco $(3\to4)$ con l'arco $(2\to4)$, estromettendo il primo e introducendo il secondo come nuovo ramo di copertura. Questo secondo albero, di pari validità, genera la seguente topologia e il seguente flusso logistico:
+	
+	\begin{figure}[H]
+		\centering
+		\begin{tikzpicture}[scale=1.5, >=stealth, node distance=2cm,
+			node_style/.style={circle, draw=titlecolor, thick, fill=titlecolor!10, minimum size=8mm, font=\bfseries},
+			edge_style/.style={->, thick, color=gray},
+			tree_style/.style={->, ultra thick, color=violet},
+			alt_tree_style/.style={->, ultra thick, color=blue},
+			old_tree_style/.style={->, ultra thick, dashed, color=green!60!black}
+			]
+			
+			\node[node_style] (1) at (0, 2) {1};
+			\node[node_style] (2) at (2, 3.5) {2};
+			\node[node_style] (3) at (2, 0.5) {3};
+			\node[node_style] (4) at (4, 3.5) {4};
+			\node[node_style] (5) at (4, 0.5) {5};
+			\node[node_style] (6) at (6, 2) {6};
+			
+			% Archi fuori base (Grigi)
+			\draw[edge_style] (1) -- (2) node[midway, above left, font=\bfseries, color=black] {C=9};
+			\draw[edge_style] (3) -- (5) node[midway, below, font=\bfseries, color=black] {C=14};
+			\draw[edge_style] (5) -- (6) node[midway, below right, font=\bfseries, color=black] {C=8};
+			
+			% Archi dell'Albero (Comuni) - Viola
+			\draw[tree_style] (1) -- (3) node[midway, below left, font=\bfseries, color=black] {C=5};
+			\draw[tree_style] (3) -- (2) node[midway, left, font=\bfseries, color=black] {C=2};
+			\draw[tree_style] (4) -- (5) node[midway, right, font=\bfseries, color=black] {C=2};
+			\draw[tree_style] (4) -- (6) node[midway, above right, font=\bfseries, color=black] {C=7};
+			
+			% Ramo di deviazione degenerato
+			\draw[alt_tree_style] (2) -- (4) node[midway, above, font=\bfseries, color=black] {C=1};
+			\draw[old_tree_style] (3) -- (4) node[pos=0.3, below right, font=\bfseries, color=black] {C=3};
+			
+		\end{tikzpicture}
+		\caption{Rappresentazione del cammino degenerato. L'arco $(3\to4)$ verde tratteggiato è escluso, mentre subentra l'arco blu $(2\to4)$, generando un nuovo albero equivalente.}
+	\end{figure}
+	
+	Il flusso in uscita per questa nuova base è:
+	\[ \bar{x}_{(2)} = \mathbf{(0, 5, 3, 4, 0, 0, 1, 1, 0)^T} \]
+	
+	Il professore ci pone un quesito di verifica: \textit{Quanto costa l'albero dei cammini minimi?}
+	Per rispondere, è sufficiente calcolare il prodotto vettoriale (la sommatoria logistica) dei flussi effettivi sugli archi moltiplicati per i rispettivi costi d'impiego per il \textbf{primo albero}:
+	\[ C^{(1)}_{totale} = \sum (\bar{x}_{ij}^{(1)} \cdot c_{ij}) = (0\cdot 9) + (5\cdot 5) + (0\cdot 1) + (1\cdot 2) + (3\cdot 3) + (0\cdot 14) + (1\cdot 2) + (1\cdot 7) + (0\cdot 8) \]
+	\[ C^{(1)}_{totale} = 0 + 25 + 0 + 2 + 9 + 0 + 2 + 7 + 0 = \mathbf{45} \]
+	
+	Rieseguiamo lo stesso calcolo per il \textbf{secondo albero degenerato} ($\bar{x}_{(2)}$ e l'arco blu in base):
+	\[ C^{(2)}_{totale} = \sum (\bar{x}_{ij}^{(2)} \cdot c_{ij}) = (0\cdot 9) + (5\cdot 5) + (3\cdot 1) + (4\cdot 2) + (0\cdot 3) + (0\cdot 14) + (1\cdot 2) + (1\cdot 7) + (0\cdot 8) \]
+	\[ C^{(2)}_{totale} = 0 + 25 + 3 + 8 + 0 + 0 + 2 + 7 + 0 = \mathbf{45} \]
+	\textit{Disclaimer:} Il costo generato dalla seconda combinazione logistica produce l'identico risultato aggregato (45). Questo dimostra inequivocabilmente che in presenza di degenerazione duale (e uguaglianza di lunghezze), la scelta dell'uno o dell'altro albero è del tutto indifferente al fine della funzione obiettivo economica e delle distanze percorse, convalidando le valutazioni eseguite al Passo 3. 
+	
+	Un'ultima nota di rilievo: \textit{Quale dei due vettori output è più importante, i potenziali ($\pi$) o i predecessori ($P$)?} Senza dubbio il vettore dei predecessori $P$. Sebbene il vettore $\pi$ indichi la spesa d'arrivo o la distanza chilometrica, senza il Vettore Predecessori (che è la vera bussola topologica) saremmo ciechi e incapaci di ricostruire la mappa per raggiungere fisicamente quel traguardo.
+	
+	\vspace{0.6cm}
+	\separatore
+	\vspace{0.4cm}
+	
+	\textbf{Esercizio Aggiuntivo su Dijkstra (Risoluzione Inclusa)}\\
+	Il professore lascia un esercizio su una rete ristretta a 4 nodi per mettere alla prova l'assimilazione del metodo.
+	L'insieme dei nodi è $N = \{1, 2, 3, 4\}$.
+	\begin{figure}[H]
+		\centering
+		\begin{tikzpicture}[scale=1.5, >=stealth, node distance=2cm,
+			node_style/.style={circle, draw=titlecolor, thick, fill=titlecolor!10, minimum size=8mm, font=\bfseries},
+			edge_style/.style={->, thick, color=black}
+			]
+			
+			% Posizionamento Nodi
+			\node[node_style] (1) at (0, 2) {1};
+			\node[node_style] (2) at (2, 3.5) {2};
+			\node[node_style] (3) at (2, 0.5) {3};
+			\node[node_style] (4) at (4, 2) {4};
+			
+			% Archi con i rispettivi costi
+			\draw[edge_style] (1) -- (2) node[midway, above left, font=\bfseries] {C=9};
+			\draw[edge_style] (1) -- (3) node[midway, below left, font=\bfseries] {C=6};
+			\draw[edge_style] (3) -- (2) node[midway, left, font=\bfseries] {C=1};
+			\draw[edge_style] (2) -- (4) node[midway, above right, font=\bfseries] {C=10};
+			\draw[edge_style] (3) -- (4) node[midway, below right, font=\bfseries] {C=13};
+			
+		\end{tikzpicture}
+		\caption{Rete dei cammini per l'esercizio assegnato, con i costi $c_{ij}$ specificati sui rispettivi archi.}
+	\end{figure}
+	
+	Inizializziamo i vettori al \textbf{Passo 0}:
+	\begin{table}[H]
+		\centering
+		\begin{tabular}{|c|c|c|}
+			\hline
+			\textbf{Nodo} & $\boldsymbol{\pi}$ & $\mathbf{P}$ \\
+			\hline
+			\textbf{1} & $0$ & $1$ \\
+			\textbf{2} & $+\infty$ & $\emptyset$ \\
+			\textbf{3} & $+\infty$ & $\emptyset$ \\
+			\textbf{4} & $+\infty$ & $\emptyset$ \\
+			\hline
+		\end{tabular}
+	\end{table}
+	
+	\textbf{Passo 1 (Nodo 1):} 
+	Estraggo il nodo 1 ($\pi_1 = 0$). La sua stella uscente è $FS(1) = \{2, 3\}$.
+	\begin{itemize}
+		\item Verso nodo 2: $\pi_2 > 0 + c_{12} \implies +\infty > 9 \implies \text{Vero!} \implies \pi_2=9, P(2)=1$.
+		\item Verso nodo 3: $\pi_3 > 0 + c_{13} \implies +\infty > 6 \implies \text{Vero!} \implies \pi_3=6, P(3)=1$.
+	\end{itemize}
+	\begin{table}[H]
+		\centering
+		\begin{tabular}{|c|c|c|}
+			\hline
+			\textbf{Nodo} & $\boldsymbol{\pi}$ & $\mathbf{P}$ \\
+			\hline
+			\rowcolor{titlecolor!20} \textbf{1} & $0$ & $1$ \\
+			\textbf{2} & $9$ & $1$ \\
+			\textbf{3} & $6$ & $1$ \\
+			\textbf{4} & $+\infty$ & $\emptyset$ \\
+			\hline
+		\end{tabular}
+	\end{table}
+	
+	\textbf{Passo 2 (Nodo 3):}
+	Tra i restanti $N=\{2, 3, 4\}$, scelgo il nodo 3 ($\pi_3 = 6$ contro $\pi_2=9$). 
+	La stella uscente è $FS(3) = \{2, 4\}$.
+	\begin{itemize}
+		\item Verso nodo 2: $\pi_2 > \pi_3 + c_{32} \implies 9 > 6 + 1 \implies 9 > 7 \implies \text{Vero!} \implies \pi_2=7, P(2)=3$. (Trovato cammino migliore per 2).
+		\item Verso nodo 4: $\pi_4 > \pi_3 + c_{34} \implies +\infty > 6 + 13 \implies +\infty > 19 \implies \text{Vero!} \implies \pi_4=19, P(4)=3$.
+	\end{itemize}
+	\begin{table}[H]
+		\centering
+		\begin{tabular}{|c|c|c|}
+			\hline
+			\textbf{Nodo} & $\boldsymbol{\pi}$ & $\mathbf{P}$ \\
+			\hline
+			\rowcolor{titlecolor!20} \textbf{1} & $0$ & $1$ \\
+			\textbf{2} & $7$ & $3$ \\
+			\rowcolor{titlecolor!20} \textbf{3} & $6$ & $1$ \\
+			\textbf{4} & $19$ & $3$ \\
+			\hline
+		\end{tabular}
+	\end{table}
+	
+	\textbf{Passo 3 (Nodo 2):}
+	Tra i restanti $N=\{2, 4\}$, estraggo il nodo 2 ($\pi_2 = 7$). 
+	La stella uscente è $FS(2) = \{4\}$.
+	\begin{itemize}
+		\item Verso nodo 4: $\pi_4 > \pi_2 + c_{24} \implies 19 > 7 + 10 \implies 19 > 17 \implies \text{Vero!} \implies \pi_4=17, P(4)=2$. (Sostituito un ramo molto lungo con una via migliore).
+	\end{itemize}
+	\begin{table}[H]
+		\centering
+		\begin{tabular}{|c|c|c|}
+			\hline
+			\textbf{Nodo} & $\boldsymbol{\pi}$ & $\mathbf{P}$ \\
+			\hline
+			\rowcolor{titlecolor!20} \textbf{1} & $0$ & $1$ \\
+			\rowcolor{titlecolor!20} \textbf{2} & $7$ & $3$ \\
+			\rowcolor{titlecolor!20} \textbf{3} & $6$ & $1$ \\
+			\textbf{4} & $17$ & $2$ \\
+			\hline
+		\end{tabular}
+	\end{table}
+	
+	\textbf{Passo 4 (Nodo 4):}
+	Resta solo in nodo $4$. Lo estraggo, ma $FS(4) = \emptyset$. L'algoritmo conclude qui il suo tracciato.
+	L'albero dei cammini minimi finale per questa rete è costruito dagli archi indicati nei Predecessori $(P_j \to j)$:
+	$\mathbf{(1\to3), (3\to2), (2\to4)}$.
+	
+	\begin{figure}[H]
+		\centering
+		\begin{tikzpicture}[scale=1.5, >=stealth, node distance=2cm,
+			node_style/.style={circle, draw=titlecolor, thick, fill=titlecolor!10, minimum size=8mm, font=\bfseries},
+			edge_style/.style={->, thick, color=gray},
+			tree_style/.style={->, ultra thick, color=violet}
+			]
+			
+			% Posizionamento Nodi
+			\node[node_style] (1) at (0, 2) {1};
+			\node[node_style] (2) at (2, 3.5) {2};
+			\node[node_style] (3) at (2, 0.5) {3};
+			\node[node_style] (4) at (4, 2) {4};
+			
+			% Archi fuori base (Grigi)
+			\draw[edge_style] (1) -- (2) node[midway, above left, font=\bfseries, color=black] {C=9};
+			\draw[edge_style] (3) -- (4) node[midway, below right, font=\bfseries, color=black] {C=13};
+			
+			% Archi dell'Albero Ottimo (Viola)
+			\draw[tree_style] (1) -- (3) node[midway, below left, font=\bfseries, color=black] {C=6};
+			\draw[tree_style] (3) -- (2) node[midway, left, font=\bfseries, color=black] {C=1};
+			\draw[tree_style] (2) -- (4) node[midway, above right, font=\bfseries, color=black] {C=10};
+			
+		\end{tikzpicture}
+		\caption{Albero Ottimo dei Cammini Minimi finale. In viola sono evidenziati gli archi appartenenti all'albero di copertura ricavati dal vettore dei predecessori $P$: $(1\to3), (3\to2), (2\to4)$. Gli archi non convenienti scartati dall'algoritmo restano in grigio.}
+	\end{figure}
+	
+	\vspace{1.5cm}
+	\begin{center}
+		\rule{0.65\textwidth}{1pt} \\
+		\vspace{0.4cm}
+		\textcolor{titlecolor}{\LARGE \textbf{--- Fine Lezione 28 ---}} \\
+		\vspace{0.2cm}
+		\rule{0.65\textwidth}{1pt}
+	\end{center}
+	\newpage
+	
+	\avviso{\textit{\textbf{Questa lezione, come le sue precedenti e successive, può contenere errori e/o imprecisioni. Per il bene di tutti, è buona norma far notare all'autore l'errore o l'imprecisione così da risolvere nel minor tempo possibile. I canali di comunicazione, per eventuali avvisi generali o di errori trovati negli appunti, sono in cima al file. Grazie per la collaborazione e Buono studio!}}}
+	
+	\section*{Lezione 29 | 10 novembre 2026}
+	\subsection*{Cambio di Base nelle Reti Orientate}
+	
+	Supponiamo di avere una tripartizione $(T, L, U)$ che descrive la topologia di base della nostra rete. In questa configurazione, assumiamo che il flusso primale generato, ovvero il vettore $\bar{x}$, risulti \textbf{ammissibile}. Esso può essere scomposto analiticamente nelle sue componenti di base, vuote e sature:
+	\[
+	\bar{x} = 
+	\begin{bmatrix}
+		x_T \\ 0_L \\ u_U
+	\end{bmatrix}
+	\]
+	Contemporaneamente, calcoliamo il vettore dei potenziali duali $\bar{\pi}$ attraverso una \textit{visita anticipata} a partire dalla radice dell'albero di copertura $T$. Supponiamo che, al termine del calcolo, tale potenziale risulti \textbf{non ammissibile}. 
+	
+	L'inammissibilità del potenziale si manifesta tramite la violazione delle Condizioni di Bellman, le quali prescrivono che i costi ridotti debbano rispettare i seguenti segni per garantire l'ottimalità:
+	\begin{itemize}
+		\item $c^\pi_{ij} \ge 0 \quad \forall (i, j) \in L$ \quad (gli archi vuoti non devono convenire)
+		\item $c^\pi_{ij} \le 0 \quad \forall (i, j) \in U$ \quad (gli archi saturi devono risultare estremamente convenienti, per giustificarne il pieno carico)
+	\end{itemize}
+	
+	L'inammissibilità si concretizza operativamente in due macro-scenari possibili:
+	\begin{itemize}
+		\item \textbf{Caso 1:} $\exists \ (i, j) \in L \text{ tale che } c^\pi_{ij} < 0$
+		\item \textbf{Caso 2:} $\exists \ (i, j) \in U \text{ tale che } c^\pi_{ij} > 0$
+	\end{itemize}
+	
+	\vspace{0.4cm}
+	\textbf{Sviluppo del Caso 1: L'inserimento di un arco vuoto estremamente conveniente}\\
+	Analizziamo il primo scenario, in cui un arco $(i, j)$ appartenente all'insieme $L$ risulta possedere un costo ridotto strettamente negativo. Geometricamente, stiamo forzando l'inserimento di un arco fuori base all'interno dell'albero di copertura. L'aggiunta di una connessione a una struttura già connessa aciclica (quale è un albero) genera \textbf{esattamente un ciclo}, che denotiamo con $C$.
+	
+	Per comprendere il fenomeno, possiamo tracciare un grafo topologico astratto, senza l'uso di valori numerici. Tracciamo un ciclo composto da quattro nodi: gli archi a tratto continuo appartengono al preesistente albero di copertura $T$, mentre l'arco tratteggiato rappresenta l'arco violante $(i, j) \in L$, che diventa di fatto il nostro \textbf{Arco Entrante}. 
+	
+	\begin{figure}[H]
+		\centering
+		\begin{tikzpicture}[scale=1.5, >=stealth, node distance=2cm,
+			node_style/.style={circle, draw=titlecolor, thick, fill=titlecolor!10, minimum size=8mm, font=\bfseries},
+			tree_style/.style={->, ultra thick, color=violet},
+			entrant_style/.style={->, ultra thick, dashed, color=red}
+			]
+			
+			\node[node_style] (i) at (0, 2) {i};
+			\node[node_style] (j) at (2, 2) {j};
+			\node[node_style] (k) at (2, 0) {};
+			\node[node_style] (w) at (0, 0) {};
+			
+			% Arco Entrante Violante
+			\draw[entrant_style] (i) -- (j) node[midway, above, font=\bfseries, color=black] {$c^\pi_{ij} < 0$};
+			
+			% Archi dell'Albero (Ciclo indotto)
+			\draw[tree_style] (j) -- (k);
+			\draw[tree_style] (w) -- (k);
+			\draw[tree_style] (i) -- (w);
+			
+		\end{tikzpicture}
+		\caption{Generazione del ciclo $C$ tramite l'inserimento dell'arco entrante $(i,j)$ in $L$. Gli archi viola fanno parte di $T$.}
+	\end{figure}
+	
+	Il ciclo indotto $C$ viene percorso seguendo il \textbf{verso di percorrenza dettato dall'arco entrante}. Pertanto, possiamo dividere l'insieme degli archi che compongono il ciclo in due sottoinsiemi complementari:
+	\[
+	C = C^+ \cup C^-
+	\]
+	dove:
+	\begin{itemize}
+		\item $C^+$: è l'insieme degli archi che possiedono una direzione concorde rispetto all'arco entrante $(i, j)$.
+		\item $C^-$: è l'insieme degli archi orientati in modo discorde (cioè che puntano "controcorrente") rispetto all'arco entrante.
+	\end{itemize}
+	
+	Una volta delineato il ciclo, dobbiamo determinare il nuovo vettore del flusso ${x}(\theta)$, iniettando una quantità di flusso correttiva $\theta \ge 0$ lungo il ciclo. La regola di aggiornamento è descritta dal seguente sistema:
+	\[
+	{x}_{ij}(\theta) = 
+	\begin{cases}
+		\bar{x}_{ij} + \theta & \forall (i, j) \in C^+ \\
+		\bar{x}_{ij} - \theta & \forall (i, j) \in C^- \\
+		\bar{x}_{ij} & \text{altrove (archi non interessati dal ciclo)}
+	\end{cases}
+	\]
+	Questa equazione stabilisce che il flusso aumenta di $\theta$ sugli archi concordi, diminuisce di $\theta$ su quelli discordi e rimane immutato su tutta la porzione di rete estranea al ciclo. L'equilibrio idraulico (il bilancio nodale) della rete è matematicamente garantito e invariante \textbf{per qualsiasi valore} di $\theta$, poiché per ogni nodo del ciclo la quantità di flusso sottratta da una parte viene esatta e immediatamente compensata dall'altra.
+	
+	\textbf{Valutazione Economica della Variazione ($\theta$)}\\
+	Il costo totale della nuova soluzione primale $\bar{x}(\theta)$ è espresso dal teorema della variazione dei costi:
+	\[
+	c \cdot \bar{x}(\theta) = c \cdot \bar{x} + \theta \cdot c^\pi_{ij}
+	\]
+	Poiché ci troviamo nel Caso 1 (l'arco entrante ha un costo ridotto negativo, $c^\pi_{ij} < 0$), e poiché $\theta \ge 0$, il termine $(\theta \cdot c^\pi_{ij})$ sarà necessariamente un valore algebrico di segno negativo. Questo significa che \textit{più grande è il valore che riusciamo ad assegnare a $\theta$, maggiore sarà il risparmio netto sul costo totale}, rendendo la soluzione economicamente più vantaggiosa.
+	
+	Tuttavia, il valore di $\theta$ non può crescere all'infinito: è limitato dalla capacità fisica degli archi. Definiamo i massimi incrementi sopportabili dai due sottoinsiemi del ciclo:
+	\begin{itemize}
+		\item \textbf{Saturazione di flusso in $C^+$:} Un arco concorde può accogliere nuovo flusso solo finché non tocca il suo limite fisico (capacità massima $u_{ij}$).
+		\[
+		\theta^+ = \min_{(i,j) \in C^+} \{ u_{ij} - \bar{x}_{ij} \}
+		\]
+		\item \textbf{Svuotamento di flusso in $C^-$:} Un arco discorde può cedere flusso solo finché questo non raggiunge lo zero assoluto (non sono ammessi flussi negativi).
+		\[
+		\theta^- = \min_{(i,j) \in C^-} \{ \bar{x}_{ij} \}
+		\]
+	\end{itemize}
+	Tra i due limiti fisici calcolati, la rete sarà costretta ad arrestarsi nel momento in cui incorre nel \textbf{primo limite strutturale}. Pertanto, l'ammontare esatto di flusso iniettabile sarà governato dal valore minimo tra $\theta^+$ e $\theta^-$:
+	\[
+	\theta = \min \{ \theta^+, \theta^- \}
+	\]
+	
+	Il calcolo di $\theta$ determina quale arco (detto \textbf{Arco Uscente}) andrà a sostituire l'arco entrante nella tripartizione, delineando il vero e proprio cambio di base. Possiamo inquadrare i due scenari generati dal Caso 1:
+	
+	\textbf{Sottocaso 1A:} $\theta = \theta^-$ \\
+	Significa che il collo di bottiglia è stato generato dallo svuotamento totale di un arco discorde appartenente all'albero $T$. Tale arco uscirà dall'albero per declassarsi nell'insieme $L$. Geometricamente si assiste allo scambio strutturale tra gli insiemi: l'arco violante entra da $L$ a $T$, mentre l'arco uscente decade da $T$ ad $L$.
+	
+	\textbf{Sottocaso 1B:} $\theta = \theta^+$ \\
+	Significa che l'aumento di flusso ha portato un arco concorde appartenente all'albero $T$ a raggiungere la sua capacità massima e a saturarsi. Tale arco uscirà dall'albero per confluire nell'insieme $U$. 
+	\textit{Fenomeno singolare:} Nel caso 1B può capitare che l'arco che entra da $L$ si saturi immediatamente prima ancora che qualsiasi altro arco di $T$ tocchi il limite. Se ciò accade, l'arco viaggia direttamente $L \to T \to U$. La base dell'albero di copertura $T$ non subisce alcuna alterazione e, di riflesso, anche il vettore dei potenziali $\bar{\pi}$ non cambia. 
+	
+	Rappresentiamo schematicamente questi flussi di ripartizione:
+	
+	\begin{figure}[H]
+		\centering
+		\begin{minipage}{0.45\textwidth}
+			\centering
+			\begin{tikzpicture}[scale=1, >=stealth, node distance=2.5cm,
+				set_style/.style={circle, draw=titlecolor, thick, fill=titlecolor!10, minimum size=1cm, font=\Large\bfseries},
+				arrow_style/.style={->, ultra thick, color=black}
+				]
+				\node[set_style] (T) at (0, 0) {T};
+				\node[set_style] (L) at (-2, -1) {L};
+				\node[set_style] (U) at (2, -1) {U};
+				
+				\draw[arrow_style] (L) to[bend right=20] (T);
+				\draw[arrow_style] (T) to[bend right=20] (L);
+			\end{tikzpicture}
+			\caption*{Caso 1A: Scambio classico tra L e T.}
+		\end{minipage}
+		\hfill
+		\begin{minipage}{0.45\textwidth}
+			\centering
+			\begin{tikzpicture}[scale=1, >=stealth, node distance=2.5cm,
+				set_style/.style={circle, draw=titlecolor, thick, fill=titlecolor!10, minimum size=1cm, font=\Large\bfseries},
+				arrow_style/.style={->, ultra thick, color=black}
+				]
+				\node[set_style] (T) at (0, 0) {T};
+				\node[set_style] (L) at (-2, -1) {L};
+				\node[set_style] (U) at (2, -1) {U};
+				
+				\draw[arrow_style] (L) to[bend left=20] (T);
+				\draw[arrow_style] (T) to[bend left=20] (U);
+			\end{tikzpicture}
+			\caption*{Caso 1B: Arco saturo che confluisce in U. T può rimanere invariato.}
+		\end{minipage}
+	\end{figure}
+	
+	\textit{Domanda Teorica: È possibile che si verifichi la casistica $\theta = 0$?} \\
+	Sì. Qualora l'arco discorde deputato allo svuotamento fosse già a carico zero, o l'arco concorde deputato a saturarsi fosse già al limite massimo di portata, il valore logistico del passaggio scende a zero. Sebbene la manovra non sposti quantitativi reali di merci (la funzione obiettivo non decresce e la spesa rimane ferma), lo scambio degli indici fra gli insiemi deve comunque avvenire dal punto di vista algebrico per permettere all'algoritmo di scavalcare la condizione di \textbf{degenerazione primale}.
+	
+	\vspace{0.6cm}
+	\separatore
+	\vspace{0.4cm}
+	
+	\textbf{Sviluppo del Caso 2: L'espulsione di un arco saturo diseconomico}\\
+	Esaminiamo ora la seconda anomalia: un arco dell'insieme $U$ mostra un costo ridotto strettamente positivo ($c^\pi_{ij} > 0$). Se un arco saturo presenta un costo non conveniente, non è conveniente mantenerlo carico; è necessario smaltire o scaricare flusso per recuperare convenienza.
+	
+	L'inserimento di questo arco genera un ciclo analogo, definito anch'esso come $C = C^+ \cup C^-$. 
+	Tuttavia, c'è una profonda variazione logica (il \textbf{Primo Cambio}): per "estromettere" o sottrarre flusso dall'arco violante saturo, il verso di scarico del flusso sul ciclo dovrà essere impostato \textbf{in opposizione discorde rispetto all'arco entrante}. Pertanto, l'arco entrante violante andrà a posizionarsi all'interno dell'insieme $C^-$, e con lui tutti gli archi orientati nel suo stesso senso, mentre tutti gli altri apparterranno a $C^+$. Questo avviene proprio perché la nostra intenzione logistica non è "spingere" merce su quell'arco, ma alleggerirlo.
+	
+	Da questa inversione di verso scaturisce il \textbf{Secondo Cambio}, che incide sul teorema del costo modificato:
+	\[
+	c \cdot \bar{x}(\theta) = c \cdot \bar{x} - \theta \cdot c^\pi_{ij}
+	\]
+	L'inversione di polarità ha mutato il segno del termine aggiuntivo: ma poiché ci troviamo nel Caso 2 ($c^\pi_{ij} > 0$) e scarichiamo merce ($\theta \ge 0$), il termine globale $(\theta \cdot c^\pi_{ij})$ resta comunque a sottrarre, comportando anche in questo scenario una virtuosa diminuzione dei costi complessivi, senza turbare i bilanci ai nodi della rete.
+	
+	Possiamo ora tracciare gli scenari di scambio (il \textbf{Terzo Cambio Parziale}) anche per questa occorrenza:
+	
+	\textbf{Sottocaso 2A:} 
+	Se il limite interviene perché un arco si svuota.
+	Geometricamente, l'arco entra proveniente da $U$ e l'arco uscente decade posizionandosi in $L$. È possibile che l'arco entrante e uscente siano lo stesso? Assolutamente sì. Se il tentativo di svuotare un arco saturo $U$ lo scarica integralmente fino a zero prima ancora di influire su altri archi dell'albero, esso declassa immediatamente ad $L$ senza modificare la composizione di base di $T$. 
+	
+	\textbf{Sottocaso 2B:}
+	Se il limite è dettato da un arco che raggiunge la saturazione massima, l'arco uscente andrà in $U$. Al contrario del 2A, l'arco uscente e l'arco entrante non potranno mai coincidere, poiché un arco appartenente a $C^-$ (come l'entrante) sta scaricando merce, mentre solo gli archi di $C^+$ (che sono distinti per definizione) si stanno riempiendo verso la saturazione.
+	
+	Rappresentazione schematica degli scambi:
+	\begin{figure}[H]
+		\centering
+		\begin{minipage}{0.45\textwidth}
+			\centering
+			\begin{tikzpicture}[scale=1, >=stealth, node distance=2.5cm,
+				set_style/.style={circle, draw=titlecolor, thick, fill=titlecolor!10, minimum size=1cm, font=\Large\bfseries},
+				arrow_style/.style={->, ultra thick, color=black}
+				]
+				\node[set_style] (T) at (0, 0) {T};
+				\node[set_style] (L) at (-2, -1) {L};
+				\node[set_style] (U) at (2, -1) {U};
+				
+				\draw[arrow_style] (U) to[bend right=20] (T);
+				\draw[arrow_style] (T) to[bend right=20] (L);
+			\end{tikzpicture}
+			\caption*{Caso 2A: Arco svuotato. Può essere lo stesso arco saturo che si svuota totalmente in L.}
+		\end{minipage}
+		\hfill
+		\begin{minipage}{0.45\textwidth}
+			\centering
+			\begin{tikzpicture}[scale=1, >=stealth, node distance=2.5cm,
+				set_style/.style={circle, draw=titlecolor, thick, fill=titlecolor!10, minimum size=1cm, font=\Large\bfseries},
+				arrow_style/.style={->, ultra thick, color=black}
+				]
+				\node[set_style] (T) at (0, 0) {T};
+				\node[set_style] (L) at (-2, -1) {L};
+				\node[set_style] (U) at (2, -1) {U};
+				
+				\draw[arrow_style] (U) to[bend left=20] (T);
+				\draw[arrow_style] (T) to[bend left=20] (U);
+			\end{tikzpicture}
+			\caption*{Caso 2B: Scambio tra U e T.}
+		\end{minipage}
+	\end{figure}
+	
+	Per concludere l'esposizione strutturale, a prescindere dal caso (1 o 2) e dai sottocasi specifici, il numero complessivo degli archi dislocati nelle due partizioni esterne dell'albero di copertura, ovvero negli insiemi $U$ e $L$, dovrà rispettare sempre e rigorosamente l'invariante matematico dimensionale della rete:
+	\[ |U \cup L| = m - n + 1 \]
+	dove $m$ è il numero totale degli archi del grafo ed $n$ il numero complessivo dei nodi.
+	
+	\vspace{0.6cm}
+	\separatore
+	\vspace{0.4cm}
+	
+	Procediamo con la risoluzione e l'analisi del nuovo esercizio sulla rete capacitata a 6 nodi.
+	Analizziamo i dati del problema. Il vettore dei bilanci nodali $b$ (dove l'erogazione è negativa e la richiesta è positiva) risulta:
+	\[ b = (-3, -3, -7, +3, +2, +8)^T \]
+	
+	L'inizializzazione del Simplesso su Reti parte da una tripartizione $(T, L, U)$ predefinita. L'albero di copertura ottimo $T$ (evidenziato in viola) è formato dagli archi $(1\to2), (2\to3), (3\to4), (2\to6), (3\to5)$, mentre l'arco $(5\to6)$ è l'unico posizionato nell'insieme degli archi saturi $U$ (in rosso). I restanti compongono l'insieme degli archi vuoti $L$.
+	
+	\begin{figure}[H]
+		\centering
+		\begin{tikzpicture}[scale=1.5, >=stealth, node distance=2cm,
+			node_style/.style={circle, draw=titlecolor, thick, fill=titlecolor!10, minimum size=8mm, font=\bfseries},
+			tree_style/.style={->, ultra thick, color=violet},
+			sat_style/.style={->, ultra thick, color=red},
+			non_tree_style/.style={->, thick, dashed, color=gray}
+			]
+			
+			% Posizionamento Nodi secondo la geometria descritta
+			\node[node_style, label={[text=red, font=\bfseries]above left:$\boldsymbol{-3}$}] (1) at (0, 3) {1};
+			\node[node_style, label={[text=red, font=\bfseries]left:$\boldsymbol{-3}$}] (2) at (0, 0) {2};
+			\node[node_style, label={[text=red, font=\bfseries]above:$\boldsymbol{-7}$}] (3) at (3, 3) {3};
+			\node[node_style, label={[text=green!60!black, font=\bfseries]below:$\boldsymbol{+3}$}] (4) at (3, 0) {4};
+			\node[node_style, label={[text=green!60!black, font=\bfseries]above:$\boldsymbol{+2}$}] (5) at (6, 3) {5};
+			\node[node_style, label={[text=green!60!black, font=\bfseries]right:$\boldsymbol{+8}$}] (6) at (6, 0) {6};
+			
+			% Albero di Copertura T (Viola)
+			\draw[tree_style] (1) -- (2) node[midway, left, font=\bfseries, color=black] {[7, 8]};
+			\draw[tree_style] (2) -- (3) node[pos=0.3, above left, font=\bfseries, color=black] {[10, 6]};
+			\draw[tree_style] (3) -- (4) node[pos=0.7, left, font=\bfseries, color=black] {[3, 10]};
+			\draw[tree_style, rounded corners=10pt] (2) -- (0, -1.5) -- node[above, font=\bfseries, color=black] {[7, 5]} (6, -1.5) -- (6);
+			\draw[tree_style] (3) -- (5) node[midway, above, font=\bfseries, color=black] {[5, 7]};
+			
+			% Archi Saturi U (Rosso)
+			\draw[sat_style] (5) -- (6) node[midway, right, font=\bfseries, color=black] {[7, 5]};
+			
+			% Archi Vuoti L (Grigi Tratteggiati)
+			\draw[non_tree_style] (1) -- (3) node[midway, above, font=\bfseries, color=black] {[10, 7]};
+			\draw[non_tree_style] (2) -- (4) node[midway, above, font=\bfseries, color=black] {[7, 6]};
+			\draw[non_tree_style] (3) -- (6) node[pos=0.3, above right, font=\bfseries, color=black] {[6, 12]};
+			\draw[non_tree_style] (4) -- (6) node[midway, above, font=\bfseries, color=black] {[3, 7]};
+			
+		\end{tikzpicture}
+		\caption{Rete di partenza. In viola l'albero di copertura $T$, in rosso l'arco saturo $U$.}
+	\end{figure}
+	
+	\textit{Nota teorica sulle dimensioni matriciali:} Il grafo possiede $n=6$ nodi ed $m=10$ archi. La matrice di base completa per un problema capacitato ha dimensioni $(n-1+m) \times (n-1+m)$. Eliminando un'equazione di bilancio ridondante, la matrice di base quadrata assume una dimensione esatta di $\mathbf{15 \times 15}$.
+	
+	Il vettore del flusso primale $\bar{x}$, ordinato lessicograficamente per tutti i 10 archi, risulta ammissibile ed è pari a:
+	\[ \bar{x} = \mathbf{(3, 0, 3, 0, 3, 3, 7, 0, 0, 5)^T} \]
+	Calcolando i potenziali con una visita anticipata dell'albero $T$, otteniamo il vettore duale $\bar{\pi}$:
+	\[ \bar{\pi} = \mathbf{(0, 7, 17, 20, 22, 14)^T} \]
+	
+	\vspace{0.4cm}
+	\textbf{Verifica di Ottimalità (Condizioni di Bellman)}\\
+	Esaminiamo i costi ridotti ($c^\pi_{ij} = c_{ij} + \pi_i - \pi_j$). La regola impone che se si rinvengono contemporaneamente violazioni in $L$ e in $U$, si selezioni l'arco entrante seguendo il rigido criterio lessicografico.
+	Valutando il primissimo arco fuori base, l'arco $(1\to3) \in L$:
+	\[ c^\pi_{13} = 10 + 0 - 17 = \mathbf{-7} < 0 \quad \text{\textcolor{red}{(Violato!)}} \]
+	L'arco $(1\to3)$ vìola palesemente le condizioni e diventa l'arco \textbf{entrante}. L'iniezione di questo arco in $T$ genera un ciclo $C$. Il cammino equivalente sull'albero per andare da 1 a 3 è $1 \to 2 \to 3$. Pertanto, gli insiemi direzionali del ciclo sono:
+	\begin{itemize}
+		\item $C^+ = \{ (1\to3) \}$ (L'arco entrante concorde)
+		\item $C^- = \{ (1\to2), (2\to3) \}$ (Gli archi dell'albero percorsi a ritroso per chiudere il ciclo)
+	\end{itemize}
+	
+	Calcoliamo i limiti massimi di variazione del flusso ($\theta$):
+	\[ \theta^+ = u_{13} - \bar{x}_{13} = 7 - 0 = 7 \]
+	\[ \theta^- = \min \{ \bar{x}_{12}, \bar{x}_{23} \} = \min \{ 3, 3 \} = 3 \]
+	La quantità di flusso inviabile sul ciclo è $\theta = \min \{ 7, 3 \} = \mathbf{3}$.
+	Avendo un pareggio in $\theta^-$ tra $(1\to2)$ e $(2\to3)$, si applica la \textbf{Regola Anticiclo di Bland}: a parità di valore, si fa uscire dalla base l'arco con l'indice lessicografico inferiore. L'arco \textbf{uscente} è quindi $(1\to2)$, che declassa nell'insieme $L$.
+	
+	Aggiorniamo il flusso primale, sommando $\theta=3$ su $C^+$ e sottraendolo su $C^-$:
+	\[ \bar{x}_{nuovo} = \mathbf{(0, 3, 0, 0, 3, 3, 7, 0, 0, 5)^T} \]
+	Il vantaggio economico di questo passo del simplesso si traduce in un risparmio sulla funzione obiettivo pari a $\theta \cdot |c^\pi_{13}| = 3 \cdot 7 = \mathbf{21 \text{ unità}}$.
+	
+	\textbf{Sviluppo del Secondo Passo di Simplesso}\\
+	A seguito dell'aggiornamento, la nuova tripartizione possiede il seguente albero di copertura $T$: $\{(1\to3), (2\to3), (3\to4), (2\to6), (3\to5)\}$.
+	\textit{Attenzione:} L'arco $(2\to3)$ è rimasto in base nonostante il suo flusso sia sceso a 0. Siamo formalmente in presenza di un primale \textbf{degenere}.
+	
+	Ricalcoliamo i potenziali $\bar{\pi}$ sull'albero aggiornato (ponendo $\pi_1 = 0$):
+	\begin{itemize}
+		\item $(1\to3) \implies \pi_3 = 10$
+		\item $(2\to3) \implies -\pi_2 + 10 = 10 \implies \pi_2 = 0$
+		\item $(3\to4) \implies -10 + \pi_4 = 3 \implies \pi_4 = 13$
+		\item $(2\to6) \implies -0 + \pi_6 = 7 \implies \pi_6 = 7$
+		\item $(3\to5) \implies -10 + \pi_5 = 5 \implies \pi_5 = 15$
+	\end{itemize}
+	Otteniamo il nuovo vettore dei potenziali: $\bar{\pi} = \mathbf{(0, 0, 10, 13, 15, 7)^T}$.
+	
+	Valutiamo ora le condizioni di Bellman per cercare nuove violazioni:
+	\begin{itemize}
+		\item $c^\pi_{12} \in L: 7 + 0 - 0 = 7 \ge 0$ (Rispettato)
+		\item $c^\pi_{24} \in L: 7 + 0 - 13 = \mathbf{-6} < 0 \quad \text{\textcolor{red}{(Violato!)}}$
+		\item $c^\pi_{36} \in L: 6 + 10 - 7 = 9 \ge 0$ (Rispettato)
+		\item $c^\pi_{46} \in L: 3 + 13 - 7 = 9 \ge 0$ (Rispettato)
+		\item $c^\pi_{56} \in U: 7 + 15 - 7 = \mathbf{15} > 0 \quad$ \text{\textcolor{red}{(Violato!)}}
+	\end{itemize}
+	Abbiamo due archi che vìolano Bellman. Per la priorità lessicografica, l'arco \textbf{entrante} è l'arco $(2\to4)$ dall'insieme $L$.
+	L'inserimento di $(2\to4)$ genera un ciclo con il percorso in base $2 \to 3 \to 4$.
+	Il ciclo è formato da:
+	\begin{itemize}
+		\item $C^+ = \{ (2\to4) \}$
+		\item $C^- = \{ (2\to3), (3\to4) \}$
+	\end{itemize}
+	Calcoliamo $\theta$:
+	\[ \theta^+ = u_{24} - \bar{x}_{24} = 6 - 0 = 6 \]
+	\[ \theta^- = \min \{ \bar{x}_{23}, \bar{x}_{34} \} = \min \{ \mathbf{0}, 3 \} = \mathbf{0} \]
+	Avendo un $\theta = 0$, il passo del simplesso è un passo degenere. Il flusso non cambia, ma avviene un cambio strutturale della base: l'arco $(2\to3)$ esce dalla base $T$ verso $L$, mentre l'arco $(2\to4)$ entra in $T$. Questo aggiornamento sblocca la degenerazione per le iterazioni successive, portando la soluzione verso la convergenza definitiva.
+	
+	\vspace{0.6cm}
+	\separatore
+	\vspace{0.4cm}
+	\textbf{Modellizzazione: Cammino Minimo con Vincoli di Risorse (Budget)}\\
+	In questa nuova fase teorica, consideriamo la seguente topologia a 6 nodi. I valori numerici riportati sugli archi rappresentano i costi (o lunghezze) ad essi associati.
+	
+	\begin{figure}[H]
+		\centering
+		\begin{tikzpicture}[scale=1.5, >=stealth, node distance=2cm,
+			node_style/.style={circle, draw=titlecolor, thick, fill=titlecolor!10, minimum size=8mm, font=\bfseries},
+			edge_style/.style={->, thick, color=black}
+			]
+			
+			% Posizionamento Nodi
+			\node[node_style] (1) at (0, 2) {1};
+			\node[node_style] (2) at (2, 3.5) {2};
+			\node[node_style] (3) at (2, 0.5) {3};
+			\node[node_style] (4) at (4, 3.5) {4};
+			\node[node_style] (5) at (4, 0.5) {5};
+			\node[node_style] (6) at (6, 2) {6};
+			
+			% Archi con i rispettivi costi
+			\draw[edge_style] (1) -- (2) node[midway, above left, font=\bfseries] {3};
+			\draw[edge_style] (1) -- (3) node[midway, below left, font=\bfseries] {7};
+			\draw[edge_style] (3) -- (2) node[midway, left, font=\bfseries] {8};
+			\draw[edge_style] (2) -- (4) node[midway, above, font=\bfseries] {9};
+			\draw[edge_style] (3) -- (4) node[pos=0.4, above left, font=\bfseries] {4};
+			\draw[edge_style] (3) -- (5) node[midway, below, font=\bfseries] {1};
+			\draw[edge_style] (4) -- (5) node[midway, right, font=\bfseries] {5};
+			\draw[edge_style] (4) -- (6) node[midway, above right, font=\bfseries] {2};
+			\draw[edge_style] (5) -- (6) node[midway, below right, font=\bfseries] {3};
+			
+		\end{tikzpicture}
+		\caption{Rete per il problema del cammino minimo con vincoli di risorse. Sugli archi sono riportati i pesi corrispondenti.}
+	\end{figure}
+	A ciascun arco sono associati due parametri distinti: la Lunghezza ($l_{ij}$) e il Costo monetario ($c_{ij}$).
+	Sorge il quesito: \textit{È possibile minimizzare simultaneamente e in modo assoluto sia la lunghezza che il costo?}
+	La risposta è \textbf{No}. Dal punto di vista matematico, ci troviamo di fronte a un problema \textit{multi-obiettivo}, in cui le due funzioni sono spesso in forte contrapposizione (un percorso molto rapido solitamente costa molto, mentre un percorso economico tende a essere più lungo).
+	
+	Per risolvere questo dilemma pratico, si fissa una tolleranza (un tetto massimo) per una delle due variabili, creando il modello del \textbf{Cammino Minimo con Budget} (Resource-Constrained Shortest Path Problem).
+	Il modello matematico formale si esprime come segue:
+	\[
+	\left\{
+	\begin{aligned}
+		\min \quad & L^T x \\
+		\text{s.t.} \quad & E x = b \\
+		& C^T x \le C \\
+		& x_{ij} \in \{0, 1\}
+	\end{aligned}
+	\right.
+	\]
+	\textit{Significato matematico delle equazioni:}
+	\begin{itemize}
+		\item $l^T x$: È la funzione obiettivo principale. Si intende minimizzare la lunghezza totale ($l$) moltiplicata per le variabili decisionali binarie ($x$).
+		\item $E x = b$: Definisce i vincoli di conservazione del flusso ai nodi, dove $E$ è la matrice di incidenza nodo-arco. Il vettore colonna $b$ assumerà valori $b = (-1, 0, 0, 0, 0, 1)^T$. Il valore $-1$ certifica l'erogazione esatta di una unità logica dal nodo sorgente (nodo 1), mentre il $+1$ ne certifica l'assorbimento al nodo di arrivo (nodo 6). Tutti i nodi intermedi avranno bilancio a $0$.
+		\item $C^T x \le C$: È il vincolo aggiuntivo strutturale (Vincolo di Budget). Il costo totale del percorso generato deve restare rigorosamente inferiore o uguale a un tetto massimo di spesa prefissato.
+		\item $x_{ij} \in \{0, 1\}$: Variabile booleana di selezione. L'arco viene percorso (1) o scartato (0).
+	\end{itemize}
+	Questo specifico problema appartiene alla classe \textbf{NP-Hard} e, a causa del vincolo aggiuntivo $C^T x \le C$, l'integrità tipica dei problemi di rete non è più garantita in automatico.
+	La risoluzione esatta richiede l'impiego dell'algoritmo di \textbf{Branch and Bound}. Per far funzionare l'albero decisionale occorrono due stime fondamentali:
+	\begin{itemize}
+		\item \textbf{Valutazione Inferiore (Lower Bound):} Si calcola ignorando del tutto il vincolo di budget ($C$) e applicando il classico \textit{Algoritmo di Dijkstra} unicamente sui pesi delle lunghezze ($L$). Questo restituisce il percorso fisicamente più corto in assoluto, che funge da limite inferiore teorico.
+		\item \textbf{Valutazione Superiore (Upper Bound):} Corrisponde a una qualsiasi soluzione primale ammissibile, ovvero un qualunque cammino che riesca ad andare dal nodo sorgente al nodo destinazione senza sforare il vincolo di budget. Questo valore costituisce il tetto massimo da abbattere durante l'esplorazione dell'albero di Branch and Bound.
+	\end{itemize}
+	
+	\vspace{1.5cm}
+	\begin{center}
+		\rule{0.65\textwidth}{1pt} \\
+		\vspace{0.4cm}
+		\textcolor{titlecolor}{\LARGE \textbf{--- Fine Lezione 29 ---}} \\
+		\vspace{0.2cm}
+		\rule{0.65\textwidth}{1pt}
+	\end{center}
+	\newpage
+	
+	\avviso{\textit{\textbf{Questa lezione, come le sue precedenti e successive, può contenere errori e/o imprecisioni. Per il bene di tutti, è buona norma far notare all'autore l'errore o l'imprecisione così da risolvere nel minor tempo possibile. I canali di comunicazione, per eventuali avvisi generali o di errori trovati negli appunti, sono in cima al file. Grazie per la collaborazione e Buono studio!}}}
+	
+	\section*{Lezione 30 | 11 novembre 2026}
+	\subsection*{Problema del Flusso Massimo}
+	
+	
+	
 \end{document}
