@@ -11989,6 +11989,447 @@
 	\section*{Lezione 30 | 11 novembre 2026}
 	\subsection*{Problema del Flusso Massimo}
 	
+	Si parte con l'analisi di un grafo orientato composto da 6 nodi. Il nodo 1 (sorgente) immette nella rete una quantità di flusso $V$, che convenzionalmente denotiamo con $-V$ (erogazione). Il nodo 6 (destinazione) richiede l'intera quantità $V$. Tutti gli altri nodi intermedi hanno bilancio logistico nullo, operando da puri nodi di transito. 
+	Possiamo immaginare questa struttura come un tipico problema di telecomunicazioni: un server primario (nodo 1) deve trasmettere un pacchetto di dati $V$ verso un client finale (nodo 6) sfruttando i ripetitori intermedi, con l'obiettivo di massimizzare la larghezza di banda trasferibile.
+	
+	\textit{Nota:} Su questo tipo di rete non vi sono costi di transito ($c_{ij}$), poiché l'obiettivo esclusivo è massimizzare il volume transitabile.
+	
+	La rete topologica si presenta così:
+	\begin{figure}[H]
+		\centering
+		\begin{tikzpicture}[scale=1.5, >=stealth, node distance=2cm,
+			node_style/.style={circle, draw=titlecolor, thick, fill=titlecolor!10, minimum size=8mm, font=\bfseries},
+			edge_style/.style={->, thick, color=black}
+			]
+			
+			% Nodi
+			\node[node_style, label={[text=red, font=\bfseries]left:$\boldsymbol{-V}$}] (1) at (0, 2) {1};
+			\node[node_style, label={[text=gray, font=\bfseries]above:$\boldsymbol{0}$}] (2) at (2, 3.5) {2};
+			\node[node_style, label={[text=gray, font=\bfseries]below:$\boldsymbol{0}$}] (3) at (2, 0.5) {3};
+			\node[node_style, label={[text=gray, font=\bfseries]above:$\boldsymbol{0}$}] (4) at (4, 3.5) {4};
+			\node[node_style, label={[text=gray, font=\bfseries]below:$\boldsymbol{0}$}] (5) at (4, 0.5) {5};
+			\node[node_style, label={[text=green!60!black, font=\bfseries]right:$\boldsymbol{+V}$}] (6) at (6, 2) {6};
+			
+			% Archi con portata u_{ij}
+			\draw[edge_style] (1) -- (2) node[midway, above left, font=\bfseries] {3};
+			\draw[edge_style] (1) -- (3) node[midway, below left, font=\bfseries] {8};
+			\draw[edge_style] (2) -- (4) node[midway, above, font=\bfseries] {2};
+			\draw[edge_style] (3) -- (2) node[midway, left, font=\bfseries] {6};
+			\draw[edge_style] (3) -- (4) node[pos=0.3, above left, font=\bfseries] {4};
+			\draw[edge_style] (3) -- (5) node[midway, below, font=\bfseries] {2};
+			\draw[edge_style] (4) -- (5) node[midway, right, font=\bfseries] {5};
+			\draw[edge_style] (4) -- (6) node[midway, above right, font=\bfseries] {3};
+			\draw[edge_style] (5) -- (6) node[midway, below right, font=\bfseries] {7};
+			
+		\end{tikzpicture}
+		\caption{Rete del Problema del Flusso Massimo. I valori sugli archi indicano le portate massime (banda) $u_{ij}$.}
+	\end{figure}
+	
+	Il problema fondamentale è: \textit{Quanto flusso posso inviare dal nodo 1 al nodo 6?}
+	Una possibile configurazione del vettore di flusso ammissibile $\bar{x}$, dettato sempre in ordine lessicografico, potrebbe essere:
+	\[ \bar{x} = \mathbf{(2, 2, 2, 0, 0, 2, 0, 2, 2)^T} \]
+	
+	\vspace{0.4cm}
+	\textbf{Il Modello Matematico Sintetico ed Esplicito}\\
+	Il modello matematico del problema del Flusso Massimo (Max Flow) si struttura ponendo la variabile $V$ (volume) da massimizzare nella funzione obiettivo.
+	\begin{align*}
+		\max \quad & V \\
+		\text{s.t.} \quad & E x = b \\
+		& 0 \le x_{ij} \le u_{ij}
+	\end{align*}
+	
+	\textit{Spiegazione delle componenti:}
+	\begin{itemize}
+		\item $V$: Variabile incognita di cui si ricerca l'ottimo, rappresenta il flusso totale che transita dalla sorgente $s$ alla destinazione $t$.
+		\item $E$: Matrice di incidenza nodi-archi.
+		\item $b$: Vettore dei bilanci nodali, i cui coefficienti $b_i$ valgono:
+		\[
+		b_i = 
+		\begin{cases}
+			-V & \text{se } i = s \ (\text{Nodo 1, Sorgente}) \\
+			+V & \text{se } i = t \ (\text{Nodo 6, Destinazione}) \\
+			0 & \forall i \neq s, t \ (\text{Nodi Intermedi})
+		\end{cases}
+		\]
+		\item $u_{ij}$: Vettore colonna delle capacità/portate massime superiori tollerate fisicamente dalla rete.
+	\end{itemize}
+	
+	Ci si potrebbe domandare: \textit{Trattandosi di una variabile $V$ incognita a destra dell'equazione e non di un valore fisso numerico costante, è ancora un problema di programmazione lineare?}
+	Assolutamente sì. Per capirlo a fondo, è sufficiente sviluppare il modello rendendolo \textbf{esplicito} riga per riga, dove $V$ compare regolarmente come l'ennesima variabile del sistema lineare (trattata algebricamente spostandola a sinistra del segno di uguaglianza per costruire la matrice):
+	
+	\begin{align*}
+		\max \quad & V \\
+		\text{s.t.} \quad 
+		& -x_{12} - x_{13} = -V \\
+		& +x_{12} + x_{32} - x_{24} = 0 \\
+		& +x_{13} - x_{32} - x_{34} - x_{35} = 0 \\
+		& +x_{24} + x_{34} - x_{45} - x_{46} = 0 \\
+		& +x_{35} + x_{45} - x_{56} = 0 \\
+		& +x_{46} + x_{56} = V \\
+		& 0 \le x_{ij} \le u_{ij}
+	\end{align*}
+	La matrice associata non sappiamo con esattezza se sia puramente \textbf{unimodulare}, perché la presenza della variabile fluida $V$ con coefficienti $-1$ e $+1$ nelle righe di $s$ e $t$ altera la rigida struttura classica di una matrice di incidenza canonica per un problema standard di costi minimi.
+	
+	\textbf{Implementazione Software (Ambiente MATLAB)}\\
+	Impostando questo modello per la funzione \texttt{linprog} di Matlab, i dati vettoriali diventano:
+	\begin{itemize}
+		\item Il vettore costo della funzione obiettivo \texttt{c}: La nostra $V$ sarà posizionata in fondo come decima variabile. Dovendo massimizzare $V$, l'istruzione \texttt{linprog} (che minimizza) richiederà il segno opposto.
+		\texttt{c = [0 0 0 0 0 0 0 0 0 -1]}
+		\item Il vettore \texttt{lb} (Lower Bound): Limite inferiore di flusso per ogni arco, oltre allo zero per la $V$. \\
+		\texttt{lb = zeros(10, 1)}
+		\item Il vettore \texttt{ub} (Upper Bound): Rappresenta le capacità $u_{ij}$ degli archi, mentre per l'ultimo elemento (la variabile $V$) impostiamo infinito logico o un valore elevatissimo. \\
+		\texttt{ub = [3 8 2 6 4 2 5 3 7 inf]}
+		\item Le matrici \texttt{A} e \texttt{b} dei vincoli di disuguaglianza saranno vuote (\texttt{[]}).
+		\item Il vettore \texttt{beq} dei vincoli di uguaglianza sarà il vettore nullo: \\
+		\texttt{beq = zeros(6, 1)}
+		\item La matrice di incidenza estesa \texttt{Aeq} conterrà, nelle prime 9 colonne, i coefficienti nodali degli $x_{ij}$, e nella decima colonna i coefficienti per spostare algebricamente i $V$ (ovvero $+1$ per il nodo 1 e $-1$ per il nodo 6):
+	\end{itemize}
+	\[
+	\text{Aeq} = 
+	\begin{bmatrix}
+		-1 & -1 &  0 &  0 &  0 &  0 &  0 &  0 &  0 & +1 \\
+		+1 &  0 & -1 & +1 &  0 &  0 &  0 &  0 &  0 &  0 \\
+		0 & +1 &  0 & -1 & -1 & -1 &  0 &  0 &  0 &  0 \\
+		0 &  0 & +1 &  0 & +1 &  0 & -1 & -1 &  0 &  0 \\
+		0 &  0 &  0 &  0 &  0 & +1 & +1 &  0 & -1 &  0 \\
+		0 &  0 &  0 &  0 &  0 &  0 &  0 & +1 & +1 & -1 \\
+	\end{bmatrix}
+	\]
+	Questa matrice ha dimensioni $6 \times 10$ (6 nodi e 10 incognite logiche: 9 flussi + $V$).
+	
+	\vspace{0.6cm}
+	\separatore
+	\vspace{0.4cm}
+	
+	\textbf{Conversione a Problema di Flusso di Costo Minimo Standard}\\
+	Il professore ci offre un "trucco topologico" geniale per assorbire la variabile $V$ e convertire il tutto in un banale e già noto Simplesso su Reti. Consiste nel ridisegnare la rete con un nuovo arco "fittizio", denominato arco di \textbf{Ritorno} o di Ricircolo, che collega direttamente il nodo Destinazione ($t=6$) al nodo Sorgente ($s=1$). 
+	A questo arco $(6\to1)$ assegniamo due caratteristiche peculiari:
+	\begin{itemize}
+		\item Un Costo $c_{61} = -1$ (funge da "premio" o guadagno al passaggio).
+		\item Una Capacità/Portata $u_{61} = M$ (un valore infinito tendente al limite).
+	\end{itemize}
+	Per tutti gli altri archi della rete originale, il costo si imposta a zero ($c_{ij} = 0$).
+	
+	\begin{figure}[H]
+		\centering
+		\begin{tikzpicture}[scale=1.5, >=stealth, node distance=2cm,
+			node_style/.style={circle, draw=titlecolor, thick, fill=titlecolor!10, minimum size=8mm, font=\bfseries},
+			edge_style/.style={->, thick, color=black},
+			return_style/.style={->, ultra thick, color=violet}
+			]
+			
+			\node[node_style, label={[text=gray, font=\bfseries]left:$\boldsymbol{0}$}] (1) at (0, 2) {1};
+			\node[node_style, label={[text=gray, font=\bfseries]above:$\boldsymbol{0}$}] (2) at (2, 3.5) {2};
+			\node[node_style, label={[text=gray, font=\bfseries]below:$\boldsymbol{0}$}] (3) at (2, 0.5) {3};
+			\node[node_style, label={[text=gray, font=\bfseries]above:$\boldsymbol{0}$}] (4) at (4, 3.5) {4};
+			\node[node_style, label={[text=gray, font=\bfseries]below:$\boldsymbol{0}$}] (5) at (4, 0.5) {5};
+			\node[node_style, label={[text=gray, font=\bfseries]right:$\boldsymbol{0}$}] (6) at (6, 2) {6};
+			
+			\draw[edge_style] (1) -- (2) node[midway, above left, font=\bfseries] {3};
+			\draw[edge_style] (1) -- (3) node[midway, below left, font=\bfseries] {8};
+			\draw[edge_style] (2) -- (4) node[midway, above, font=\bfseries] {2};
+			\draw[edge_style] (3) -- (2) node[midway, left, font=\bfseries] {6};
+			\draw[edge_style] (3) -- (4) node[pos=0.3, above left, font=\bfseries] {4};
+			\draw[edge_style] (3) -- (5) node[midway, below, font=\bfseries] {2};
+			\draw[edge_style] (4) -- (5) node[midway, right, font=\bfseries] {5};
+			\draw[edge_style] (4) -- (6) node[midway, above right, font=\bfseries] {3};
+			\draw[edge_style] (5) -- (6) node[midway, below right, font=\bfseries] {7};
+			
+			% Arco di Ritorno Fittizio (Viola)
+			\draw[return_style, rounded corners=15pt] (6) -- (6, 4.5) -- node[above, font=\bfseries, color=black] {Costo = -1, Portata = M} (0, 4.5) -- (1);
+			
+		\end{tikzpicture}
+		\caption{Rete Modificata con Arco di Ritorno fittizio. Notare che ora il bilancio ai nodi è zero per tutti ($b_i=0$).}
+	\end{figure}
+	Questa geniale rielaborazione riequilibra tutta la rete chiudendola in un anello puramente interno, trasformando i vettori d'erogazione da $V$ a zero. 
+	Il Simplesso standard minimizzerà i costi abbattendo il più possibile la funzione obiettivo. Ma essendoci un arco dal costo $-1$, il solutore vorrà pompare e saturare tutto il flusso logistico immaginabile su di esso per ottenere il "guadagno". E per farlo, dovrà obbligatoriamente transitare per la struttura della rete fisica originaria, saturandola fino all'estremo collo di bottiglia fisico.
+	\textit{Conclusione Teorica:} In questo modello convertito cade ogni ambiguità sulla matrice: l'interezza della soluzione è perfettamente garantita dalla proprietà di unimodularità delle reti standard a costi minimi.
+	
+	\vspace{0.6cm}
+	\separatore
+	\vspace{0.4cm}
+	
+	\textbf{Teoria del Taglio (Cut) nelle Reti}\\
+	Definiamo ora formalmente un taglio della rete (da non confondere con la Teoria del Taglio di Gomory che interviene nella Programmazione Lineare Intera geometrica).
+	Una partizione dell'insieme completo dei nodi ($N$) nei sottoinsiemi $N_S$ (Nodi associati alla Sorgente) e $N_T$ (Nodi associati alla Destinazione) tale che:
+	\begin{itemize}
+		\item $s \in N_S$
+		\item $t \in N_T$
+		\item $N_S \cup N_T = N$
+		\item $N_S \cap N_T = \emptyset$ (partizioni mutuamente esclusive)
+	\end{itemize}
+	si chiama \textbf{Taglio della rete}. 
+	La capacità (o portata del taglio), che si denota con la sintassi formale $U(N_S, N_T)$, si definisce come la sommatoria di tutte le portate $u_{ij}$ degli archi che vengono recisi dal taglio ed escono direzionalmente dalla partizione sorgente a quella destinazione:
+	\[
+	U(N_S, N_T) = \sum_{\substack{i \in N_S \\ j \in N_T}} u_{ij}
+	\]
+	Geometricamente e funzionalmente, effettuare un taglio netto significa sezionare il grafo recidendo un gruppo strategico di cavi tale per cui, se quei cavi mancassero, non vi sarebbe alcuna via fisica residua per permettere a una particella partente dalla sorgente $s$ di raggiungere la destinazione $t$.
+	Un contro-esempio: tagliare semplicemente gli archi $(1\to2), (2\to4)$ \textbf{NON} è un taglio valido per separare il grafo in due, poiché rimarrebbe praticabile la via laterale $1\to3$, scendere giù, girare etc.
+	
+	Vediamo sul grafo due esempi di Tagli Validi.
+	\begin{figure}[H]
+		\centering
+		\begin{tikzpicture}[scale=1.5, >=stealth, node distance=2cm,
+			node_style/.style={circle, draw=titlecolor, thick, fill=titlecolor!10, minimum size=8mm, font=\bfseries},
+			edge_style/.style={->, thick, color=black},
+			cut_1/.style={ultra thick, color=green!70!black},
+			cut_2/.style={ultra thick, color=yellow!80!orange}
+			]
+			
+			\node[node_style] (1) at (0, 2) {1};
+			\node[node_style] (2) at (2, 3.5) {2};
+			\node[node_style] (3) at (2, 0.5) {3};
+			\node[node_style] (4) at (4, 3.5) {4};
+			\node[node_style] (5) at (4, 0.5) {5};
+			\node[node_style] (6) at (6, 2) {6};
+			
+			\draw[edge_style] (1) -- (2) node[midway, above left, font=\bfseries] {3};
+			\draw[edge_style] (1) -- (3) node[midway, below left, font=\bfseries] {8};
+			\draw[edge_style] (2) -- (4) node[midway, above, font=\bfseries] {2};
+			\draw[edge_style] (3) -- (2) node[midway, left, font=\bfseries] {6};
+			\draw[edge_style] (3) -- (4) node[pos=0.3, above left, font=\bfseries] {4};
+			\draw[edge_style] (3) -- (5) node[midway, below, font=\bfseries] {2};
+			\draw[edge_style] (4) -- (5) node[midway, right, font=\bfseries] {5};
+			\draw[edge_style] (4) -- (6) node[midway, above right, font=\bfseries] {3};
+			\draw[edge_style] (5) -- (6) node[midway, below right, font=\bfseries] {7};
+			
+			% Linee di Taglio (Cuts)
+			\draw[cut_1] (1, 4) -- (1, 0);
+			\draw[cut_2] (2.75, 4) -- (2.75, 0); % Spostato a sinistra a x=2.75 per non sovrapporsi ai valori
+			
+		\end{tikzpicture}
+		\caption{Rappresentazione di due tagli netti che frammentano il grafo e isolano il nodo 1 dal nodo 6. La \textbf{linea verde} (Taglio A) separa la sorgente recidendo gli archi $(1\to2)$ e $(1\to3)$. La \textbf{linea gialla} (Taglio B) intercetta gli archi $(2\to4)$, $(3\to4)$ e $(3\to5)$. Entrambi i tagli eliminano ogni possibile cammino residuo tra sorgente e destinazione.}
+	\end{figure}
+	
+	\begin{itemize}
+		\item \textbf{Taglio A (Verde):} Recide la primissima linea di frontiera, ossia gli archi $(1\to2)$ e $(1\to3)$. 
+		La sua portata complessiva sarà: $U_A = u_{12} + u_{13} = 3 + 8 = \mathbf{11}$.
+		\item \textbf{Taglio B (Giallo):} Divide nettamente la parte sinistra dalla parte destra recidendo i rami $(2\to4), (3\to4), (3\to5)$. 
+		La sua portata complessiva sarà: $U_B = u_{24} + u_{34} + u_{35} = 2 + 4 + 2 = \mathbf{8}$.
+		\item \textit{Nota (Taglio Diagonale Astratto):} Si potrebbe eseguire un tracciato obliquo recidendo $(1\to2), (3\to2), (3\to4), (4\to5), (5\to6)$. È consentito, purché spezzi la linearità sorgente-destinazione.
+	\end{itemize}
+	
+	L'importanza vitale dello studio e della quantificazione dei Tagli di una rete sfocia in una delle leggi più prestigiose della Ricerca Operativa.
+	
+	\textbf{Teorema del Max-Flow Min-Cut}\\
+	\textit{"Il valore del flusso massimo trasportabile in una rete da s verso t coincide esattamente con la capacità del taglio di portata minima."}
+	In sintesi assoluta: il collo di bottiglia strutturale della rete stabilisce e limita la quantità massima di carico erogabile. 
+	
+	\textbf{Teorema Duale del Taglio}\\
+	Il problema del Flusso Massimo è rigorosamente il \textbf{duale matematico} della ricerca del Taglio di portata Minima. Per effetto del \textit{Teorema di Dualità Forte} e del test di ottimalità, qualora si trovi un piano logistico in cui il flusso inviato ($V$) riesca ad eguagliare matematicamente la portata $U$ di uno qualsiasi dei tagli della rete, scatta il certificato inoppugnabile di garanzia: quello specifico flusso è stato massimizzato al suo limite ultimo, e contemporaneamente si è individuato topologicamente il taglio minimo del grafo.
+	
+	\vspace{0.6cm}
+	\separatore
+	\vspace{0.4cm}
+	
+	\textbf{Esercizio 1: Risoluzione del Problema del Flusso Massimo tramite Simplesso su Reti}\\
+	Iniziamo applicando la logica del Simplesso su Reti (convertita con l'arco fittizio di ritorno) a un grafo di 6 nodi. La topologia prevede che tutti i nodi abbiano bilancio nullo ($b_i = 0$), compresi la sorgente e la destinazione, grazie all'inserimento dell'arco di ritorno $(6\to1)$.
+
+	Tutti gli archi possiedono un costo di transito nullo ($c_{ij} = 0$), ad eccezione dell'arco di ritorno che possiede un costo artificiale negativo $c_{61} = -1$ per incentivare il passaggio del flusso.
+	
+	Costruiamo la base di partenza assegnando all'albero di copertura $T$ gli archi: $(1\to2), (1\to3), (2\to4), (3\to5), (5\to6)$. Non vi è alcun arco saturo, dunque $U = \emptyset$, e tutti i rimanenti archi giacciono nell'insieme dei vuoti $L$.
+	
+	\begin{figure}[H]
+		\centering
+		\begin{tikzpicture}[scale=1.5, >=stealth, node distance=2cm,
+			node_style/.style={circle, draw=titlecolor, thick, fill=titlecolor!10, minimum size=8mm, font=\bfseries},
+			tree_style/.style={->, ultra thick, color=violet},
+			non_tree_style/.style={->, thick, dashed, color=gray}
+			]
+			
+			\node[node_style] (1) at (0, 2) {1};
+			\node[node_style] (2) at (2, 3.5) {2};
+			\node[node_style] (3) at (2, 0.5) {3};
+			\node[node_style] (4) at (4, 3.5) {4};
+			\node[node_style] (5) at (4, 0.5) {5};
+			\node[node_style] (6) at (6, 2) {6};
+			
+			% Albero T (Viola)
+			\draw[tree_style] (1) -- (2) node[midway, above left, font=\bfseries, color=black] {8};
+			\draw[tree_style] (1) -- (3) node[midway, below left, font=\bfseries, color=black] {5};
+			\draw[tree_style] (2) -- (4) node[midway, above, font=\bfseries, color=black] {2};
+			\draw[tree_style] (3) -- (5) node[midway, below, font=\bfseries, color=black] {6};
+			\draw[tree_style] (5) -- (6) node[midway, below right, font=\bfseries, color=black] {5};
+			
+			% Archi L (Grigi tratteggiati)
+			\draw[non_tree_style] (3) -- (2) node[midway, left, font=\bfseries, color=black] {6};
+			\draw[non_tree_style] (3) -- (4) node[pos=0.3, above left, font=\bfseries, color=black] {9};
+			\draw[non_tree_style] (4) -- (5) node[midway, right, font=\bfseries, color=black] {6};
+			\draw[non_tree_style] (4) -- (6) node[midway, above right, font=\bfseries, color=black] {8};
+			
+			% Arco di Ritorno
+			\draw[non_tree_style, rounded corners=15pt] (6) -- (6, 4.5) -- node[above, font=\bfseries, color=black] {C = -1, U = 100} (0, 4.5) -- (1);
+			
+		\end{tikzpicture}
+		\caption{Grafo di Inizializzazione. In viola l'albero di copertura $T$ iniziale. Flussi tutti a zero.}
+	\end{figure}
+	
+	Eseguiamo la visita posticipata per foglie. Il flusso ammissibile iniziale $\bar{x}$ risulta un vettore totalmente nullo (a riprova che il problema non è irrisolvibile o "vuoto", bensì statico):
+	\[ \bar{x} = \mathbf{(0, 0, 0, 0, 0, 0, 0, 0, 0, 0)^T} \]
+	Calcolando i potenziali con radice in 1, otteniamo un vettore nullo (nessun costo in $T$):
+	\[ \bar{\pi} = \mathbf{(0, 0, 0, 0, 0, 0)^T} \]
+	
+	\textbf{Passo 1 del Simplesso}\\
+	Verifichiamo le condizioni di Bellman. L'unico arco fuori base a possedere un costo non nullo è $(6\to1)$, calcoliamone il costo ridotto:
+	\[ C^\pi_{61} = c_{61} + \pi_6 - \pi_1 = -1 + 0 - 0 = \mathbf{-1} < 0 \quad \text{\textcolor{red}{(Violato!)}} \]
+	L'arco $(6\to1)$ vìola Bellman e diventa l'arco \textbf{entrante}. Si genera un ciclo $C$ formato dal cammino sull'albero $(1\to3\to5\to6)$ saldato all'arco $(6\to1)$. Tutti gli archi percorrono il medesimo verso circolare. Pertanto:
+	\begin{itemize}
+		\item $C^+ = \{ (1\to3), (3\to5), (5\to6), (6\to1) \}$
+		\item $C^- = \emptyset$
+	\end{itemize}
+	\textit{Nota analitica:} Poiché $C^-$ è vuoto, convenzionalmente si pone $\theta^- = +\infty$ così da inibirne l'influenza, calcolando unicamente $\theta^+$:
+	\[ \theta = \theta^+ = \min \{ (5-0), (6-0), (5-0), (100-0) \} = \min \{ 5, 6, 5, 100 \} = \mathbf{5} \]
+	Sia l'arco $(1\to3)$ che l'arco $(5\to6)$ raggiungono il limite. Scegliamo $(1\to3)$ come arco \textbf{uscente}. Questo arco passa nell'insieme dei saturi $U$. L'arco $(5\to6)$, pur essendosi saturato, permane in $T$ configurando un caso di multipla scelta degenerativa latente.
+	
+	Aggiorniamo la soluzione:
+	\[ \bar{x} = \mathbf{(0, \mathbf{5}, 0, 0, 0, \mathbf{5}, 0, 0, \mathbf{5}, \mathbf{5})^T} \]
+	La nuova base tripartita è: 
+	$T = \{12, 24, 35, 56, 61\}$; \quad $U = \{13\}$; \quad $L = \{32, 34, 45, 46\}$
+	
+	\vspace{0.4cm}
+	\textbf{Passo 2 del Simplesso}\\
+	Ricalcoliamo i potenziali sul nuovo albero $T$ (fissando $\pi_1 = 0$):
+	\begin{itemize}
+		\item $(1\to2) \in T \implies \pi_2 = 0$
+		\item $(2\to4) \in T \implies \pi_4 = 0$
+		\item $(6\to1) \in T \implies -1 + \pi_6 - \pi_1 = 0 \implies \pi_6 = 1$
+		\item $(5\to6) \in T \implies 0 + \pi_5 - \pi_6 = 0 \implies \pi_5 = 1$
+		\item $(3\to5) \in T \implies 0 + \pi_3 - \pi_5 = 0 \implies \pi_3 = 1$
+	\end{itemize}
+	\[ \bar{\pi}_{nuovo} = \mathbf{(0, 0, 1, 0, 1, 1)^T} \]
+	
+	Valutiamo le nuove violazioni di Bellman:
+	\begin{itemize}
+		\item $C^\pi_{13} \in U: 0 + 0 - 1 = -1 \le 0$ (Rispettato, è saturo)
+		\item $C^\pi_{32} \in L: 0 + 1 - 0 = 1 \ge 0$ (Rispettato)
+		\item $C^\pi_{34} \in L: 0 + 1 - 0 = 1 \ge 0$ (Rispettato)
+		\item $C^\pi_{45} \in L: 0 + 0 - 1 = \mathbf{-1} < 0 \quad \text{\textcolor{red}{(Violato!)}} $
+	\end{itemize}
+	L'arco \textbf{entrante} è $(4\to5)$.
+	Esso induce il ciclo chiuso: $4\to5\to6\to1\to2\to4$. Notiamo che tutti gli archi sono percorsi concordemente all'arco entrante.
+	\begin{itemize}
+		\item $C^+ = \{ (4\to5), (5\to6), (6\to1), (1\to2), (2\to4) \}$
+		\item $C^- = \emptyset$
+	\end{itemize}
+	Valutiamo la portata incrementale per $\theta^+$ basandoci sui flussi correnti:
+	\[ \theta^+ = \min \{ (6-0), \mathbf{(5-5)}, (100-5), (8-0), (2-0) \} = \min \{ 6, \mathbf{0}, 95, 8, 2 \} = \mathbf{0} \]
+	Il valore del flusso incrementale è zero a causa dell'arco $(5\to6)$ che si era già saturato nel passo precedente, agendo ora da "tappo". Questa iterazione è una \textbf{Iterazione Degenere}. Il flusso logistico $\bar{x}$ non varia, ma la topologia di $T$ cambia: $(4\to5)$ entra in $T$ e l'arco limitante $(5\to6)$ esce posizionandosi in $U$.
+	
+	\vspace{0.6cm}
+	\separatore
+	\vspace{0.4cm}
+	
+	\textbf{Esercizio 2: Valutazione di un Flusso in una Rete a 4 Nodi}\\
+	Analizziamo una rete ridotta a 4 nodi, la cui topologia e le relative capacità $u_{ij}$ (portate massime) sono illustrate nel seguente grafo:
+	
+	\begin{figure}[H]
+		\centering
+		\begin{tikzpicture}[scale=1.5, >=stealth, node distance=2cm,
+			node_style/.style={circle, draw=titlecolor, thick, fill=titlecolor!10, minimum size=8mm, font=\bfseries},
+			tree_style/.style={->, ultra thick, color=violet},
+			sat_style/.style={->, ultra thick, color=red},
+			non_tree_style/.style={->, thick, dashed, color=gray}
+			]
+			
+			% Posizionamento Nodi
+			\node[node_style] (1) at (0, 2) {1};
+			\node[node_style] (2) at (2, 3.5) {2};
+			\node[node_style] (3) at (2, 0.5) {3};
+			\node[node_style] (4) at (4, 2) {4};
+			
+			% Archi dell'albero T (Viola)
+			\draw[tree_style] (1) -- (2) node[midway, above left, font=\bfseries, color=black] {8};
+			\draw[tree_style] (1) -- (3) node[midway, below left, font=\bfseries, color=black] {6};
+			
+			% Archi Saturi U (Rosso)
+			\draw[sat_style] (2) -- (4) node[midway, above right, font=\bfseries, color=black] {5};
+			\draw[sat_style] (3) -- (4) node[midway, below right, font=\bfseries, color=black] {1};
+			
+			% Archi Vuoti L (Grigi Tratteggiati)
+			\draw[non_tree_style] (3) -- (2) node[midway, right, font=\bfseries, color=black] {4};
+			
+		\end{tikzpicture}
+		\caption{Rete dell'Esercizio 2. Sono raffigurati i 4 nodi e i 5 archi con le rispettive portate $u_{ij}$. In viola gli archi di base $T$, in rosso gli archi saturi $U$, in grigio tratteggiato gli archi vuoti $L$.}
+	\end{figure}
+	
+	Il professore ci fornisce il seguente vettore di flusso primale $\bar{x}$:
+	\[ \bar{x} = \mathbf{(5, 1, 5, 0, 1)^T} \]
+	E la corrispondente tripartizione topologica per gli archi elencati: 
+	$[T, T, U, L, U]$.
+	Il vettore dei potenziali fornito è:
+	\[ \bar{\pi} = \mathbf{(0, 0, 0, 1)^T} \]
+	Questa configurazione è formalmente \textbf{ammissibile} in quanto i flussi transitanti non sono mai negativi, non eccedono le portate massime previste dagli insiemi e i bilanci ai nodi risultano perfettamente azzerati.
+	
+	Verifichiamo se tale flusso ammissibile sia anche l'ottimo logistico (soluzione terminale). Calcoliamo i costi ridotti ($C^\pi_{ij} = c_{ij} + \pi_i - \pi_j$, ricordando che i costi nominali $c_{ij}$ sono tutti a 0):
+	\begin{itemize}
+		\item $C^\pi_{24} \in U: c_{24} + \pi_2 - \pi_4 = 0 + 0 - 1 = \mathbf{-1} \le 0$ (Rispettato)
+		\item $C^\pi_{32} \in L: c_{32} + \pi_3 - \pi_2 = 0 + 0 - 0 = \mathbf{0} \ge 0$ (Rispettato)
+		\item $C^\pi_{34} \in U: c_{34} + \pi_3 - \pi_4 = 0 + 0 - 1 = \mathbf{-1} \le 0$ (Rispettato)
+	\end{itemize}
+	Poiché tutte le Condizioni di Bellman sono rigorosamente rispettate a seconda del loro posizionamento in $U$ o $L$, possiamo matematicamente \textbf{certificare che questo flusso è Ottimo}.
+	
+	\vspace{0.6cm}
+	\separatore
+	\vspace{0.4cm}
+	
+	\textbf{Domande di Teoria e Comprensione da Orale}\\
+	\begin{enumerate}
+		\item \textbf{Qual è il Taglio di Portata Minima dell'Esercizio 2?} \\
+		Risposta: È sufficiente ricercare graficamente (o per tentativi logici) l'insieme di archi che disconnette la sorgente dalla destinazione offrendo la somma capacitiva più bassa possibile. Nell'Esercizio 2, tagliando gli archi $(2\to4)$ e $(3\to4)$, blocchiamo ogni accesso al nodo 4 (destinazione). La portata del taglio vale:
+		\[ U_{\text{min}} = u_{24} + u_{34} = 5 + 1 = \mathbf{6} \]
+		
+		\item \textbf{Che cos'è un Flusso Non di Base? Fornire un esempio pratico.} \\
+		Risposta: Un flusso è ammissibile quando rispetta i vincoli fisici, ma è "di base" solo quando la sua conformazione topologica rispetta la struttura di albero (esattamente $n-1$ archi in $T$). 
+		Se possediamo la seguente rete a 4 nodi e ci viene fornito un flusso $\bar{x} = (1, 1, 1, 0, 1)^T$, esso è idraulicamente ammissibile. 
+		
+		\begin{figure}[H]
+			\centering
+			\begin{tikzpicture}[scale=1.5, >=stealth, node distance=2cm,
+				node_style/.style={circle, draw=titlecolor, thick, fill=titlecolor!10, minimum size=8mm, font=\bfseries},
+				tree_style/.style={->, ultra thick, color=violet},
+				non_tree_style/.style={->, thick, dashed, color=gray}
+				]
+				
+				% Posizionamento Nodi
+				\node[node_style] (1) at (0, 2) {1};
+				\node[node_style] (2) at (2, 3.5) {2};
+				\node[node_style] (3) at (2, 0.5) {3};
+				\node[node_style] (4) at (4, 2) {4};
+				
+				% Archi in Base (T) - Viola
+				\draw[tree_style] (1) -- (2) node[midway, above left, font=\bfseries, color=black] {8};
+				\draw[tree_style] (1) -- (3) node[midway, below left, font=\bfseries, color=black] {7};
+				\draw[tree_style] (2) -- (4) node[midway, above right, font=\bfseries, color=black] {5};
+				\draw[tree_style] (3) -- (4) node[midway, below right, font=\bfseries, color=black] {9};
+				
+				% Arco Fuori Base (L) - Grigio tratteggiato
+				\draw[non_tree_style] (3) -- (2) node[midway, left, font=\bfseries, color=black] {7};
+				
+			\end{tikzpicture}
+			\caption{Esempio di grafo a 4 nodi con relative portate massime $u_{ij}$. In viola gli archi assegnati teoricamente all'insieme $T$, in grigio tratteggiato l'insieme $L$.}
+		\end{figure}
+		
+		Tuttavia, se proviamo ad allocarlo, esso richiede la tripartizione $[T, T, T, L, T]$. Ci sono 4 archi nell'insieme $T$ su un grafo di 4 nodi: un albero di 4 nodi può tollerare un massimo di $4-1=3$ rami. Avendo 4 rami attivi, si è generato un ciclo chiuso, contravvenendo alle definizioni di base.
+		
+		\item \textbf{Quanti sono i tagli realizzabili all'interno di una rete?} \\
+		Risposta: Il numero di tagli che disconnettono $s$ da $t$ scala con andamento \textbf{esponenziale} al crescere del numero di nodi, corrispondendo a $2^{n-2}$ combinazioni (poiché i nodi sorgente e destinazione sono fissi nelle loro partizioni, mentre tutti gli altri possono permutare liberamente).
+	\end{enumerate}
+	
+	\vspace{1.5cm}
+	\begin{center}
+		\rule{0.65\textwidth}{1pt} \\
+		\vspace{0.4cm}
+		\textcolor{titlecolor}{\LARGE \textbf{--- Fine Lezione 30 ---}} \\
+		\vspace{0.2cm}
+		\rule{0.65\textwidth}{1pt}
+	\end{center}
+	\newpage
+	
+	\avviso{\textit{\textbf{Questa lezione, come le sue precedenti e successive, può contenere errori e/o imprecisioni. Per il bene di tutti, è buona norma far notare all'autore l'errore o l'imprecisione così da risolvere nel minor tempo possibile. I canali di comunicazione, per eventuali avvisi generali o di errori trovati negli appunti, sono in cima al file. Grazie per la collaborazione e Buono studio!}}}
+	
+	\section*{Lezione 31 | 12 novembre 2026}
+	\subsection*{Algoritmo di Ford Fulkerson}
+	
 	
 	
 \end{document}

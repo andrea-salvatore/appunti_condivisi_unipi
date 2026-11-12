@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.11.7)  11 NOV 2026 23:50
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.11.7)  12 NOV 2026 16:47
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1170,8 +1170,13 @@ Overfull \hbox (47.47517pt too wide) detected at line 8595
 [214] [215] [216] [217] [218] [219] [220] [221] [222] [223] [224] [225]
 [226] [227] [228] [229] [230] [231] [232] [233] [234] [235] [236] [237]
 [238] [239] [240] [241] [242] [243] [244] [245] [246] [247] [248] [249]
-[250] [251] [252] [253] [254] [255] [256] [257] [258] [259] [260]
-(./Ricerca Operativa LaTex.aux)
+[250] [251] [252] [253] [254] [255] [256] [257] [258] [259] [260] [261]
+[262] [263] [264] [265] [266]
+Underfull \hbox (badness 10000) in paragraph at lines 12375--12377
+
+ []
+
+[267] [268] [269] (./Ricerca Operativa LaTex.aux)
  ***********
 LaTeX2e <2025-11-01>
 L3 programming layer <2026-03-20>
@@ -1181,10 +1186,10 @@ ed.
 (rerunfilecheck)             Checksum: D41D8CD98F00B204E9800998ECF8427E;0.
  ) 
 Here is how much of TeX's memory you used:
- 40903 strings out of 467356
- 910310 string characters out of 5418691
+ 40934 strings out of 467356
+ 910823 string characters out of 5418691
  1449402 words of memory out of 6000000
- 68171 multiletter control sequences out of 15000+600000
+ 68184 multiletter control sequences out of 15000+600000
  687282 words of font info for 442 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  84i,17n,94p,1155b,2356s stack positions out of 10000i,1000n,20000p,200000b,200000s
@@ -1228,10 +1233,10 @@ sr/share/texlive/texmf-dist/fonts/type1/public/cm-super/sfti1000.pfb></usr/shar
 e/texlive/texmf-dist/fonts/type1/public/cm-super/sfti1095.pfb></usr/share/texli
 ve/texmf-dist/fonts/type1/public/cm-super/sfti1200.pfb></usr/share/texlive/texm
 f-dist/fonts/type1/public/cm-super/sftt1200.pfb>
-Output written on "Ricerca Operativa LaTex.pdf" (260 pages, 1656948 bytes).
+Output written on "Ricerca Operativa LaTex.pdf" (269 pages, 1699905 bytes).
 PDF statistics:
- 1773 PDF objects out of 2073 (max. 8388607)
- 1407 compressed objects within 15 object streams
- 573 named destinations out of 1000 (max. 500000)
+ 1823 PDF objects out of 2073 (max. 8388607)
+ 1448 compressed objects within 15 object streams
+ 591 named destinations out of 1000 (max. 500000)
  99858 words of extra memory for PDF output out of 106986 (max. 10000000)
 
