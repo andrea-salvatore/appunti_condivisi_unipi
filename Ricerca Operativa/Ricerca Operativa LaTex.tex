@@ -12430,6 +12430,716 @@
 	\section*{Lezione 31 | 12 novembre 2026}
 	\subsection*{Algoritmo di Ford Fulkerson}
 	
+	Introduciamo ora l'algoritmo di Ford-Fulkerson per la risoluzione del problema del Flusso Massimo.
+	Consideriamo un grafo orientato a 6 nodi, in cui la nostra base di partenza è costituita da un vettore di flusso $\bar{x}$ completamente nullo, ovvero $\bar{x}_{ij} = 0 \quad \forall (i,j)$.
+	I valori presenti sugli archi del seguente grafo rappresentano esclusivamente le capacità massime (o portate) $u_{ij}$, e non presentano costi.
 	
+	\begin{figure}[H]
+		\centering
+		\begin{tikzpicture}[scale=1.5, >=stealth, node distance=2cm,
+			node_style/.style={circle, draw=titlecolor, thick, fill=titlecolor!10, minimum size=8mm, font=\bfseries},
+			edge_style/.style={->, thick, color=black}
+			]
+			
+			% Posizionamento Nodi
+			\node[node_style, label={[text=red, font=\bfseries]left:$\boldsymbol{s}$}] (1) at (0, 2) {1};
+			\node[node_style] (2) at (2, 3.5) {2};
+			\node[node_style] (3) at (2, 0.5) {3};
+			\node[node_style] (4) at (4, 3.5) {4};
+			\node[node_style] (5) at (4, 0.5) {5};
+			\node[node_style, label={[text=green!60!black, font=\bfseries]right:$\boldsymbol{t}$}] (6) at (6, 2) {6};
+			
+			% Archi con le rispettive portate u_{ij}
+			\draw[edge_style] (1) -- (2) node[midway, above left, font=\bfseries] {8};
+			\draw[edge_style] (1) -- (3) node[midway, below left, font=\bfseries] {5};
+			\draw[edge_style] (2) -- (4) node[midway, above, font=\bfseries] {4};
+			\draw[edge_style] (3) -- (2) node[midway, left, font=\bfseries] {7};
+			\draw[edge_style] (3) -- (4) node[pos=0.3, above left, font=\bfseries] {9};
+			\draw[edge_style] (3) -- (5) node[midway, below, font=\bfseries] {2};
+			\draw[edge_style] (4) -- (5) node[midway, right, font=\bfseries] {10};
+			\draw[edge_style] (4) -- (6) node[midway, above right, font=\bfseries] {11};
+			\draw[edge_style] (5) -- (6) node[midway, below right, font=\bfseries] {6};
+			
+		\end{tikzpicture}
+		\caption{Grafo iniziale del problema di Flusso Massimo. I valori sugli archi indicano le portate massime $u_{ij}$. Il nodo 1 è la sorgente $s$, il nodo 6 è la destinazione $t$.}
+	\end{figure}
+	
+	\textbf{Capacità Residua e Cammino Aumentante}\\
+	Per studiare l'evoluzione del flusso, definiamo la variabile fondamentale dell'algoritmo: la \textbf{Capacità Residua} $r_{ij}$. Essa quantifica lo spazio ancora disponibile su un determinato arco prima che questo raggiunga la saturazione:
+	\[ r_{ij} = u_{ij} - \bar{x}_{ij} \]
+	Poiché partiamo con una soluzione vettoriale $\bar{x} = \mathbf{0}$, in questa primissima iterazione le capacità residue $r_{ij}$ coincidono esattamente con le portate $u_{ij}$ riportate nel grafo.
+	
+	L'obiettivo dell'algoritmo è individuare un \textbf{Cammino Aumentante} (che indicheremo con $P$), definito come un percorso orientato che va dal nodo sorgente ($s$) al nodo destinazione ($t$) composto \textbf{esclusivamente da archi con capacità residua strettamente positiva} ($r_{ij} > 0$).
+	Se riusciamo a individuare tale cammino, possiamo immettere nuovo flusso all'interno della rete. La quantità esatta di flusso immissibile è limitata dal "collo di bottiglia" del percorso, ovvero dalla \textbf{portata del cammino aumentante} $\delta$:
+	\[ \delta = \min_{(i,j) \in P} \{ r_{ij} \} \]
+	Questo valore $\delta$ indica la massima quantità logistica spedibile in quel preciso tracciato senza violare alcun vincolo di capacità.
+	
+	\vspace{0.4cm}
+	\textbf{Fasi dell'Algoritmo di Ford-Fulkerson}\\
+	L'algoritmo procede per iterazioni cicliche, suddivise in due regole operative:
+	\begin{enumerate}
+		\item \textbf{Aggiornamento del Flusso:} Se viene individuato un cammino aumentante $P$, si calcola $\delta$. Il nuovo vettore di flusso $\bar{x}^{nuovo}$ si aggiorna applicando il seguente sistema:
+		\[
+		\bar{x}_{ij}^{nuovo} = 
+		\begin{cases}
+			\bar{x}_{ij} + \delta & \forall (i,j) \in P \quad \text{(archi attraversati dal cammino)} \\
+			\bar{x}_{ij} & \text{altrove (archi non interessati dal cammino)}
+		\end{cases}
+		\]
+		\item \textbf{Grafo Residuo e Condizione di Arresto:} Al termine dell'aggiornamento, occorre ricalcolare le $r_{ij}$ aggiornando il \textbf{Grafo Residuo}. Quest'ultimo è un costrutto topologico che possiede gli stessi nodi del grafo originale, ma raddoppia gli archi: per ogni arco diretto $(i,j)$, si genera un arco fittizio di "ritorno" $(j,i)$ la cui capacità residua rappresenta la possibilità di "svuotare" il flusso precedentemente immesso. 
+		Se, analizzando il grafo residuo, \textbf{non è più possibile trovare alcun cammino aumentante}, l'algoritmo si arresta in via definitiva (Stop) e l'ultima $\bar{x}$ calcolata rappresenta la \textbf{soluzione ottima}.
+	\end{enumerate}
+	
+	\vspace{0.6cm}
+	\separatore
+	\vspace{0.4cm}
+	
+	\textbf{L'Algoritmo "Della Croce" (Metodo di Edmonds-Karp)}\\
+	Per ricercare sistematicamente i cammini aumentanti, si utilizza una tecnica di esplorazione in ampiezza (Breadth-First Search). Il professore la illustra graficamente attraverso una struttura tabellare detta \textit{"Algoritmo della Croce"}, formata da due colonne separate da una linea centrale: la colonna di sinistra ospita il \textit{nodo in esplorazione}, mentre la destra ospita la sua \textit{stella uscente} (i nodi raggiungibili con $r_{ij} > 0$).
+	
+	La regola aurea di questa tecnica è l'esplorazione \textbf{cronologica} rigorosa: i nodi scoperti a destra vengono accodati e successivamente presi in carico a sinistra nel medesimo ordine di scoperta, \textbf{ignorando i nodi che sono già comparsi nella colonna di destra in precedenza}.
+	
+	Sviluppiamo la tabella per il nostro grafo:
+	\begin{enumerate}
+		\item Si parte dalla sorgente (nodo 1). La sua Stella Uscente ($FS$) raggiunge i nodi 2 e 3.
+		\item Il primo nodo accodato è il 2. Esploriamo il nodo 2: la sua $FS$ raggiunge il nodo 4.
+		\item Ora tocca al nodo 3. La sua $FS$ raggiungerebbe i nodi 2, 4 e 5. Tuttavia, \textbf{i nodi 2 e 4 sono già stati visitati/scoperti}, pertanto registriamo \textbf{solo il nodo 5}.
+		\item È il turno del nodo 4. La sua $FS$ raggiungerebbe i nodi 5 e 6. Il nodo 5 è già stato visitato, quindi registriamo \textbf{solo il nodo 6}.
+	\end{enumerate}
+	Avendo raggiunto il nodo destinazione $t=6$, l'esplorazione si ferma.
+	
+	\begin{figure}[H]
+		\centering
+		\begin{minipage}{0.45\textwidth}
+			\centering
+			\begin{tikzpicture}[scale=1]
+				% Struttura a croce della tabella di sinistra (Pulita)
+				\draw[ultra thick] (0, 0) -- (6, 0); % Linea orizzontale
+				\draw[ultra thick] (3, 1) -- (3, -5.5); % Linea verticale
+				
+				% Intestazioni
+				\node at (1.5, 0.5) {\textbf{Nodo Esp.}};
+				\node at (4.5, 0.5) {\textbf{FS}};
+				
+				% Riga 1
+				\node at (1.5, -1) {\Large 1}; 
+				\node at (4, -1) {\Large 2}; \node at (4.5, -1) {\Large ,}; \node at (5, -1) {\Large 3};
+				
+				% Riga 2
+				\node at (1.5, -2) {\Large 2}; 
+				\node at (4.5, -2) {\Large 4};
+				
+				% Riga 3
+				\node at (1.5, -3) {\Large 3}; 
+				\node at (4.5, -3) {\Large 5};
+				
+				% Riga 4
+				\node at (1.5, -4) {\Large 4}; 
+				\node at (4.5, -4) {\Large 6};
+			\end{tikzpicture}
+			\caption*{Tabella 1: Costruzione cronologica}
+		\end{minipage}
+		\hfill
+		\begin{minipage}{0.45\textwidth}
+			\centering
+			\begin{tikzpicture}[scale=1]
+				% Struttura a croce della tabella di destra (Con Backtracking)
+				\draw[ultra thick] (0, 0) -- (6, 0); % Linea orizzontale
+				\draw[ultra thick] (3, 1) -- (3, -5.5); % Linea verticale
+				
+				% Intestazioni
+				\node at (1.5, 0.5) {\textbf{Nodo Esp.}};
+				\node at (4.5, 0.5) {\textbf{FS}};
+				
+				% Nodi Cerchiati per il tracciamento
+				\node[circle, draw=red, thick, inner sep=2pt] (c1L) at (1.5, -1) {\Large 1}; 
+				\node[circle, draw=red, thick, inner sep=2pt] (c2R) at (4, -1) {\Large 2}; \node at (4.5, -1) {\Large ,}; \node at (5, -1) {\Large 3};
+				
+				\node[circle, draw=red, thick, inner sep=2pt] (c2L) at (1.5, -2) {\Large 2}; 
+				\node[circle, draw=red, thick, inner sep=2pt] (c4R) at (4.5, -2) {\Large 4};
+				
+				\node at (1.5, -3) {\Large 3}; 
+				\node at (4.5, -3) {\Large 5};
+				
+				\node[circle, draw=red, thick, inner sep=2pt] (c4L) at (1.5, -4) {\Large 4}; 
+				\node[circle, draw=red, thick, inner sep=2pt] (c6R) at (4.5, -4) {\Large 6};
+				
+				% Frecce di Backtracking (Orizzontali e Oblique dirette)
+				\draw[->, red, thick, dashed] (c6R.west) -- (c4L.east);
+				\draw[->, red, thick, dashed] (c4L.north east) -- (c4R.south west); % Diagonale diretta 4 -> 4
+				\draw[->, red, thick, dashed] (c4R.west) -- (c2L.east);
+				\draw[->, red, thick, dashed] (c2L.north east) -- (c2R.south west); % Diagonale diretta 2 -> 2
+				\draw[->, red, thick, dashed] (c2R.west) -- (c1L.east);
+			\end{tikzpicture}
+			\caption*{Tabella 2: Backtracking}
+		\end{minipage}
+		\caption{Algoritmo della Croce per la ricerca del Cammino Aumentante. \textbf{A sinistra:} Lo svolgimento cronologico dell'esplorazione. \textbf{A destra:} La procedura di Backtracking (tracciamento a ritroso). Si parte dall'obiettivo raggiunto nella colonna destra (nodo 6) e si segue la freccia orizzontale verso il nodo che lo ha generato a sinistra (nodo 4). Per capire da dove derivi il nodo 4, si traccia una freccia diagonale verso la sua prima comparsa nella colonna destra, risalendo poi in orizzontale al nodo che lo ha generato (nodo 2), e così via fino a raggiungere la sorgente 1. Questo definisce inequivocabilmente il cammino: $1 \to 2 \to 4 \to 6$.}
+	\end{figure}
+	
+	Il tracciamento a ritroso (Backtracking) sulla tabella rivela il cammino aumentante:
+	\[ P = 1 \to 2 \to 4 \to 6 \]
+	Calcoliamo la portata $\delta$ di questo cammino valutando i colli di bottiglia fisici:
+	\[ \delta = \min \{ u_{12}, u_{24}, u_{46} \} = \min \{ 8, 4, 11 \} = \mathbf{4} \]
+	Possiamo iniettare 4 unità di flusso. Aggiorniamo la soluzione logistica $\bar{x}$, che da vettorialmente nulla diventa (seguendo rigorosamente l'ordine lessicografico del problema):
+	\[ \bar{x} = \mathbf{(4, 0, 4, 0, 0, 0, 0, 4, 0)^T} \]
+	
+	A questo punto si calcolano le nuove capacità residue. Ad esempio, l'arco $(2\to4)$ avendo $r_{24} = u_{24} - \bar{x}_{24} = 4 - 4 = 0$ risulta \textbf{saturo} e diviene impraticabile per i passaggi successivi, interrompendo quella specifica direttrice. 
+	I nuovi valori residui ($r_{ij}$) sul grafo per gli archi coinvolti saranno: $r_{12} = 8 - 4 = 4$, $r_{24} = 0$, $r_{46} = 11 - 4 = 7$.
+	Rappresentiamo visivamente l'aggiornamento sul grafo di riferimento:
+	
+	\begin{figure}[H]
+		\centering
+		\begin{tikzpicture}[scale=1.5, >=stealth, node distance=2cm,
+			node_style/.style={circle, draw=titlecolor, thick, fill=titlecolor!10, minimum size=8mm, font=\bfseries},
+			edge_style/.style={->, thick, color=black},
+			path_style/.style={->, ultra thick, color=red}
+			]
+			
+			\node[node_style, label={[text=red, font=\bfseries]left:$\boldsymbol{s}$}] (1) at (0, 2) {1};
+			\node[node_style] (2) at (2, 3.5) {2};
+			\node[node_style] (3) at (2, 0.5) {3};
+			\node[node_style] (4) at (4, 3.5) {4};
+			\node[node_style] (5) at (4, 0.5) {5};
+			\node[node_style, label={[text=green!60!black, font=\bfseries]right:$\boldsymbol{t}$}] (6) at (6, 2) {6};
+			
+			% Archi attraversati e aggiornati (in rosso)
+			\draw[path_style] (1) -- (2) node[midway, above left, font=\bfseries, color=black] {4};
+			\draw[path_style] (2) -- (4) node[midway, above, font=\bfseries, color=black] {0};
+			\draw[path_style] (4) -- (6) node[midway, above right, font=\bfseries, color=black] {7};
+			
+			% Archi intonsi (in nero)
+			\draw[edge_style] (1) -- (3) node[midway, below left, font=\bfseries] {5};
+			\draw[edge_style] (3) -- (2) node[midway, left, font=\bfseries] {7};
+			\draw[edge_style] (3) -- (4) node[pos=0.3, above left, font=\bfseries] {9};
+			\draw[edge_style] (3) -- (5) node[midway, below, font=\bfseries] {2};
+			\draw[edge_style] (4) -- (5) node[midway, right, font=\bfseries] {10};
+			\draw[edge_style] (5) -- (6) node[midway, below right, font=\bfseries] {6};
+			
+		\end{tikzpicture}
+		\caption{Grafo aggiornato al termine della Prima Iterazione. In rosso è evidenziato il cammino aumentante appena saturato. I valori esposti corrispondono alle nuove Capacità Residue $r_{ij}$ disponibili.}
+	\end{figure}
+
+	\textbf{Esercizio 1: Algoritmo di Ford-Fulkerson e Grafi Residui}\\
+	Iniziamo lo studio del problema del Flusso Massimo analizzando una rete a 6 nodi. La nostra soluzione di base di partenza è un flusso logicamente nullo ($\bar{x}_{ij} = 0 \ \forall i,j$). Sulla rete indichiamo esclusivamente le portate massime (capacità $u_{ij}$) degli archi, poiché in questa classe di problemi non ci sono costi di percorrenza. 
+	
+	\begin{figure}[H]
+		\centering
+		\begin{tikzpicture}[scale=1.5, >=stealth, node distance=2cm,
+			node_style/.style={circle, draw=titlecolor, thick, fill=titlecolor!10, minimum size=8mm, font=\bfseries},
+			edge_style/.style={->, thick, color=black}
+			]
+			
+			% Posizionamento Nodi
+			\node[node_style, label={[text=red, font=\bfseries]left:$\boldsymbol{s}$}] (1) at (0, 2) {1};
+			\node[node_style] (2) at (2, 3.5) {2};
+			\node[node_style] (3) at (2, 0.5) {3};
+			\node[node_style] (4) at (4, 3.5) {4};
+			\node[node_style] (5) at (4, 0.5) {5};
+			\node[node_style, label={[text=green!60!black, font=\bfseries]right:$\boldsymbol{t}$}] (6) at (6, 2) {6};
+			
+			% Archi con le rispettive portate u_{ij}
+			\draw[edge_style] (1) -- (2) node[midway, above left, font=\bfseries] {5};
+			\draw[edge_style] (1) -- (3) node[midway, below left, font=\bfseries] {12};
+			\draw[edge_style] (2) -- (4) node[midway, above, font=\bfseries] {7};
+			\draw[edge_style] (2) -- (5) node[pos=0.2, below left, font=\bfseries] {13};
+			\draw[edge_style] (3) -- (4) node[pos=0.2, above left, font=\bfseries] {9};
+			\draw[edge_style] (4) -- (6) node[midway, above right, font=\bfseries] {8};
+			\draw[edge_style] (5) -- (6) node[midway, below right, font=\bfseries] {5};
+			
+		\end{tikzpicture}
+		\caption{Grafo iniziale del problema di Flusso Massimo. I valori esposti indicano la portata massima $u_{ij}$ di ciascun arco.}
+	\end{figure}
+	
+	Il fulcro dell'algoritmo consiste nel ricercare ripetutamente un \textbf{Cammino Aumentante}, ovvero un percorso orientato dalla sorgente $s$ alla destinazione $t$ i cui archi posseggano tutti una \textbf{capacità residua} positiva. La capacità residua si calcola come:
+	\[ r_{ij} = u_{ij} - \bar{x}_{ij} \]
+	Dato che inizialmente il flusso $\bar{x}$ è totalmente a zero, le capacità residue attuali coincidono banalmente con le portate $u_{ij}$ del grafo.
+	
+	\textbf{Prima Iterazione: Algoritmo della Croce}\\
+	Per individuare il primo cammino aumentante, utilizziamo l'algoritmo della Croce (ispirato alla visita in ampiezza). Esploriamo i nodi e registriamo le loro stelle uscenti, prestando attenzione a \textbf{non inserire mai} nella colonna di destra un nodo che vi è già comparso in precedenza. 
+	
+	Osserviamo lo sviluppo: il nodo 1 scopre 2 e 3. Il nodo 2 scopre 4 e 5. A questo punto, il nodo 3 punterebbe a 4, ma siccome il 4 è già stato scoperto e registrato grazie al nodo 2, il nodo 3 non presenta alcuna "nuova" stella uscente utile (si segna con un trattino). Il nodo 4, infine, scopre la destinazione 6.
+	
+	\begin{figure}[H]
+		\centering
+		\begin{minipage}{0.45\textwidth}
+			\centering
+			\begin{tikzpicture}[scale=1]
+				\draw[ultra thick] (0, 0) -- (6, 0);
+				\draw[ultra thick] (3, 1) -- (3, -5.5);
+				
+				\node at (1.5, 0.5) {\textbf{Nodo in Espl.}};
+				\node at (4.5, 0.5) {\textbf{Stella Uscente}};
+				
+				\node at (1.5, -1) {\Large 1}; 
+				\node at (4, -1) {\Large 2}; \node at (4.5, -1) {\Large ,}; \node at (5, -1) {\Large 3};
+				
+				\node at (1.5, -2) {\Large 2}; 
+				\node at (4, -2) {\Large 4}; \node at (4.5, -2) {\Large ,}; \node at (5, -2) {\Large 5};
+				
+				\node at (1.5, -3) {\Large 3}; 
+				\node at (4.5, -3) {\Large -}; % Vuota perché 4 è già visitato
+				
+				\node at (1.5, -4) {\Large 4}; 
+				\node at (4.5, -4) {\Large 6};
+			\end{tikzpicture}
+			\caption*{Tabella 1: Costruzione Cronologica}
+		\end{minipage}
+		\hfill
+		\begin{minipage}{0.45\textwidth}
+			\centering
+			\begin{tikzpicture}[scale=1]
+				\draw[ultra thick] (0, 0) -- (6, 0); 
+				\draw[ultra thick] (3, 1) -- (3, -5.5); 
+				
+				\node at (1.5, 0.5) {\textbf{Nodo in Espl.}};
+				\node at (4.5, 0.5) {\textbf{Stella Uscente}};
+				
+				\node[circle, draw=red, thick, inner sep=2pt] (c1L) at (1.5, -1) {\Large 1}; 
+				\node[circle, draw=red, thick, inner sep=2pt] (c2R) at (4, -1) {\Large 2}; \node at (4.5, -1) {\Large ,}; \node at (5, -1) {\Large 3};
+				
+				\node[circle, draw=red, thick, inner sep=2pt] (c2L) at (1.5, -2) {\Large 2}; 
+				\node[circle, draw=red, thick, inner sep=2pt] (c4R) at (4, -2) {\Large 4}; \node at (4.5, -2) {\Large ,}; \node at (5, -2) {\Large 5};
+				
+				\node at (1.5, -3) {\Large 3}; 
+				\node at (4.5, -3) {\Large -};
+				
+				\node[circle, draw=red, thick, inner sep=2pt] (c4L) at (1.5, -4) {\Large 4}; 
+				\node[circle, draw=red, thick, inner sep=2pt] (c6R) at (4.5, -4) {\Large 6};
+				
+				% Frecce di Backtracking
+				\draw[->, red, thick, dashed] (c6R.west) -- (c4L.east);
+				\draw[->, red, thick, dashed] (c4L.north east) -- (c4R.south west); 
+				\draw[->, red, thick, dashed] (c4R.west) -- (c2L.east);
+				\draw[->, red, thick, dashed] (c2L.north east) -- (c2R.south west); 
+				\draw[->, red, thick, dashed] (c2R.west) -- (c1L.east);
+			\end{tikzpicture}
+			\caption*{Tabella 2: Backtracking del Cammino}
+		\end{minipage}
+		\caption{L'algoritmo della Croce. A destra, il tracciamento a ritroso ci definisce il cammino aumentante: dal nodo finale 6 risaliamo al 4; dal 4 risaliamo alla sua origine (2); dal 2 risaliamo all'1. Il circuito è quindi $1 \to 2 \to 4 \to 6$.}
+	\end{figure}
+	
+	Il cammino scoperto è $P = \{12, 24, 46\}$. 
+	La portata di questo cammino ($\delta$) corrisponde al minimo tra le capacità degli archi coinvolti (il "collo di bottiglia"):
+	\[ \delta = \min \{ u_{12}, u_{24}, u_{46} \} = \min \{ 5, 7, 8 \} = \mathbf{5} \]
+	Inviando 5 unità di flusso, il nuovo vettore $\bar{x}$ si aggiorna sommando $\delta$ agli archi di $P$. Ordinato lessicograficamente, diventa:
+	\[ \bar{x} = \mathbf{(5, 0, 5, 0, 0, 5, 0)^T} \]
+	
+	Aggiorniamo le capacità residue ($r_{ij} = u_{ij} - \bar{x}_{ij}$) sottraendo il $\delta$. L'arco $12$ scende a $0$, il $24$ a $2$, e il $46$ a $3$. Rappresentiamo questo passaggio colorando in viola il cammino appena sfruttato.
+	
+	\begin{figure}[H]
+		\centering
+		\begin{tikzpicture}[scale=1.5, >=stealth, node distance=2cm,
+			node_style/.style={circle, draw=titlecolor, thick, fill=titlecolor!10, minimum size=8mm, font=\bfseries},
+			edge_style/.style={->, thick, color=black},
+			path_style/.style={->, ultra thick, color=violet}
+			]
+			
+			\node[node_style] (1) at (0, 2) {1};
+			\node[node_style] (2) at (2, 3.5) {2};
+			\node[node_style] (3) at (2, 0.5) {3};
+			\node[node_style] (4) at (4, 3.5) {4};
+			\node[node_style] (5) at (4, 0.5) {5};
+			\node[node_style] (6) at (6, 2) {6};
+			
+			\draw[path_style] (1) -- (2) node[midway, above left, font=\bfseries, color=black] {0};
+			\draw[edge_style] (1) -- (3) node[midway, below left, font=\bfseries] {12};
+			\draw[path_style] (2) -- (4) node[midway, above, font=\bfseries, color=black] {2};
+			\draw[edge_style] (2) -- (5) node[pos=0.2, below left, font=\bfseries] {13};
+			\draw[edge_style] (3) -- (4) node[pos=0.2, above left, font=\bfseries] {9};
+			\draw[path_style] (4) -- (6) node[midway, above right, font=\bfseries, color=black] {3};
+			\draw[edge_style] (5) -- (6) node[midway, below right, font=\bfseries] {5};
+			
+		\end{tikzpicture}
+		\caption{Grafo con le nuove capacità residue. Gli archi in viola evidenziano il transito appena effettuato. Notiamo come l'arco $(1\to2)$ sia sceso a 0, rendendo la via momentaneamente impercorribile in avanti.}
+	\end{figure}
+	
+	\vspace{0.6cm}
+	\separatore
+	\vspace{0.4cm}
+	
+	\textbf{Costruzione del Grafo Residuo e Seconda Iterazione}\\
+	Il Grafo Residuo si basa sulla seguente intuizione: se ho spinto del flusso lungo un arco, fisicamente potrei decidere di "ritirare" o reindirizzare quel flusso mandandolo al contrario.
+	Topologicamente, il Grafo Residuo possiede gli stessi identici nodi della rete originaria ma presenta \textbf{archi raddoppiati} per ogni arco in cui scorre del flusso. All'arco diretto $(i \to j)$ affianchiamo un \textbf{arco inverso} (fittizio) $(j \to i)$ la cui capacità residua è pari al flusso transitante $\bar{x}_{ij}$. 
+	\[ r_{ji} = \bar{x}_{ij} \]
+	
+	Nel nostro caso, avendo spinto un flusso $\delta=5$ sugli archi $12, 24, 46$, creeremo tre archi inversi: $(2\to1)$, $(4\to2)$ e $(6\to4)$, tutti dotati di capacità residua pari a 5. Questo meccanismo fornisce percorsi logistici alternativi potentissimi.
+	
+	\begin{figure}[H]
+		\centering
+		\begin{tikzpicture}[scale=1.5, >=stealth, node distance=2cm,
+			node_style/.style={circle, draw=titlecolor, thick, fill=titlecolor!10, minimum size=8mm, font=\bfseries},
+			edge_style/.style={->, thick, color=black},
+			back_style/.style={->, thick, dashed, color=blue}
+			]
+			
+			\node[node_style] (1) at (0, 2) {1};
+			\node[node_style] (2) at (2, 3.5) {2};
+			\node[node_style] (3) at (2, 0.5) {3};
+			\node[node_style] (4) at (4, 3.5) {4};
+			\node[node_style] (5) at (4, 0.5) {5};
+			\node[node_style] (6) at (6, 2) {6};
+			
+			% Archi bidirezionali (curvati per non sovrapporsi)
+			% 1 <-> 2
+			\draw[edge_style] (1) to[bend right=15] node[midway, below right, font=\bfseries] {0} (2);
+			\draw[back_style] (2) to[bend right=15] node[midway, above left, font=\bfseries] {5} (1);
+			
+			% 2 <-> 4
+			\draw[edge_style] (2) to[bend right=15] node[midway, below, font=\bfseries] {2} (4);
+			\draw[back_style] (4) to[bend right=15] node[midway, above, font=\bfseries] {5} (2);
+			
+			% 4 <-> 6
+			\draw[edge_style] (4) to[bend right=15] node[midway, below left, font=\bfseries] {3} (6);
+			\draw[back_style] (6) to[bend right=15] node[midway, above right, font=\bfseries] {5} (4);
+			
+			% Archi monodirezionali
+			\draw[edge_style] (1) -- (3) node[midway, below left, font=\bfseries] {12};
+			\draw[edge_style] (2) -- (5) node[pos=0.2, below left, font=\bfseries] {13};
+			\draw[edge_style] (3) -- (4) node[pos=0.2, above left, font=\bfseries] {9};
+			\draw[edge_style] (5) -- (6) node[midway, below right, font=\bfseries] {5};
+			
+		\end{tikzpicture}
+		\caption{Grafo Residuo. Compaiono in blu tratteggiato gli archi fittizi inversi che permettono al flusso di tornare indietro se necessario. I valori neri, posti sotto l'arco, indicano le capacità residue dirette, mentre i valori blu, posti sopra l'arco, indicano i flussi revocabili all'indietro.}
+	\end{figure}
+	
+	Riapplichiamo l'algoritmo della croce partendo da 1. Poiché l'arco $(1\to2)$ è saturo ($r_{12}=0$), il nodo 1 può esplorare unicamente il 3. 
+	La particolarità straordinaria si ha quando il nodo 4 viene esplorato: trovandosi l'accesso sbarrato verso molte vie o preferendo le alternative fornite dalla logica in ampiezza, il nodo 4 deciderà di percorrere \textbf{l'arco fittizio all'indietro} raggiungendo il nodo 2, e dal 2 si scenderà verso il 5 e infine verso il 6.
+	
+	\begin{figure}[H]
+		\centering
+		\begin{minipage}{0.45\textwidth}
+			\centering
+			\begin{tikzpicture}[scale=1]
+				\draw[ultra thick] (0, 0) -- (6, 0);
+				\draw[ultra thick] (3, 1) -- (3, -6.5);
+				
+				\node at (1.5, 0.5) {\textbf{Nodo in Espl.}};
+				\node at (4.5, 0.5) {\textbf{Stella Uscente}};
+				
+				\node at (1.5, -1) {\Large 1}; 
+				\node at (4.5, -1) {\Large 3};
+				
+				\node at (1.5, -2) {\Large 3}; 
+				\node at (4.5, -2) {\Large 4}; 
+				
+				\node at (1.5, -3) {\Large 4}; 
+				\node at (4.5, -3) {\Large 2};
+				
+				\node at (1.5, -4) {\Large 2}; 
+				\node at (4.5, -4) {\Large 5};
+				
+				\node at (1.5, -5) {\Large 5}; 
+				\node at (4.5, -5) {\Large 6};
+			\end{tikzpicture}
+			\caption*{Tabella 3: Svolgimento su Grafo Residuo}
+		\end{minipage}
+		\hfill
+		\begin{minipage}{0.45\textwidth}
+			\centering
+			\begin{tikzpicture}[scale=1]
+				\draw[ultra thick] (0, 0) -- (6, 0); 
+				\draw[ultra thick] (3, 1) -- (3, -6.5); 
+				
+				\node at (1.5, 0.5) {\textbf{Nodo in Espl.}};
+				\node at (4.5, 0.5) {\textbf{Stella Uscente}};
+				
+				\node[circle, draw=red, thick, inner sep=2pt] (c1L) at (1.5, -1) {\Large 1}; 
+				\node[circle, draw=red, thick, inner sep=2pt] (c3R) at (4.5, -1) {\Large 3};
+				
+				\node[circle, draw=red, thick, inner sep=2pt] (c3L) at (1.5, -2) {\Large 3}; 
+				\node[circle, draw=red, thick, inner sep=2pt] (c4R) at (4.5, -2) {\Large 4}; 
+				
+				\node[circle, draw=red, thick, inner sep=2pt] (c4L) at (1.5, -3) {\Large 4}; 
+				\node[circle, draw=red, thick, inner sep=2pt] (c2R) at (4.5, -3) {\Large 2};
+				
+				\node[circle, draw=red, thick, inner sep=2pt] (c2L) at (1.5, -4) {\Large 2}; 
+				\node[circle, draw=red, thick, inner sep=2pt] (c5R) at (4.5, -4) {\Large 5};
+				
+				\node[circle, draw=red, thick, inner sep=2pt] (c5L) at (1.5, -5) {\Large 5}; 
+				\node[circle, draw=red, thick, inner sep=2pt] (c6R) at (4.5, -5) {\Large 6};
+				
+				% Frecce di Backtracking
+				\draw[->, red, thick, dashed] (c6R.west) -- (c5L.east);
+				\draw[->, red, thick, dashed] (c5L.north east) -- (c5R.south west); 
+				\draw[->, red, thick, dashed] (c5R.west) -- (c2L.east);
+				\draw[->, red, thick, dashed] (c2L.north east) -- (c2R.south west); 
+				\draw[->, red, thick, dashed] (c2R.west) -- (c4L.east);
+				\draw[->, red, thick, dashed] (c4L.north east) -- (c4R.south west); 
+				\draw[->, red, thick, dashed] (c4R.west) -- (c3L.east);
+				\draw[->, red, thick, dashed] (c3L.north east) -- (c3R.south west);
+				\draw[->, red, thick, dashed] (c3R.west) -- (c1L.east);
+			\end{tikzpicture}
+			\caption*{Tabella 4: Backtracking del Cammino}
+		\end{minipage}
+		\caption{Il tracciamento a ritroso evidenzia un cammino molto particolare: $1 \to 3 \to 4 \to \mathbf{2} \to 5 \to 6$. Il passaggio da 4 a 2 avviene tramite l'arco inverso blu: stiamo dirottando indietro il flusso mandato in precedenza.}
+	\end{figure}
+	
+	Calcoliamo il valore di $\delta$ prendendo il minimo tra i rami percorsi:
+	\[ \delta = \min \{ r_{13}, r_{34}, r_{42}, r_{25}, r_{56} \} = \min \{ 12, 9, 5, 13, 5 \} = \mathbf{5} \]
+	
+	Adesso aggiorniamo $\bar{x}$. Occorre prestare la massima attenzione all'impiego dell'arco fittizio $(4\to2)$. Far scorrere 5 unità "all'indietro" su un arco fittizio equivale algebricamente a \textbf{sottrarre} 5 unità di flusso dal corrispettivo arco fisico originario $(2\to4)$, svuotandolo completamente. 
+	Per tutti gli altri archi diretti del cammino, invece, sommiamo 5.
+	Il nuovo vettore si presenta così:
+	\[ \bar{x} = \mathbf{(5, 5, 0, 5, 5, 5, 5)^T} \]
+	
+	\vspace{0.6cm}
+	\separatore
+	\vspace{0.4cm}
+	
+	\textbf{Condizione di Ottimalità e Teoria del Taglio}\\
+	L'algoritmo va ripetuto aggiornando continuamente i grafi residui. Qual è la condizione di arresto? 
+	Ci si ferma quando, procedendo con l'algoritmo della Croce, la colonna dei nodi in esplorazione (a sinistra) si esaurisce senza mai aver raggiunto il nodo destinazione $t$. Quando ciò accade, i nodi visitati fino a quel punto si segregano andando a formare l'insieme $N_S$, mentre i restanti nodi inaccessibili formano l'insieme $N_T$.
+	
+	In quel preciso istante, i rami che fanno da "ponte" tra $N_S$ e $N_T$ determinano un \textbf{Taglio} della rete. Se calcoliamo la portata complessiva di questo taglio e costatiamo che essa \textbf{coincide matematicamente col totale del flusso $\bar{x}$ mandato fino a quel momento}, significa che abbiamo saturato il collo di bottiglia fondamentale del grafo.
+	Come prescritto dal \textit{Teorema Max Flow - Min Cut}, quando Flusso erogato = Capacità del Taglio, possediamo il certificato di garanzia di aver raggiunto \textbf{l'Ottimo Globale}.
+	
+	\vspace{0.6cm}
+	\separatore
+	\vspace{0.4cm}
+	
+	\textbf{Esercizio 2: Algoritmo di Ford-Fulkerson su Rete a 5 Nodi}\\
+	Procediamo con l'analisi di una nuova topologia di rete composta da 5 nodi, dove il nodo sorgente è $s=1$ e il nodo destinazione è $t=5$. Anche in questo caso, partiamo da una soluzione di base con flusso completamente nullo, ovvero $\bar{x}_{ij} = 0 \ \forall(i,j)$.
+	
+	Rappresentiamo la rete iniziale:
+	\begin{figure}[H]
+		\centering
+		\begin{tikzpicture}[scale=1.5, >=stealth, node distance=2cm,
+			node_style/.style={circle, draw=titlecolor, thick, fill=titlecolor!10, minimum size=8mm, font=\bfseries},
+			edge_style/.style={->, thick, color=black}
+			]
+			
+			% Posizionamento Nodi
+			\node[node_style, label={[text=red, font=\bfseries]left:$\boldsymbol{s}$}] (1) at (0, 2) {1};
+			\node[node_style] (2) at (2, 3.5) {2};
+			\node[node_style] (3) at (2, 0.5) {3};
+			\node[node_style] (4) at (4, 3.5) {4};
+			\node[node_style, label={[text=green!60!black, font=\bfseries]right:$\boldsymbol{t}$}] (5) at (4, 0.5) {5};
+			
+			% Archi con le rispettive portate u_{ij}
+			\draw[edge_style] (1) -- (2) node[midway, above left, font=\bfseries] {8};
+			\draw[edge_style] (1) -- (3) node[midway, below left, font=\bfseries] {6};
+			\draw[edge_style] (2) -- (4) node[midway, above, font=\bfseries] {4};
+			\draw[edge_style] (2) -- (5) node[pos=0.4, right, font=\bfseries] {2};
+			\draw[edge_style] (3) -- (2) node[midway, left, font=\bfseries] {7};
+			\draw[edge_style] (3) -- (5) node[midway, below, font=\bfseries] {1};
+			\draw[edge_style] (4) -- (5) node[midway, right, font=\bfseries] {9};
+			
+		\end{tikzpicture}
+		\caption{Grafo di partenza dell'Esercizio 2. I valori posti sugli archi indicano unicamente la capacità massima $u_{ij}$. Essendo il flusso iniziale nullo, le capacità residue $r_{ij}$ attuali coincidono con le $u_{ij}$.}
+	\end{figure}
+	
+	\textbf{Prima Iterazione: Ricerca del Cammino Aumentante}\\
+	Applichiamo l'Algoritmo della Croce per esplorare in ampiezza la rete alla ricerca di un cammino aumentante da $1$ a $5$.
+	Partendo dal nodo 1, la stella uscente ci conduce ai nodi 2 e 3. Esploriamo poi il nodo 2 (il primo accodato), la cui stella uscente ci rivela i nodi 4 e 5. Avendo individuato la destinazione $t=5$, l'algoritmo arresta immediatamente l'esplorazione.
+	
+	\begin{figure}[H]
+		\centering
+		\begin{minipage}{0.45\textwidth}
+			\centering
+			\begin{tikzpicture}[scale=1]
+				\draw[ultra thick] (0, 0) -- (6, 0);
+				\draw[ultra thick] (3, 1) -- (3, -3.5);
+				
+				\node at (1.5, 0.5) {\textbf{Nodo in Espl.}};
+				\node at (4.5, 0.5) {\textbf{Stella Uscente}};
+				
+				\node at (1.5, -1) {\Large 1}; 
+				\node at (4, -1) {\Large 2}; \node at (4.5, -1) {\Large ,}; \node at (5, -1) {\Large 3};
+				
+				\node at (1.5, -2) {\Large 2}; 
+				\node at (4, -2) {\Large 4}; \node at (4.5, -2) {\Large ,}; \node at (5, -2) {\Large 5};
+			\end{tikzpicture}
+			\caption*{Tabella 1: Costruzione Cronologica}
+		\end{minipage}
+		\hfill
+		\begin{minipage}{0.45\textwidth}
+			\centering
+			\begin{tikzpicture}[scale=1]
+				\draw[ultra thick] (0, 0) -- (6, 0); 
+				\draw[ultra thick] (3, 1) -- (3, -3.5); 
+				
+				\node at (1.5, 0.5) {\textbf{Nodo in Espl.}};
+				\node at (4.5, 0.5) {\textbf{Stella Uscente}};
+				
+				\node[circle, draw=red, thick, inner sep=2pt] (c1L) at (1.5, -1) {\Large 1}; 
+				\node[circle, draw=red, thick, inner sep=2pt] (c2R) at (4, -1) {\Large 2}; \node at (4.5, -1) {\Large ,}; \node at (5, -1) {\Large 3};
+				
+				\node[circle, draw=red, thick, inner sep=2pt] (c2L) at (1.5, -2) {\Large 2}; 
+				\node at (4, -2) {\Large 4}; \node at (4.5, -2) {\Large ,}; \node[circle, draw=red, thick, inner sep=2pt] (c5R) at (5, -2) {\Large 5};
+				
+				% Frecce di Backtracking
+				% Utilizziamo "bend left" per far curvare la freccia al di sotto del numero 4
+				\draw[->, red, thick, dashed] (c5R.south west) to[bend left=25] (c2L.south east);
+				\draw[->, red, thick, dashed] (c2L.north east) -- (c2R.south west); 
+				\draw[->, red, thick, dashed] (c2R.west) -- (c1L.east);
+			\end{tikzpicture}
+			\caption*{Tabella 2: Backtracking del Cammino}
+		\end{minipage}
+		\caption{Tramite il tracciamento a ritroso identifichiamo il cammino aumentante: $1 \to 2 \to 5$.}
+	\end{figure}
+	
+	Il percorso individuato è $P = \{12, 25\}$. La portata limite $\delta$ inviabile su questo tracciato è data dal minimo delle capacità residue:
+	\[ \delta = \min \{ r_{12}, r_{25} \} = \min \{ 8, 2 \} = \mathbf{2} \]
+	Aggiorniamo il vettore di flusso primale $\bar{x}$, che da vettore nullo diviene (in ordine lessicografico):
+	\[ \bar{x}_{nuovo} = \mathbf{(2, 0, 0, 2, 0, 0, 0)^T} \]
+	L'arco $(2\to5)$ risulta ora completamente saturo, poiché ha esaurito la sua capacità logistica.
+	
+	\vspace{0.6cm}
+	\separatore
+	\vspace{0.4cm}
+	
+	\textbf{Sviluppo della Seconda Iterazione (Grafo Residuo)}\\
+	Per proseguire, dobbiamo formulare il \textbf{Grafo Residuo}. Questo prevede di calcolare le nuove capacità residue $r_{ij} = u_{ij} - \bar{x}_{ij}$ per gli archi in senso concorde, e di istituire gli archi fittizi in senso discorde $r_{ji} = \bar{x}_{ij}$ per consentire la revoca del flusso. 
+	Avendo inviato $2$ unità sugli archi $12$ e $25$, si generano gli archi di ritorno $(2\to1)$ e $(5\to2)$ con capacità residua pari a $2$.
+	
+	\begin{figure}[H]
+		\centering
+		\begin{tikzpicture}[scale=1.5, >=stealth, node distance=2cm,
+			node_style/.style={circle, draw=titlecolor, thick, fill=titlecolor!10, minimum size=8mm, font=\bfseries},
+			edge_style/.style={->, thick, color=black},
+			back_style/.style={->, thick, dashed, color=blue}
+			]
+			
+			\node[node_style] (1) at (0, 2) {1};
+			\node[node_style] (2) at (2, 3.5) {2};
+			\node[node_style] (3) at (2, 0.5) {3};
+			\node[node_style] (4) at (4, 3.5) {4};
+			\node[node_style] (5) at (4, 0.5) {5};
+			
+			% 1 <-> 2
+			\draw[edge_style] (1) to[bend right=15] node[midway, below right, font=\bfseries] {6} (2);
+			\draw[back_style] (2) to[bend right=15] node[midway, above left, font=\bfseries] {2} (1);
+			
+			% 2 <-> 5 (Solo arco di ritorno, quello diretto è saturo a 0)
+			\draw[back_style] (5) to[bend right=15] node[midway, left, font=\bfseries] {2} (2);
+			
+			% Altri archi intonsi
+			\draw[edge_style] (1) -- (3) node[midway, below left, font=\bfseries] {6};
+			\draw[edge_style] (2) -- (4) node[midway, above, font=\bfseries] {4};
+			\draw[edge_style] (3) -- (2) node[midway, left, font=\bfseries] {7};
+			\draw[edge_style] (3) -- (5) node[midway, below, font=\bfseries] {1};
+			\draw[edge_style] (4) -- (5) node[midway, right, font=\bfseries] {9};
+			
+		\end{tikzpicture}
+		\caption{Grafo Residuo dopo la prima iterazione. I numeri neri posti sotto/accanto all'arco indicano la capacità residua ancora sfruttabile nel verso originario. I numeri blu posti sugli archi tratteggiati rappresentano il flusso appena inviato, ora revocabile (arco inverso). Notiamo l'assenza dell'arco diretto $(2\to5)$ in quanto saturato.}
+	\end{figure}
+	
+	Riapplichiamo l'algoritmo della Croce per cercare un ulteriore cammino. 
+	Il nodo 1 scopre i nodi 2 e 3. Il nodo 2 scopre unicamente il nodo 4, poiché l'accesso diretto al nodo 5 è ormai interdetto (capacità nulla). Il nodo 3, a sua volta, scoprirà unicamente il nodo 5 (la destinazione $t$), tralasciando il nodo 2 in quanto già inserito a destra nella prima riga.
+	
+	\begin{figure}[H]
+		\centering
+		\begin{minipage}{0.45\textwidth}
+			\centering
+			\begin{tikzpicture}[scale=1]
+				\draw[ultra thick] (0, 0) -- (6, 0);
+				\draw[ultra thick] (3, 1) -- (3, -4.5);
+				
+				\node at (1.5, 0.5) {\textbf{Nodo in Espl.}};
+				\node at (4.5, 0.5) {\textbf{Stella Uscente}};
+				
+				\node at (1.5, -1) {\Large 1}; 
+				\node at (4, -1) {\Large 2}; \node at (4.5, -1) {\Large ,}; \node at (5, -1) {\Large 3};
+				
+				\node at (1.5, -2) {\Large 2}; 
+				\node at (4.5, -2) {\Large 4}; 
+				
+				\node at (1.5, -3) {\Large 3}; 
+				\node at (4.5, -3) {\Large 5};
+			\end{tikzpicture}
+			\caption*{Tabella 3: Svolgimento Cronologico}
+		\end{minipage}
+		\hfill
+		\begin{minipage}{0.45\textwidth}
+			\centering
+			\begin{tikzpicture}[scale=1]
+				\draw[ultra thick] (0, 0) -- (6, 0); 
+				\draw[ultra thick] (3, 1) -- (3, -4.5); 
+				
+				\node at (1.5, 0.5) {\textbf{Nodo in Espl.}};
+				\node at (4.5, 0.5) {\textbf{Stella Uscente}};
+				
+				\node[circle, draw=red, thick, inner sep=2pt] (c1L) at (1.5, -1) {\Large 1}; 
+				\node at (4, -1) {\Large 2}; \node at (4.5, -1) {\Large ,}; \node[circle, draw=red, thick, inner sep=2pt] (c3R) at (5, -1) {\Large 3};
+				
+				\node at (1.5, -2) {\Large 2}; 
+				\node at (4.5, -2) {\Large 4}; 
+				
+				\node[circle, draw=red, thick, inner sep=2pt] (c3L) at (1.5, -3) {\Large 3}; 
+				\node[circle, draw=red, thick, inner sep=2pt] (c5R) at (4.5, -3) {\Large 5};
+				
+				% Frecce di Backtracking
+				\draw[->, red, thick, dashed] (c5R.west) -- (c3L.east);
+				\draw[->, red, thick, dashed] (c3L.north east) -- (c3R.south west); 
+				% Utilizziamo "bend right" agganciandoci ai bordi superiori per scavalcare il 2
+				\draw[->, red, thick, dashed] (c3R.north west) to[bend right=25] (c1L.north east);
+			\end{tikzpicture}
+			\caption*{Tabella 4: Backtracking del Cammino}
+		\end{minipage}
+		\caption{Tracciamento del secondo cammino aumentante sul Grafo Residuo. Il percorso è netto e lineare: $1 \to 3 \to 5$.}
+	\end{figure}
+	
+	Il nuovo cammino aumentante è $P = \{13, 35\}$. Calcoliamo la portata logistica incrementale $\delta$:
+	\[ \delta = \min \{ r_{13}, r_{35} \} = \min \{ 6, 1 \} = \mathbf{1} \]
+	Avendo un $\delta=1$, aggiorniamo le quantità sugli archi coinvolti (sommando $1$ ai rispettivi flussi esistenti). Il nuovo vettore $\bar{x}$, aggiornato in rigoroso ordine lessicografico, diventa:
+	\[ \bar{x} = \mathbf{(2, 1, 0, 2, 0, 1, 0)^T} \]
+	
+	\vspace{0.6cm}
+	\separatore
+	\vspace{0.4cm}
+	
+	\textbf{Analisi del Vertice Poliedrico e Degenerazione}\\
+	Nella fase conclusiva della lezione, il professore ripropone a schermo la medesima struttura topologica del grafo appena trattato, sottoponendoci un quesito teorico avanzato. Ci viene fornita un'ipotetica configurazione di flusso accoppiata al Flusso Massimo Totale $V$: 
+	\[ (x, V) = \mathbf{(6, 1, 4, 2, 0, 1, 4, \ 7)^T} \]
+	
+	\begin{figure}[H]
+		\centering
+		\begin{tikzpicture}[scale=1.5, >=stealth, node distance=2cm,
+			node_style/.style={circle, draw=titlecolor, thick, fill=titlecolor!10, minimum size=8mm, font=\bfseries},
+			edge_style/.style={->, thick, color=black}
+			]
+			
+			\node[node_style] (1) at (0, 2) {1};
+			\node[node_style] (2) at (2, 3.5) {2};
+			\node[node_style] (3) at (2, 0.5) {3};
+			\node[node_style] (4) at (4, 3.5) {4};
+			\node[node_style] (5) at (4, 0.5) {5};
+			
+			\draw[edge_style] (1) -- (2) node[midway, above left, font=\bfseries] {[6, 8]};
+			\draw[edge_style] (1) -- (3) node[midway, below left, font=\bfseries] {[1, 6]};
+			\draw[edge_style] (2) -- (4) node[midway, above, font=\bfseries] {[4, 4]};
+			\draw[edge_style] (2) -- (5) node[pos=0.3, right, font=\bfseries] {[2, 2]};
+			\draw[edge_style] (3) -- (2) node[midway, left, font=\bfseries] {[0, 7]};
+			\draw[edge_style] (3) -- (5) node[midway, below, font=\bfseries] {[1, 1]};
+			\draw[edge_style] (4) -- (5) node[midway, right, font=\bfseries] {[4, 9]};
+			
+		\end{tikzpicture}
+		\caption{Il Grafo originario. Sugli archi è annotata la coppia di valori $[x_{ij}, u_{ij}]$, indicante rispettivamente la distribuzione del flusso corrente e la portata nominale, per evidenziare in maniera compatta quali archi abbiano raggiunto i propri limiti superiore o inferiore.}
+	\end{figure}
+	
+	Per inquadrare topologicamente questa soluzione, ci viene fornita un'assegnazione parziale della Tripartizione degli insiemi (sempre in ordine lessicografico, incluso $V$ come arco di ritorno virtuale): 
+	$[T, \ T, \ T/U, \ T/U, \ T/L, \ T/U, \ T, \ T]$.
+	
+	L'ambiguità generata dallo \textit{slash} ("/") sta a significare che la variabile in oggetto è collocata esattamente su uno dei suoi limiti strutturali ($0$ o $u_{ij}$). Di conseguenza, un tale arco si qualifica algebricamente sia per risiedere nell'insieme dei Vuoti $L$ / Saturi $U$, sia per far parte dell'albero di copertura $T$. 
+	La domanda cruciale posta all'aula è: \textbf{Questa configurazione rappresenta un vertice del poliedro logistico?}
+	
+	La risposta è rigorosamente \textbf{Sì}. Affinché una configurazione sia un vertice del poliedro ammissibile, deve corrispondere univocamente a un \textbf{Flusso di Base}. Su una rete a 5 nodi (e quindi 4 rami di copertura), è perfettamente lecito estrarre dai casi ambigui un albero risolvente $T$ ben preciso, per esempio assegnando:
+	\[ [T, \ T, \ U, \ U, \ L, \ U, \ T, \ T] \]
+	Tuttavia, il fatto che alcune variabili di base si appoggino esattamente sui loro estremi capacitivi (come avere flussi nulli pur essendo in $T$) rende intrinsecamente questa soluzione matematica una \textbf{Soluzione Degenere}. La degenerazione non inficia la validità del vertice, ma descrive solo una molteplicità di rappresentazioni basali per il medesimo punto fisico nello spazio del poliedro.
+	
+	\vspace{1.5cm}
+	\begin{center}
+		\rule{0.65\textwidth}{1pt} \\
+		\vspace{0.4cm}
+		\textcolor{titlecolor}{\LARGE \textbf{--- Fine Lezione 31 ---}} \\
+		\vspace{0.2cm}
+		\rule{0.65\textwidth}{1pt}
+	\end{center}
+	\newpage
+	
+	\avviso{\textit{\textbf{Questa lezione, come le sue precedenti e successive, può contenere errori e/o imprecisioni. Per il bene di tutti, è buona norma far notare all'autore l'errore o l'imprecisione così da risolvere nel minor tempo possibile. I canali di comunicazione, per eventuali avvisi generali o di errori trovati negli appunti, sono in cima al file. Grazie per la collaborazione e Buono studio!}}}
+	
+	\section*{Lezione 32 | 16 novembre 2026}
+	\subsection*{Esercitazione in classe su tutta la PL su Reti}
 	
 \end{document}
