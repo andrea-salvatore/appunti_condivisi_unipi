@@ -13534,8 +13534,8 @@
 				\coordinate (D) at (1.5, 1.83);
 				\draw[thick, red] (C) -- (D);
 				
-				\filldraw[black] (C) circle (1.5pt) node[above left] {$x$};
-				\filldraw[black] (D) circle (1.5pt) node[above right] {$y$};
+				\filldraw[black] (C) circle (1.5pt) node[above] {$x$};
+				\filldraw[black] (D) circle (1.5pt) node[above] {$y$};
 			\end{tikzpicture}
 			\caption*{Funzione Non Convessa: il segmento rosso viene attraversato e superato dalla curva.}
 		\end{minipage}
@@ -13610,6 +13610,299 @@
 	\avviso{\textit{\textbf{Prometto a voi e a me stesso di svolgere e trascrivere correttamente la medesima lezione nonostante la data storica: oggi è uscito GTA VI}}}
 	
 	\section*{Lezione 33 | 19 novembre 2026}
+	\subsection*{Algoritmi di Salita, Teorema della Convergenza e Derivate direzionali}
+	
+	Consideriamo un generico problema di ottimizzazione in cui l'obiettivo è massimizzare una funzione in più variabili:
+	\[ \max_{x \in \mathbb{R}^n} f(x) \]
+	Partendo da un punto base $x^{(k)}$ (la nostra posizione attuale), vogliamo determinare una direzione $d^{(k)}$ verso cui spostarci per far \textbf{crescere} il valore della funzione obiettivo. 
+	
+	Geometricamente, muoversi da $x^{(k)}$ lungo la direzione $d^{(k)}$ significa valutare la funzione lungo un segmento (o una semiretta). Possiamo parametrizzare questo spostamento introducendo una variabile scalare $t \ge 0$, che rappresenta la "lunghezza del passo". 
+	Definiamo quindi la funzione ausiliaria (o restrizione) $\phi(t)$ che va da $\mathbb{R}$ in $\mathbb{R}$:
+	\[ \phi(t) \triangleq f(x^{(k)} + t d^{(k)}), \quad \forall t \ge 0 \]
+	Questa funzione $\phi(t)$ rappresenta il valore della funzione obiettivo $f$ lungo la specifica retta di esplorazione scelta. Il nostro obiettivo per ottimizzare il passo è studiare il comportamento di $\phi(t)$, in primis calcolandone la derivata.
+	
+	\vspace{0.4cm}
+	\textbf{Il Teorema della Scomposizione degli Jacobiani e la Derivata di $\phi(t)$}\\
+	Per derivare una funzione composta a più variabili lungo una retta, ci avvaliamo del Teorema degli Jacobiani (la regola della catena per funzioni a più variabili), la cui forma generale è $(f(y))' = f'(y) y')$. Applicandola alla nostra restrizione, la derivata prima di $\phi(t)$ si esprime come il prodotto scalare tra il gradiente della funzione e il vettore direzione:
+	\[ \phi'(t) = \nabla f(x^{(k)} + t d^{(k)})^T d^{(k)} \]
+	
+	Poiché ci interessa capire se, \textit{partendo da fermi} ($t=0$), muoverci nella direzione $d^{(k)}$ farà crescere la funzione, valutiamo la derivata in $t=0$:
+	\[ \phi'(0) = \nabla f(x^{(k)})^T d^{(k)} \]
+	
+	L'analisi del segno di questo prodotto scalare è fondamentale per classificare la direzione $d^{(k)}$:
+	\begin{itemize}
+		\item Se $\phi'(0) > 0$: La direzione $d^{(k)}$ è sicuramente una \textbf{direzione di salita} (la funzione cresce).
+		\item Se $\phi'(0) < 0$: La direzione $d^{(k)}$ è sicuramente una \textbf{direzione di discesa} (la funzione decresce).
+		\item Se $\phi'(0) = 0$: L'informazione è insufficiente (potrebbe essere una salita, una discesa o un punto di sella/stazionario lungo quella direzione).
+	\end{itemize}
+	
+	\begin{figure}[H]
+		\centering
+		\begin{tikzpicture}[scale=1.5]
+			% Linea obliqua ortogonale al gradiente (Frontiera)
+			\draw[thick, gray] (-1.5, 1) -- (1.5, -1) node[above right] {$\nabla f(\bar{x})^T d = 0$};
+			
+			% Punto \bar{x}
+			\filldraw[black] (0, 0) circle (2pt) node[below left] {$\bar{x}$};
+			
+			% Gradiente (Ortogonale alla linea di frontiera)
+			\draw[->, ultra thick, blue] (0, 0) -- (1, 1.5) node[right] {$\nabla f(\bar{x})$};
+			
+			% Altre direzioni di salita
+			\draw[->, thick, green!60!black] (0, 0) -- (-0.5, 1) node[above] {$d_1$};
+			\draw[->, thick, green!60!black] (0, 0) -- (1.5, 0.5) node[right] {$d_2$};
+			
+			% Direzioni di discesa
+			\draw[->, thick, red] (0, 0) -- (0.5, -1) node[left] {$d_3$ (Discesa)};
+			
+			% Etichette
+			\node[color=green!60!black, font=\bfseries] at (1, 2) {Direzioni di Salita ($> 0$)};
+			\node[color=red, font=\bfseries] at (-1, -1.5) {Direzioni di Discesa ($< 0$)};
+		\end{tikzpicture}
+		\caption{Rappresentazione geometrica delle direzioni. Il segmento obliquo grigio separa lo spazio: tutti i vettori (frecce) che puntano nel semispazio superiore (formando un angolo acuto col gradiente blu) sono direzioni di salita. Le frecce nel semispazio inferiore sono direzioni di discesa.}
+	\end{figure}
+	
+	\vspace{0.4cm}
+	\textbf{Il Gradiente come Direzione di Massima Salita}\\
+	L'unica certezza assoluta che abbiamo in questo campo è la seguente: se decidiamo di esplorare muovendoci esattamente nella stessa direzione e verso del gradiente, ovvero ponendo $d^{(k)} = \nabla f(x^{(k)})$, la derivata iniziale assumerà il suo valore massimo possibile:
+	\[ \phi'(0) = \nabla f(x^{(k)})^T \nabla f(x^{(k)}) = \Vert \nabla f(x^{(k)}) \Vert^2 \]
+	\textit{Spiegazione matematica:} Le doppie stanghette $\Vert \cdot \Vert$ indicano la \textbf{norma euclidea} del vettore, ovvero la sua lunghezza geometrica calcolata come radice quadrata della somma dei quadrati delle sue componenti. Elevandola al quadrato, si ottiene una quantità strettamente positiva (salvo nel caso in cui il gradiente sia nullo). 
+	Questo dimostra formalmente che il gradiente è sempre una direzione di salita valida e rappresenta la direzione di \textbf{massima pendenza} locale.
+	
+	\vspace{0.6cm}
+	\separatore
+	\vspace{0.4cm}
+	
+	\textbf{Punti Stazionari e la Ricerca di Massimi e Minimi}\\
+	Cosa succede quando $\nabla f(\bar{x}) = 0$? 
+	\begin{quote}
+		\textit{Per inciso: come visto nelle lezioni precedenti, se abbiamo una funzione \textbf{concava}, l'annullamento del gradiente garantisce in modo assoluto che ci troviamo su un \textbf{massimo globale}.}
+	\end{quote}
+	
+	In assenza di informazioni sulla convessità/concavità della funzione, l'annullamento del gradiente identifica una generica situazione stazionaria che è caratterizzata da:
+	\begin{enumerate}
+		\item Punti di \textbf{Sella} ($S$).
+		\item \textbf{Massimi} locali e globali.
+		\item \textbf{Minimi} locali e globali.
+	\end{enumerate}
+	
+	\begin{figure}[H]
+		\centering
+		\begin{tikzpicture}[scale=1.4]
+			% Riempimento delle tre fette con colori distinti
+			\begin{scope}
+				\clip (0,0) circle (2.5cm);
+				% Fetta 1: Sella (in alto a sinistra)
+				\fill[orange!15] (0,0) -- (90:3) arc (90:210:3) -- cycle;
+				% Fetta 2: Massimi (in basso)
+				\fill[red!10] (0,0) -- (210:3) arc (210:330:3) -- cycle;
+				% Fetta 3: Minimi (in alto a destra)
+				\fill[green!15] (0,0) -- (330:3) arc (330:450:3) -- cycle;
+			\end{scope}
+			
+			% Contorni del cerchio e raggi di divisione
+			\draw[thick] (0,0) circle (2.5cm);
+			\draw[thick, black!70] (0,0) -- (90:2.5);
+			\draw[thick, black!70] (0,0) -- (210:2.5);
+			\draw[thick, black!70] (0,0) -- (330:2.5);
+			
+			% Etichette interne alle fette
+			\node[align=center, font=\small] at (150:1.3) {
+				\textbf{\Large S} \\ 
+				\footnotesize Punti di Sella
+			};
+			\node[align=center, font=\small] at (270:1.3) {
+				\textbf{\small Massimi} \\ 
+				\footnotesize Locali e Globali
+			};
+			\node[align=center, font=\small] at (30:1.3) {
+				\textbf{\small Minimi} \\ 
+				\footnotesize Locali e Globali
+			};
+			
+			% Titolo esterno del disco
+			\node[above, font=\bfseries] at (0, 2.6) {Insieme dei Punti Stazionari: $\nabla f(x) = \mathbf{0}$};
+		\end{tikzpicture}
+		\caption{Rappresentazione geometrica a disco dell'insieme dei punti stazionari ($\nabla f(\bar{x}) = \mathbf{0}$). Il cerchio complessivo racchiude la totalità dei punti in cui il gradiente si annulla, suddivisi nelle tre possibili fette di classificazione: i punti di sella ($S$, dove la funzione sale in alcune direzioni e scende in altre), i massimi locali e globali (per le funzioni concave) e i minimi locali e globali (per le funzioni convesse). Il diagramma mostra chiaramente che l'annullamento del gradiente è solo una condizione di stazionarietà generica, la cui natura esatta richiede indagini di secondo livello (matrice Hessiana).}
+	\end{figure}
+	
+	Per limitare le ambiguità, le funzioni più semplici e stabili su cui ragionare con questi algoritmi sono quelle in cui si ricercano i minimi all'interno di funzioni \textit{convesse}, o i massimi all'interno di funzioni \textit{concave}.
+	
+	\vspace{0.4cm}
+	\textbf{Criterio di Arresto (Stop dell'algoritmo)}\\
+	Il criterio di arresto teorico per un algoritmo di ottimizzazione è il raggiungimento di un punto in cui il gradiente si annulla: $\nabla f(x^{(k)}) = 0$. 
+	Tuttavia, nella realtà computazionale, per evitare problemi legati alle approssimazioni dei decimali, l'algoritmo si arresta quando la norma del gradiente diventa sufficientemente minuscola da essere considerata zero:
+	\[ \Vert \nabla f(x^{(k)}) \Vert \le \epsilon \]
+	dove $\epsilon$ è un valore di tolleranza piccolissimo fissato a priori (es. $10^{-6}$).
+	
+	Se il nostro algoritmo di salita si ferma in un punto stazionario, e successivamente, analizzando il problema per altre vie, scoprissimo l'esistenza di un'altra direzione in cui la funzione torna a crescere, vorrebbe dire che l'algoritmo si era purtroppo arrestato in una \textbf{sella}.
+	
+	\vspace{0.6cm}
+	\separatore
+	\vspace{0.4cm}
+	
+	\textbf{Il Metodo del Gradiente con Passo Ideale}
+	
+	Definita la direzione di ricerca (scelta come la direzione di massima pendenza $d^{(k)} = \nabla f(x^{(k)})$), l'algoritmo deve determinare \textbf{quanto} spostarsi lungo quella direzione. La lunghezza del passo si indica con lo scalare $t^{(k)}$.
+	Nel metodo con \textbf{passo ideale}, si sceglie il passo $t^{(k)}$ in modo da massimizzare \textit{esattamente} la funzione ristretta lungo quella retta:
+	\[ t^{(k)} \in \arg\max_{t \ge 0} \phi(t) = \arg\max_{t \ge 0} f\left(x^{(k)} + t d^{(k)}\right) \]
+	
+	\vspace{0.4cm}
+	\textbf{Svolgimento di un Passo dell'Algoritmo}\\
+	Consideriamo la seguente funzione quadratica da massimizzare:
+	\[ f(x) = -x_1^2 - 3x_2^2 + x_1 x_2 + x_1 \]
+	Partiamo dal punto base iniziale $x^{(0)} = (0,0)$.
+	
+	Prima di iniziare, per assicurarci della validità e della convergenza sui massimi, la funzione dovrebbe essere concava. Come si verifica? Occorre controllare che la matrice Hessiana associata (che nelle funzioni quadratiche coincide con la matrice costante $Q$ raddoppiata) sia definita negativa per ogni $x$ nel dominio. Dato che l'Hessiana è costante, è sufficiente calcolarla una singola volta.
+	
+	\textbf{Passo 1:}\\
+	Calcoliamo il gradiente generale della funzione:
+	\[ \nabla f(x_1, x_2) = \begin{pmatrix} -2x_1 + x_2 + 1\boldsymbol{,} \quad -6x_2 + x_1 \end{pmatrix} \]
+	Valutiamo il gradiente nel nostro punto di partenza $x^{(0)} = (0,0)$:
+	\[ \nabla f(0,0) = \begin{pmatrix} 1, 0 \end{pmatrix} \]
+	Questa sarà la nostra direzione di salita: $d^{(0)} = (1,0)^T$.
+	
+	Impostiamo la retta di esplorazione:
+	\[ x(t) = x^{(0)} + t \cdot d^{(0)} = \begin{pmatrix} 0, 0 \end{pmatrix} + t \begin{pmatrix} 1, 0 \end{pmatrix} = \begin{pmatrix} t, 0 \end{pmatrix} \]
+	La funzione di restrizione $\phi(t)$ si ottiene sostituendo questa parametrizzazione ($x_1 = t$, $x_2 = 0$) all'interno della funzione obiettivo originaria:
+	\[ \phi(t) = f(t, 0) = -t^2 - 3(0)^2 + t(0) + t \implies \phi(t) = -t^2 + t \]
+	Il grafico di $\phi(t) = -t^2 + t$ è una normale parabola concava (a forma di U rovesciata) passante per l'origine. 
+	
+	Cerchiamo il passo ideale $t^{(0)}$ massimizzando questa parabola. Deriviamo rispetto a $t$:
+	\[ \phi'(t) = -2t + 1 = 0 \implies 2t = 1 \implies t^{(0)} = \frac{1}{2} \]
+	Avendo trovato il passo, calcoliamo il nuovo punto $x^{(1)}$ dell'algoritmo:
+	\[ x^{(1)} = x^{(0)} + t^{(0)} d^{(0)} = \begin{pmatrix} 0, 0 \end{pmatrix} + \frac{1}{2} \begin{pmatrix} 1, 0 \end{pmatrix} = \begin{pmatrix} \frac{1}{2}, 0 \end{pmatrix} \]
+	Il primo passo è completato. Il nuovo punto di ripartenza è $(\frac{1}{2}, 0)$, che potremmo scrivere anche come $x^{(1)} = \frac{1}{4}$ se ci riferissimo a coordinate non scalate, ma il vettore esatto è $(\frac{1}{2}, 0)^T$.
+	
+	\vspace{0.4cm}
+	\textbf{Passo 2:}\\
+	Valutiamo il gradiente nel nuovo punto $x^{(1)} = (\frac{1}{2}, 0)$:
+	\[ \nabla f(\frac{1}{2}, 0) = \begin{pmatrix} -2(\frac{1}{2}) + 0 + 1\boldsymbol{,} \quad -6(0) + \frac{1}{2} \end{pmatrix} = \begin{pmatrix} 0, \frac{1}{2} \end{pmatrix} \]
+	La nuova direzione di ricerca è $d^{(1)} = (0, \frac{1}{2})$.
+	
+	La nuova retta di esplorazione si parametrizza come:
+	\[ x(t) = x^{(1)} + t \cdot d^{(1)} = \begin{pmatrix} \frac{1}{2}, 0 \end{pmatrix} + t \begin{pmatrix} 0, \frac{1}{2} \end{pmatrix} = \begin{pmatrix} \frac{1}{2}, \frac{t}{2} \end{pmatrix} \]
+	Sostituiamo $x_1 = \frac{1}{2}$ e $x_2 = \frac{t}{2}$ nella funzione obiettivo originaria per trovare la nuova restrizione $\phi(t)$:
+	\[ \phi(t) = -\left(\frac{1}{2}\right)^2 - 3\left(\frac{t}{2}\right)^2 + \left(\frac{1}{2}\right)\left(\frac{t}{2}\right) + \frac{1}{2} \]
+	\[ \phi(t) = -\frac{1}{4} - \frac{3}{4}t^2 + \frac{t}{4} + \frac{1}{2} \]
+	\[ \phi(t) = -\frac{3}{4}t^2 + \frac{1}{4}t + \frac{1}{4} \]
+	
+	Per trovare il nuovo passo ideale, massimizziamo $\phi(t)$ per $t \ge 0$. Deriviamo:
+	\[ \phi'(t) = -2\left(\frac{3}{4}\right)t + \frac{1}{4} = -\frac{6}{4}t + \frac{1}{4} = 0 \implies \frac{6}{4}t = \frac{1}{4} \]
+	Dividendo tutto per $1/4$, otteniamo $6t = 1$, per cui il nuovo passo sarà:
+	\[ t^{(1)} = \frac{1}{6} \]
+	A questo punto l'algoritmo proseguirebbe calcolando il nuovo vertice $x^{(2)}$, e così via.
+	
+	\vspace{0.6cm}
+	\separatore
+	\vspace{0.4cm}
+	
+	\textbf{L'Algoritmo di Bisezione per la Ricerca Lineare}\\
+	Nell'esercizio precedente, la funzione di restrizione $\phi(t)$ era un polinomio di secondo grado, per cui trovare il massimo ponendo la derivata prima $\phi'(t) = 0$ è stato immediato. Ma cosa accade se ci imbattiamo in restrizioni più complesse, come ad esempio:
+	\[ \phi(t) = -\frac{3}{4}t^4 + t^3 - t \]
+	Trattandosi di una funzione polinomiale di grado superiore, trovare lo zero esatto della sua derivata non è sempre risolvibile analiticamente a mano.
+	La derivata è:
+	\[ \phi'(t) = -3t^2 + 3t + 1 \quad\]\\ \textit{(nota: esempio generico di derivata non collegata al polinomio di 4° grado citato, per illustrare il concetto)}
+	
+	Per massimizzare computazionalmente una variabile, si utilizzano algoritmi numerici di approssimazione, tra cui l'Algoritmo di Bisezione.
+	Si parte calcolando il valore della derivata in $t=0$. Dopodiché, si cerca "a tentativi" un valore $t$ sufficientemente grande affinché la derivata assuma un valore negativo, garantendo che lo zero della funzione sia confinato tra i due estremi iniziali $[a, b]$. 
+	
+	L'algoritmo procede dimezzando l'ampiezza dell'intervallo a ogni passo. Dopo $N$ iterazioni, l'ampiezza dell'intervallo residuo è pari a:
+	\[ \frac{b - a}{2^n} \]
+	Imponendo che questo errore sia inferiore a una certa tolleranza prestabilita (ad esempio $10^{-6}$), possiamo calcolare a priori quante iterazioni $N$ serviranno per convergere:
+	\[ \frac{b - a}{2^n} \le \frac{1}{10^6} \implies 2^n \ge (b - a) \cdot 10^6 \implies n \ge \log_2 \left( (b - a) \cdot 10^6 \right) \]
+	
+	Illustriamo questo comportamento tracciando un grafico dove l'asse delle ascisse è il parametro di passo $t$ e l'asse delle ordinate è il valore della derivata $\phi'(t)$. Il grafico mostra che, partendo dall'origine e spostandosi verso destra con valori di $t$ sempre più grandi, il valore della derivata continua a scendere sempre di più nella regione negativa dell'asse Y.
+	
+	\begin{figure}[H]
+		\centering
+		\begin{tikzpicture}[scale=1.5]
+			% Assi cartesiani
+			\draw[->, thick] (-0.5, 0) -- (4, 0) node[right] {$t$};
+			\draw[->, thick] (0, -3) -- (0, 1) node[above] {$\phi'(t)$};
+			
+			% Curva della derivata decrescente
+			\draw[thick, blue, domain=0:3.5, samples=50] plot (\x, {-0.2*\x*\x - 0.1*\x});
+			
+			% Punti di esplorazione
+			\filldraw[black] (0,0) circle (1.5pt) node[above left] {$t=0$};
+			\filldraw[red] (2, -1) circle (1.5pt) node[above right, text=red] {$t_1$};
+			\filldraw[red] (3, -2.1) circle (1.5pt) node[below left, text=red] {$t_2$};
+			
+			% Frecce di spostamento
+			\draw[->, dashed, thick, red] (0.2, -0.05) to[bend left=15] (1.9, -0.95);
+			\draw[->, dashed, thick, red] (2.1, -1.05) to[bend left=10] (2.9, -2.05);
+		\end{tikzpicture}
+		\caption{Andamento della derivata $\phi'(t)$ in funzione della lunghezza del passo $t$. Man mano che il passo $t$ aumenta (es. in $t_1$ e $t_2$), il valore della derivata sprofonda sempre più in territorio negativo, confermando l'assunto alla base dell'algoritmo di bisezione.}
+	\end{figure}
+	
+	\vspace{0.6cm}
+	\separatore
+	\vspace{0.4cm}
+	
+	\textbf{I Teoremi di Convergenza}
+	
+	Per avere la garanzia che tutti gli sforzi iterativi dell'algoritmo ci conducano effettivamente a una soluzione utile, ci si avvale dei Teoremi di Convergenza.
+	
+	\textbf{Teorema 1 (Convergenza sui Minimi/Massimi Locali):}\\
+	Supponiamo di cercare il massimo della funzione $f(x)$ per ogni $x \in \mathbb{R}^n$. 
+	Supponiamo inoltre che la funzione sia \textbf{Anticoerciva} (questa ipotesi ci dà la garanzia matematica e geometrica che il massimo esista e non tenda a $+\infty$). 
+	Sotto queste ipotesi, l'algoritmo basato sulla ricerca esatta produrrà una successione iterativa di punti $\{x^{(k)}\}$ che possiede almeno un punto di accumulazione. \textbf{Ogni punto di accumulazione della successione risulterà essere un massimo locale} $\bar{x}$.
+	\textit{Spiegazione intuitiva:} L'algoritmo sta funzionando se, a ogni iterazione, la distanza percorsa tra $x^{(k)}$ e $x^{(k+1)}$ si accorcia sempre di più, segnalando che stiamo "rallentando" perché ci stiamo avvicinando al picco della montagna (il punto di accumulazione). Questo teorema ci assicura che, se l'algoritmo converge, atterrerà su un massimo locale.
+	
+	\textbf{Teorema 2 (Convergenza Assoluta con Concavità):}\\
+	Aggiungiamo un'ipotesi a quelle di prima: e se la funzione, oltre a tutto ciò che abbiamo supposto prima, fosse anche globalmente \textbf{concava}?
+	In questo caso il teorema si rafforza enormemente: la successione ammette un limite unico, e l'algoritmo convergerà matematicamente e inesorabilmente a un \textbf{massimo globale}.
+	
+	\vspace{0.6cm}
+	\separatore
+	\vspace{0.4cm}
+	
+	\begin{quote}
+		\textbf{DISCLAIMER ESERCITAZIONE:}\\
+		\textit{L'esercizio seguente è stato assegnato in classe per compito. Lo svolgimento proposto di seguito è stato eseguito a casa basandosi sugli appunti e sulle procedure appena discusse; la sua validità e correttezza numerica non possono pertanto essere certificate né garantite ufficialmente.}
+	\end{quote}
+	
+	\textbf{Esercizio: Un passo del Metodo del Gradiente}\\
+	Sia data la funzione da minimizzare:
+	\[ f(x_1, x_2) = x_1^2 + x_2^2 + x_1 x_2 + 4x_2 \]
+	Partendo dal punto base $x^{(0)} = (0,0)$, eseguire il primo passo del metodo del gradiente.
+	
+	Calcoliamo il gradiente generale:
+	\[ \nabla f(x_1, x_2) = \begin{pmatrix} 2x_1 + x_2\boldsymbol{,} \quad 2x_2 + x_1 + 4 \end{pmatrix} \]
+	
+	Valutiamo il gradiente nel punto di partenza $x^{(0)} = (0,0)$:
+	\[ \nabla f(0,0) = \begin{pmatrix} 0, 4 \end{pmatrix} \]
+	Poiché cerchiamo un minimo, la direzione di discesa ideale (antigradiente) sarà $d^{(0)} = -\nabla f(0,0) = (0, -4)^T$. \textit{(Nota: se si applica la convenzione di salita e si minimizza la funzione di restrizione, la formula si adatta mantenendo la stessa direzione ma invertendo il senso di esplorazione, tracciamo l'esplorazione basata sull'antigradiente per comodità didattica).}
+	
+	La retta di esplorazione sarà:
+	\[ x(t) = \begin{pmatrix} 0, 0 \end{pmatrix} + t \begin{pmatrix} 0, -4 \end{pmatrix} = \begin{pmatrix} 0, -4t \end{pmatrix} \]
+	
+	Sostituiamo $x_1 = 0$ e $x_2 = -4t$ nella funzione originaria per ottenere la restrizione $\phi(t)$:
+	\[ \phi(t) = f(0, -4t) = (0)^2 + (-4t)^2 + (0)(-4t) + 4(-4t) \]
+	\[ \phi(t) = 16t^2 - 16t \]
+	
+	Troviamo il minimo di questa parabola convessa ponendo la derivata prima uguale a zero:
+	\[ \phi'(t) = 32t - 16 = 0 \implies 32t = 16 \implies t^{(0)} = \frac{16}{32} = \frac{1}{2} \]
+	
+	Calcoliamo il nuovo punto $x^{(1)}$:
+	\[ x^{(1)} = x^{(0)} + t^{(0)} d^{(0)} = \begin{pmatrix} 0, 0 \end{pmatrix} + \frac{1}{2} \begin{pmatrix} 0, -4 \end{pmatrix} = \begin{pmatrix} 0, -2 \end{pmatrix} \]
+	
+	Il primo passo del metodo è completato, raggiungendo il punto $(0, -2)$.
+	
+	\vspace{1.5cm}
+	\begin{center}
+		\rule{0.65\textwidth}{1pt} \\
+		\vspace{0.4cm}
+		\textcolor{titlecolor}{\LARGE \textbf{--- Fine Lezione 33 ---}} \\
+		\vspace{0.2cm}
+		\rule{0.65\textwidth}{1pt}
+	\end{center}
+	\newpage
+	
+	\avviso{\textit{\textbf{Questa lezione, come le sue precedenti e successive, può contenere errori e/o imprecisioni. Per il bene di tutti, è buona norma far notare all'autore l'errore o l'imprecisione così da risolvere nel minor tempo possibile. I canali di comunicazione, per eventuali avvisi generali o di errori trovati negli appunti, sono in cima al file. Grazie per la collaborazione e Buono studio!}}}
+	
+	\section*{Lezione 34 | 23 novembre 2026}
 	\subsection*{}
 	
 \end{document}
