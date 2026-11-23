@@ -13903,6 +13903,305 @@
 	\avviso{\textit{\textbf{Questa lezione, come le sue precedenti e successive, può contenere errori e/o imprecisioni. Per il bene di tutti, è buona norma far notare all'autore l'errore o l'imprecisione così da risolvere nel minor tempo possibile. I canali di comunicazione, per eventuali avvisi generali o di errori trovati negli appunti, sono in cima al file. Grazie per la collaborazione e Buono studio!}}}
 	
 	\section*{Lezione 34 | 23 novembre 2026}
+	\subsection*{Domini chiusi, convessi, limitati e qualificati}
+	
+	\textbf{Il Modello Matematico Generale e il Dominio}
+	
+	Nella Programmazione Non Lineare (PNL), un problema di ottimizzazione si formula generalmente ricercando il minimo (o il massimo) di una funzione obiettivo $f(x)$, soggetta alla condizione che il vettore delle variabili $x$ appartenga a un determinato dominio ammissibile $D$.
+	In termini matematici, il modello si esprime come:
+	\[
+	\min_{x \in D} f(x)
+	\]
+	
+	Il dominio $D$ è un sottoinsieme dello spazio vettoriale $\mathbb{R}^n$ e viene definito da un sistema di vincoli, che possono essere di disuguaglianza o di uguaglianza. Formalmente, possiamo descrivere $D$ nel seguente modo:
+	\[
+	D = \{ x \in \mathbb{R}^n \mid g_i(x) \le 0 \text{ per } i=1,\dots,m, \quad h_j(x) = 0 \text{ per } j=1,\dots,p \}
+	\]
+	\textit{Spiegazione dei termini:}
+	\begin{itemize}
+		\item $x \in \mathbb{R}^n$: il vettore delle variabili decisionali (il punto nello spazio a $n$ dimensioni).
+		\item $g_i(x) \le 0$: rappresenta un set di $m$ vincoli di disuguaglianza. La funzione $g_i$ mappa i punti da $\mathbb{R}^n$ a $\mathbb{R}$.
+		\item $h_j(x) = 0$: rappresenta un set di $p$ vincoli di uguaglianza. La funzione $h_j$ mappa i punti da $\mathbb{R}^n$ a $\mathbb{R}$.
+	\end{itemize}
+	
+	Anche i classici poliedri della Programmazione Lineare ($Ax \le b$) rientrano perfettamente in questa definizione. Ad esempio, il vincolo lineare $3x_1 + 5x_2 \le 6$ può essere riscritto portando il termine noto a sinistra, diventando una funzione $g_1$:
+	\[
+	g_1(x_1, x_2) = 3x_1 + 5x_2 - 6 \le 0
+	\]
+	Per tutto il corso della PNL, assumeremo (salvo specifiche eccezioni) che le funzioni $f, g_i, h_j$ appartengano alla classe $C^2$, ovvero che ammettano derivate prime e seconde continue.
+	
+	Una proprietà fondamentale per l'ottimizzazione è la convessità del dominio:
+	\textbf{Osservazione:} Se tutte le funzioni $g_i(x)$ sono \textit{convesse} e tutte le funzioni $h_j(x)$ sono \textit{lineari}, allora l'intero dominio $D$ che esse generano è un insieme convesso.
+	
+	\vspace{0.4cm}
+	\textbf{Analisi Topologica di un Dominio: Chiusura e Limitatezza}
+	
+	Uno degli obiettivi primari è capire se il dominio che abbiamo di fronte sia chiuso, limitato, convesso o "qualificato". Analizziamo la seguente funzione di vincolo:
+	\[
+	g_1(x_1, x_2) = 5 - x_1^2 - x_2^2 \le 0
+	\]
+	Se valutassimo questa espressione all'uguaglianza ($5 - x_1^2 - x_2^2 = 0$), otterremmo l'equazione di una circonferenza centrata nell'origine con raggio $\sqrt{5}$. Tuttavia, il vincolo impone che l'espressione sia minore o uguale a zero, ovvero $x_1^2 + x_2^2 \ge 5$.
+	
+	\begin{figure}[H]
+		\centering
+		\begin{tikzpicture}
+			\begin{axis}[
+				width=8cm, height=8cm,
+				axis lines=middle,
+				xmin=-4, xmax=4, ymin=-4, ymax=4,
+				xlabel={$x_1$}, ylabel={$x_2$},
+				axis on top, % <--- FIX: Mantiene gli assi e i numeri in primo piano
+				domain=-4:4,
+				samples=100
+				]
+				% Area esterna
+				\fill[blue!10] (-4,-4) rectangle (4,4);
+				% "Buco" centrale (circonferenza)
+				\fill[white] (0,0) circle (2.236); % sqrt(5) circa 2.236
+				% Bordo della circonferenza
+				\draw[thick, blue] (0,0) circle (2.236);
+				
+				\node[font=\bfseries] at (2.5, 3) {$D$};
+			\end{axis}
+		\end{tikzpicture}
+		\caption{Rappresentazione del dominio $D$ definito da $5 - x_1^2 - x_2^2 \le 0$. Geometricamente, corrisponde all'area esterna alla circonferenza di raggio $\sqrt{5}$. Questo dominio è \textbf{chiuso} (include il proprio bordo), \textbf{non limitato} (si estende all'infinito) e \textbf{non convesso} (contiene un "buco" al centro).}
+	\end{figure}
+	
+	\vspace{0.6cm}
+	\separatore
+	\vspace{0.4cm}
+	
+	\textbf{Esercizio: Parabola e Gradiente}
+	
+	Consideriamo un dominio in $\mathbb{R}^2$ definito dal seguente sistema di vincoli:
+	\[
+	\begin{cases}
+		g_1(x_1, x_2) = x_1 - x_2^2 \le 0 \\
+		g_2(x_1, x_2) = x_2 - 6 \le 0
+	\end{cases}
+	\]
+	
+	Calcoliamo il gradiente e la matrice Hessiana per la prima funzione $g_1$. Le derivate prime sono $\frac{\partial g_1}{\partial x_1} = 1$ e $\frac{\partial g_1}{\partial x_2} = -2x_2$.
+	\[
+	\nabla g_1(x_1, x_2) = \begin{pmatrix} 1, \quad -2x_2 \end{pmatrix}
+	\]
+	Derivando ulteriormente per trovare l'Hessiana:
+	\[
+	H_{g_1}(x_1, x_2) = \begin{pmatrix} 0 & 0 \\ 0 & -2 \end{pmatrix}
+	\]
+	\textit{Spiegazione:} Il vincolo $x_1 - x_2^2 \le 0$ si può riscrivere come $x_1 \le x_2^2$, che descrive l'area esterna (a sinistra) di una parabola coricata. Essendo la parte "concava", l'insieme generato da $g_1$ non è convesso.
+	Tuttavia, se invertissimo i segni scrivendo $-x_1 + x_2^2 \le 0$ (ovvero $x_2^2 \le x_1$), selezioneremmo l'interno della parabola, che è un insieme chiuso e convesso.
+	
+	\vspace{0.4cm}
+	\textbf{I Vincoli Qualificati}
+	
+	Affinché i teoremi di base dell'ottimizzazione non lineare (come le condizioni di KKT che vedremo) siano validi, il dominio deve soddisfare i cosiddetti "vincoli qualificati". Un dominio gode di questa proprietà se si verifica almeno una delle seguenti tre condizioni:
+	\begin{enumerate}
+		\item I vincoli $g_i(x)$ e $h_j(x)$ sono tutti \textbf{lineari}.
+		\item \textbf{Condizione di Slater:} I vincoli $g_i(x)$ sono convessi, gli $h_j(x)$ sono lineari, ed esiste almeno un punto $\bar{x} \in D$ strettamente interno all'area ammissibile, tale che $g_i(\bar{x}) < 0$ per ogni $i$.
+		\item \textbf{Condizione Mangasarian:} I gradienti dei vincoli \textit{attivi} in un punto $\bar{x} \in D$ sono vettori linearmente indipendenti.
+	\end{enumerate}
+	\textit{Nota bene:} Un vincolo $g_i$ si dice \textbf{attivo} nel punto $\bar{x}$ se in quel punto l'equazione è soddisfatta all'uguaglianza ($g_i(\bar{x}) = 0$). I vincoli di uguaglianza $h_j(x) = 0$ sono, per definizione, sempre attivi. Se nel valutare un punto si scopre che $h_j(x) \neq 0$, il problema è semplicemente inammissibile.
+	
+	\vspace{0.6cm}
+	\separatore
+	\vspace{0.4cm}
+	
+	\textbf{Esercizio: Verifica della Lineare Indipendenza}
+	
+	Ipotizziamo un dominio descritto dai seguenti due vincoli:
+	\[
+	\begin{cases}
+		g_1(x_1, x_2) = x_1^2 + x_2^2 - 4 \le 0 \\
+		g_2(x_1, x_2) = 4x_1 + x_2^2 - 4 \le 0
+	\end{cases}
+	\]
+	
+	Calcoliamo le matrici Hessiane di entrambi i vincoli:
+	\[
+	H_{g_1} = \begin{pmatrix} 2 & 0 \\ 0 & 2 \end{pmatrix}, \qquad H_{g_2} = \begin{pmatrix} 0 & 0 \\ 0 & 2 \end{pmatrix}
+	\]
+	
+	Questo sistema soddisfa la Condizione di Slater? Sì, esiste un punto (ad esempio l'origine $(0,0)$) per il quale le funzioni sono strettamente minori di zero ($g_1(0,0) = -4 < 0$ e $g_2(0,0) = -4 < 0$).
+	Verifichiamo ora la condizione in uno specifico punto di intersezione. Il vincolo $g_2$ descrive la parabola $x_1 = 1 - \frac{x_2^2}{4}$.
+	
+	Calcoliamo i gradienti generali:
+	\[
+	\nabla g_1(x_1, x_2) = \begin{pmatrix} 2x_1, \quad 2x_2 \end{pmatrix}, \qquad \nabla g_2(x_1, x_2) = \begin{pmatrix} 4, \quad 2x_2 \end{pmatrix}
+	\]
+	
+	Valutiamo il sistema nel punto $\bar{x} = (0, 2)$:
+	\[
+	\nabla g_1(0,2) = \begin{pmatrix} 0, \quad 4 \end{pmatrix}, \qquad \nabla g_2(0,2) = \begin{pmatrix} 4, \quad 4 \end{pmatrix}
+	\]
+	Per verificare se questi due vettori sono linearmente indipendenti, li incolonniamo (o li affianchiamo per riga) per formare una matrice Jacobiana e ne calcoliamo il determinante:
+	\[
+	J = \begin{pmatrix} 0 & 4 \\ 4 & 4 \end{pmatrix} \implies \det(J) = (0 \cdot 4) - (4 \cdot 4) = -16
+	\]
+	Poiché il determinante ($-16$) è diverso da zero, i gradienti dei vincoli attivi in quel punto sono \textbf{linearmente indipendenti}. La condizione è rispettata.
+	
+	\begin{figure}[H]
+		\centering
+		\begin{tikzpicture}
+			\begin{axis}[
+				width=8cm, height=8cm,
+				axis lines=middle,
+				xmin=-3, xmax=3, ymin=-3, ymax=3,
+				xlabel={$x_1$}, ylabel={$x_2$},
+				samples=100
+				]
+				% Circonferenza g1 (raggio 2)
+				\draw[thick, blue] (0,0) circle (2);
+				
+				% Area di intersezione ammissibile (g1 <= 0 e g2 <= 0)
+				% Riempiamo l'area a sinistra della parabola e dentro il cerchio
+				\begin{scope}
+					\clip (0,0) circle (2);
+					\fill[purple, opacity=0.2] (-3,-3) rectangle (1,3);
+					% Taglio parametrico usando \t
+					\clip plot[domain=-2.236:2.236, variable=\t] ({1 - \t^2/4}, {\t}) -- (-3,3) -- (-3,-3) -- cycle;
+					\fill[green, opacity=0.3] (-3,-3) rectangle (3,3);
+				\end{scope}
+				
+				% Tracciamento esplicito della parabola usando la variabile parametrica t
+				\addplot[thick, red, domain=-3:3, variable=t] ({1 - t^2/4}, {t});
+				
+				% Punto analizzato
+				\filldraw[black] (0,2) circle (2pt) node[above right] {$(0,2)$};
+			\end{axis}
+		\end{tikzpicture}
+		\caption{Dominio ammissibile generato dall'intersezione tra il cerchio ($g_1 \le 0$) e l'interno della parabola rivolta verso sinistra ($g_2 \le 0$). L'area colorata rappresenta il dominio $D$. Il punto $(0,2)$ è un vertice di frontiera in cui entrambi i vincoli sono attivi e i cui gradienti si sono dimostrati linearmente indipendenti.}
+	\end{figure}
+	
+	\vspace{0.6cm}
+	\separatore
+	\vspace{0.4cm}
+	
+	\textbf{Esercizio: Il Terzo Criterio (Mangasarian) e Vincoli Attivi}
+	
+	Dato il seguente sistema di vincoli:
+	\[
+	\begin{cases}
+		g_1(x) = 9 - x_1^2 - x_2^2 \le 0 \\
+		g_2(x) = x_1 - x_2 \le 0
+	\end{cases}
+	\]
+	L'unico modo per avere vincoli attivi è trovarsi esattamente sul bordo della regione, ovvero quando $g_1(x) = 0$ o $g_2(x) = 0$. Calcoliamo i gradienti del sistema:
+	\[
+	\nabla g_1(x_1, x_2) = \begin{pmatrix} -2x_1, \quad -2x_2 \end{pmatrix}, \qquad \nabla g_2(x_1, x_2) = \begin{pmatrix} 1, \quad -1 \end{pmatrix}
+	\]
+	
+	\begin{figure}[H]
+		\centering
+		\begin{tikzpicture}
+			\begin{axis}[
+				width=8cm, height=8cm,
+				axis lines=middle,
+				xmin=-5, xmax=5, ymin=-5, ymax=5,
+				xlabel={$x_1$}, ylabel={$x_2$},
+				samples=100
+				]
+				
+				% Area ammissibile: fuori dal cerchio (raggio 3) e sopra la retta y = x
+				% Disegnamo l'intera area y >= x
+				\fill[blue!10] (-5,-5) -- (5,5) -- (-5,5) -- cycle;
+				
+				% "Buchiamo" l'interno del cerchio sovrascrivendolo di bianco
+				\fill[white] (0,0) circle (3);
+				
+				% Disegno dei bordi
+				\draw[thick, blue] (0,0) circle (3);
+				\addplot[thick, red, domain=-5:5] {x};
+				
+			\end{axis}
+		\end{tikzpicture}
+		\caption{Dominio ammissibile del sistema. Il vincolo $g_1 \le 0$ (cerchio blu) impone la zona esterna al cerchio di raggio 3. Il vincolo $g_2 \le 0$ ($x_2 \ge x_1$, retta rossa) impone il semipiano superiore sinistro. Il dominio $D$ è l'area azzurra situata al di sopra della retta e all'esterno del cerchio.}
+	\end{figure}
+	
+	\vspace{0.6cm}
+	\separatore
+	\vspace{0.4cm}
+	
+	\textbf{Esercizio: Dipendenza Lineare}
+	
+	Analizziamo un caso in cui la qualificazione dei vincoli fallisce miseramente a causa della topologia geometrica. Siano dati i vincoli:
+	\[
+	\begin{cases}
+		g_1(x) = x_2 - x_1^3 \le 0 \\
+		g_2(x) = -x_2 \le 0 \implies x_2 \ge 0
+	\end{cases}
+	\]
+	Calcoliamo i gradienti:
+	\[
+	\nabla g_1(x_1, x_2) = \begin{pmatrix} -3x_1^2, \quad 1 \end{pmatrix}, \qquad \nabla g_2(x_1, x_2) = \begin{pmatrix} 0, \quad -1 \end{pmatrix}
+	\]
+	
+	Entrambi i vincoli sono attivi nel punto di intersezione all'origine $\bar{x} = (0,0)$. Valutiamo i gradienti in quel punto:
+	\[
+	\nabla g_1(0,0) = \begin{pmatrix} 0,\quad 1 \end{pmatrix}, \qquad \nabla g_2(0,0) = \begin{pmatrix} 0,\quad -1 \end{pmatrix}
+	\]
+	Formiamo la matrice e calcoliamo il determinante:
+	\[
+	\det \begin{pmatrix} 0 & 1 \\ 0 & -1 \end{pmatrix} = (0 \cdot -1) - (0 \cdot 1) = 0
+	\]
+	Il determinante nullo sancisce che in questo punto i gradienti sono \textbf{linearmente dipendenti}. Il vincolo non è qualificato. 
+	
+	\begin{figure}[H]
+		\centering
+		\begin{tikzpicture}
+			\begin{axis}[
+				width=8cm, height=8cm,
+				axis lines=middle,
+				xmin=-2, xmax=2, ymin=-1, ymax=2,
+				xlabel={$x_1$}, ylabel={$x_2$},
+				samples=100
+				]
+				
+				% g2: x2 >= 0
+				% g1: x2 <= x1^3
+				
+				% Assegnazione dei name path per poter riempire l'area
+				\addplot[thick, blue, domain=-2:2, name path=cubica] {x^3};
+				\addplot[thick, red, domain=-2:2, name path=assex] {0};
+				
+				% Area ammissibile: tra x^3 e l'asse x per x1 > 0
+				\addplot[fill=green, opacity=0.3] fill between [of=cubica and assex, soft clip={domain=0:1.5}];
+				
+				% Punto critico
+				\filldraw[black] (0,0) circle (2pt) node[below left] {$(0,0)$};
+			\end{axis}
+		\end{tikzpicture}
+		\caption{Rappresentazione del dominio fallato (Cuspide). La regione ammissibile (in verde) è schiacciata tra la cubica azzurra e l'asse delle ascisse rosso. Nel punto di origine $(0,0)$, le due curve sono \textbf{tangenti}, il che fa sì che i loro gradienti (ortogonali alle curve) diventino paralleli (dipendenti), annullando il determinante e compromettendo l'analisi algoritmica nel vertice.}
+	\end{figure}
+	
+	\vspace{0.4cm}
+	\textbf{Soluzione Grafica tramite le Linee di Isocosto}\\
+	Se su questo stesso problema volessimo ottimizzare una funzione obiettivo lineare, come ad esempio $\max f(x) = x_1$, come potremmo trovare la soluzione ottima?
+	La natura della soluzione dipende dal problema (massimizzazione o minimizzazione) e può essere indagata graficamente sfruttando le \textbf{linee di isocosto}.
+	
+	Le linee di isocosto sono rette o curve geometricamente \textbf{perpendicolari al vettore} della funzione obiettivo:
+	\begin{itemize}
+		\item Se $f(x) = x_1$, la direzione di crescita segue l'asse $x_1$. Le linee di isocosto saranno rette perfettamente \textbf{verticali}.
+		\item Se $f(x) = x_2$, la direzione segue l'asse $x_2$. Le linee di isocosto saranno \textbf{orizzontali}.
+		\item Se $f(x) = x_1 + x_2$, il gradiente punta diagonalmente (in alto a destra). Le linee di isocosto saranno rette \textbf{oblique} perpendicolari a tale vettore.
+	\end{itemize}
+	
+	Proprio come facevamo nella Programmazione Lineare quando non avevamo ancora introdotto graficamente i poliedri, far scorrere graficamente queste linee di isocosto nella direzione desiderata finché non toccano l'ultimo lembo di confine del dominio, ci permette di intuire immediatamente la posizione del vertice ottimo. 
+	Sebbene nelle prossime lezioni svilupperemo gli strumenti analitici esatti per l'ottimizzazione non lineare, l'approccio visivo degli isocosti rimane un "trucco" eccezionale e rapido per orientarsi nel problema.
+	
+	\vspace{1.5cm}
+	\begin{center}
+		\rule{0.65\textwidth}{1pt} \\
+		\vspace{0.4cm}
+		\textcolor{titlecolor}{\LARGE \textbf{--- Fine Lezione 34 ---}} \\
+		\vspace{0.2cm}
+		\rule{0.65\textwidth}{1pt}
+	\end{center}
+	\newpage
+	
+	\avviso{\textit{\textbf{Questa lezione, come le sue precedenti e successive, può contenere errori e/o imprecisioni. Per il bene di tutti, è buona norma far notare all'autore l'errore o l'imprecisione così da risolvere nel minor tempo possibile. I canali di comunicazione, per eventuali avvisi generali o di errori trovati negli appunti, sono in cima al file. Grazie per la collaborazione e Buono studio!}}}
+	
+	\section*{Lezione 35 | 24 novembre 2026}
 	\subsection*{}
 	
 \end{document}
