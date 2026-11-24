@@ -14202,6 +14202,290 @@
 	\avviso{\textit{\textbf{Questa lezione, come le sue precedenti e successive, può contenere errori e/o imprecisioni. Per il bene di tutti, è buona norma far notare all'autore l'errore o l'imprecisione così da risolvere nel minor tempo possibile. I canali di comunicazione, per eventuali avvisi generali o di errori trovati negli appunti, sono in cima al file. Grazie per la collaborazione e Buono studio!}}}
 	
 	\section*{Lezione 35 | 24 novembre 2026}
+	\subsection*{Algoritmo LKKT}
+	
+	\vspace{0.3cm}
+	\textbf{Condizioni di Ottimalità: Necessarie e Sufficienti}\\[0.2cm]
+	Nella ricerca dei punti di ottimo (minimi o massimi locali) in Programmazione Non Lineare, è fondamentale distinguere tra \textbf{condizioni necessarie} e \textbf{condizioni sufficienti}.
+	
+	Per visualizzare questo concetto, il professore ha utilizzato la metafora degli insiemi a "matrioska".
+	Rappresentando lo spazio delle soluzioni come una serie di insiemi concentrici:
+	\begin{itemize}
+		\item L'insieme più grande e inclusivo rappresenta la \textbf{Condizione Necessaria}. Se un punto non appartiene a questo insieme, abbiamo la certezza matematica che \textit{non può} essere un minimo locale. 
+		\item L'insieme intermedio rappresenta i \textbf{Minimi Locali} veri e propri.
+		\item L'insieme più piccolo e restrittivo rappresenta la \textbf{Condizione Sufficiente}. Se un punto si trova qui dentro, abbiamo la certezza matematica che esso \textit{sia} un minimo locale.
+	\end{itemize}
+	
+	\begin{figure}[H]
+		\centering
+		\begin{tikzpicture}
+			% Cerchio più grande (Condizione Necessaria)
+			\draw[thick, fill=blue!10] (0,0) circle (3cm);
+			\node[above, font=\bfseries] at (0, 2.3) {C.N.};
+			\node[above, font=\footnotesize] at (0, 1.8) {};
+			
+			% Cerchio intermedio (Minimo Locale)
+			\draw[thick, fill=green!20] (0,-0.3) circle (2cm);
+			\node[above, font=\bfseries] at (0, 0.9) {mL};
+			
+			% Cerchio più piccolo (Condizione Sufficiente)
+			\draw[thick, fill=orange!30] (0,-0.8) circle (1cm);
+			\node[align=center, font=\bfseries\small] at (0, -0.6) {C.S.};
+			\node[align=center, font=\footnotesize] at (0, -1.2) {};
+		\end{tikzpicture}
+		\caption{Rappresentazione a matrioska delle condizioni di ottimalità. L'insieme delle Condizioni Sufficienti (C.S.) è strettamente contenuto nell'insieme dei Minimi Locali (mL), il quale a sua volta è strettamente contenuto nell'insieme delineato dalle Condizioni Necessarie (C.N.).}
+	\end{figure}
+	
+	Matematicamente, per la ricerca di un minimo locale $\bar{x}$, le due condizioni si traducono nei seguenti sistemi:
+	\begin{itemize}
+		\item \textbf{Condizione Necessaria:} Richiede unicamente l'annullamento del gradiente.
+		\[ \nabla f(\bar{x}) = \mathbf{0} \]
+		\item \textbf{Condizione Sufficiente:} Richiede l'annullamento del gradiente unito alla positività stretta della matrice Hessiana (matrice definita positiva).
+		\[
+		\begin{cases}
+			\nabla f(\bar{x}) = \mathbf{0} \\
+			H_f(\bar{x}) > 0
+		\end{cases}
+		\]
+	\end{itemize}
+	
+	L'intuizione suggerirebbe di progettare algoritmi basati esclusivamente sulla condizione sufficiente per avere la garanzia assoluta di trovare un minimo. Tuttavia, all'atto pratico, imporre $H_f(\bar{x}) > 0$ si rivela computazionalmente troppo oneroso e limitante. 
+	Per questo motivo, la \textbf{strategia standard nella PNL} consiste nel costruire algoritmi in grado di trovare tutti i punti che soddisfano la \textit{condizione necessaria}, per poi utilizzare la \textit{condizione sufficiente} esclusivamente a posteriori (come test diagnostico) per classificare le soluzioni trovate.
+	
+	\vspace{0.6cm}
+	\separatore
+	\vspace{0.4cm}
+	
+	\textbf{Il Teorema LKKT}\\[0.2cm]
+	Entriamo ora nel cuore dell'ottimizzazione vincolata introducendo il teorema più importante di tutta la Programmazione Non Lineare: questo teorema generalizza il metodo dei moltiplicatori di Lagrange estendendolo anche ai vincoli di disuguaglianza, definendo le \textbf{condizioni necessarie di ottimalità}.
+	
+	Consideriamo un dominio ammissibile $D$ definito da $m$ vincoli di disuguaglianza e $p$ vincoli di uguaglianza:
+	\[ D = \{ x \in \mathbb{R}^n \mid g_i(x) \le 0, \ h_j(x) = 0 \} \]
+	
+	\textbf{Enunciato del Teorema LKKT:}\\
+	Sia $\bar{x} \in D$ un minimo o un massimo locale per la funzione obiettivo $f(x)$. 
+	Supponiamo che in $\bar{x}$ i vincoli siano qualificati (lezione precedente). 
+	Allora esistono un vettore di moltiplicatori \textbf{$\bar{\lambda} \in \mathbb{R}^m$} (associato alle disuguaglianze) e un vettore di moltiplicatori \textbf{$\bar{\mu} \in \mathbb{R}^p$} (associato alle uguaglianze).
+	
+	Poiché il punto $\bar{x}$ ricercato può assumere la natura sia di minimo che di massimo, il vettore dei moltiplicatori $\bar{\lambda}$ è strettamente legato al tipo di ottimizzazione che stiamo conducendo. Questa restrizione viene definita formalmente suddividendo $\bar{\lambda}$ nel seguente sistema di disequazioni:
+	\[
+	\begin{cases}
+		\bar{\lambda}_i \ge 0 \quad \forall i=1,\dots,m & \text{condizione per un possibile \textbf{minimo locale} (o una sella)} \\[6pt]
+		\bar{\lambda}_i \le 0 \quad \forall i=1,\dots,m & \text{condizione per un possibile \textbf{massimo locale}}
+	\end{cases}
+	\]
+	Questo sistema ci indica semplicemente che, a seconda di cosa stiamo cercando (minimo o massimo), i moltiplicatori associati alle disuguaglianze dovranno obbligatoriamente rispettare un determinato segno concorde.
+	
+	Sotto queste premesse, il punto $(\bar{x}, \bar{\lambda}, \bar{\mu})$ soddisfa il seguente macro-sistema:
+	
+	\[
+	\begin{cases}
+		\nabla f(\bar{x}) + \displaystyle\sum_{i=1}^{m} \bar{\lambda}_i \nabla g_i(\bar{x}) + \displaystyle\sum_{j=1}^{p} \bar{\mu}_j \nabla h_j(\bar{x}) = \mathbf{0} & \text{(1) Stazionarietà Lagrangiana (} n \text{ equazioni)} \\[10pt]
+		\bar{\lambda}_i g_i(\bar{x}) = 0 \quad \forall i=1,\dots,m & \text{(2) Scarto Complementare (} m \text{ equazioni)} \\[5pt]
+		h_j(\bar{x}) = 0 \quad \forall j=1,\dots,p & \text{(3) Ammissibilità Primale = (} p \text{ equazioni)}
+	\end{cases}
+	\]
+	
+	\textbf{Analisi del Sistema LKKT:}
+	\begin{itemize}[label=\textcolor{titlecolor}{\textbullet}, itemsep=4pt, leftmargin=1.5cm]
+		\item \textbf{Dimensione:} Il sistema genera esattamente \textbf{$(n + m + p)$} equazioni per altrettante incognite. Se risolvibile, fornisce soluzioni puntuali definite $(x, \lambda, \mu)$.
+		\item \textbf{Scarto Complementare (Equazione 2):} È il cuore logico dell'algoritmo. Afferma che il prodotto tra il moltiplicatore $\bar{\lambda}_i$ e il suo vincolo $g_i(\bar{x})$ deve essere nullo. Questo implica che:
+		\begin{itemize}
+			\item Se il vincolo è \textbf{attivo} (siamo sul bordo, $g_i(\bar{x}) = 0$), il moltiplicatore $\bar{\lambda}_i$ può essere maggiore di zero ($\bar{\lambda}_i \ge 0$).
+			\item Se il vincolo \textbf{non è attivo} (siamo all'interno del dominio, $g_i(\bar{x}) < 0$), per rispettare l'equazione il moltiplicatore $\bar{\lambda}_i$ \textbf{deve obbligatoriamente annullarsi} ($\bar{\lambda}_i = 0$).
+		\end{itemize}
+		Questo si traduce in una \textbf{regola d'oro}: i moltiplicatori $\bar{\lambda}$ positivi si generano \textbf{solo ed esclusivamente sul bordo del dominio}. Se una soluzione ottimale si trova all'interno della regione ammissibile (non toccando alcun bordo), tutti i suoi $\bar{\lambda}$ varranno zero, riducendo l'intero teorema LKKT al banale Teorema di Fermat ($\nabla f(\bar{x}) = 0$). Di conseguenza, l'algoritmo LKKT "mostra i muscoli" e lavora attivamente \textbf{soltanto sul bordo della funzione}.
+	\end{itemize}
+	
+	\vspace{0.4cm}
+	\textbf{Decodifica delle Soluzioni (I Punti Stazionari LKKT)}\\
+	Risolvendo il sistema si estraggono vettori riga definiti \textbf{punti stazionari}. L'interpretazione di questi punti dipende dai segni dei moltiplicatori $\bar{\lambda}$ (associati alle disuguaglianze). Il moltiplicatore $\bar{\mu}$ (associato alle uguaglianze) può assumere qualsiasi segno e \textbf{non fornisce alcuna informazione} classificatoria.
+	
+	Supponiamo di cercare i \textbf{minimi}. La convenzione dei segni standard per LKKT impone che, affinché il punto sia un candidato minimo, tutti i $\bar{\lambda}$ debbano essere \textbf{positivi o nulli} ($\bar{\lambda} \ge 0$). Se stessimo cercando un \textbf{massimo}, la convenzione richiederebbe che tutti i $\bar{\lambda}$ fossero \textbf{negativi o nulli} ($\bar{\lambda} \le 0$).
+	
+	Vediamo tre casi pratici di classificazione, immaginando soluzioni con due variabili di base e due moltiplicatori $\lambda$:
+	\begin{enumerate}
+		\item \textbf{Caso Discorde:} $\bar{x} = (5, -2) \implies \bar{\lambda} = (3, -1)$. \\
+		I moltiplicatori hanno segno opposto. Questo certifica matematicamente che il punto \textbf{è una sella}. 
+		
+		\item \textbf{Caso Concorde in violazione:} $\bar{x} = (6, 1) \implies \bar{\lambda} = (-2, -5)$. \\
+		Stiamo cercando un minimo (che richiede $\bar{\lambda} \ge 0$), ma i moltiplicatori sono entrambi strettamente negativi. Abbiamo la \textbf{certezza che NON è un minimo}. Potrebbe essere un massimo locale.
+		
+		\item \textbf{Caso Nullo (Ambiguità):} $\bar{x} = (2, 3) \implies \bar{\lambda} = (0, 0)$. \\
+		Se tutti i $\bar{\lambda}$ si annullano, ci troviamo in un punto interno e \textbf{non abbiamo informazioni utili} (potrebbe essere minimo, massimo o sella, occorre l'Hessiana per decidere).
+	\end{enumerate}
+	
+	\textbf{Nota sull'Esistenza dell'Ottimo:}\\
+	L'algoritmo LKKT genera i \textit{candidati}. Se sappiamo a priori che il problema è definito su un \textbf{dominio chiuso e limitato} (compatto), il Teorema di Weierstrass ci garantisce l'esistenza dei minimi e massimi globali. In tal caso, basterà calcolare la funzione in tutti i candidati LKKT: il valore più basso sarà il minimo globale, quello più alto il massimo globale.
+	Se il problema \textbf{non è limitato}, LKKT non dà certezze assolute: dobbiamo ricorrere allo studio della \textit{coercitività} o della \textit{convessità} globale per assicurare l'esistenza degli ottimi.
+	
+	\vspace{0.6cm}
+	\separatore
+	\vspace{0.4cm}
+	
+	\textbf{Esercitazione: Applicazione Diretta del Sistema LKKT}\\[0.2cm]
+	Si consideri il seguente problema di ottimizzazione:
+	\[
+	\begin{cases}
+		f(x) = x_1^2 - x_2 \\
+		g_1(x) = -x_1 - x_2 \le 0 \\
+		g_2(x) = x_1^2 + 4x_2^2 - 4 \le 0
+	\end{cases}
+	\]
+	
+	\textbf{Passo 1: Calcolo dei Gradienti}\\
+	Calcoliamo i gradienti per la funzione obiettivo e per i due vincoli, esprimendoli come vettori riga:
+	\begin{itemize}
+		\item $\nabla f(x) = \begin{pmatrix} 2x_1, \quad -1 \end{pmatrix}$
+		\item $\nabla g_1(x) = \begin{pmatrix} -1, \quad -1 \end{pmatrix}$
+		\item $\nabla g_2(x) = \begin{pmatrix} 2x_1, \quad 8x_2 \end{pmatrix}$
+	\end{itemize}
+	
+	\textbf{Passo 2: Costruzione del Sistema LKKT}\\
+	Inseriamo i gradienti nell'equazione di stazionarietà Lagrangiana (aggiungendo i due moltiplicatori $\lambda_1$ e $\lambda_2$) e affianchiamo le equazioni dello scarto complementare:
+	\[
+	\begin{cases}
+		\begin{pmatrix} 2x_1, \quad -1 \end{pmatrix} + \lambda_1 \begin{pmatrix} -1, \quad -1 \end{pmatrix} + \lambda_2 \begin{pmatrix} 2x_1, \quad 8x_2 \end{pmatrix} = \mathbf{0} \\[6pt]
+		\lambda_1 (-x_1 - x_2) = 0 \\
+		\lambda_2 (x_1^2 + 4x_2^2 - 4) = 0
+	\end{cases}
+	\]
+	
+	Espandiamo la prima equazione vettoriale nelle sue due componenti ($x_1$ e $x_2$), ottenendo il sistema completo a 4 incognite:
+	\[
+	\begin{cases}
+		2x_1 - \lambda_1 + 2\lambda_2 x_1 = 0 \quad &\text{(Stazionarietà rispetto a } x_1 \text{)} \\
+		-1 - \lambda_1 + 8\lambda_2 x_2 = 0 \quad &\text{(Stazionarietà rispetto a } x_2 \text{)} \\
+		\lambda_1 (-x_1 - x_2) = 0 \quad &\text{(Scarto compl. per } g_1 \text{)} \\
+		\lambda_2 (x_1^2 + 4x_2^2 - 4) = 0 \quad &\text{(Scarto compl. per } g_2 \text{)}
+	\end{cases}
+	\]
+	Questo è il cuore algebrico dell'algoritmo. 
+	
+	\vspace{0.4cm}
+	\textbf{Passo 3: Risoluzione del Sistema e Ricerca dei Moltiplicatori}\\
+	All'esame, la risoluzione bruta di questo sistema per tentare tutte le combinazioni di $\lambda = 0$ o $\neq 0$ porta via troppo tempo. Per questo motivo, il professore fornirà direttamente le coordinate dei punti candidati $\bar{x}$, e il nostro compito sarà inserire queste coordinate nel sistema (ora diventato lineare) per ricavare i relativi moltiplicatori $\bar{\lambda}$ ed esaminarli.
+	
+	Eseguiamo i calcoli per la prima coppia di candidati fornita dal docente per dimostrare il procedimento:
+	
+	\textbf{Punto 1: $\mathbf{\bar{x} = (0, 1)}$}\\
+	Sostituendo $x_1 = 0$ e $x_2 = 1$ nel sistema LKKT:
+	\[
+	\begin{cases}
+		0 - \lambda_1 + 0 = 0 \implies \mathbf{\lambda_1 = 0} \\
+		-1 - \lambda_1 + 8\lambda_2(1) = 0 \implies -1 - 0 + 8\lambda_2 = 0 \implies 8\lambda_2 = 1 \implies \mathbf{\lambda_2 = 1/8}
+	\end{cases}
+	\]
+	I moltiplicatori associati sono $\bar{\lambda} = (0, 1/8)$.
+	
+	\textbf{Punto 2: $\mathbf{\bar{x} = (0, -1)}$}\\
+	Sostituendo $x_1 = 0$ e $x_2 = -1$ nel sistema:
+	\[
+	\begin{cases}
+		0 - \lambda_1 + 0 = 0 \implies \mathbf{\lambda_1 = 0} \\
+		-1 - \lambda_1 + 8\lambda_2(-1) = 0 \implies -1 - 0 - 8\lambda_2 = 0 \implies -8\lambda_2 = 1 \implies \mathbf{\lambda_2 = -1/8}
+	\end{cases}
+	\]
+	I moltiplicatori associati sono $\bar{\lambda} = (0, -1/8)$.
+	
+	Applicando questo medesimo principio di sostituzione matematica per tutti gli altri candidati forniti dal docente, si ottengono le seguenti coppie complete $(\bar{x} \implies \bar{\lambda})$:
+	\begin{itemize}
+		\item $\mathbf{\bar{x}_3} = \left(-1, \ \frac{\sqrt{3}}{2}\right) \implies \mathbf{\bar{\lambda}_3} = \left(\frac{-2 - \sqrt{3}}{6}, \ \frac{\sqrt{3}}{12}\right)$
+		\item $\mathbf{\bar{x}_4} = \left(-1, \ -\frac{\sqrt{3}}{2}\right) \implies \mathbf{\bar{\lambda}_4} = \left(\frac{-2 + \sqrt{3}}{6}, \ -\frac{\sqrt{3}}{12}\right)$
+		\item $\mathbf{\bar{x}_5} = \left(\frac{\sqrt{63}}{4}, \ -\frac{1}{8}\right) \implies \mathbf{\bar{\lambda}_5} = \left(0, \ -1\right)$
+	\end{itemize}
+	
+	I corrispondenti valori della funzione obiettivo $f(x) = x_1^2 - x_2$ valutata in questi punti sono:
+	\begin{itemize}
+		\item $f(\bar{x}_1) = 0^2 - 1 = \mathbf{-1}$
+		\item $f(\bar{x}_2) = 0^2 - (-1) = \mathbf{1}$
+		\item $f(\bar{x}_3) = (-1)^2 - \frac{\sqrt{3}}{2} = \mathbf{1 - \frac{\sqrt{3}}{2}} \approx 0.134$
+		\item $f(\bar{x}_4) = (-1)^2 - \left(-\frac{\sqrt{3}}{2}\right) = \mathbf{1 + \frac{\sqrt{3}}{2}} \approx 1.866$
+		\item $f(\bar{x}_5) = \left(\frac{\sqrt{63}}{4}\right)^2 - \left(-\frac{1}{8}\right) = \frac{63}{16} + \frac{2}{16} = \mathbf{\frac{65}{16}} \approx 4.062$
+	\end{itemize}
+	
+	\vspace{0.4cm}
+	\textbf{Passo 4: Compilazione della Tabella LKKT}\\
+	Per presentare organicamente i risultati all'esame, il professore esige la stesura di una tabella riassuntiva. La classificazione si basa sulle regole dei segni dei moltiplicatori dettate a inizio lezione.
+	
+	\begin{table}[H]
+		\centering
+		\renewcommand{\arraystretch}{1.5}
+		\resizebox{\textwidth}{!}{
+			\begin{tabular}{|c|c|c|c|c|c|c|c|c|p{4.5cm}|}
+				\hline
+				\textbf{N.} & \textbf{$\boldsymbol{f(\bar{x})}$} & \textbf{$\boldsymbol{\bar{x}}$} & \textbf{$\boldsymbol{\bar{\lambda}}$} & \textbf{Min Loc} & \textbf{Min Glob} & \textbf{Max Loc} & \textbf{Max Glob} & \textbf{Sella} & \textbf{Motivazioni} \\ \hline
+				\textbf{1} & $-1$ & $(0, 1)$ & $(0, \ 1/8)$ & \textcolor{green!60!black}{\textbf{Sì}} & \textcolor{green!60!black}{\textbf{Sì}} & No & No & No & Funzione obiettivo al valore più basso assoluto tra i candidati LKKT \\ \hline
+				\textbf{2} & $1$ & $(0, -1)$ & $(0, \ -1/8)$ & No & No & \textbf{?} & No & \textbf{?} & Entrambi i $\bar{\lambda} \le 0$: sicuramente non minimo, ma info insufficienti per sella o max loc \\ \hline
+				\textbf{3} & $1 - \frac{\sqrt{3}}{2}$ & $\left(-1, \ \frac{\sqrt{3}}{2}\right)$ & $\left(\frac{-2 - \sqrt{3}}{6}, \ \frac{\sqrt{3}}{12}\right)$ & No & No & No & No & \textcolor{orange}{\textbf{Sì}} & I moltiplicatori $\bar{\lambda}$ sono discordi di segno (uno negativo, uno positivo) \\ \hline
+				\textbf{4} & $1 + \frac{\sqrt{3}}{2}$ & $\left(-1, \ -\frac{\sqrt{3}}{2}\right)$ & $\left(\frac{-2 + \sqrt{3}}{6}, \ -\frac{\sqrt{3}}{12}\right)$ & No & No & \textbf{?} & No & \textbf{?} & Entrambi i $\bar{\lambda} \le 0$: sicuramente non minimo, ma info insufficienti \\ \hline
+				\textbf{5} & $\frac{65}{16}$ & $\left(\frac{\sqrt{63}}{4}, \ -\frac{1}{8}\right)$ & $(0, \ -1)$ & No & No & \textcolor{blue}{\textbf{Sì}} & \textcolor{blue}{\textbf{Sì}} & No & Funzione obiettivo al valore più alto assoluto tra i candidati LKKT \\ \hline
+			\end{tabular}
+		}
+	\end{table}
+	
+	\vspace{0.6cm}
+	\separatore
+	\vspace{0.4cm}
+	
+	\textbf{Esercitazione 2}\\[0.2cm]
+	Consideriamo un nuovo sistema di ottimizzazione:
+	\[
+	\begin{cases}
+		f(x) = x_1^2 - x_2^2 \\
+		g(x) = 2x_1^2 + 3x_2^2 - 1 \le 0
+	\end{cases}
+	\]
+	
+	\textbf{Passo 1: Calcolo dei Gradienti}\\
+	\begin{itemize}
+		\item $\nabla f(x) = \begin{pmatrix} 2x_1, \quad -2x_2 \end{pmatrix}$
+		\item $\nabla g(x) = \begin{pmatrix} 4x_1, \quad 6x_2 \end{pmatrix}$
+	\end{itemize}
+	
+	\textbf{Passo 2: Risoluzione del Sistema e Valutazione dei Candidati}\\
+	Avendo un solo vincolo, ci sarà un solo moltiplicatore $\lambda$. Inserendo le soluzioni $\bar{x}$ fornite dal docente all'interno dell'equazione LKKT ($\nabla f(\bar{x}) + \lambda \nabla g(\bar{x}) = \mathbf{0}$), ricaviamo i rispettivi moltiplicatori e la funzione obiettivo:
+	
+	\begin{enumerate}
+		\item $\mathbf{\bar{x}_1} = \left(0, \ \frac{\sqrt{3}}{3}\right) \implies \lambda_1 = \mathbf{1/3}$. Valore: $f(\bar{x}_1) = 0 - \frac{3}{9} = \mathbf{-1/3}$
+		\item $\mathbf{\bar{x}_2} = \left(0, \ -\frac{\sqrt{3}}{3}\right) \implies \lambda_2 = \mathbf{1/3}$. Valore: $f(\bar{x}_2) = 0 - \frac{3}{9} = \mathbf{-1/3}$
+		\item $\mathbf{\bar{x}_3} = \left(0, \ 0\right) \implies \lambda_3 = \mathbf{0}$. Valore: $f(\bar{x}_3) = \mathbf{0}$
+		\item $\mathbf{\bar{x}_4} = \left(-\frac{\sqrt{2}}{2}, \ 0\right) \implies \lambda_4 = \mathbf{-1/2}$. Valore: $f(\bar{x}_4) = \frac{2}{4} - 0 = \mathbf{1/2}$
+		\item $\mathbf{\bar{x}_5} = \left(\frac{\sqrt{2}}{2}, \ 0\right) \implies \lambda_5 = \mathbf{-1/2}$. Valore: $f(\bar{x}_5) = \frac{2}{4} - 0 = \mathbf{1/2}$
+	\end{enumerate}
+	
+	\textbf{Passo 3: Compilazione della Tabella LKKT}\\
+	Trattandosi di un problema di Minimo, cerchiamo $\lambda \ge 0$. Notiamo subito un'anomalia per il candidato 3 ($\bar{x}=(0,0)$): si tratta di un punto strettamente interno al dominio (il vincolo $2(0) + 3(0) - 1 = -1 \le 0$ non è all'uguaglianza). Per la regola dello scarto complementare, il suo $\lambda$ deve annullarsi, impedendo a LKKT di certificarlo (le valutazioni avverranno per scomposizione geometrica o matriciale).
+	
+	\begin{table}[H]
+		\centering
+		\renewcommand{\arraystretch}{1.5}
+		\resizebox{\textwidth}{!}{
+			\begin{tabular}{|c|c|c|c|c|c|c|c|c|p{4.5cm}|}
+				\hline
+				\textbf{N.} & \textbf{$\boldsymbol{f(\bar{x})}$} & \textbf{$\boldsymbol{\bar{x}}$} & \textbf{$\boldsymbol{\lambda}$} & \textbf{Min Loc} & \textbf{Min Glob} & \textbf{Max Loc} & \textbf{Max Glob} & \textbf{Sella} & \textbf{Motivazioni} \\ \hline
+				\textbf{1} & $-1/3$ & $\left(0, \ \frac{\sqrt{3}}{3}\right)$ & $1/3$ & \textcolor{green!60!black}{\textbf{Sì}} & \textcolor{green!60!black}{\textbf{Sì}} & No & No & No & Moltiplicatore concorde ($\lambda \ge 0$) e $f(\bar{x})$ assume il valore assoluto più basso \\ \hline
+				\textbf{2} & $-1/3$ & $\left(0, \ -\frac{\sqrt{3}}{3}\right)$ & $1/3$ & \textcolor{green!60!black}{\textbf{Sì}} & \textcolor{green!60!black}{\textbf{Sì}} & No & No & No & Moltiplicatore concorde ($\lambda \ge 0$) e $f(\bar{x})$ assume il valore assoluto più basso (parimerito) \\ \hline
+				\textbf{3} & $0$ & $(0, 0)$ & $0$ & No & No & No & No & \textcolor{orange}{\textbf{Sì}} & Punto interno al dominio ($\lambda=0$). La funzione $x_1^2 - x_2^2$ nell'origine forma strutturalmente una sella \\ \hline
+				\textbf{4} & $1/2$ & $\left(-\frac{\sqrt{2}}{2}, \ 0\right)$ & $-1/2$ & No & No & \textcolor{blue}{\textbf{Sì}} & \textcolor{blue}{\textbf{Sì}} & No & Moltiplicatore negativo ($\lambda \le 0$) per un min $\implies$ è un max. Valore assoluto più alto \\ \hline
+				\textbf{5} & $1/2$ & $\left(\frac{\sqrt{2}}{2}, \ 0\right)$ & $-1/2$ & No & No & \textcolor{blue}{\textbf{Sì}} & \textcolor{blue}{\textbf{Sì}} & No & Moltiplicatore negativo ($\lambda \le 0$) per un min $\implies$ è un max. Valore assoluto più alto (parimerito) \\ \hline
+			\end{tabular}
+		}
+	\end{table}
+	
+	\vspace{1.5cm}
+	\begin{center}
+		\rule{0.65\textwidth}{1pt} \\
+		\vspace{0.4cm}
+		\textcolor{titlecolor}{\LARGE \textbf{--- Fine Lezione 35 ---}} \\
+		\vspace{0.2cm}
+		\rule{0.65\textwidth}{1pt}
+	\end{center}
+	\newpage
+	
+	\avviso{\textit{\textbf{Questa lezione, come le sue precedenti e successive, può contenere errori e/o imprecisioni. Per il bene di tutti, è buona norma far notare all'autore l'errore o l'imprecisione così da risolvere nel minor tempo possibile. I canali di comunicazione, per eventuali avvisi generali o di errori trovati negli appunti, sono in cima al file. Grazie per la collaborazione e Buono studio!}}}
+	
+	\section*{Lezione 36 | 25 novembre 2026}
 	\subsection*{}
 	
 \end{document}

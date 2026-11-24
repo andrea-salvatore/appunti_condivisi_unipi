@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.11.17)  23 NOV 2026 18:48
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.11.17)  24 NOV 2026 19:43
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1208,7 +1208,65 @@ phics
 Package pgfplots info on input line 14172: Setting layers 'axis background,axis
  grid,axis ticks,axis lines,axis tick labels,pre main,main,axis descriptions,ax
 is foreground'...
- [304] [305] [306] (./Ricerca Operativa LaTex.aux)
+ [304] [305] [306] [307] [308]
+Underfull \hbox (badness 1325) in paragraph at lines 14344--14346
+\T1/cmr/m/n/12 (+20) Inseriamo i gra-dien-ti nel-l'e-qua-zio-ne di sta-zio-na-r
+ie-tà La-gran-gia-na (ag-giun-gen-do i due
+ []
+
+[309]
+Underfull \hbox (badness 10000) in paragraph at lines 14424--14424
+[]|\T1/cmr/m/n/12 (+20) Funzione obiet-ti-vo al
+ []
+
+
+Underfull \hbox (badness 4229) in paragraph at lines 14424--14424
+[]|\T1/cmr/m/n/12 (+20) Entrambi i $[] \OMS/cmsy/m/n/12 ^^T \OT1/cmr/m/n/12 (+2
+0) 0$\T1/cmr/m/n/12 (+20) :
+ []
+
+
+Underfull \hbox (badness 1077) in paragraph at lines 14424--14424
+\T1/cmr/m/n/12 (+20) di-scor-di di se-gno (uno
+ []
+
+
+Underfull \hbox (badness 4229) in paragraph at lines 14424--14424
+[]|\T1/cmr/m/n/12 (+20) Entrambi i $[] \OMS/cmsy/m/n/12 ^^T \OT1/cmr/m/n/12 (+2
+0) 0$\T1/cmr/m/n/12 (+20) :
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 14424--14424
+[]|\T1/cmr/m/n/12 (+20) Funzione obiet-ti-vo al
+ []
+
+[310]
+Underfull \hbox (badness 10000) in paragraph at lines 14440--14442
+
+ []
+
+
+Underfull \hbox (badness 1325) in paragraph at lines 14473--14473
+[]|\T1/cmr/m/n/12 (+20) Moltiplicatore con-cor-de
+ []
+
+
+Underfull \hbox (badness 1325) in paragraph at lines 14473--14473
+[]|\T1/cmr/m/n/12 (+20) Moltiplicatore con-cor-de
+ []
+
+
+Underfull \hbox (badness 3872) in paragraph at lines 14473--14473
+[]|\T1/cmr/m/n/12 (+20) Moltiplicatore ne-ga-ti-vo
+ []
+
+
+Underfull \hbox (badness 3872) in paragraph at lines 14473--14473
+[]|\T1/cmr/m/n/12 (+20) Moltiplicatore ne-ga-ti-vo
+ []
+
+[311] [312] [313] (./Ricerca Operativa LaTex.aux)
  ***********
 LaTeX2e <2025-11-01>
 L3 programming layer <2026-03-20>
@@ -1218,10 +1276,10 @@ ed.
 (rerunfilecheck)             Checksum: D41D8CD98F00B204E9800998ECF8427E;0.
  ) 
 Here is how much of TeX's memory you used:
- 42010 strings out of 467363
- 931936 string characters out of 5419000
+ 42032 strings out of 467363
+ 932173 string characters out of 5419000
  1485965 words of memory out of 6000000
- 69143 multiletter control sequences out of 15000+600000
+ 69147 multiletter control sequences out of 15000+600000
  689467 words of font info for 463 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  84i,17n,94p,1155b,2356s stack positions out of 10000i,1000n,20000p,200000b,200000s
@@ -1265,10 +1323,10 @@ sr/share/texlive/texmf-dist/fonts/type1/public/cm-super/sfti1000.pfb></usr/shar
 e/texlive/texmf-dist/fonts/type1/public/cm-super/sfti1095.pfb></usr/share/texli
 ve/texmf-dist/fonts/type1/public/cm-super/sfti1200.pfb></usr/share/texlive/texm
 f-dist/fonts/type1/public/cm-super/sftt1200.pfb>
-Output written on "Ricerca Operativa LaTex.pdf" (306 pages, 1854519 bytes).
+Output written on "Ricerca Operativa LaTex.pdf" (313 pages, 1880525 bytes).
 PDF statistics:
- 2039 PDF objects out of 2073 (max. 8388607)
- 1623 compressed objects within 17 object streams
- 666 named destinations out of 1000 (max. 500000)
+ 2083 PDF objects out of 2487 (max. 8388607)
+ 1660 compressed objects within 17 object streams
+ 684 named destinations out of 1000 (max. 500000)
  101906 words of extra memory for PDF output out of 106986 (max. 10000000)
 
