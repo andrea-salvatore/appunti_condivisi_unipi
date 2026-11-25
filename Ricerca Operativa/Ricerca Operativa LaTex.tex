@@ -14221,7 +14221,7 @@
 		\begin{tikzpicture}
 			% Cerchio più grande (Condizione Necessaria)
 			\draw[thick, fill=blue!10] (0,0) circle (3cm);
-			\node[above, font=\bfseries] at (0, 2.3) {C.N.};
+			\node[above, font=\bfseries] at (0, 2.3) {C. N.};
 			\node[above, font=\footnotesize] at (0, 1.8) {};
 			
 			% Cerchio intermedio (Minimo Locale)
@@ -14230,10 +14230,10 @@
 			
 			% Cerchio più piccolo (Condizione Sufficiente)
 			\draw[thick, fill=orange!30] (0,-0.8) circle (1cm);
-			\node[align=center, font=\bfseries\small] at (0, -0.6) {C.S.};
+			\node[align=center, font=\bfseries\small] at (0, -0.6) {C. S.};
 			\node[align=center, font=\footnotesize] at (0, -1.2) {};
 		\end{tikzpicture}
-		\caption{Rappresentazione a matrioska delle condizioni di ottimalità. L'insieme delle Condizioni Sufficienti (C.S.) è strettamente contenuto nell'insieme dei Minimi Locali (mL), il quale a sua volta è strettamente contenuto nell'insieme delineato dalle Condizioni Necessarie (C.N.).}
+		\caption{Rappresentazione a matrioska delle condizioni di ottimalità. L'insieme delle Condizioni Sufficienti (C. S.) è strettamente contenuto nell'insieme dei Minimi Locali (mL), il quale a sua volta è strettamente contenuto nell'insieme delineato dalle Condizioni Necessarie (C. N.).}
 	\end{figure}
 	
 	Matematicamente, per la ricerca di un minimo locale $\bar{x}$, le due condizioni si traducono nei seguenti sistemi:
@@ -14486,6 +14486,313 @@
 	\avviso{\textit{\textbf{Questa lezione, come le sue precedenti e successive, può contenere errori e/o imprecisioni. Per il bene di tutti, è buona norma far notare all'autore l'errore o l'imprecisione così da risolvere nel minor tempo possibile. I canali di comunicazione, per eventuali avvisi generali o di errori trovati negli appunti, sono in cima al file. Grazie per la collaborazione e Buono studio!}}}
 	
 	\section*{Lezione 36 | 25 novembre 2026}
+	\subsection*{Problema Convesso}
+	
+	Quando ci troviamo di fronte a una funzione obiettivo convessa definita all'interno di un dominio anch'esso convesso, stiamo affrontando quello che in Ottimizzazione viene definito il \textbf{Problema Convesso}.
+	
+	Partiamo da un caso semplificato: ipotizziamo di cercare il minimo di una funzione libera (senza vincoli) $f : \mathbb{R}^n \to \mathbb{R}$.
+	Se sappiamo che la funzione è convessa, l'annullamento del gradiente ($\nabla f(\bar{x}) = \mathbf{0}$) ci garantisce immediatamente che il punto $\bar{x}$ è un \textbf{minimo globale}. 
+	Ma come si relazionano gradiente e matrice Hessiana in questo contesto?
+	\begin{itemize}
+		\item Il \textbf{gradiente} indica la direzione di massima pendenza. Se esso si annulla in $\bar{x}$, questa è la \textbf{Condizione Necessaria} affinché il punto possa essere considerato un minimo (senza l'annullamento del gradiente, è matematicamente impossibile che sia un minimo o un massimo).
+		\item La \textbf{matrice Hessiana} ci dà informazioni sulla curvatura. Se $H_f(\bar{x}) \ge 0$ (semidefinita positiva), questa è una \textbf{Condizione Necessaria} di secondo ordine per il minimo. Se invece $H_f(\bar{x}) > 0$ (definita positiva, strettamente maggiore di zero), allora abbiamo la \textbf{Condizione Sufficiente} per affermare con certezza assoluta che $\bar{x}$ è un minimo locale (che diventerà globale se la funzione è globalmente convessa).
+	\end{itemize}
+	
+	Analogamente, se cerchiamo il massimo di una funzione libera e sappiamo che essa è \textbf{concava}:
+	\begin{itemize}
+		\item L'annullamento del gradiente ($\nabla f(\bar{x}) = \mathbf{0}$) è la \textbf{Condizione Necessaria}. Se si annulla in una funzione concava, $\bar{x}$ diventa automaticamente un \textbf{massimo globale}.
+		\item A livello di Hessiana: se $H_f(\bar{x}) \le 0$ (semidefinita negativa), è \textbf{Condizione Necessaria}. Se $H_f(\bar{x}) < 0$ (definita negativa), è \textbf{Condizione Sufficiente} per garantire che sia un massimo.
+	\end{itemize}
+	
+	Per chiarire questo concetto, riprendiamo il grafico a "matrioska". La Condizione Sufficiente ci dà l'assoluta certezza di essere in un punto di ottimo, ma è un insieme molto restrittivo. La Condizione Necessaria è un insieme più ampio: tutti gli ottimi devono rispettarla, ma non tutto ciò che la rispetta è un ottimo (potrebbe essere una sella).
+	
+	\begin{figure}[H]
+		\centering
+		\begin{tikzpicture}
+			% Cerchio più grande (Condizione Necessaria)
+			\draw[thick, fill=blue!10] (0,0) circle (3cm);
+			\node[above, font=\bfseries] at (0, 2.3) {C. N.};
+			\node[above, font=\footnotesize] at (0, 1.8) {};
+			
+			% Cerchio intermedio (Ottimo Locale)
+			\draw[thick, fill=green!20] (0,-0.3) circle (2cm);
+			\node[above, font=\bfseries] at (0, 0.5) {Ottimo Locale};
+			
+			% Cerchio più piccolo (Condizione Sufficiente)
+			\draw[thick, fill=orange!30] (0,-0.8) circle (1cm);
+			\node[align=center, font=\bfseries\small] at (0, -0.6) {C. S.};
+			\node[align=center, font=\footnotesize] at (0, -1.2) {};
+		\end{tikzpicture}
+		\caption{Relazione insiemistica tra le condizioni di ottimalità. I punti che soddisfano la condizione sufficiente sono sicuramente ottimi locali. Tutti gli ottimi locali devono obbligatoriamente cadere nell'insieme della condizione necessaria. I punti nella fascia azzurra esterna (che soddisfano la necessaria ma non sono ottimi) rappresentano i punti di sella.}
+	\end{figure}
+	
+	\vspace{0.6cm}
+	\separatore
+	\vspace{0.4cm}
+	
+	\textbf{Il Caso Vincolato e la Funzione Lagrangiana}\\[0.2cm]
+	Cosa accade quando passiamo al caso vincolato, ovvero quando cerchiamo l'ottimo di una funzione soggetta a un dominio $D$ chiuso e qualificato?
+	In questo scenario dobbiamo introdurre la \textbf{Funzione Lagrangiana}, definita formalmente come:
+	\[
+	\mathcal{L}(x, \lambda, \mu) \triangleq f(x) + \sum_{i=1}^{m} \lambda_i g_i(x) + \sum_{j=1}^{p} \mu_j h_j(x)
+	\]
+	dove $\mathcal{L} : \mathbb{R}^n \to \mathbb{R}$.
+	
+	Questa funzione unisce la funzione obiettivo originaria e i vincoli, "pesati" dai rispettivi moltiplicatori. Notiamo subito una corrispondenza operativa diretta con il sistema LKKT visto precedentemente. Infatti, se calcoliamo il gradiente della Lagrangiana rispetto alle sole variabili $x$, otteniamo esattamente la prima equazione del teorema LKKT:
+	\[
+	\nabla_x \mathcal{L}(x, \lambda, \mu) = \nabla f(x) + \sum_{i=1}^{m} \lambda_i \nabla g_i(x) + \sum_{j=1}^{p} \mu_j \nabla h_j(x)
+	\]
+	L'annullamento di questo gradiente ($\nabla_x \mathcal{L} = \mathbf{0}$) rappresenta la condizione necessaria di stazionarietà per il problema vincolato. Lo studio della matrice Hessiana della Lagrangiana ($\nabla_{xx}^2 \mathcal{L}$) verrà affrontato più avanti per definire le condizioni sufficienti.
+	
+	\vspace{0.4cm}
+	\textbf{I Teoremi di Ottimalità Globale per Problemi Convessi}\\
+	Unendo la potenza della convessità al sistema LKKT, otteniamo due teoremi fondamentali che ci permettono di identificare i \textbf{minimi e massimi globali} senza margine di errore.
+	
+	\textbf{Teorema 1 (Per il Minimo Globale):}\\
+	Sia $(P)$ un problema convesso definito come:
+	\[
+	\begin{cases}
+		\min \quad f(x) \\
+		g_i(x) \le 0 \quad \forall i=1,\dots,m \\
+		h_j(x) = 0 \quad \forall j=1,\dots,p
+	\end{cases}
+	\]
+	Affinché l'intero problema sia convesso, ricordiamo la regola: $f(x)$ deve essere convessa ($H_f(x) \ge 0$), i vincoli di disuguaglianza $g_i(x)$ devono essere convessi e i vincoli di uguaglianza $h_j(x)$ devono essere strettamente lineari.
+	\textit{Se $\bar{x}$ risolve il sistema LKKT con i moltiplicatori delle disuguaglianze $\bar{\lambda} \ge 0$, allora $\bar{x}$ è matematicamente un \textbf{Minimo Globale}.}
+	
+	\textbf{Teorema 1 Bis (Per il Massimo Globale):}\\
+	Cosa succede se la funzione è concava e cerchiamo il massimo? Il teorema si adatta di conseguenza:
+	\[
+	\begin{cases}
+		\max \quad f(x) \\
+		g_i(x) \le 0 \\
+		h_j(x) = 0
+	\end{cases}
+	\]
+	\textit{Se $\bar{x}$ risolve il sistema LKKT con i moltiplicatori delle disuguaglianze $\bar{\lambda} \le 0$, allora $\bar{x}$ è matematicamente un \textbf{Massimo Globale}.}
+	La differenza cruciale risiede nel segno dei moltiplicatori $\bar{\lambda}$: positivi (o nulli) confermano il minimo, negativi (o nulli) confermano il massimo.
+	
+	\textbf{Teorema dei Vertici (Funzione Concava su Poliedro):}\\
+	Se stiamo cercando il \textbf{minimo} di una funzione \textbf{concava} e il dominio $D$ è un \textbf{poliedro limitato}, vale un teorema analogo a quelli della Programmazione Lineare: \textit{la soluzione ottima, se esiste, è su un vertice}. 
+	Geometricamente, poiché una funzione concava assume la forma di una "U" rovesciata, il suo punto più alto (il massimo) si trova sulla cima, ma i suoi punti più bassi (i minimi) scivolano inevitabilmente verso i bordi estremi del dominio. Se il dominio è poliedrico, il minimo andrà a schiantarsi esattamente suoi bordi della funzione.
+	
+	\vspace{0.6cm}
+	\separatore
+	\vspace{0.4cm}
+	
+	\textbf{Esercizio 1: Risoluzione, Analisi e Restrizioni}\\[0.2cm]
+	Si consideri il seguente problema di ottimizzazione:
+	\[
+	\begin{cases}
+		\min \quad f(x) = x_1^2 + x_2^2 \\[6pt]
+		g(x) = x_1 - x_2^2 - 1 \le 0
+	\end{cases}
+	\]
+	
+	Il problema è coercivo? Sì, valutando $\lim_{\Vert x \Vert \to \infty} (x_1^2 + x_2^2) = +\infty$, la funzione obiettivo è chiaramente coerciva, il che ci garantisce a priori l'esistenza di un \textbf{minimo globale}.
+	
+	Calcoliamo i gradienti esprimendoli come vettori riga:
+	\begin{itemize}
+		\item $\nabla f(x) = \begin{pmatrix} 2x_1, \quad 2x_2 \end{pmatrix}$
+		\item $\nabla g(x) = \begin{pmatrix} 1, \quad -2x_2 \end{pmatrix}$
+	\end{itemize}
+	
+	Costruiamo il \textbf{Sistema LKKT}:
+	\[
+	\begin{cases}
+		\begin{pmatrix} 2x_1, \quad 2x_2 \end{pmatrix} + \bar{\lambda} \begin{pmatrix} 1, \quad -2x_2 \end{pmatrix} = \mathbf{0} \\[6pt]
+		\bar{\lambda} (x_1 - x_2^2 - 1) = 0
+	\end{cases}
+	\]
+	Da cui derivano le equazioni:
+	\[
+	\begin{cases}
+		2x_1 + \bar{\lambda} = 0 \\
+		2x_2 - 2\bar{\lambda} x_2 = 0 \\
+		\bar{\lambda} (x_1 - x_2^2 - 1) = 0
+	\end{cases}
+	\]
+	
+	\textbf{Valutazione delle Soluzioni Assegnate}\\
+	Il professore ci fornisce due soluzioni candidate $\bar{x}$. Troviamo i rispettivi $\bar{\lambda}$ inserendole nel sistema:
+	
+	\begin{enumerate}
+		\item $\mathbf{\bar{x}_1 = (0,0)}$: Sostituendo nella prima equazione otteniamo $2(0) + \bar{\lambda} = 0 \implies \mathbf{\bar{\lambda}_1 = 0}$. 
+		\item $\mathbf{\bar{x}_2 = (1,0)}$: Sostituendo nella prima equazione otteniamo $2(1) + \bar{\lambda} = 0 \implies \mathbf{\bar{\lambda}_2 = -2}$.
+	\end{enumerate}
+	
+	\textbf{Analisi Geometrica e Restrizioni}\\
+	Per comprendere visivamente perché il punto $(1,0)$ con $\bar{\lambda} = -2$ generi una sella, studiamo le restrizioni della funzione passanti per quel punto.
+	
+	\begin{figure}[H]
+		\centering
+		\begin{tikzpicture}
+			\begin{axis}[
+				width=8cm, height=8cm,
+				axis lines=middle,
+				xmin=-1, xmax=3, ymin=-2, ymax=2,
+				xlabel={$x_1$}, ylabel={$x_2$},
+				axis on top,
+				samples=100
+				]
+				% Dominio x1 <= x2^2 + 1
+				% Disegnamo l'area ammissibile (a sinistra della parabola)
+				\fill[blue!10] (-1,-2) rectangle (3,2);
+				\clip plot[domain=-2:2, variable=\t] ({\t^2 + 1}, {\t}) -- (3,2) -- (3,-2) -- cycle;
+				\fill[white] (-1,-2) rectangle (3,2);
+			\end{axis}
+			% Ridisegnamo gli assi e i bordi
+			\begin{axis}[
+				width=8cm, height=8cm,
+				axis lines=middle,
+				xmin=-1, xmax=3, ymin=-2, ymax=2,
+				xlabel={$x_1$}, ylabel={$x_2$},
+				axis on top,
+				samples=100
+				]
+				% Bordo del dominio
+				\addplot[thick, blue, domain=-2:2, variable=t] ({t^2 + 1}, {t});
+				
+				% Punti candidati
+				\filldraw[black] (0,0) circle (2pt) node[below right] {$(0,0)$};
+				\filldraw[red] (1,0) circle (2pt) node[below right] {$(1,0)$};
+				
+				\node[font=\bfseries] at (0.5, 1.5) {$D$};
+			\end{axis}
+		\end{tikzpicture}
+		\caption{Il dominio $D$ è la parte azzurra a sinistra della parabola $x_1 = x_2^2 + 1$. Il punto $(0,0)$ è interno al dominio (da cui $\bar{\lambda} = 0$), mentre il punto $(1,0)$ risiede esattamente sul bordo (vincolo attivo).}
+	\end{figure}
+	
+	Imponiamo due \textbf{restrizioni} sul punto di frontiera $(1,0)$:
+	1. \textbf{Lungo l'asse orizzontale:} Fissiamo $x_2 = 0$ e poniamo $x_1 = t$. Sostituendo nel vincolo abbiamo $t - 0 - 1 \le 0 \implies t \le 1$. La funzione obiettivo ristretta diventa $\phi(t) = t^2 + 0 = t^2$. Su questo segmento (che arriva fino a $t=1$), il valore massimo assunto dalla parabola è proprio in $t=1$ (ovvero nel punto $(1,0)$). Quindi lungo questa restrizione orizzontale, il punto funge da \textbf{Massimo Locale}.
+	
+	2. \textbf{Lungo il bordo verticale:} Fissiamo $x_1 = 1$ e poniamo $x_2 = t$. Sostituendo nel vincolo abbiamo $1 - t^2 - 1 \le 0 \implies -t^2 \le 0$, che è vero per ogni $t \in \mathbb{R}$. La funzione obiettivo ristretta diventa $\phi(t) = 1 + t^2$. Si tratta di una parabola convessa il cui punto più basso (vertice) risiede in $t=0$, ovvero nel punto $(1,0)$. Lungo questa restrizione, il punto funge da \textbf{Minimo Globale}.
+	
+	\begin{figure}[H]
+		\centering
+		\begin{minipage}{0.45\textwidth}
+			\centering
+			\begin{tikzpicture}[scale=1]
+				\draw[->] (-2,0) -- (2,0) node[right] {$t$};
+				\draw[->] (0,-0.5) -- (0,3) node[above] {$\phi(t)$};
+				\draw[thick, blue, domain=-1.5:1, samples=50] plot (\x, {\x*\x});
+				\draw[dashed, red] (1,0) -- (1,1);
+				\filldraw[red] (1,1) circle (2pt);
+				\node[below] at (1,0) {$1$};
+			\end{tikzpicture}
+			\caption*{Restrizione 1: $\phi(t) = t^2$ per $t \le 1$. In $t=1$ c'è un taglio della funzione e si forma un \textbf{massimo}.}
+		\end{minipage}
+		\hfill
+		\begin{minipage}{0.45\textwidth}
+			\centering
+			\begin{tikzpicture}[scale=1]
+				\draw[->] (-2,0) -- (2,0) node[right] {$t$};
+				\draw[->] (0,-0.5) -- (0,3) node[above] {$\phi(t)$};
+				\draw[thick, blue, domain=-1.4:1.4, samples=50] plot (\x, {1 + \x*\x});
+				\filldraw[red] (0,1) circle (2pt);
+				\node[below left] at (0,1) {$1$};
+			\end{tikzpicture}
+			\caption*{Restrizione 2: $\phi(t) = 1 + t^2$ per ogni $t$. In $t=0$ c'è il vertice inferiore, ovvero un \textbf{minimo}.}
+		\end{minipage}
+	\end{figure}
+	
+	Essendo un minimo lungo una restrizione e un massimo lungo l'altra, il punto $(1,0)$ è inequivocabilmente una \textbf{Sella}. 
+	
+	\textbf{Tabella Conclusiva (Esercizio 1)}
+	\begin{table}[H]
+		\centering
+		\small
+		\renewcommand{\arraystretch}{1.5}
+		\begin{tabular}{|c|c|c|c|c|c|c|p{5.5cm}|}
+			\hline
+			\textbf{$\boldsymbol{\bar{x}}$} & \textbf{$\boldsymbol{\bar{\lambda}}$} & \textbf{Min Loc} & \textbf{Min Glob} & \textbf{Max Loc} & \textbf{Max Glob} & \textbf{Sella} & \textbf{Motivazioni} \\ \hline
+			$(0, 0)$ & $0$ & \textcolor{green!60!black}{\textbf{Sì}} & \textcolor{green!60!black}{\textbf{Sì}} & No & No & No & Punto interno ($\lambda=0$). La funzione $x_1^2+x_2^2$ è un paraboloide convesso con minimo globale assoluto in zero. \\ \hline
+			$(1, 0)$ & $-2$ & No & No & No & No & \textcolor{orange}{\textbf{Sì}} & Moltiplicatore negativo in un problema di minimo $\implies$ impossibile sia min. Essendo min su una restrizione e max su un'altra, è sella. \\ \hline
+		\end{tabular}
+	\end{table}
+	
+	\vspace{0.6cm}
+	\separatore
+	\vspace{0.4cm}
+	
+	\textbf{Esercizio 2: Problema Totalmente Concavo}\\[0.2cm]
+	Consideriamo il seguente sistema matematico da massimizzare:
+	\[
+	\begin{cases}
+		\max \quad f(x) = -3x_1^2 - 3x_2^2 + 4x_1x_2 \\[6pt]
+		g_1(x) = x_1^2 + x_2^2 - 4 \le 0 \\
+		g_2(x) = -x_1 - x_2 - 2 \le 0
+	\end{cases}
+	\]
+	
+	Valutiamo la funzione obiettivo calcolando gradiente e Hessiana:
+	\[
+	\nabla f(x) = \begin{pmatrix} -6x_1 + 4x_2, \quad -6x_2 + 4x_1 \end{pmatrix}
+	\]
+	\[
+	H_f = \begin{pmatrix} -6 & 4 \\ 4 & -6 \end{pmatrix}
+	\]
+	I calcoli ci confermano che l'Hessiana è definita negativa (autovalori negativi), pertanto la funzione obiettivo è \textbf{strettamente concava}. I due vincoli descrivono rispettivamente un cerchio e un semipiano, la cui intersezione genera un dominio chiuso e limitato. Essendo la funzione concava e il dominio limitato, l'esistenza del massimo globale è matematicamente garantita.
+	
+	I gradienti dei vincoli sono:
+	\begin{itemize}
+		\item $\nabla g_1(x) = \begin{pmatrix} 2x_1, \quad 2x_2 \end{pmatrix}$
+		\item $\nabla g_2(x) = \begin{pmatrix} -1, \quad -1 \end{pmatrix}$
+	\end{itemize}
+	
+	Costruiamo il \textbf{Sistema LKKT}:
+	\[
+	\begin{cases}
+		\begin{pmatrix} -6x_1 + 4x_2, \quad -6x_2 + 4x_1 \end{pmatrix} + \bar{\lambda}_1 \begin{pmatrix} 2x_1, \quad 2x_2 \end{pmatrix} + \bar{\lambda}_2 \begin{pmatrix} -1, \quad -1 \end{pmatrix} = \mathbf{0} \\[6pt]
+		\bar{\lambda}_1 (x_1^2 + x_2^2 - 4) = 0 \\
+		\bar{\lambda}_2 (-x_1 - x_2 - 2) = 0
+	\end{cases}
+	\]
+	
+	Il professore ci fornisce i quattro punti candidati $\bar{x}$. Inserendoli nel sistema, calcoliamo i vettori $\bar{\lambda} = (\lambda_1, \lambda_2)$:
+	\begin{enumerate}
+		\item $\mathbf{\bar{x}_1 = (\sqrt{2}, \sqrt{2})}$. L'equazione di scarto per $g_2$ diventa $\lambda_2(-\sqrt{2} - \sqrt{2} - 2) = 0 \implies \lambda_2(-2\sqrt{2} - 2) = 0 \implies \lambda_2 = 0$. Risolvendo il resto del sistema otteniamo $\mathbf{\bar{\lambda}_1 = (1, 0)}$.
+		\item $\mathbf{\bar{x}_2 = (0, 1)} \implies \mathbf{\bar{\lambda}_2 = (5, 8)}$
+		\item $\mathbf{\bar{x}_3 = (2, 0)} \implies \mathbf{\bar{\lambda}_3 = (5, 8)}$
+		\item $\mathbf{\bar{x}_4 = (1, 1)} \implies \mathbf{\bar{\lambda}_4 = (0, -2)}$
+	\end{enumerate}
+	
+	Essendo un problema di \textbf{Massimo}, il Teorema 1 Bis ci impone di cercare moltiplicatori \textbf{negativi o nulli} ($\bar{\lambda} \le 0$). 
+	L'unica soluzione che soddisfa questa condizione è l'ultima: il punto $(1,1)$ con moltiplicatori $(0,-2)$ rappresenta inequivocabilmente il \textbf{Massimo Globale}. Questo si evince anche tracciando la funzione tramite software grafici (es. GeoGebra).
+	
+	\begin{quote}
+		\textit{\textbf{Nota bene per la tabella sottostante:} Il professore in aula non ha compilato formalmente questa tabella. È stata redatta da me personalmente seguendo rigidamente le regole LKKT spiegate nella lezione, ma potrebbe contenere inesattezze dovute alla mancanza di una correzione ufficiale.}
+	\end{quote}
+	
+	\textbf{Tabella Conclusiva (Esercizio 2)}
+	\begin{table}[H]
+		\centering
+		\footnotesize % Carattere ottimizzato per tabelle larghe
+		\setlength{\tabcolsep}{3.5pt} % Riduce lo spazio bianco laterale dentro ogni cella
+		\renewcommand{\arraystretch}{1.5}
+		\begin{tabular}{|c|c|c|c|c|c|c|p{4cm}|}
+			\hline
+			\textbf{$\boldsymbol{\bar{x}}$} & \textbf{$\boldsymbol{\bar{\lambda}}$} & \textbf{Min Loc} & \textbf{Min Glob} & \textbf{Max Loc} & \textbf{Max Glob} & \textbf{Sella} & \textbf{Motivazioni} \\ \hline
+			$(\sqrt{2}, \sqrt{2})$ & $(1, 0)$ & \textbf{?} & No & No & No & \textbf{?} & Moltiplicatore positivo ($\lambda_1 > 0$):\newline viola la condizione necessaria\newline per essere un massimo. \\ \hline
+			$(0, 1)$ & $(5, 8)$ & \textbf{?} & No & No & No & \textbf{?} & Moltiplicatori strettamente\newline positivi in un problema di\newline massimo: impossibile sia max. \\ \hline
+			$(2, 0)$ & $(5, 8)$ & \textbf{?} & No & No & No & \textbf{?} & Moltiplicatori strettamente\newline positivi: impossibile sia max. \\ \hline
+			$(1, 1)$ & $(0, -2)$ & No & No & \textcolor{blue}{\textbf{Sì}} & \textcolor{blue}{\textbf{Sì}} & No & L'unico candidato con\newline moltiplicatori negativi o nulli\newline ($\bar{\lambda} \le 0$). Soddisfa le condizioni\newline per il massimo globale. \\ \hline
+		\end{tabular}
+	\end{table}
+	
+	\vspace{1.5cm}
+	\begin{center}
+		\rule{0.65\textwidth}{1pt} \\
+		\vspace{0.4cm}
+		\textcolor{titlecolor}{\LARGE \textbf{--- Fine Lezione 36 ---}} \\
+		\vspace{0.2cm}
+		\rule{0.65\textwidth}{1pt}
+	\end{center}
+	\newpage
+	
+	\avviso{\textit{\textbf{Questa lezione, come le sue precedenti e successive, può contenere errori e/o imprecisioni. Per il bene di tutti, è buona norma far notare all'autore l'errore o l'imprecisione così da risolvere nel minor tempo possibile. I canali di comunicazione, per eventuali avvisi generali o di errori trovati negli appunti, sono in cima al file. Grazie per la collaborazione e Buono studio!}}}
+	
+	\section*{Lezione 37 | 26 novembre 2026}
 	\subsection*{}
 	
 \end{document}
