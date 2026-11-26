@@ -14793,6 +14793,249 @@
 	\avviso{\textit{\textbf{Questa lezione, come le sue precedenti e successive, può contenere errori e/o imprecisioni. Per il bene di tutti, è buona norma far notare all'autore l'errore o l'imprecisione così da risolvere nel minor tempo possibile. I canali di comunicazione, per eventuali avvisi generali o di errori trovati negli appunti, sono in cima al file. Grazie per la collaborazione e Buono studio!}}}
 	
 	\section*{Lezione 37 | 26 novembre 2026}
+	\subsection*{Cono Critico}
+	
+	\textbf{Vincoli Attivi, Cono Critico e Condizioni di Secondo Ordine}
+	
+	Nello studio delle condizioni di ottimalità, partiamo dall'assunto di avere a disposizione una soluzione del sistema LKKT, che indicheremo con la terna $(x^*, \lambda^*, \mu^*)$.
+	Il primo passo per valutare questa soluzione è identificare l'insieme dei \textbf{vincoli attivi} nel punto $x^*$. Definiamo formalmente questo insieme come $\mathcal{A}(x^*)$:
+	\[
+	\mathcal{A}(x^*) = \{ i \mid g_i(x^*) = 0 \}
+	\]
+	In parole povere, $\mathcal{A}(x^*)$ è l'insieme degli indici $i$ corrispondenti ai vincoli di disuguaglianza che, valutati nel punto $x^*$, sono soddisfatti esattamente all'uguaglianza (ovvero, il punto si trova sul bordo di quei specifici vincoli). I vincoli di uguaglianza $h_j(x^*) = 0$ sono intrinsecamente attivi per definizione.
+	
+	\vspace{0.4cm}
+	\textbf{Il Cono Critico (Delle Direzioni Critiche)}\\
+	A partire dall'insieme dei vincoli attivi e dai moltiplicatori LKKT, definiamo una struttura geometrica fondamentale chiamata \textbf{Cono Critico}, indicato con $\mathcal{C}(x^*, \lambda^*, \mu^*)$. Esso rappresenta l'insieme di tutte le \textit{direzioni di spostamento ammissibili} $d \in \mathbb{R}^n$ lungo le quali il valore della funzione obiettivo potrebbe teoricamente rimanere invariato al prim'ordine, rendendo necessaria un'analisi delle derivate seconde.
+	
+	La definizione matematica del cono critico è data dal seguente sistema di condizioni per un vettore direzione $d$:
+	\[
+	\mathcal{C}(x^*, \lambda^*, \mu^*) = 
+	\begin{cases}
+		d \in \mathbb{R}^n : \\
+		\nabla g_i(x^*) \cdot d \le 0 \quad \text{per } i \in \mathcal{A}(x^*) \text{ con } \lambda^*_i = 0 \\[4pt]
+		\nabla g_i(x^*) \cdot d = 0 \quad \text{per } i \in \mathcal{A}(x^*) \text{ con } \lambda^*_i > 0 \\[4pt]
+		\nabla h_j(x^*) \cdot d = 0 \quad \forall j=1,\dots,p
+	\end{cases}
+	\]
+	
+	\textit{Spiegazione delle condizioni:}
+	\begin{itemize}
+		\item La prima riga impone che, se un vincolo disuguaglianza è attivo ($i \in \mathcal{A}(x^*)$) ma il suo moltiplicatore è nullo ($\lambda^*_i = 0$), lo spostamento $d$ deve quantomeno non violare il vincolo (quindi formare un angolo ottuso o retto con il gradiente del vincolo, puntando "verso l'interno" del dominio).
+		\item La seconda riga impone che, se il vincolo è attivo e il moltiplicatore è strettamente positivo ($\lambda^*_i > 0$), la direzione $d$ deve scorrere \textit{esattamente in tangenza} al bordo del vincolo (prodotto scalare nullo con il gradiente ortogonale).
+		\item La terza riga estende la tangenza a tutti i vincoli di uguaglianza $h_j$, lungo i quali lo spostamento deve essere sempre parallelo alla superficie definita.
+	\end{itemize}
+	
+	\vspace{0.6cm}
+	\separatore
+	\vspace{0.4cm}
+	
+	\textbf{Teorema delle Condizioni del Secondo Ordine sul Cono Critico}\\
+	Una volta identificato il cono critico, valutiamo la concavità/convessità locale del problema analizzando la Matrice Hessiana della funzione Lagrangiana ($H_{xx} \mathcal{L}$) ristretta lungo le sole direzioni appartenenti al cono $\mathcal{C}$.
+	
+	Sia $(x^*, \lambda^*, \mu^*)$ una soluzione LKKT. Valgono le seguenti implicazioni:
+	\begin{enumerate}
+		\item \textbf{Condizione Necessaria:} Se $x^*$ è un \textbf{minimo locale}, allora la matrice $H_{xx} \mathcal{L}(x^*, \lambda^*, \mu^*)$ è \textbf{semidefinita positiva} sul cono critico $\mathcal{C}$. Formalmente: 
+		\[ d^T \left( H_{xx} \mathcal{L} \right) d \ge 0, \quad \forall d \in \mathcal{C} \]
+		\item \textbf{Condizione Sufficiente:} Se la matrice $H_{xx} \mathcal{L}(x^*, \lambda^*, \mu^*)$ è \textbf{definita positiva} (strettamente maggiore di zero) sul cono critico $\mathcal{C}$ per ogni direzione $d \neq 0$, allora $x^*$ è matematicamente garantito essere un \textbf{minimo locale}.
+	\end{enumerate}
+	
+	\vspace{0.6cm}
+	\separatore
+	\vspace{0.4cm}
+	
+	\textbf{Esercizio: Studio completo con sistema LKKT e Cono Critico}
+	
+	Sia dato il seguente problema di ottimizzazione:
+	\[
+	\begin{cases}
+		f(x) = -x_2^2 + 4x_1 \\
+		g_1(x) = x_1^2 - 36 \le 0 \\
+		g_2(x) = x_1 - x_2 + 5 \le 0
+	\end{cases}
+	\]
+	
+	\textbf{Passo 1: Analisi preliminare di Convessità/Concavità}\\
+	Calcoliamo il gradiente e l'Hessiana della funzione obiettivo $f(x)$:
+	\[ \nabla f(x) = \begin{pmatrix} 4, \quad -2x_2 \end{pmatrix} \]
+	\[ H_f(x) = \begin{pmatrix} 0 & 0 \\ 0 & -2 \end{pmatrix} \]
+	L'Hessiana della funzione obiettivo è costante e semidefinita negativa ($H_f \le 0$, con autovalori $0$ e $-2$). Di conseguenza, la funzione obiettivo è \textbf{concava}. 
+	
+	Per valutare il dominio $D$, analizziamo l'Hessiana dei vincoli:
+	\[ \nabla g_1(x) = \begin{pmatrix} 2x_1, \quad 0 \end{pmatrix} \implies H_{g_1}(x) = \begin{pmatrix} 2 & 0 \\ 0 & 0 \end{pmatrix} \]
+	\[ \nabla g_2(x) = \begin{pmatrix} 1, \quad -1 \end{pmatrix} \implies H_{g_2}(x) = \begin{pmatrix} 0 & 0 \\ 0 & 0 \end{pmatrix} \]
+	Entrambi i vincoli hanno Hessiane semidefinite positive ($H \ge 0$), il che li rende funzioni convesse. Essendo i $g_i$ convessi, il dominio $D$ da essi generato è un \textbf{insieme convesso}.
+	Poiché il dominio è convesso, le condizioni LKKT sono applicabili. Inoltre, avendo appurato che la funzione obiettivo $f(x)$ è concava, ricaviamo dal "teorema bis" della lezione precedente che: \textit{qualsiasi soluzione LKKT trovata avente i moltiplicatori $\lambda^* \le 0$ rappresenterà con certezza matematica un Massimo Globale}.
+	
+	\textbf{Passo 2: Il Sistema LKKT}\\
+	Componiamo il sistema inserendo i gradienti nell'equazione Lagrangiana:
+	\[
+	\begin{cases}
+		\begin{pmatrix} 4, \quad -2x_2 \end{pmatrix} + \lambda^*_1 \begin{pmatrix} 2x_1, \quad 0 \end{pmatrix} + \lambda^*_2 \begin{pmatrix} 1, \quad -1 \end{pmatrix} = \mathbf{0} \\
+		\lambda^*_1 (x_1^2 - 36) = 0 \\
+		\lambda^*_2 (x_1 - x_2 + 5) = 0
+	\end{cases}
+	\]
+	Da cui esplodiamo il sistema analitico:
+	\[
+	\begin{cases}
+		4 + 2\lambda^*_1 x_1 + \lambda^*_2 = 0 \\
+		-2x_2 - \lambda^*_2 = 0 \\
+		\lambda^*_1 (x_1^2 - 36) = 0 \\
+		\lambda^*_2 (x_1 - x_2 + 5) = 0
+	\end{cases}
+	\]
+	
+	\textbf{Passo 3: Valutazione dei Candidati}\\
+	Inseriamo i punti candidati forniti dal professore per ricavare i moltiplicatori $\lambda^*_1$ e $\lambda^*_2$. 
+	\textit{(Nota: si ricorda che lo scarto complementare impone $\lambda^*_i = 0$ per i vincoli in cui la disuguaglianza è stretta, agevolando i calcoli in fase di sostituzione).}
+	
+	\begin{enumerate}
+		\item $\mathbf{x^*_1 = (6, 11)}$: 
+		\[
+		\begin{cases}
+			4 + 2\lambda^*_1(6) + \lambda^*_2 = 0 \implies 12\lambda^*_1 + \lambda^*_2 = -4 \\
+			-2(11) - \lambda^*_2 = 0 \implies \mathbf{\lambda^*_2 = -22} \\
+			12\lambda^*_1 - 22 = -4 \implies 12\lambda^*_1 = 18 \implies \mathbf{\lambda^*_1 = \frac{3}{2}}
+		\end{cases}
+		\]
+		I moltiplicatori sono $\mathbf{\lambda^*_1 = \left( \frac{3}{2}, \ -22 \right)}$.
+		
+		\item $\mathbf{x^*_2 = (-6, -1)}$: 
+		\[
+		\begin{cases}
+			4 + 2\lambda^*_1(-6) + \lambda^*_2 = 0 \implies -12\lambda^*_1 + \lambda^*_2 = -4 \\
+			-2(-1) - \lambda^*_2 = 0 \implies \mathbf{\lambda^*_2 = 2} \\
+			-12\lambda^*_1 + 2 = -4 \implies -12\lambda^*_1 = -6 \implies \mathbf{\lambda^*_1 = \frac{1}{2}}
+		\end{cases}
+		\]
+		I moltiplicatori sono $\mathbf{\lambda^*_2 = \left( \frac{1}{2}, \ 2 \right)}$.
+		
+		\item $\mathbf{x^*_3 = (-6, 0)}$:
+		In questo punto, solo il primo vincolo è attivo ($(-6)^2 - 36 = 0$), mentre il secondo non lo è ($-6 - 0 + 5 = -1 \le 0$). Per scarto complementare, $\mathbf{\lambda^*_2 = 0}$.
+		\[
+		4 + 2\lambda^*_1(-6) + 0 = 0 \implies -12\lambda^*_1 = -4 \implies \mathbf{\lambda^*_1 = \frac{1}{3}}
+		\]
+		I moltiplicatori sono $\mathbf{\lambda^*_3 = \left( \frac{1}{3}, \ 0 \right)}$.
+		
+		\item $\mathbf{x^*_4 = (-3, 2)}$:
+		Qui solo il secondo vincolo è attivo ($-3 - 2 + 5 = 0$). Il primo non è attivo ($(-3)^2 - 36 = -27 \le 0$). Per scarto complementare, $\mathbf{\lambda^*_1 = 0}$.
+		\[
+		\begin{cases}
+			4 + 0 + \lambda^*_2 = 0 \implies \mathbf{\lambda^*_2 = -4} \\
+			-2(2) - (-4) = -4 + 4 = 0 \text{ (Verificato)}
+		\end{cases}
+		\]
+		I moltiplicatori sono $\mathbf{\lambda^*_4 = (0, \ -4)}$.
+	\end{enumerate}
+	
+	\begin{figure}[H]
+		\centering
+		\begin{tikzpicture}
+			\begin{axis}[
+				width=8cm, height=8cm,
+				axis lines=middle,
+				xmin=-8, xmax=8, ymin=-2, ymax=12,
+				xlabel={$x_1$}, ylabel={$x_2$},
+				axis on top,
+				samples=100
+				]
+				
+				% Dominio
+				% g1: x1^2 - 36 <= 0 --> -6 <= x1 <= 6
+				% g2: x1 - x2 + 5 <= 0 --> x2 >= x1 + 5
+				
+				\fill[blue!10] (-6, -1) -- (6, 11) -- (6, 12) -- (-6, 12) -- cycle;
+				
+				% Bordi del dominio
+				\draw[thick, blue] (-6, -2) -- (-6, 12); % x1 = -6
+				\draw[thick, blue] (6, -2) -- (6, 12);   % x1 = 6
+				\addplot[thick, red, domain=-7:7] {x + 5}; % x2 = x1 + 5
+				
+				% Punti candidati
+				\filldraw[black] (6,11) circle (2pt) node[right] {$(6,11)$};
+				\filldraw[black] (-6,-1) circle (2pt) node[below left] {$(-6,-1)$};
+				\filldraw[black] (-6,0) circle (2pt) node[left] {$(-6,0)$};
+				\filldraw[black] (-3,2) circle (2pt) node[above left] {$(-3,2)$};
+				
+			\end{axis}
+		\end{tikzpicture}
+		\caption{Dominio ammissibile $D$ (area azzurra) del problema. Il dominio è delimitato a destra e sinistra dalle due rette verticali $x_1 = \pm 6$ (derivanti da $x_1^2 \le 36$), ed è limitato inferiormente dalla retta obliqua $x_2 = x_1 + 5$. L'area ammissibile si sviluppa illimitatamente verso l'alto (verso le $y$ positive), prendendo la parte "superiore" della retta obliqua. I quattro candidati LKKT giacciono tutti lungo le pareti o i vertici di frontiera del dominio.}
+	\end{figure}
+	
+	\textbf{Passo 4: Compilazione della Tabella LKKT}\\
+	Basandoci sui segni dei moltiplicatori e sulla concavità del problema, possiamo stilare la classificazione dei punti. Ricordiamo che per un problema concavo, i moltiplicatori $\lambda^* \le 0$ indicano un massimo globale. Moltiplicatori discordi indicano una sella.
+	
+	\begin{table}[H]
+		\centering
+		\footnotesize
+		\setlength{\tabcolsep}{3pt}
+		\renewcommand{\arraystretch}{1.5}
+		\begin{tabular}{|c|c|c|c|c|c|c|p{4.5cm}|}
+			\hline
+			\textbf{$\boldsymbol{x^*}$} & \textbf{$\boldsymbol{\lambda^*}$} & \textbf{Min Loc} & \textbf{Min Glob} & \textbf{Max Loc} & \textbf{Max Glob} & \textbf{Sella} & \textbf{Motivazioni} \\ \hline
+			$(6, 11)$ & $(\frac{3}{2}, -22)$ & No & No & No & No & \textcolor{orange}{\textbf{Sì}} & Moltiplicatori discordi. Il punto\newline è inevitabilmente una sella. \\ \hline
+			$(-6, -1)$ & $(\frac{2}{2}, 2)$ & \textcolor{green!60!black}{\textbf{Sì}} & No & No & No & No & Moltiplicatori concordi positivi.\newline L'analisi di secondo ordine lo\newline confermerà come minimo locale. \\ \hline
+			$(-6, 0)$ & $(\frac{1}{3}, 0)$ & No & No & No & No & \textcolor{orange}{\textbf{Sì}} & Studio delle restrizioni a latere\newline dimostra che il punto si\newline comporta come sella. \\ \hline
+			$(-3, 2)$ & $(0, -4)$ & No & No & \textcolor{blue}{\textbf{Sì}} & \textcolor{blue}{\textbf{Sì}} & No & Problema concavo: moltiplicatori\newline $\lambda^* \le 0$ confermano per\newline teorema il Massimo Globale. \\ \hline
+		\end{tabular}
+	\end{table}
+	
+	\vspace{0.6cm}
+	\separatore
+	\vspace{0.4cm}
+	
+	\textbf{Analisi di Secondo Ordine del Punto $(-6, -1)$ e Cono Critico}\\
+	Approfondiamo lo studio del punto $x^*_2 = (-6, -1)$ per giustificare rigorosamente la sua classificazione come minimo locale. 
+	Costruiamo la Lagrangiana valutata nel punto con i suoi moltiplicatori generici:
+	\[ \mathcal{L}(x, \lambda^*) = f(x) + \lambda^*_1 g_1(x) + \lambda^*_2 g_2(x) = (-x_2^2 + 4x_1) + \lambda^*_1 (x_1^2 - 36) + \lambda^*_2 (x_1 - x_2 + 5) \]
+	Il gradiente della Lagrangiana rispetto a $x$ è (come già calcolato in LKKT):
+	\[ \nabla_x \mathcal{L} = \begin{pmatrix} 4 + 2\lambda^*_1 x_1 + \lambda^*_2, \quad -2x_2 - \lambda^*_2 \end{pmatrix} \]
+	
+	Deriviamo ulteriormente il gradiente per ottenere la \textbf{Matrice Hessiana della Lagrangiana}:
+	\[ \nabla_{xx}^2 \mathcal{L} = \begin{pmatrix} 2\lambda^*_1 & 0 \\ 0 & -2 \end{pmatrix} \]
+	Sostituiamo i moltiplicatori specifici del punto $x^*_2$ ($\lambda^*_1 = 1/2, \ \lambda^*_2 = 2$):
+	\[ \nabla_{xx}^2 \mathcal{L} \left( x^*_2, \lambda^*_2 \right) = \begin{pmatrix} 2(\frac{1}{2}) & 0 \\ 0 & -2 \end{pmatrix} = \begin{pmatrix} 1 & 0 \\ 0 & -2 \end{pmatrix} \]
+	La matrice presenta autovalori discordi ($1$ e $-2$), risultando indefinita. A un'analisi superficiale e disattenta, questo ci porterebbe a classificare il punto come una sella. Tuttavia, il teorema del secondo ordine ci impone di valutare questa matrice \textbf{esclusivamente sul cono critico}, non su tutto lo spazio $\mathbb{R}^2$!
+	
+	Costruiamo il \textbf{Cono Critico} per il punto $(-6, -1)$. Nel punto, entrambi i vincoli sono attivi ($\mathcal{A} = \{1, 2\}$) ed entrambi i moltiplicatori sono strettamente positivi ($\lambda^*_1 = 1/2 > 0$ e $\lambda^*_2 = 2 > 0$). La definizione del cono critico per moltiplicatori strettamente positivi impone di trovare i vettori $d = \begin{pmatrix} d_1 \\ d_2 \end{pmatrix}$ tali che:
+	\[
+	\begin{cases}
+		\nabla g_1(x^*) \cdot d = 0 \\
+		\nabla g_2(x^*) \cdot d = 0
+	\end{cases}
+	\]
+	Valutiamo i gradienti dei vincoli nel punto $(-6, -1)$:
+	\[ \nabla g_1(-6, -1) = \begin{pmatrix} 2(-6), \quad 0 \end{pmatrix} = \begin{pmatrix} -12, \quad 0 \end{pmatrix} \]
+	\[ \nabla g_2(-6, -1) = \begin{pmatrix} 1, \quad -1 \end{pmatrix} \]
+	
+	Impostiamo il sistema del prodotto scalare (riga per colonna):
+	\[
+	\begin{cases}
+		\begin{pmatrix} -12 & 0 \end{pmatrix} \begin{pmatrix} d_1 \\ d_2 \end{pmatrix} = 0 \implies -12 d_1 + 0 \cdot d_2 = 0 \implies \mathbf{d_1 = 0} \\[6pt]
+		\begin{pmatrix} 1 & -1 \end{pmatrix} \begin{pmatrix} d_1 \\ d_2 \end{pmatrix} = 0 \implies d_1 - d_2 = 0 \implies 0 - d_2 = 0 \implies \mathbf{d_2 = 0}
+	\end{cases}
+	\]
+	Il cono critico è perciò collassato esclusivamente nel vettore nullo: $\mathcal{C} = \{ (0,0) \}$.
+	In questo scenario limite estremo, l'assenza di direzioni $d \neq 0$ ammissibili per l'esplorazione del cono implica che il punto è bloccato geometricamente dai vincoli (è un vertice rigido), impedendo qualsiasi movimento. In questa particolarissima casistica, le condizioni di secondo ordine confermano che si tratta di un \textbf{Minimo Locale}, indipendentemente dalla natura indefinita della matrice Hessiana su tutto $\mathbb{R}^n$.
+	
+	\begin{quote}
+		\textit{\textbf{Nota bene:}} Al termine della lezione, il professore ha assegnato un'ulteriore esercitazione conclusiva. Poiché la risoluzione non è ancora stata completata e i calcoli elaborati dagli studenti non sembrano coincidere, tale esercizio verrà documentato e pubblicato successivamente, non appena sarà disponibile la correzione ufficiale.
+	\end{quote}
+	
+	\vspace{1.5cm}
+	\begin{center}
+		\rule{0.65\textwidth}{1pt} \\
+		\vspace{0.4cm}
+		\textcolor{titlecolor}{\LARGE \textbf{--- Fine Lezione 37 ---}} \\
+		\vspace{0.2cm}
+		\rule{0.65\textwidth}{1pt}
+	\end{center}
+	\newpage
+	
+	\avviso{\textit{\textbf{Questa lezione, come le sue precedenti e successive, può contenere errori e/o imprecisioni. Per il bene di tutti, è buona norma far notare all'autore l'errore o l'imprecisione così da risolvere nel minor tempo possibile. I canali di comunicazione, per eventuali avvisi generali o di errori trovati negli appunti, sono in cima al file. Grazie per la collaborazione e Buono studio!}}}
+	
+	\section*{Lezione 38 | 30 novembre 2026}
 	\subsection*{}
 	
 \end{document}

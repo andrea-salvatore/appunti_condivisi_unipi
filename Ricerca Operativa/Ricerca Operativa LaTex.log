@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.11.17)  25 NOV 2026 19:17
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.11.17)  26 NOV 2026 19:35
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1313,7 +1313,35 @@ Underfull \hbox (badness 1122) in paragraph at lines 14779--14779
 m/n/10 (+20) ). Sod-di-sfa le
  []
 
-[318] [319] [320] (./Ricerca Operativa LaTex.aux)
+[318] [319] [320]
+Underfull \hbox (badness 1803) in paragraph at lines 14840--14841
+[]\T1/cmr/bx/n/12 (+20) Condizione Suf-fi-cien-te: \T1/cmr/m/n/12 (+20) Se la m
+a-tri-ce $\OML/cmm/m/it/12 H[]\OMS/cmsy/m/n/12 L\OT1/cmr/m/n/12 (+20) (\OML/cmm
+/m/it/12 x[]; ^^U[]; ^^V[]\OT1/cmr/m/n/12 (+20) )$ \T1/cmr/m/n/12 (+20) è \T1/c
+mr/bx/n/12 (+20) de-fi-ni-ta po-si-ti-va
+ []
+
+[321] [322]
+Underfull \hbox (badness 1215) in paragraph at lines 14977--14977
+[]|\T1/cmr/m/n/10 (+20) Moltiplicatori di-scor-di. Il
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 14978--14978
+[]|\T1/cmr/m/n/10 (+20) Moltiplicatori con-cor-di
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 14978--14978
+\T1/cmr/m/n/10 (+20) confermerà co-me mi-ni-mo
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 14980--14980
+[]|\T1/cmr/m/n/10 (+20) Problema con-ca-vo:
+ []
+
+[323] [324] [325] [326] (./Ricerca Operativa LaTex.aux)
  ***********
 LaTeX2e <2025-11-01>
 L3 programming layer <2026-03-20>
@@ -1323,57 +1351,58 @@ ed.
 (rerunfilecheck)             Checksum: D41D8CD98F00B204E9800998ECF8427E;0.
  ) 
 Here is how much of TeX's memory you used:
- 42352 strings out of 467363
- 938462 string characters out of 5419000
+ 42379 strings out of 467363
+ 938794 string characters out of 5419000
  1485965 words of memory out of 6000000
- 69439 multiletter control sequences out of 15000+600000
- 692078 words of font info for 474 fonts, out of 8000000 for 9000
+ 69448 multiletter control sequences out of 15000+600000
+ 692250 words of font info for 476 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  84i,17n,94p,1155b,2356s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbsy10.pfb></u
-sr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cmextra/cmbsy8.pfb></us
-r/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb></usr/shar
-e/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></usr/share/texl
-ive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx7.pfb></usr/share/texlive/tex
-mf-dist/fonts/type1/public/amsfonts/cm/cmbx8.pfb></usr/share/texlive/texmf-dist
-/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/share/texlive/texmf-dist/fonts
-/type1/public/amsfonts/cm/cmmi10.pfb></usr/share/texlive/texmf-dist/fonts/type1
-/public/amsfonts/cm/cmmi12.pfb></usr/share/texlive/texmf-dist/fonts/type1/publi
-c/amsfonts/cm/cmmi6.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfo
-nts/cm/cmmi7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/
-cmmi8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmib10
-.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cmextra/cmmib8.
-pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></u
-sr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/shar
-e/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr17.pfb></usr/share/texli
-ve/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb></usr/share/texlive/texmf
--dist/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/share/texlive/texmf-dist/fo
-nts/type1/public/amsfonts/cm/cmr8.pfb></usr/share/texlive/texmf-dist/fonts/type
-1/public/amsfonts/cm/cmsy10.pfb></usr/share/texlive/texmf-dist/fonts/type1/publ
-ic/amsfonts/cm/cmsy6.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsf
-onts/cm/cmsy7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm
-/cmsy8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/symbols/m
-sam10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/symbols/ms
-bm10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/cm-super/sfbi1095.pf
-b></usr/share/texlive/texmf-dist/fonts/type1/public/cm-super/sfbi1200.pfb></usr
-/share/texlive/texmf-dist/fonts/type1/public/cm-super/sfbx1000.pfb></usr/share/
-texlive/texmf-dist/fonts/type1/public/cm-super/sfbx1095.pfb></usr/share/texlive
-/texmf-dist/fonts/type1/public/cm-super/sfbx1200.pfb></usr/share/texlive/texmf-
-dist/fonts/type1/public/cm-super/sfbx1440.pfb></usr/share/texlive/texmf-dist/fo
-nts/type1/public/cm-super/sfbx1728.pfb></usr/share/texlive/texmf-dist/fonts/typ
-e1/public/cm-super/sfbx2074.pfb></usr/share/texlive/texmf-dist/fonts/type1/publ
-ic/cm-super/sfrm0800.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/cm-s
-uper/sfrm1000.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/cm-super/sf
-rm1095.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/cm-super/sfrm1200.
-pfb></usr/share/texlive/texmf-dist/fonts/type1/public/cm-super/sfrm1728.pfb></u
-sr/share/texlive/texmf-dist/fonts/type1/public/cm-super/sfti1000.pfb></usr/shar
-e/texlive/texmf-dist/fonts/type1/public/cm-super/sfti1095.pfb></usr/share/texli
-ve/texmf-dist/fonts/type1/public/cm-super/sfti1200.pfb></usr/share/texlive/texm
-f-dist/fonts/type1/public/cm-super/sftt1200.pfb>
-Output written on "Ricerca Operativa LaTex.pdf" (320 pages, 1910768 bytes).
+sr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cmextra/cmbsy7.pfb></us
+r/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cmextra/cmbsy8.pfb></usr
+/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb></usr/share
+/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></usr/share/texli
+ve/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx7.pfb></usr/share/texlive/texm
+f-dist/fonts/type1/public/amsfonts/cm/cmbx8.pfb></usr/share/texlive/texmf-dist/
+fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/share/texlive/texmf-dist/fonts/
+type1/public/amsfonts/cm/cmmi10.pfb></usr/share/texlive/texmf-dist/fonts/type1/
+public/amsfonts/cm/cmmi12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public
+/amsfonts/cm/cmmi6.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfon
+ts/cm/cmmi7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/c
+mmi8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmib10.
+pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cmextra/cmmib8.p
+fb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></us
+r/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/share
+/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr17.pfb></usr/share/texliv
+e/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb></usr/share/texlive/texmf-
+dist/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/share/texlive/texmf-dist/fon
+ts/type1/public/amsfonts/cm/cmr8.pfb></usr/share/texlive/texmf-dist/fonts/type1
+/public/amsfonts/cm/cmsy10.pfb></usr/share/texlive/texmf-dist/fonts/type1/publi
+c/amsfonts/cm/cmsy6.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfo
+nts/cm/cmsy7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/
+cmsy8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/symbols/ms
+am10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/symbols/msb
+m10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/cm-super/sfbi1095.pfb
+></usr/share/texlive/texmf-dist/fonts/type1/public/cm-super/sfbi1200.pfb></usr/
+share/texlive/texmf-dist/fonts/type1/public/cm-super/sfbx1000.pfb></usr/share/t
+exlive/texmf-dist/fonts/type1/public/cm-super/sfbx1095.pfb></usr/share/texlive/
+texmf-dist/fonts/type1/public/cm-super/sfbx1200.pfb></usr/share/texlive/texmf-d
+ist/fonts/type1/public/cm-super/sfbx1440.pfb></usr/share/texlive/texmf-dist/fon
+ts/type1/public/cm-super/sfbx1728.pfb></usr/share/texlive/texmf-dist/fonts/type
+1/public/cm-super/sfbx2074.pfb></usr/share/texlive/texmf-dist/fonts/type1/publi
+c/cm-super/sfrm0800.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/cm-su
+per/sfrm1000.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/cm-super/sfr
+m1095.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/cm-super/sfrm1200.p
+fb></usr/share/texlive/texmf-dist/fonts/type1/public/cm-super/sfrm1728.pfb></us
+r/share/texlive/texmf-dist/fonts/type1/public/cm-super/sfti1000.pfb></usr/share
+/texlive/texmf-dist/fonts/type1/public/cm-super/sfti1095.pfb></usr/share/texliv
+e/texmf-dist/fonts/type1/public/cm-super/sfti1200.pfb></usr/share/texlive/texmf
+-dist/fonts/type1/public/cm-super/sftt1200.pfb>
+Output written on "Ricerca Operativa LaTex.pdf" (326 pages, 1937692 bytes).
 PDF statistics:
- 2127 PDF objects out of 2487 (max. 8388607)
- 1697 compressed objects within 17 object streams
- 702 named destinations out of 1000 (max. 500000)
+ 2170 PDF objects out of 2487 (max. 8388607)
+ 1731 compressed objects within 18 object streams
+ 716 named destinations out of 1000 (max. 500000)
  101906 words of extra memory for PDF output out of 106986 (max. 10000000)
 
